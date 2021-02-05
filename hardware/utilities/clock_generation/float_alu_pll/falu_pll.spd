@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<simPackage>
+ <file path="falu_pll_sim/falu_pll.vo" type="VERILOG" />
+ <topLevel name="falu_pll" />
+ <deviceFamily name="cyclonev" />
+</simPackage>

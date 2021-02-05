@@ -1,0 +1,6 @@
+
+
+/home/matthew/Documents/Thesis_stuff/hardware/utilities/clock_generation/float_alu_pll/falu_pll.v
+
+Jan 23 11PM:34:34>: Megafunction PLL Intel FPGA IP v18.1 is not listed in any 
+wizard.lst file in the specified library path(s).Wizard launch aborted

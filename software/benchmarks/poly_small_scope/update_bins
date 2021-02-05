@@ -1,0 +1,9 @@
+#!/bin/bash
+
+make scope -C ./atax/
+make scope -C ./doitgen/
+make scope -C ./floyd-warshall/
+make scope -C ./2mm/
+make scope -C ./3mm/
+make scope -C ./mvt/
+make scope -C ./nussinov/

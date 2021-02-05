@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<simPackage>
+ <file path="cyclonegt_ccd_pll_sim/cyclonegt_ccd_pll.vo" type="VERILOG" />
+ <topLevel name="cyclonegt_ccd_pll" />
+ <deviceFamily name="cyclonev" />
+</simPackage>

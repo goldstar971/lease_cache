@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<simPackage>
+ <file path="ITF_signed_sim/ITF_signed.vo" type="VERILOG" />
+ <topLevel name="ITF_signed" />
+ <deviceFamily name="cyclonev" />
+</simPackage>
