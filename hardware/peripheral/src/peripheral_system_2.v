@@ -1,6 +1,6 @@
 `include "../../../include/peripheral.h"
 
-module peripheral_system(
+module peripheral_system_2(
 
 	// internal system
 	input				clock_i, 
@@ -21,6 +21,7 @@ module peripheral_system(
 	// misc comm stuff
 	input 		[31:0]	comm_cache0_i, 
 	input 		[31:0]	comm_cache1_i,
+	output   [1:0]    metric_sel_o,
 	`ifdef DATA_POLICY_DLEASE
 		output 		[31:0] 	phase_o,
 	`endif
@@ -32,7 +33,8 @@ module peripheral_system(
 reg [31:0]	comm_reg0, comm_reg1, comm_reg2;
 reg [7:0]	comm_pro_i_reg;
 reg [23:0]	comm_cs_i_reg;
-
+reg [1:0] metric_sel_reg;
+assign metric_sel_o=metric_sel_reg;
 
 assign comm_o = {comm_pro_i_reg, comm_cs_i_reg};
 `ifdef DATA_POLICY_DLEASE
@@ -41,12 +43,13 @@ assign comm_o = {comm_pro_i_reg, comm_cs_i_reg};
 `endif
 
 always @(posedge clock_i) begin
-	if (reset_i != 1'b1) begin
+	if (!reset_i) begin
 		comm_reg0 		<= 32'h0; 
 		comm_reg1 		<= 32'h0; 
 		comm_reg2 		<= 32'h0;
 		comm_pro_i_reg 	<= 'b0; 
 		comm_cs_i_reg 	<= 'b0;
+		metric_sel_reg<='b0;
 	`ifdef DATA_POLICY_DLEASE
 		core_phase_reg 	<= 'b0;
 	`endif
@@ -76,7 +79,8 @@ always @(posedge clock_i) begin
 		// communication interface writing
 		if (req_cs_i & rw_cs_i) begin
 			case(add_cs_i)
-				`COMM_CONTROL: comm_cs_i_reg <= data_cs_i[23:0];
+				`COMM_CONTROL:  comm_cs_i_reg <= data_cs_i[23:0];
+				`CPC_METRIC_SWITCH:    metric_sel_reg<=data_cs_i[1:0];
 			endcase
 		end
 	end

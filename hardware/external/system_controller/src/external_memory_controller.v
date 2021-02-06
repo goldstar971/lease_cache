@@ -161,7 +161,6 @@ assign req3_o = ((mem_access == `ACCESS_COMM) & (comm_req_type == 1'b0) & (dev0_
 assign clear3_o = ((mem_access == `ACCESS_COMM) & (comm_req_type == 1'b0)) ? clear0_i : clear_int_i;
 assign reqBlock3_o = ((mem_access == `ACCESS_COMM) & (comm_req_type == 1'b0)) ? reqBlock0_i : reqBlock_int_i;
 assign rw3_o = ((mem_access == `ACCESS_COMM) & (comm_req_type == 1'b0)) ? rw0_i : rw_int_i;
-//assign add3_o = ((mem_access == `ACCESS_COMM) & (comm_req_type == 1'b0)) ? add0_i[25:1] : {add_int_i, {1'b0}};
 assign add3_o = ((mem_access == `ACCESS_COMM) & (comm_req_type == 1'b0)) ? add0_i : {{1'b0},add_int_i,{2'b00}};
 assign data3_o = ((mem_access == `ACCESS_COMM) & (comm_req_type == 1'b0)) ? data0_i : data_int_i;
 

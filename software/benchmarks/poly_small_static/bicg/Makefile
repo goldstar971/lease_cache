@@ -2,7 +2,7 @@
 INC_PATH=../../include/
 LD_PATH=../../ld/riscv_bare.ld
 LD_PATH_SCOPE=../../ld/riscv_bare_scope.ld
-RISCV_GCC_PATH=/home/ian/opt/xPacks/@xpack-dev-tools/riscv-none-embed-gcc/8.3.0-1.2.1/.content/bin
+RISCV_GCC_PATH=/home/matthew/opt/xPacks/@xpack-dev-tools/riscv-none-embed-gcc/8.3.0-2.3.1/.content/bin
 
 # set compiler options
 INC=-I $(INC_PATH)
@@ -24,7 +24,7 @@ test:
 	readelf program.elf -l > program_info.txt
 
 # compress into transferable binary
-	python ../../../python/elf_compress/main.py
+	python2 ../../../python/elf_compress/main.py
 
 # clean up
 	rm program.txt
@@ -34,7 +34,7 @@ scope:
 	$(RISCV_GCC_PATH)/riscv-none-embed-gcc $(INC) $(OPTS) $(LD_SCOPE) $(INC_PATH)/*.c *.c -o program.elf -DSMALL_DATASET -DDATA_TYPE_IS_INT -DINTEGER_SUPPORT
 	$(RISCV_GCC_PATH)/riscv-none-embed-objcopy program.elf -O binary program.txt
 	readelf program.elf -l > program_info.txt
-	python ../../../python/elf_compress/main.py
+	python2 ../../../python/elf_compress/main.py
 	rm program.txt
 
 dis:

@@ -1,0 +1,226 @@
+module cache_performance_controller_all #(
+	parameter CACHE_STRUCTURE 	=  	"",
+	parameter CACHE_REPLACEMENT = 	""
+)(	
+	input 	[1:0]		clock_i,
+	input 			resetn_i,
+	`ifdef DATA_POLICY_DLEASE
+		input[31:0] phase_i,
+	`endif    
+	input [31:0]	 pc_ref_i,         
+	input [`BW_CACHE_TAG-1:0] tag_ref_i,			
+	input 			req_i,
+	input 			hit_i, 				// logic high when there is a cache hit
+	input 			miss_i, 			// logic high when there is the initial cache miss
+	input 			writeback_i, 		// logic high when the cache writes a block back to externa memory
+	input 			expired_i,			// logic high when lease cache replaces an expired block
+	input 			expired_multi_i, 	// logic high when multiple cache lines are expired
+	input 			defaulted_i, 		// logic high when lease cache renews using a default lease value
+	input 	[31:0]	comm_i, 			// configuration signal	
+	output 	[31:0] 	comm_o, 	 		// return value of comm_i
+	output 			stall_o,
+
+	input 	[127:0]	expired_flags_0_i,
+	input 	[127:0]	expired_flags_1_i,
+	input 	[127:0]	expired_flags_2_i,
+
+	input  [1:0] select_data_record
+);
+
+reg 	[31:0]	comm_o_reg0,comm_o_reg1,comm_o_reg2;
+
+wire enable_tracker, enable_sampler, tracker_stall_o,sampler_stall_o, buffer_full_flag,table_full_flag;
+
+//wire 	[127:0]	eviction_bit_bus;
+wire 	[127:0]	eviction_bit_0_bus,
+				eviction_bit_1_bus,
+				eviction_bit_2_bus;
+
+
+wire 	[127:0]	trace_bus;
+wire 	[31:0]	count_bus;
+
+
+reg 	[63:0]	counter_walltime_reg,	// when enabled counts "wall time" - actually it counts cycles
+				counter_hit_reg,  		// when enabled counts times hit_i is logic high
+				counter_miss_reg, 		// when enabled counts times miss_i is logic high
+				counter_wb_reg, 		// when enabled counts times writeback_i is logic high
+				counter_expired_reg, 	// counts times expired_i is logic high
+				counter_mexpired_reg, 	// counts times multi_expired_i is logic high
+				counter_defaulted_reg; 	// counts times defaulted_i is logic high
+				
+wire 	[31:0]		rui_interval, rui_refpc, rui_used, rui_count, rui_remaining, rui_target;
+wire 	[63:0]		rui_trace;
+
+
+//choose between cache statistics, sampler, or tracker
+assign comm_o = (select_data_record==2'b00) ? comm_o_reg0 : (select_data_record==2'b01) ? comm_o_reg1 :
+(select_data_record==2'b10) ? comm_o_reg2 : comm_o_reg0;
+
+assign enable_tracker = (select_data_record[1] & !select_data_record[0]);
+assign enable_sampler = (select_data_record[0] & !select_data_record[1]);
+
+assign sampler_stall_o=buffer_full_flag | table_full_flag;
+assign stall_o=(enable_tracker) ? tracker_stall_o : (enable_sampler) ? sampler_stall_o : 1'b0;
+
+always @(posedge clock_i[0]) begin
+	if (!resetn_i) begin
+		comm_o_reg0 				<= 'b0; 				// no configuration given by comm_i so just set return val reg to zero
+		counter_hit_reg 		<= 'b0; 
+		counter_miss_reg 		<= 'b0; 
+		counter_wb_reg 			<= 'b0; 
+		counter_walltime_reg 	<= 'b0;
+		counter_expired_reg 	<= 'b0;
+		counter_mexpired_reg 	<= 'b0;
+		counter_defaulted_reg 	<= 'b0;
+	end
+
+	else begin
+		//these metrics don't interfere with anything, so always record them.
+		if (comm_i[24] == 1'b1) begin
+			if 		(hit_i) 			counter_hit_reg 		<= counter_hit_reg + 1'b1;
+			if 		(miss_i) 			counter_miss_reg 		<= counter_miss_reg + 1'b1;
+			if 		(writeback_i) 		counter_wb_reg 			<= counter_wb_reg + 1'b1;
+			if 		(expired_i) 		counter_expired_reg 	<= counter_expired_reg + 1'b1;
+			if 		(expired_multi_i) 	counter_mexpired_reg 	<= counter_mexpired_reg + 1'b1;
+			if 		(defaulted_i) 		counter_defaulted_reg 	<= counter_defaulted_reg + 1'b1;
+
+			// always increment wall-timer
+			counter_walltime_reg <= counter_walltime_reg + 1'b1;
+		end
+
+		case (comm_i[3:0])
+
+			// primary outputs
+			4'b0000: comm_o_reg1 <= counter_hit_reg[31:0];				// hits
+			4'b0001: comm_o_reg1 <= counter_hit_reg[63:32];
+			4'b0010: comm_o_reg1 <= counter_miss_reg[31:0]; 				// misses
+			4'b0011: comm_o_reg1 <= counter_miss_reg[63:32];
+			4'b0100: comm_o_reg1 <= counter_wb_reg[31:0]; 				// writebacks
+			4'b0101: comm_o_reg1 <= counter_wb_reg[63:32];
+
+			4'b0111: comm_o_reg1 <= rui_interval;
+			4'b0110: comm_o_reg1 <= rui_refpc;
+			4'b1000: comm_o_reg1 <= rui_used;
+			4'b1001: comm_o_reg1 <= rui_count;
+			4'b1010: comm_o_reg1 <= rui_remaining;
+			4'b1011: comm_o_reg1 <= rui_trace[31:0];
+			4'b1100: comm_o_reg1 <= rui_trace[63:32];
+			4'b1101: comm_o_reg1 <= rui_target;
+
+			4'b1110: comm_o_reg1 <= 'b0; 								// cache system id
+			4'b1111: comm_o_reg1 <= buffer_full_flag;
+
+			default comm_o_reg1 <= 'b0;
+		endcase
+
+		case(comm_i[4:0])
+
+			5'b00000: 	comm_o_reg2 <= eviction_bit_0_bus[31:0];
+			5'b00001:	comm_o_reg2 <= eviction_bit_0_bus[63:32];
+			5'b00010:	comm_o_reg2 <= eviction_bit_0_bus[95:64];
+			5'b00011:	comm_o_reg2 <= eviction_bit_0_bus[127:96];
+
+			5'b00100: 	comm_o_reg2 <= eviction_bit_1_bus[31:0];
+			5'b00101:	comm_o_reg2 <= eviction_bit_1_bus[63:32];
+			5'b00110:	comm_o_reg2 <= eviction_bit_1_bus[95:64];
+			5'b00111:	comm_o_reg2 <= eviction_bit_1_bus[127:96];
+
+			5'b01000: 	comm_o_reg2 <= eviction_bit_2_bus[31:0];
+			5'b01001:	comm_o_reg2 <= eviction_bit_2_bus[63:32];
+			5'b01010:	comm_o_reg2 <= eviction_bit_2_bus[95:64];
+			5'b01011:	comm_o_reg2 <= eviction_bit_2_bus[127:96];
+
+			5'b01100: 	comm_o_reg2 <= trace_bus[31:0];
+			5'b01101:	comm_o_reg2 <= trace_bus[63:32];
+			5'b01110:	comm_o_reg2 <= trace_bus[95:64];
+			5'b01111:	comm_o_reg2 <= trace_bus[127:96];
+
+			5'b10000: 	comm_o_reg2 <= count_bus;
+			5'b10001: 	comm_o_reg2 <= {{31'b0},tracker_stall_o};
+			5'b10010: 	comm_o_reg2 <= counter_hit_reg[31:0];
+			5'b10011: 	comm_o_reg2 <= counter_hit_reg[63:32];
+
+			default: 	comm_o_reg2 <= 'b0;
+		endcase
+
+		case (comm_i[3:0])
+
+			// primary outputs
+			4'b0000: comm_o_reg0 <= counter_hit_reg[31:0];				// hits
+			4'b0001: comm_o_reg0 <= counter_hit_reg[63:32];
+			4'b0010: comm_o_reg0 <= counter_miss_reg[31:0]; 				// misses
+			4'b0011: comm_o_reg0 <= counter_miss_reg[63:32];
+			4'b0100: comm_o_reg0 <= counter_wb_reg[31:0]; 				// writebacks
+			4'b0101: comm_o_reg0 <= counter_wb_reg[63:32];
+			4'b0110: comm_o_reg0 <= counter_walltime_reg[31:0]; 			// duration (cycles)
+			4'b0111: comm_o_reg0 <= counter_walltime_reg[63:32];
+			4'b1000: comm_o_reg0 <= counter_expired_reg[31:0]; 			// expired lease replacements
+			4'b1001: comm_o_reg0 <= counter_expired_reg[63:32];
+			4'b1010: comm_o_reg0 <= counter_defaulted_reg[31:0]; 		// defaulted lease renewals
+			4'b1011: comm_o_reg0 <= counter_defaulted_reg[63:32];
+			4'b1100: comm_o_reg0 <= counter_mexpired_reg[31:0]; 			// multiple leases expired at eviction
+			4'b1101: comm_o_reg0 <= counter_mexpired_reg[63:32];
+
+			// cache identification
+			4'b1111: comm_o_reg0 <= CACHE_STRUCTURE | CACHE_REPLACEMENT;
+
+			default comm_o_reg0 <= 'b0;
+		endcase
+	end
+end
+//tracker
+cache_line_tracker_3 #(
+	.FS 				(256 					),
+	.N_LINES 	 		(128 					)
+) tracker_inst (
+	.clock_i  			(!clock_i[1]				), 		// phase = 90 deg		
+	.clock_memory_i 	(clock_i[0]			), 	 	// phase = 180 deg
+	.resetn_i 			(resetn_i 				),
+	.config_i 			(comm_i 				), 		
+	.request_i 			(req_i 				),
+	.en_i               (enable_tracker),
+	.expired_bits_0_i 	(expired_flags_0_i 		),
+	.expired_bits_1_i 	(expired_flags_1_i 		),
+	.expired_bits_2_i 	(expired_flags_2_i 		),
+
+	.stall_o 			(tracker_stall_o 		),
+	.count_o 			(count_bus 				),	 			
+	.trace_o 			(trace_bus 				),
+	.expired_bits_0_o 	(eviction_bit_0_bus 	),
+	.expired_bits_1_o 	(eviction_bit_1_bus 	),
+	.expired_bits_2_o 	(eviction_bit_2_bus 	)
+
+);
+
+//sampler
+
+	lease_sampler_all inst0(
+		.clock_bus_i 		(clock_i 		), 
+		.resetn_i 			(resetn_i 			), 
+		.comm_i 			(comm_i 			),
+		.en_i     			(enable_sampler),
+	`ifdef DATA_POLICY_DLEASE
+		.phase_i 			(phase_i 			),
+	`endif
+		.req_i 				(req_i 		), 
+		.pc_ref_i 			(pc_ref_i 				), 
+		.tag_ref_i 			(tag_ref_i			),
+		.ref_address_o 		(rui_refpc 		), 
+		.ref_target_o 		(rui_target 		),
+		.ref_interval_o 	(rui_interval 			), 
+		.ref_trace_o 		(rui_trace 			), 
+		.used_o 			(rui_used 			), 
+		.count_o 			(rui_count 			), 
+		.remaining_o 		(rui_remaining 		),
+		.full_flag_o 		(buffer_full_flag 	), 
+		.stall_o 			(table_full_flag 		)
+	);
+
+endmodule
+
+
+
+
+
+

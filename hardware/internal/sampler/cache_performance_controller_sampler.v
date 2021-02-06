@@ -92,7 +92,6 @@ end
 		.req_i 				(req_i 		), 
 		.pc_ref_i 			(pc_ref_i 				), 
 		.tag_ref_i 			(tag_ref_i			),
-		.addr_ref_i 		(addr_ref_i 		),
 		.ref_address_o 		(rui_refpc 		), 
 		.ref_target_o 		(rui_target 		),
 		.ref_interval_o 	(rui_interval 			), 

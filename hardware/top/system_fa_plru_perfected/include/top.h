@@ -1,25 +1,21 @@
 `ifndef _TOP_H_
 `define _TOP_H_
 
+
 // general directories
 // -------------------------------------------------------------------------------------------------
 `include "../../../include/cache.h"
 `include "../../../include/utilities.h"
-`include "../../../external/uart_jtag/include/uart_jtag.h"
+`include "../../../include/logic_components.h"
+`include "../../../utilities/embedded_memory/memory_embedded.v"
 
-// synth. configuration parameters
-// -------------------------------------------------------------------------------------------------
 
-// not used but should be implemented in future
-// ----------------------------------------------------
-//`define SIMULATION_SYNTHESIS_ONLY
+
 
 
 // core
 // ----------------------------------------------------
 `define RISCV_PIPELINE
-
-
 
 
 // cache 
@@ -42,26 +38,32 @@
 //`define DATA_POLICY_RANDOM
 //`define DATA_POLICY_FIFO
 //`define DATA_POLICY_LRU
-//`define DATA_POLICY_PLRU
+`define DATA_POLICY_PLRU
 //`define DATA_POLICY_SRRIP
+//`define DATA_POLICY_DLEASE
 //`define DATA_POLICY_LEASE
-`define DATA_POLICY_DLEASE
+
 
 //`define LEASE_PRIORITY 							// gives eviction priority to defaulted leases
 
 `define INST_CACHE_BLOCK_CAPACITY 		128
 `define DATA_CACHE_BLOCK_CAPACITY 		128
 
-
-//add floating point instructions
 `define FLOAT_INSTRUCTIONS 
-`define TRACKER
+
 
 // derived configurations (no touchy)
 // -------------------------------------------------------------------------------------------------
 
+
+
+
+
+
 // core 
 // ----------------------------------------------------
+
+
 `ifdef RISCV_PIPELINE
 	`define RISCV_HART_INST riscv_hart_top 			// module name
 	`include "../../../include/riscv_v2_2.h" 			// path to module dependencies
@@ -69,12 +71,6 @@
 	`define RISCV_HART_INST riscv_core_split 		// module name
 	`include "../../../include/riscv.h" 			// path to module dependencies
 `endif
-
-
-
-
-
-
 
 
 // cache
@@ -115,29 +111,22 @@
 `endif
 
 
-// data cache structure
 `ifdef DATA_CACHE_FA
 	`define DATA_CACHE_STRUCTURE 		`ID_CACHE_FULLY_ASSOCIATIVE
 
 	// check lease cache
 	`ifdef 	DATA_POLICY_LEASE
-		`ifdef TRACKER
-			`define DATA_CACHE_INST 				lease_cache_fa_tracker_2
-			`define LEASE_POLICY_CONTROLLER_INST 	fa_cache_lease_policy_controller_tracker_2
-		`else 
-			`define DATA_CACHE_INST 				lease_cache_fa_sampler
-			`define LEASE_POLICY_CONTROLLER_INST 	fa_cache_lease_policy_controller
-		`endif
+		`define DATA_CACHE_INST 				cache_fa_all
+		`define LEASE_POLICY_CONTROLLER_INST 	fa_cache_lease_policy_controller_tracker_2
+		`define DATA_CACHE_CONTROLLER           lease_cache_fa_controller_tracker_2
 	`elsif 	DATA_POLICY_DLEASE
-		`ifdef TRACKER
-			`define DATA_CACHE_INST 				lease_dynamic_cache_fa_tracker
-			`define LEASE_POLICY_CONTROLLER_INST 	fa_cache_lease_policy_controller_tracker_2
-		`else 
-			`define DATA_CACHE_INST 				lease_dynamic_cache_fa_sampler
-			`define LEASE_POLICY_CONTROLLER_INST 	fa_cache_lease_policy_controller
-		`endif
-	`else
-		`define DATA_CACHE_INST 		cache_fa
+		`define DATA_CACHE_INST 				cache_fa_all
+		`define LEASE_POLICY_CONTROLLER_INST 	fa_cache_lease_policy_controller_tracker_2
+		`define DATA_CACHE_CONTROLLER           lease_dynamic_cache_fa_controller_tracker
+	`else 
+		`define DATA_CACHE_CONTROLLER           cache_fa_controller
+		`define DATA_CACHE_INST 				cache_fa_all
+		`define LEASE_POLICY_CONTROLLER_INST 	fa_cache_policy_controller
 	`endif
 
 `elsif DATA_CACHE_2WAY
@@ -201,8 +190,6 @@
 	`define DATA_CACHE_INIT 			1'b0
 `endif
 
-
-
 // SRRIP cache policy specific parameters
 // -------------------------------------------------------------------------------------------------
 `define SRRIP_BW 						3
@@ -220,11 +207,14 @@
 `define LEASE_VALUE_BW 					24
 `define LEASE_REF_ADDR_BW 				16
 
-`ifndef TRACKER
+	
 	`include "../../../include/sampler.h"
-`else
 	`include "../../../include/tracker.h"
-`endif
+	`include "../../../include/cpc_all.h"
+
+
+
+
 
 
 `endif // _TOP_H_

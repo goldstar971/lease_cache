@@ -44,7 +44,6 @@ cyclonegt_ccd_pll pll_reset(
 	.locked 		(pll_locked 		)
 );
 
-
 assign user_led[7] = !pll_locked;
 assign user_led[6:4] = 3'b111;
 
@@ -64,19 +63,23 @@ wire 	[31:0]	data_toCore, data_fromCore;
 wire 			req_core2per, rw_core2per;
 wire 	[31:0]	add_core2per;
 wire 	[31:0]	data_core2per, data_per2core;  	
-//wire 	[11:0]	processor_exception;
-wire 	[31:0] 	phase_bus;
+`ifdef DATA_POLICY_DLEASE
+	wire 	[31:0] 	phase_bus;
+`endif
 
-internal_system riscv_sys (
+internal_system_2 riscv_sys (
 
 	// general ports
 	.clock_bus_i 	({clock_gen_bus[5:3],clock_gen_bus[0]}	), // [20-270, 20-180, 20-90, 20]
 	.reset_i 		(reset_bus[0] 		),
+	`ifdef DATA_POLICY_DLEASE
+		.phase_i (phase_bus),
+	`endif
 	.exception_o 	(), 
 	.comm_i 		(comm_toCore 		), 
-	.phase_i 		(phase_bus 			),
 	.comm_cache0_o 	(comm_fromCache0 	), 
 	.comm_cache1_o 	(comm_fromCache1 	),
+	.cpc_metric_switch_i   (sel_cpc     ),
 
 	// external system
 	.mem_req_o 		(req_fromCore 		), 
@@ -107,6 +110,7 @@ internal_system riscv_sys (
 wire 			req_toPer1, rw_toPer1;
 wire 	[26:0]	add_toPer1;
 wire 	[31:0]	data_toPer1, data_fromPer1;
+wire [1:0] sel_cpc;
 
 external_memory_system_2 system_ext_inst(
 
@@ -146,17 +150,6 @@ external_memory_system_2 system_ext_inst(
 	.int_done_o 	(done_toCore 		),
 	.int_valid_o 	(valid_toCore 		),
 	.int_data_o 	(data_toCore 		),
-	/*.int_req_i 		(1'b0 		 		),
-	.int_reqBlock_i (1'b0 				),
-	.int_rw_i 		(1'b0 		 		),
-	.int_add_i 		('b0 		 		),
-	.int_data_i 	('b0 		 		),
-	.int_clear_i 	(1'b0 				),
-	.int_ready_o 	(			 		),
-	.int_done_o 	(			 		),
-	.int_valid_o 	(			 		),
-	.int_data_o 	(			 		),*/
-
 
 	// peripheral system ports
 	.per_req_o 		(req_toPer1			),
@@ -168,23 +161,19 @@ external_memory_system_2 system_ext_inst(
 
 // peripheral i/o's system
 // -------------------------------------------------------------------------------------------------------
-peripheral_system per_sys_inst(
+peripheral_system_2 per_sys_inst(
 
 	// system ports
 	.clock_i 		(clock_gen_bus[4]	), 	// 20 Mhz, 180 deg phase
 	.reset_i 		(reset_bus[1] 		), 
 
+	
 	// internal system
 	.req_core_i 	(req_core2per		), 
 	.rw_core_i 		(rw_core2per		), 
 	.add_core_i 	(add_core2per		), 	// [26:0]
 	.data_core_i 	(data_core2per		),
 	.data_core_o 	(data_per2core 		),
-	/*.req_core_i 	(1'b0 				), 
-	.rw_core_i 		(1'b0 				), 
-	.add_core_i 	('b0 				), 	// [26:0]
-	.data_core_i 	('b0 				),
-	.data_core_o 	(			 		),*/
 
 	// external system
 	.req_cs_i 		(req_toPer1 		), 
@@ -194,11 +183,14 @@ peripheral_system per_sys_inst(
 	.data_cs_o 		(data_fromPer1 		),
 
 	// periphery ports - used for communication/control of cache
+	`ifdef DATA_POLICY_DLEASE
+		.phase_o(phase_bus),
+	`endif
 	.comm_cache0_i 	(comm_fromCache0	), 
 	.comm_cache1_i 	(comm_fromCache1	),
-	.comm_o 		(comm_toCore		),
-	.phase_o 		(phase_bus 			) 
+	.metric_sel_o       (sel_cpc),
+
+	.comm_o 		(comm_toCore		) 
+
 );
-
-
 endmodule

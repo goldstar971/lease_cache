@@ -1,4 +1,4 @@
-module linear_shift_register_9b #(
+
 	parameter SEED = 9'b000000001
 )(
 	input 			clock_i, 
