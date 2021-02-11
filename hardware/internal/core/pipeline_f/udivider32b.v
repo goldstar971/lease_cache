@@ -36,8 +36,8 @@
 // synopsys translate_off
 `timescale 1 ps / 1 ps
 // synopsys translate_on
-module udivider32b #(
-	parameter DIV_STAGES = 1
+
+	module udivider32b #(parameter DIV_STAGES = 1
 )(
 	clock,
 	denom,

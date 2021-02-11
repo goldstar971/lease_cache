@@ -107,6 +107,7 @@ reg 	[`BW_SAMPLER-1:0]		add_stack[0:`N_SAMPLER-1]; 	// open address stack for ca
 reg 	[`N_SAMPLER-1:0]		valid_bits;
 wire 	[`N_SAMPLER-1:0] 		match_bits;
 wire 							hit_flag, full_flag, actual_match;
+//reg	[`BW_SAMPLER-1:0] 		match_index;
 wire 	[`BW_SAMPLER-1:0] 		match_index;
 reg 	[`BW_SAMPLER-1:0] 		add_stack_ptr;
 
@@ -117,12 +118,20 @@ generate
 	end
 endgenerate
 
-tag_match_encoder tag_match(match_bits,match_index);
+tag_match_encoder tag_match((match_bits&valid_bits),match_index);
 
 
 //match_index==0 both when no bit in match_bits is set i.e., no match and when the match is the bottom entry i.e., match_bits[0]=1
 	assign actual_match=|({match_index,match_bits[0]});
 assign hit_flag = (actual_match)? valid_bits[match_index] : 1'b0;
+/* always @(*) begin
+	match_index = 'b0;
+	for (i = 0; i < `N_SAMPLER; i = i + 1'b1) begin
+		if (match_bits[i] & valid_bits[i]) match_index = i[`BW_SAMPLER-1:0];
+	end
+end
+
+assign hit_flag = |(match_bits & valid_bits); */
 
 
 // full flag dependent on table entries
@@ -161,9 +170,9 @@ assign remaining_o 	= n_remaining_reg;
 assign full_flag_o = (add_sampler_reg == `N_BUFFER_SAMPLER) ? 1'b1 : 1'b0; 		// when this goes high, stalls the cache which in turn stalls the core
 																				// so that the host can pull the buffer data
 
-wire [31:0] pc_bus;
-assign pc_bus = pc_ref_i - 4;
 
+wire [31:0] pc_bus;
+assign pc_bus=pc_ref_i;
 always @(posedge clock_bus_i[0]) begin
 	// reset state
 	if (!resetn_i) begin
@@ -294,6 +303,7 @@ always @(posedge clock_bus_i[0]) begin
 
 								// fifo replacement check - full scale is 9b - 256 avg
 								// --------------------------------------------------------
+							
 								if (fs_counter_reg[8:0] == lfsr_output[8:0]) begin
 
 									// generate new random number

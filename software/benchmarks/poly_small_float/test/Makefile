@@ -10,7 +10,7 @@ LD=-T $(LD_PATH)
 LD_SCOPE=-T $(LD_PATH_SCOPE)
 OPTS=--specs=nosys.specs -march=rv32imf -mabi=ilp32f -mno-div
 
-test:
+no_scope:
 #riscv-none-embed-gcc $(INC) $(OPTS) $(LD) $(INC_PATH)/*.c *.c -o program.elf -DSMALL_DATASET -DDATA_TYPE_IS_FLOAT -DINTEGER_SUPPORT -lm
 	$(RISCV_GCC_PATH)/riscv-none-embed-gcc $(INC) $(OPTS) $(LD) $(INC_PATH)/*.c *.c -o program.elf -DSMALL_DATASET -DDATA_TYPE_IS_FLOAT -DINTEGER_SUPPORT -lm
 

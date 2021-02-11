@@ -8,7 +8,7 @@
 
 `define CACHE_WORDS_PER_BLOCK 				16					// 16 words/block
 `define BW_BLOCK 							4
-
+`define	N_CACHE_BLOCKS 	 	2**7
 
 // cache software information
 // ---------------------------------------------------------------------

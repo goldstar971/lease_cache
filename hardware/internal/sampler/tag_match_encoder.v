@@ -1,6 +1,5 @@
 
 
-
 module tag_match_encoder(
 input [`N_SAMPLER-1:0] match_bits,
 output [`BW_SAMPLER-1:0] match_index
