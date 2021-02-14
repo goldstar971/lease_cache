@@ -16,7 +16,7 @@ benchmark_names = ["atax","doitgen","floyd-warshall","2mm","3mm","mvt","nussinov
 
 algor2="CARL\_scope";
 algor1="CARL";
-for i=4
+for i=7
     
     file_path_carl=strcat(data_folder1,"/",benchmark_names(i),"_small_rand.txt");
 	file_path_carl_scope=strcat(data_folder2,"/",benchmark_names(i),"_scope_lease_results.txt");

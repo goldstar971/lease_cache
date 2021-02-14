@@ -22,6 +22,23 @@
 #define TRACKER_BUFFER_PACKET_CAPACITY 	0xFA 	// max transfer size is 16kB
 												// ex, if line size is 512bit = 64B, then can transfer 100 max
 
+#define COMM_CONTROL 0x04000110
+#define METRIC_SEL   0x04000088
+
+
+
+#define SAMPLING_SEL "WRITE 0x04000088, 0x00000001"
+#define TRACKING_SEL "WRITE 0x04000088, 0x00000002"
+#define SET_PERIPHS "CONFIG 0x1 0x2"
+#define SET_CPU "CONFIG 0x1 0x3"
+#define RESET "CONFIG 0x1 0x0"
+#define CHECK_IF_TRACKER_FULL "WRITE 0x04000110 0x00000011"
+#define CHECK_IF_SAMPLER_FULL "WRITE 0x04000110 0x0000000F"
+#define CLEAR_BUFFER "WRITE 0x04000110 0x00800000"
+#define GET_NUM_BUFFER_ENTRIES "WRITE 0x04000110 0x00000008"
+#define SEL_PERIPHS           "CONFIG 0x2 0x1"
+
+
 
 uint32_t sampler_run(pHandle, command *);
 // description: 		- blocking
@@ -36,7 +53,7 @@ uint32_t tracker_run(pHandle, command *);
 // return: 				0: success, 1: fail
 // pHandle: 			proxy handle
 // command: 			command to execute
-void get_file_name(command *, char *);
+void get_file_name(command *, char *, char*);
 uint32_t sampler_read_buffer(pHandle, uint32_t n_entries,FILE *);
 uint32_t protocol_sampler_buffer_read(pHandle pInst, uint32_t buffer_start_address, uint32_t buffer_packet_size, FILE *);
 

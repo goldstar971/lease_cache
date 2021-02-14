@@ -3,9 +3,12 @@
 #include <inttypes.h> 
 #include <unistd.h> 			// sleep
 #include <string.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <errno.h>
 
 
-void get_file_name(command *pcommand,char * file_name ){
+void get_file_name(command *pcommand,char * file_name, char* dir ){
 	char unsplit[200];
 	char parts[5][50];
 	int counter=0;
@@ -17,7 +20,10 @@ void get_file_name(command *pcommand,char * file_name ){
 	     ptr = strtok(NULL,"/");
 	   counter=counter+1;
 	}
-	sprintf(file_name,"%s_%s.txt",parts[counter-3],parts[counter-2]);
+	
+	sprintf(file_name,"%s.txt",parts[counter-2]);
+
+	sprintf(dir,"%s",parts[counter-3]);
 }
 
 uint32_t sampler_read_buffer(pHandle pInst, uint32_t n_entries, FILE* file_handle){
@@ -164,14 +170,16 @@ uint32_t sampler_run(pHandle pInst, command *pCommand){
 	// temporaries
 	time_t time0, time1;
 	char command_str[200];
-	char file_name[200]; //avoid very long names
+	char file_path[200]; 
+	char file_name[50];
+	char benchmark_type[50];
 	char full_output_path[250]; 
 	// put system in reset
 	sprintf(command_str, "CONFIG 0x2 0x0");
 	if(proxy_string_command(pInst, command_str)){
 		return 1;
 	}
-	sprintf(command_str, "CONFIG 0x1 0x0");
+	sprintf(command_str, RESET);
 	if(proxy_string_command(pInst, command_str)){
 		return 1;
 	}
@@ -184,34 +192,49 @@ uint32_t sampler_run(pHandle pInst, command *pCommand){
 
 
 	//get file name
-	get_file_name(pCommand,file_name);
+	get_file_name(pCommand,file_name,benchmark_type);
 	//combine into full path
-	sprintf(full_output_path,"%s%s",SAMPLER_OUTPUT_PATH,file_name);
+	sprintf(file_path,"%s%s/",SAMPLER_OUTPUT_PATH,benchmark_type);
+	sprintf(full_output_path,"%s%s",file_path,file_name);
+	//if directory doesn't exist, try to create it.
+	if(0!= access(file_path,F_OK)){
+		//make folder if error is that dir doesn't exist
+		if (ENOENT==errno){
+			mkdir(file_path,0777);
+		}
+		else{
+			printf("Can't access directory for reasons other than non-existence.\n");
+			return 1;
+		}
+	}
+
+
 	//open file to log data
 	FILE *file_handle =fopen(full_output_path,"w");
 	if (file_handle == NULL){
     	return 1;
     }
 
-
-	
-	
-   
- //pull system out of reset 
-	sprintf(command_str, "CONFIG 0x1 0x3");
+ //pull peripherals out of reset
+	sprintf(command_str, SET_PERIPHS);
 	if(proxy_string_command(pInst, command_str)){
 		return 1;
 	}
 
 	// begin wall-clock timer
-	sprintf(command_str, "CONFIG 0x2 0x1");
+	sprintf(command_str, SEL_PERIPHS);
 	if(proxy_string_command(pInst, command_str)){
 		return 1;
 	}
 
 		    //select sampling as metric
-	 sprintf(command_str, "WRITE 0x04000088, 0x00000001");
+	 sprintf(command_str, SAMPLING_SEL);
     if(proxy_string_command(pInst, command_str)){
+		return 1;
+	}
+	//pull processor out of reset
+	sprintf(command_str, SET_CPU);
+	if(proxy_string_command(pInst, command_str)){
 		return 1;
 	}
 
@@ -228,7 +251,7 @@ uint32_t sampler_run(pHandle pInst, command *pCommand){
 	while(*(uint32_t *)rx_buffer != 0x00000001){
 
 		// check if the sampler buffer is full
-		sprintf(command_str, "WRITE 0x04000110 0x0000000F"); 		// switch to full flag register
+		sprintf(command_str, CHECK_IF_SAMPLER_FULL); 		// switch to full flag register
 		if(proxy_string_command(pInst, command_str)){
 				return 1;
 			}
@@ -242,7 +265,7 @@ uint32_t sampler_run(pHandle pInst, command *pCommand){
 			sampler_read_buffer(pInst, SAMPLER_BUFFER_CAPACITY,file_handle);
 
 			// clear the buffer full flag
-			sprintf(command_str, "WRITE 0x04000110 0x00800000"); 	// writing this bit clears the buffer and full flag
+			sprintf(command_str, CLEAR_BUFFER); 	// writing this bit clears the buffer and full flag
 			if(proxy_string_command(pInst, command_str)){
 					return 1;
 				}
@@ -255,7 +278,7 @@ uint32_t sampler_run(pHandle pInst, command *pCommand){
 	}
 
 	// read out the remaining entries of the sampler buffer
-	sprintf(command_str, "WRITE 0x04000110 0x00000008"); 		// switch to number of buffer entries register
+	sprintf(command_str, GET_NUM_BUFFER_ENTRIES); 		// switch to number of buffer entries register
 	if(proxy_string_command(pInst, command_str)){
 			return 1;
 		}
@@ -264,12 +287,12 @@ uint32_t sampler_run(pHandle pInst, command *pCommand){
 
 	// read out the remaining entries of the sampler lookup table
 	// it takes 64 cycles to dump the table; takes longer in software here to transition so no external delay necessary - allegedly (Ian)
-	sprintf(command_str, "WRITE 0x04000110 0x00800000"); 	// writing this bit clears the buffer and full flag
+	sprintf(command_str, CLEAR_BUFFER); 	// writing this bit clears the buffer and full flag
 	proxy_string_command(pInst, command_str);
 	sprintf(command_str, "WRITE 0x04000110 0x00400000");	// command sampler to writeout table contents to buffer
 	proxy_string_command(pInst, command_str);
 	sleep(1); 												// make sure table has time to writeout entries to buffer
-	sprintf(command_str, "WRITE 0x04000110 0x00000008"); 	// switch to number of buffer(table) entries register
+	sprintf(command_str, GET_NUM_BUFFER_ENTRIES); 	// switch to number of buffer(table) entries register
 	if(proxy_string_command(pInst, command_str)){
 			return 1;
 		}
@@ -294,7 +317,9 @@ uint32_t tracker_run(pHandle pInst, command *pCommand){
 	// temporaries
 	time_t time0, time1;
 	char command_str[200];
-	char file_name[200]; //avoid very long names
+	char file_path[200]; 
+	char file_name[50];
+	char benchmark_type[50];
 	char full_output_path[250]; 
 
 	// put system in reset
@@ -302,7 +327,7 @@ uint32_t tracker_run(pHandle pInst, command *pCommand){
 	if(proxy_string_command(pInst, command_str)){
 			return 1;
 		}
-	sprintf(command_str, "CONFIG 0x1 0x0");
+	sprintf(command_str, RESET);
 	if(proxy_string_command(pInst, command_str)){
 			return 1;
 		}
@@ -311,36 +336,55 @@ uint32_t tracker_run(pHandle pInst, command *pCommand){
 	sprintf(command_str, "LOAD %s\r",pCommand->field[1]);
 	proxy_string_command(pInst, command_str);
 
-	//get file name
-	get_file_name(pCommand,file_name);
+//get file name
+	get_file_name(pCommand,file_name,benchmark_type);
 	//combine into full path
-	sprintf(full_output_path,"%s%s",TRACKER_OUTPUT_PATH,file_name);
+	sprintf(file_path,"%s%s/",SAMPLER_OUTPUT_PATH,benchmark_type);
+	sprintf(full_output_path,"%s%s",file_path,file_name);
+	//if directory doesn't exist, try to create it.
+	if(0!= access(file_path,F_OK)){
+		//make folder if error is that dir doesn't exist
+		if (ENOENT==errno){
+			mkdir(file_path,0777);
+		}
+		else{
+			printf("Can't access directory for reasons other than non-existence.\n");
+			return 1;
+		}
+	}
+
 
 	//open file to log data
 	FILE *file_handle =fopen(full_output_path,"w");
 	if (file_handle == NULL){
-    	return(1);
+    	return 1;
     }
 
  
 
- //pull system out of reset 
-	sprintf(command_str, "CONFIG 0x1 0x3");
+  //pull peripherals out of reset
+	sprintf(command_str, SET_PERIPHS);
 	if(proxy_string_command(pInst, command_str)){
 		return 1;
 	}
+
 	// begin wall-clock timer
-	sprintf(command_str, "CONFIG 0x2 0x1");
+	sprintf(command_str, SEL_PERIPHS);
 	if(proxy_string_command(pInst, command_str)){
 		return 1;
 	}
 
-
-	    //select tracking as metroc
-    sprintf(command_str, "WRITE 0x04000088, 0x00000002");
+		    //select tracking as metric
+	 sprintf(command_str, TRACKING_SEL);
     if(proxy_string_command(pInst, command_str)){
 		return 1;
 	}
+	//pull processor out of reset
+	sprintf(command_str, SET_CPU);
+	if(proxy_string_command(pInst, command_str)){
+		return 1;
+	}
+
 
 
 	time0 = time(NULL); 						
@@ -355,8 +399,8 @@ uint32_t tracker_run(pHandle pInst, command *pCommand){
 	// continuously check for application completion
 	while(*(uint32_t *)rx_buffer != 0x00000001){
 
-		// check if the sampler buffer is full
-		sprintf(command_str, "WRITE 0x04000110 0x00000011"); 		// switch to full flag register
+		// check if the tracker buffer is full
+		sprintf(command_str, CHECK_IF_TRACKER_FULL); 		// switch to full flag register
 		if(proxy_string_command(pInst, command_str)){
 				return 1;
 			}
@@ -370,7 +414,7 @@ uint32_t tracker_run(pHandle pInst, command *pCommand){
 			tracker_read_buffer(pInst, TRACKER_BUFFER_CAPACITY,file_handle);
 
 			// clear the buffer full flag
-			sprintf(command_str, "WRITE 0x04000110 0x00800000"); 	// writing this bit clears the buffer and full flag
+			sprintf(command_str, CLEAR_BUFFER); 	// writing this bit clears the buffer and full flag
 			if(proxy_string_command(pInst, command_str)){
 					return 1;
 				}
