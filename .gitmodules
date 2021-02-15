@@ -1,0 +1,3 @@
+[submodule "software/CLAM"]
+	path = software/CLAM
+	url = https://github.com/dongchen-coder/CLAM.git
