@@ -24,7 +24,6 @@ uint32_t proxy_terminal_command(pHandle pInst){
 	if(!fgets(pBuffer, TERMINAL_COMMAND_BUFFER_LENGTH, stdin)){
 		return 1; 		// error reading terminal
 	}
-
 	// parse the terminal command
 	// if parse returns '1' then command was not executed
 	command command_inst; 

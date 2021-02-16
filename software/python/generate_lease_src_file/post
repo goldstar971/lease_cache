@@ -1,97 +1,38 @@
 #!/bin/bash
 
 # raw lease dump file directories
-FILES=/home/ian/Documents/research/software/CLAM/leases/128blocks_8ways_phases_logs_08102020/*.txt
-OUT=/home/ian/Documents/research/software/python/generate_lease_src_file/output
+FILES=../../CLAM/leases/poly_all/128blocks_128ways/*
+OUT=./output
+
 
 # path to python processing script
-PATHTEMP=/home/ian/Documents/research/software/python/generate_lease_src_file/gen_lease_src.py
+PATHTEMP=gen_lease_src.py
 OPTIONS="-n 128 -b 9 -m 65520"
 
 # process
 for f in $FILES
 do
-  filename=$(basename -- "$f") 		# get filename+ext without path
+filename=$(basename -- "$f") 		# get filename+ext without path
   filename="${filename%.*}" 		# get just filename
-  python $PATHTEMP -i $f $OPTIONS -o $OUT/${filename}_lease.c
+  python $PATHTEMP -i $f $OPTIONS -o $OUT/${filename}.c
 done
+for f in $OUT/*; do
+  benchmark_name=$(sed 's/_[^_]*_leases.*//'<<< ${f##.*/} | sed 's/_/-/g' | sed 's/syr2d/syr2k/')
+  if [[ "$f" =~ .*"fnsl" ]]; then
+ 	cp "$f" ../../benchmarks/poly_small_float/$benchmark_name/lease.c
+  else
+  	cp "$f" ../../benchmarks/poly_small_scope_float/$benchmark_name/lease_scope.c
+  fi;
+done 
+source ~/.bash_functions
+(cd ../../benchmarks/poly_small_float/ && make_benchmarks) 
+(cd ../../benchmarks/poly_small_scope_float/ && make_benchmarks) 
 
 # move resulting files to their respective folders
-cp "${OUT}/"atax* /home/ian/Documents/research/software/benchmarks/poly_small_scope/atax/lease_scope.c
-cp "${OUT}/"doitgen* /home/ian/Documents/research/software/benchmarks/poly_small_scope/doitgen/lease_scope.c
-cp "${OUT}/"floyd* /home/ian/Documents/research/software/benchmarks/poly_small_scope/floyd-warshall/lease_scope.c
-cp "${OUT}/"2mm* /home/ian/Documents/research/software/benchmarks/poly_small_scope/2mm/lease_scope.c
-cp "${OUT}/"3mm* /home/ian/Documents/research/software/benchmarks/poly_small_scope/3mm/lease_scope.c
-cp "${OUT}/"mvt* /home/ian/Documents/research/software/benchmarks/poly_small_scope/mvt/lease_scope.c
-cp "${OUT}/"nussinov* /home/ian/Documents/research/software/benchmarks/poly_small_scope/nussinov/lease_scope.c
-
-
-
-
-# FILES_1=./leases_phased/1_Bin/*.txt
-# FILES_2=./leases_phased/2_Bin/*.txt
-# FILES_5=./leases_phased/5_Bin/*.txt
-# FILES_10=./leases_phased/10_Bin/*.txt
-# FILES_20=./leases_phased/20_Bin/*.txt
-
-# POST_1=./leases_phased/1_Bin/post
-# POST_2=./leases_phased/2_Bin/post
-# POST_5=./leases_phased/5_Bin/post
-# POST_10=./leases_phased/10_Bin/post
-# POST_20=./leases_phased/20_Bin/post
-
-# get options and set path
-# while getopts n: option
-# 	do
-# 		case "${option}"
-# 		in
-# 			n) 
-# 				if (($OPTARG == 1)) 
-# 					then
-# 						FILES=$FILES_1
-# 						POST=$POST_1
-# 				elif (($OPTARG == 2)) 
-# 					then
-# 						FILES=$FILES_2
-# 						POST=$POST_2
-# 				elif (($OPTARG == 5)) 
-# 					then
-# 						FILES=$FILES_5
-# 						POST=$POST_5
-# 				elif (($OPTARG == 10)) 
-# 					then
-# 						FILES=$FILES_10
-# 						POST=$POST_10
-# 				elif (($OPTARG == 20)) 
-# 					then
-# 						FILES=$FILES_20
-# 						POST=$POST_20
-# 				else 
-# 					echo "Error >> Invalid scipt option ('n' must be either 1,2,5,10,20)"
-# 					exit
-# 				fi
-# 	esac
-# done
-
-#for f in $FILES
-#do
-  # write to folder, weird bracket junk is to extract just file name without extension
-  # -n 128 is number of table entries
-  # -d is for dual lease option
-  # -i is input file path
-  # -o is output file path
-  #filename=$(basename -- "$f") 		# get filename+ext without path
-  #filename="${filename%.*}" 		# get just filename
-  #python3 $PATHTEMP -n 128 -d -i $f -o $POST/${filename}_lease.c
-#done
-
-# move resulting files to their respective folders
-# cp "${POST}/"atax* /home/ian/Documents/research/software/comm_system/benchmarks/poly_small_var/atax/lease.c
-# cp "${POST}/"doitgen* /home/ian/Documents/research/software/comm_system/benchmarks/poly_small_var/doitgen/lease.c
-# cp "${POST}/"floyd* /home/ian/Documents/research/software/comm_system/benchmarks/poly_small_var/floyd-warshall/lease.c
-# cp "${POST}/"2mm* /home/ian/Documents/research/software/comm_system/benchmarks/poly_small_var/matrix2/lease.c
-# cp "${POST}/"3mm* /home/ian/Documents/research/software/comm_system/benchmarks/poly_small_var/matrix3/lease.c
-# cp "${POST}/"mvt* /home/ian/Documents/research/software/comm_system/benchmarks/poly_small_var/mvt/lease.c
-# cp "${POST}/"nussinov* /home/ian/Documents/research/software/comm_system/benchmarks/poly_small_var/nussinov/lease.c
-
-# echo ">> lease files moved to program directories"
+#cp "${OUT}/"atax* ../benchmarks/poly_small_scope/atax/lease_scope.c
+#cp "${OUT}/"doitgen* ../benchmarks/poly_small_scope/doitgen/lease_scope.c
+#cp "${OUT}/"floyd* ../benchmarks/poly_small_scope/floyd-warshall/lease_scope.c
+#cp "${OUT}/"2mm* ../benchmarks/poly_small_scope/2mm/lease_scope.c
+#cp "${OUT}/"3mm* ../benchmarks/poly_small_scope/3mm/lease_scope.c
+#cp "${OUT}/"mvt* ../benchmarks/poly_small_scope/mvt/lease_scope.c
+#cp "${OUT}/"nussinov* ../benchmarks/poly_small_scope/nussinov/lease_scope.c

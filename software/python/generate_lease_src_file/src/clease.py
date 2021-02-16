@@ -32,7 +32,6 @@ class lease_item:
 
 
 def generate(options):
-
 	# open file - read only privledge
 	try:
 		srcHandle = open(options.src_str,'r');
@@ -85,6 +84,7 @@ def generate(options):
 			phase_list_arr.append(new_list);
 			phase_list_arr_id.append(item.phase);
 
+
 	# first sort sub-groups by id
 	phase_list_arr = [x for _,x in sorted(zip(phase_list_arr_id,phase_list_arr))]
 
@@ -97,8 +97,10 @@ def generate(options):
 	# -----------------------------------------------------------------------------------
 
 	# make sure all the entries can fit in the table
+
 	for phase in phase_list_arr:
 		if len(phase) > options.size:
+			
 			print("Error: phase cannot fit in specified LLT size");
 			exit(0);
 

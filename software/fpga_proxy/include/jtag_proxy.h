@@ -8,7 +8,7 @@
 #include "test.h"
 #include "sampler.h"
 
-#define TERMINAL_COMMAND_BUFFER_LENGTH 	100
+#define TERMINAL_COMMAND_BUFFER_LENGTH 	200
 
 pHandle 	proxy_connect(void);
 // description:	 	- blocking

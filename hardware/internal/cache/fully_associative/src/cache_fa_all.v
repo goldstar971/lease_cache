@@ -145,6 +145,9 @@ wire 							cpc_stall_flag;
 	) perf_cont_inst(
 		.clock_i 			(clock_bus_i),
 		.resetn_i 			(resetn_i 			),
+		`ifdef DATA_POLICY_DLEASE
+		.phase_i             (phase_i),
+		`endif
 		.select_data_record (metric_sel_i),
 		.req_i          (core_req_i         ),
 		.pc_ref_i           (PC_i),

@@ -8,11 +8,6 @@ module lease_sampler_all(
 	input 						resetn_i, 			// active low
 	input 	[31:0]				comm_i, 			// generic comm port in
 	input    en_i,  //if tracking or gathering cache statistics don't sample
-	`ifdef DATA_POLICY_DLEASE
-		input 	[31:0] 				phase_i,
-	`endif
-	//input 	[31:0]				offset_i, 			// sample offset 
-	//input 						clear_i,			// when high clears out the buffer
 
 	// input pins
 	input 						req_i,						
@@ -171,8 +166,8 @@ assign full_flag_o = (add_sampler_reg == `N_BUFFER_SAMPLER) ? 1'b1 : 1'b0; 		// 
 																				// so that the host can pull the buffer data
 
 
-wire [31:0] pc_bus;
-assign pc_bus=pc_ref_i;
+
+
 always @(posedge clock_bus_i[0]) begin
 	// reset state
 	if (!resetn_i) begin
@@ -314,12 +309,7 @@ always @(posedge clock_bus_i[0]) begin
 									if (!full_flag) begin
 									
 										tag_mem	[ add_stack[add_stack_ptr] ] 	= tag_ref_i;
-										
-										`ifdef DATA_POLICY_DLEASE
-											pc_mem	[ add_stack[add_stack_ptr] ] 	= {phase_i[7:0],pc_bus[23:0]};
-										`else 
-											pc_mem[ add_stack[add_stack_ptr] ] 	= pc_bus;
-										`endif
+										pc_mem[ add_stack[add_stack_ptr] ] 	= pc_ref_i;
 
 										counters[ add_stack[add_stack_ptr] ] 	= 'b0;
 										valid_bits[ add_stack[add_stack_ptr] ] 	= 1'b1;

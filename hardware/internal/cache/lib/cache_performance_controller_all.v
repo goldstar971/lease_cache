@@ -63,6 +63,14 @@ assign enable_sampler = (select_data_record[0] & !select_data_record[1]);
 assign sampler_stall_o=buffer_full_flag | table_full_flag;
 assign stall_o=(enable_tracker) ? tracker_stall_o : (enable_sampler) ? sampler_stall_o : 1'b0;
 
+wire [31:0] pc_bus;
+`ifdef DATA_POLICY_DLEASE
+				assign pc_bus= {phase_i[7:0],pc_ref_i[23:0]};
+`else 
+				assign pc_bus=pc_ref_i;
+`endif										
+
+
 always @(posedge clock_i[0]) begin
 	if (!resetn_i) begin
 		comm_o_reg0 				<= 'b0; 				// no configuration given by comm_i so just set return val reg to zero
@@ -200,11 +208,8 @@ cache_line_tracker_3 #(
 		.resetn_i 			(resetn_i 			), 
 		.comm_i 			(comm_i 			),
 		.en_i     			(enable_sampler),
-	`ifdef DATA_POLICY_DLEASE
-		.phase_i 			(phase_i 			),
-	`endif
 		.req_i 				(req_i 		), 
-		.pc_ref_i 			(pc_ref_i 				), 
+		.pc_ref_i 			(pc_bus 				), 
 		.tag_ref_i 			(tag_ref_i			),
 		.ref_address_o 		(rui_refpc 		), 
 		.ref_target_o 		(rui_target 		),
