@@ -62,19 +62,17 @@ int main(int argc, char** argv)
                         memset(command_str,0,command_length); //clear buffer
                         start_pointer=++end_pointer;//want to point to the character after the delimiter
                           end_pointer=strchr(start_pointer,':');
-                        printf("%s",start_pointer);
                      }
               //for last command or first command if only 1 command 
                  command_length=strlen(start_pointer)/sizeof(char);
                  memcpy(command_str,start_pointer,command_length);
-                 printf("%s",command_str);
                  status=proxy_string_command(proxy_inst,command_str);
                   switch(status){
                     case 0: printf("Command Successful\n"); break;
                     case 1: printf("Command Failed\n"); break;
                  }
              break;
-            default: fprintf(stderr,"Usage: %s [-c \"command1:command2:....:commandn]\"\n",argv[0]);
+            default: fprintf(stderr,"Usage: %s [-c \"command1:command2:....:commandn\"]\n",argv[0]);
             }
         }
     }

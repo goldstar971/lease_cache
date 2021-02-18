@@ -12,10 +12,10 @@ full_path=[base_dir,cell2mat(benchmark_type),'/'];
 file_list=dir([full_path,'*.txt']);
 
  % if directory for term doesn't exist, create it.
-    if(exist(['../variable_lease_results/',cell2mat(benchmark_type),'/'],'dir')~=7)
-        mkdir(['../variable_lease_results/',cell2mat(benchmark_type),'/']);
+    if(exist(['../lease_cache_tracking/',cell2mat(benchmark_type),'/'],'dir')~=7)
+        mkdir(['../lease_cache_tracking/',cell2mat(benchmark_type),'/']);
     end
-
+set(0,'DefaultFigureVisible','off')
 for i=1:length(file_list)
 % extract delimited fields
 benchmark=file_list(i).name(1:end-4);
@@ -60,7 +60,7 @@ set(gcf, 'Position',[100,100,1000,600]);     % [low left x, low left y, top righ
                  'FontSize',10,...
                  'Location','south');
         cb.Position = [.15 .06 .725 .0213];
-         saveas(gcf,strcat("../variable_lease_results/",benchmark_type,"/",benchmark,".png"))
+         saveas(gcf,strcat(benchmark_type,"/",benchmark,".png"))
 close(gcf)
 end
 

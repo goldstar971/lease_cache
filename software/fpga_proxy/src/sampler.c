@@ -339,7 +339,7 @@ uint32_t tracker_run(pHandle pInst, command *pCommand){
 //get file name
 	get_file_name(pCommand,file_name,benchmark_type);
 	//combine into full path
-	sprintf(file_path,"%s%s/",SAMPLER_OUTPUT_PATH,benchmark_type);
+	sprintf(file_path,"%s%s/",TRACKER_OUTPUT_PATH,benchmark_type);
 	sprintf(full_output_path,"%s%s",file_path,file_name);
 	//if directory doesn't exist, try to create it.
 	if(0!= access(file_path,F_OK)){

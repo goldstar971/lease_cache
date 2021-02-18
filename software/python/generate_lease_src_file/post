@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # raw lease dump file directories
-FILES=../../CLAM/leases/poly_all/128blocks_128ways/*
+FILES=../../CLAM/leases/poly_all/128blocks_128ways*/*
 OUT=./output
 
 

@@ -31,8 +31,9 @@ uint32_t test_run(pHandle pInst, command *pCommand){
 	// check for completion of the main
 	char rx_buffer[4];
 	*(uint32_t *)rx_buffer = 0x00000000;
-
+	printf("\n");
 	while(*(uint32_t *)rx_buffer != 0x00000001){
+
 		protocol_read(pInst, rx_buffer, 4, TEST_DONE_ADDR);
 	}
 

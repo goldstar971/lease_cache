@@ -7,7 +7,7 @@ idx = zeros(size(filenames,1),1);
 % loop through all strings searching for partial matches
 for i = 1:size(filenames)
     
-    if ( contains(filenames(i), search_string) )
+    if ( filenames(i)==search_string )
         idx(i,1) = 1;
         %sub_data = [sub_data
     else

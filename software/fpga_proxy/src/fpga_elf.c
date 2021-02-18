@@ -58,7 +58,7 @@ uint32_t fpga_verify_memory(pHandle pInst, command *pCommand){
 uint32_t get_elf_sections(char *filepath, uint32_t *pAddr, uint32_t *pSize){
 
 	// first check if the data and info files exist
-	char info_path_str[128];
+	char info_path_str[256];
 
 	// copy string literal to new array then add the correct file extensions 	
 	strcpy(info_path_str, filepath);
@@ -72,7 +72,7 @@ uint32_t get_elf_sections(char *filepath, uint32_t *pAddr, uint32_t *pSize){
     }
 
     // loop through file line by line and parse into an address field and size field
-	char line[128];
+	char line[256];
 	uint32_t section_index = 0;
 
 	while(fgets(line, sizeof(line)/sizeof(line[0]), pFile)){
@@ -176,7 +176,7 @@ uint32_t dma_elf_data(pHandle pInst, char *filename, uint32_t address, uint32_t 
 uint32_t get_elf_data(char *filepath, char *pBuffer, uint32_t buffer_size, uint32_t starting_index, uint32_t length){
 
 	// create path
-	char data_path_str[128];	
+	char data_path_str[256];	
 	strcpy(data_path_str, filepath);
 	strncat(data_path_str, "_compressed.txt", 16); 		// add one because of '\n'
 
@@ -188,7 +188,7 @@ uint32_t get_elf_data(char *filepath, char *pBuffer, uint32_t buffer_size, uint3
     }
 
     // loop through file only extracting the necessary information
-    char line[64];
+    char line[100];
     uint32_t n_current_file_line = 0;
     uint32_t n_current_section_entry = 0;
 

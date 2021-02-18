@@ -49,7 +49,7 @@ uint32_t parse_input(command *pInputInst, char *pBuffer){
 	if (field1_hex[pInputInst->table_index]){
 		pInputInst->field1_number = (uint32_t)strtol(pInputInst->field[1], NULL, 0);
 	}
-	if (field1_hex[pInputInst->table_index]){
+	if (field2_hex[pInputInst->table_index]){
 		pInputInst->field2_number = (uint32_t)strtol(pInputInst->field[2], NULL, 0);
 	}
 

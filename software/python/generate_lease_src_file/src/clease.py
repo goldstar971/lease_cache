@@ -100,10 +100,8 @@ def generate(options):
 
 	for phase in phase_list_arr:
 		if len(phase) > options.size:
-			
 			print("Error: phase cannot fit in specified LLT size");
 			exit(0);
-
 	# then make sure all phases+config can fit in the memory
 	config_bytes = 4*16;
 	phase_bytes = 4*(4*options.size)*len(phase_list_arr)

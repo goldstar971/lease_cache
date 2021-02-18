@@ -7,7 +7,7 @@ pHandle proxy_connect(void){
 	pHandle pInst = protocol_connect();
 
 	// synchronize host (software) and client (hardware)
-	if(protocol_synchronize(pInst, 15, false)){
+	if(protocol_synchronize(pInst, 15, 1)){
 		return NULL;
 	}
 	else{
