@@ -239,7 +239,7 @@ wire 	[`BW_WORD_ADDR-1:0] phase_addr_ptr_bus;
 //assign 	phase_addr_ptr_bus = header_lease_base_addr_reg + (header_section_size_bus*phase_i[7:0]);
 
 // alternatively...
-assign phase_addr_ptr_bus = header_lease_base_addr_reg + (phase_i[7:0] << `CLOG2(header_section_size_bus));
+assign phase_addr_ptr_bus = header_lease_base_addr_reg + ({phase_i[7:0],{(BW_ADDR_SPACE){1'b0}}});
 //assign phase_addr_ptr_bus = (phase_i[7:0] == 8'h00) ? header_lease_base_addr_reg :
 	//						(phase_i[7:0] == 8'h01) ? header_lease_base_addr_reg + header_section_size_bus : 
 		//					(phase_i[7:0] == 8'h02) ? header_lease_base_addr_reg + (header_section_size_bus << 1'b1) :

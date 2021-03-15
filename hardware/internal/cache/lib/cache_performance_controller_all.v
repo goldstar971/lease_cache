@@ -8,7 +8,8 @@ module cache_performance_controller_all #(
 		input[31:0] phase_i,
 	`endif    
 	input [31:0]	 pc_ref_i,         
-	input [`BW_CACHE_TAG-1:0] tag_ref_i,			
+	input [`BW_CACHE_TAG-1:0] tag_ref_i,	
+	input          swap_i,
 	input 			req_i,
 	input 			hit_i, 				// logic high when there is a cache hit
 	input 			miss_i, 			// logic high when there is the initial cache miss
@@ -47,6 +48,7 @@ reg 	[63:0]	counter_walltime_reg,	// when enabled counts "wall time" - actually 
 				counter_wb_reg, 		// when enabled counts times writeback_i is logic high
 				counter_expired_reg, 	// counts times expired_i is logic high
 				counter_mexpired_reg, 	// counts times multi_expired_i is logic high
+				counter_swap_reg, //counts the number of times a zero lease was assigned
 				counter_defaulted_reg; 	// counts times defaulted_i is logic high
 				
 wire 	[31:0]		rui_interval, rui_refpc, rui_used, rui_count, rui_remaining, rui_target;
@@ -81,6 +83,7 @@ always @(posedge clock_i[0]) begin
 		counter_expired_reg 	<= 'b0;
 		counter_mexpired_reg 	<= 'b0;
 		counter_defaulted_reg 	<= 'b0;
+		counter_swap_reg<='b0;
 	end
 
 	else begin
@@ -92,7 +95,7 @@ always @(posedge clock_i[0]) begin
 			if 		(expired_i) 		counter_expired_reg 	<= counter_expired_reg + 1'b1;
 			if 		(expired_multi_i) 	counter_mexpired_reg 	<= counter_mexpired_reg + 1'b1;
 			if 		(defaulted_i) 		counter_defaulted_reg 	<= counter_defaulted_reg + 1'b1;
-
+			if       (!swap_i&&defaulted_i)     counter_swap_reg <=counter_swap_reg+1'b1; //strobed so it only increments when there is actually a zero lease assigned
 			// always increment wall-timer
 			counter_walltime_reg <= counter_walltime_reg + 1'b1;
 		end
@@ -118,6 +121,8 @@ always @(posedge clock_i[0]) begin
 
 			4'b1110: comm_o_reg1 <= 'b0; 								// cache system id
 			4'b1111: comm_o_reg1 <= buffer_full_flag;
+			
+			
 
 			default comm_o_reg1 <= 'b0;
 		endcase
@@ -152,26 +157,29 @@ always @(posedge clock_i[0]) begin
 			default: 	comm_o_reg2 <= 'b0;
 		endcase
 
-		case (comm_i[3:0])
+		case (comm_i[4:0])
 
 			// primary outputs
-			4'b0000: comm_o_reg0 <= counter_hit_reg[31:0];				// hits
-			4'b0001: comm_o_reg0 <= counter_hit_reg[63:32];
-			4'b0010: comm_o_reg0 <= counter_miss_reg[31:0]; 				// misses
-			4'b0011: comm_o_reg0 <= counter_miss_reg[63:32];
-			4'b0100: comm_o_reg0 <= counter_wb_reg[31:0]; 				// writebacks
-			4'b0101: comm_o_reg0 <= counter_wb_reg[63:32];
-			4'b0110: comm_o_reg0 <= counter_walltime_reg[31:0]; 			// duration (cycles)
-			4'b0111: comm_o_reg0 <= counter_walltime_reg[63:32];
-			4'b1000: comm_o_reg0 <= counter_expired_reg[31:0]; 			// expired lease replacements
-			4'b1001: comm_o_reg0 <= counter_expired_reg[63:32];
-			4'b1010: comm_o_reg0 <= counter_defaulted_reg[31:0]; 		// defaulted lease renewals
-			4'b1011: comm_o_reg0 <= counter_defaulted_reg[63:32];
-			4'b1100: comm_o_reg0 <= counter_mexpired_reg[31:0]; 			// multiple leases expired at eviction
-			4'b1101: comm_o_reg0 <= counter_mexpired_reg[63:32];
-
+			5'b00000: comm_o_reg0 <= counter_hit_reg[31:0];				// hits
+			5'b00001: comm_o_reg0 <= counter_hit_reg[63:32];
+			5'b00010: comm_o_reg0 <= counter_miss_reg[31:0]; 				// misses
+			5'b00011: comm_o_reg0 <= counter_miss_reg[63:32];
+			5'b00100: comm_o_reg0 <= counter_wb_reg[31:0]; 				// write0acks
+			5'b00101: comm_o_reg0 <= counter_wb_reg[63:32];
+			5'b00110: comm_o_reg0 <= counter_walltime_reg[31:0]; 			// duration (cycles)
+			5'b00111: comm_o_reg0 <= counter_walltime_reg[63:32];
+			5'b01000: comm_o_reg0 <= counter_expired_reg[31:0]; 			// expired lease replacements
+			5'b01001: comm_o_reg0 <= counter_expired_reg[63:32];
+			5'b01010: comm_o_reg0 <= counter_defaulted_reg[31:0]; 		// defaulted lease renewals
+			5'b01011: comm_o_reg0 <= counter_defaulted_reg[63:32];
+			5'b01100: comm_o_reg0 <= counter_mexpired_reg[31:0]; 			// multiple leases expired at eviction
+			5'b01101: comm_o_reg0 <= counter_mexpired_reg[63:32];
+			5'b10000: comm_o_reg0 <= counter_swap_reg[31:0];
+			5'b10001: comm_o_reg0 <= counter_swap_reg[63:32];
+			
 			// cache identification
-			4'b1111: comm_o_reg0 <= CACHE_STRUCTURE | CACHE_REPLACEMENT;
+			5'b01111: comm_o_reg0 <= CACHE_STRUCTURE | CACHE_REPLACEMENT;
+		
 
 			default comm_o_reg0 <= 'b0;
 		endcase

@@ -104,7 +104,7 @@ uint32_t make_cache_report(pHandle pInst, char *rx_buffer){
 	protocol_cache_fusion(pInst, (rx_buffer+64), CACHE_RESULT_ADDR, CACHE_L1D_ADDR);
 
 	uint64_t item;
-	for (uint32_t i = 0; i < 16; i++){
+	for (uint32_t i = 0; i < 17; i++){
 		item = (uint64_t) (*(uint32_t *)(rx_buffer+(8*i)+4)) << 32 | (*(uint32_t *)(rx_buffer+(8*i)+0));
 
 		switch(i){
@@ -120,6 +120,7 @@ uint32_t make_cache_report(pHandle pInst, char *rx_buffer){
 			case 13: 	printf("L1-D Default Assignments: %" PRIu64 "\n", item); break;
 			case 14: 	printf("L1-D M-Expired Evictions: %" PRIu64 "\n", item); break;
 			case 15: 	printf("L1-D Cache ID:            %" PRIu32 "\n", *(uint32_t *)(rx_buffer+(8*i)+4)); break;
+			case 16:    printf("LD-D SWAPs:               %" PRIu64 "\n", item); break;
 			default: 	break;
 		}	
 	}

@@ -158,6 +158,7 @@ wire 							cpc_stall_flag;
 		.expired_i			(expired_flag 		), 				// logic high when lease cache replaces an expired block
 		.expired_multi_i 	(expired_multi_flag ), 
 		.defaulted_i 		(defaulted_flag 	), 				// logic high when lease cache renews using a default lease value
+		.swap_i(swap_flag),		
 		.comm_i 			(comm_i 			), 				// configuration signal
 		.comm_o 			(comm_o 			), 				// return value of comm_i
 		.expired_flags_0_i 	(flag_expired_0_bus ),

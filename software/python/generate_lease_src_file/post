@@ -28,11 +28,3 @@ source ~/.bash_functions
 (cd ../../benchmarks/poly_small_float/ && make_benchmarks) 
 (cd ../../benchmarks/poly_small_scope_float/ && make_benchmarks) 
 
-# move resulting files to their respective folders
-#cp "${OUT}/"atax* ../benchmarks/poly_small_scope/atax/lease_scope.c
-#cp "${OUT}/"doitgen* ../benchmarks/poly_small_scope/doitgen/lease_scope.c
-#cp "${OUT}/"floyd* ../benchmarks/poly_small_scope/floyd-warshall/lease_scope.c
-#cp "${OUT}/"2mm* ../benchmarks/poly_small_scope/2mm/lease_scope.c
-#cp "${OUT}/"3mm* ../benchmarks/poly_small_scope/3mm/lease_scope.c
-#cp "${OUT}/"mvt* ../benchmarks/poly_small_scope/mvt/lease_scope.c
-#cp "${OUT}/"nussinov* ../benchmarks/poly_small_scope/nussinov/lease_scope.c

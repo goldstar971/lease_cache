@@ -183,7 +183,7 @@ uint32_t sampler_run(pHandle pInst, command *pCommand){
 	if(proxy_string_command(pInst, command_str)){
 		return 1;
 	}
-
+	sleep(1);
 	// load fpga memory with target application
 	sprintf(command_str, "LOAD %s\r",pCommand->field[1]);
 	if(proxy_string_command(pInst, command_str)){
@@ -220,13 +220,13 @@ uint32_t sampler_run(pHandle pInst, command *pCommand){
 	if(proxy_string_command(pInst, command_str)){
 		return 1;
 	}
-
+sleep(.2);
 	// begin wall-clock timer
 	sprintf(command_str, SEL_PERIPHS);
 	if(proxy_string_command(pInst, command_str)){
 		return 1;
 	}
-
+sleep(.2);
 		    //select sampling as metric
 	 sprintf(command_str, SAMPLING_SEL);
     if(proxy_string_command(pInst, command_str)){
@@ -331,7 +331,7 @@ uint32_t tracker_run(pHandle pInst, command *pCommand){
 	if(proxy_string_command(pInst, command_str)){
 			return 1;
 		}
-
+	sleep(1);
 	// load fpga memory with target application
 	sprintf(command_str, "LOAD %s\r",pCommand->field[1]);
 	proxy_string_command(pInst, command_str);
@@ -367,13 +367,13 @@ uint32_t tracker_run(pHandle pInst, command *pCommand){
 	if(proxy_string_command(pInst, command_str)){
 		return 1;
 	}
-
+	sleep(.2);
 	// begin wall-clock timer
 	sprintf(command_str, SEL_PERIPHS);
 	if(proxy_string_command(pInst, command_str)){
 		return 1;
 	}
-
+	sleep(.2);
 		    //select tracking as metric
 	 sprintf(command_str, TRACKING_SEL);
     if(proxy_string_command(pInst, command_str)){

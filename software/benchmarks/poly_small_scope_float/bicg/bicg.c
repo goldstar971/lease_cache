@@ -83,8 +83,7 @@ void kernel_bicg(int m, int n,
 #pragma scop
    set_phase(0x00000000);
   for (i = 0; i < _PB_M; i++)
-    s[i] = 0;
-   set_phase(0x00000001);
+    s[i] = 0; 
   for (i = 0; i < _PB_N; i++)
     {
       q[i] = SCALAR_VAL(0.0);

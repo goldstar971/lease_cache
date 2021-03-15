@@ -132,7 +132,6 @@ uint32_t protocol_fpga_config(pHandle pInst, uint32_t addr, uint32_t data){
 	*(uint32_t *)(tx_buffer+1*BYTES_PER_WORD) = PROTOCOL_FLAG_CONFIG 	|  	// config flag
 												(data & 0x00000FFF) 	| 	
 												((addr << 24) & 0xFF000000); 	
-
 	// send command
 	if(jtag_write(pInst, tx_buffer, 2*BYTES_PER_WORD)){
 		return 1;
@@ -162,7 +161,7 @@ uint32_t protocol_cache_fusion(pHandle pInst, char *pBuffer, uint32_t addr, uint
 	}
 
 	// get data
-	jtag_read(pInst, pBuffer, 16*BYTES_PER_WORD);
+	jtag_read(pInst, pBuffer, 18*BYTES_PER_WORD);
 
 	return 0;
 }

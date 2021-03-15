@@ -37,6 +37,8 @@ reg 	[12:0]	add_sampler;
 reg 	[12:0]	add_sampler_reg;
 reg 			rw_sampler;
 
+reg no_entries; //handles false buffer value caused by the indexing of add_sampler_reg
+
 reg 			table_writeout_flag;
 
 // input control
@@ -82,6 +84,7 @@ reg 							rw_reg;
 reg 	[31:0]					data_interval_reg, data_address_reg, target_address_reg;
 reg 	[63:0]					data_trace_reg;
 
+
 bram_64kB_32b interval_fifo	(.address(add_sampler), .clock(clock_bus_i[1]), .data(data_interval_reg), .wren(rw_sampler), .q(ref_interval));
 bram_64kB_32b address_fifo	(.address(add_sampler), .clock(clock_bus_i[1]), .data(data_address_reg), .wren(rw_sampler), .q(ref_address));
 bram_128kB_64b trace_fifo 	(.address(add_sampler), .clock(clock_bus_i[1]), .data(data_trace_reg), .wren(rw_sampler), .q(ref_trace));
@@ -102,8 +105,8 @@ reg 	[`BW_SAMPLER-1:0]		add_stack[0:`N_SAMPLER-1]; 	// open address stack for ca
 reg 	[`N_SAMPLER-1:0]		valid_bits;
 wire 	[`N_SAMPLER-1:0] 		match_bits;
 wire 							hit_flag, full_flag, actual_match;
-//reg	[`BW_SAMPLER-1:0] 		match_index;
-wire 	[`BW_SAMPLER-1:0] 		match_index;
+reg	[`BW_SAMPLER-1:0] 		match_index;
+//wire 	[`BW_SAMPLER-1:0] 		match_index;
 reg 	[`BW_SAMPLER-1:0] 		add_stack_ptr;
 
 genvar j;
@@ -113,20 +116,20 @@ generate
 	end
 endgenerate
 
-tag_match_encoder tag_match((match_bits&valid_bits),match_index);
+//tag_match_encoder tag_match((match_bits&valid_bits),match_index);
 
 
 //match_index==0 both when no bit in match_bits is set i.e., no match and when the match is the bottom entry i.e., match_bits[0]=1
-	assign actual_match=|({match_index,match_bits[0]});
-assign hit_flag = (actual_match)? valid_bits[match_index] : 1'b0;
-/* always @(*) begin
+//	assign actual_match=|({match_index,match_bits[0]});
+//assign hit_flag = (actual_match)? valid_bits[match_index] : 1'b0;
+ always @(*) begin
 	match_index = 'b0;
 	for (i = 0; i < `N_SAMPLER; i = i + 1'b1) begin
 		if (match_bits[i] & valid_bits[i]) match_index = i[`BW_SAMPLER-1:0];
 	end
 end
 
-assign hit_flag = |(match_bits & valid_bits); */
+assign hit_flag = |(match_bits & valid_bits); 
 
 
 // full flag dependent on table entries
@@ -158,7 +161,7 @@ localparam ST_NORMAL 		=	1'b0;
 localparam ST_FIND_OLDEST	= 	1'b1;
 
 assign count_o 		= n_rui_total_reg;
-assign used_o 		= add_sampler_reg + 1'b1;	// indexed from zero so add one
+assign used_o 		= (no_entries) ? 'b0 : add_sampler_reg + 1'b1;	// indexed from zero so add one
 assign remaining_o 	= n_remaining_reg;
 
 // full flag out dependent on add_sampler_reg
@@ -203,6 +206,7 @@ always @(posedge clock_bus_i[0]) begin
 		rui_oldest_index_reg = 'b0;
 		state_reg 			 = ST_NORMAL;
 		table_writeout_flag <= 1'b0;
+		no_entries<=1'b0;
 	end
 
 	// active state
@@ -251,9 +255,7 @@ always @(posedge clock_bus_i[0]) begin
 								// check hit/miss
 								if (hit_flag) begin
 
-									// record metric
-									//n_rui_total_reg = n_rui_total_reg + 1'b1; 		// don't think it is necessary
-
+								
 									// if the buffer is not yet full then write result to it
 									// note: this is a precautionary guard, if running RUN_SAMPLER command
 									// then the host should see the full flag and clear the buffer from its commands
@@ -277,12 +279,6 @@ always @(posedge clock_bus_i[0]) begin
 
 
 
-									// honestly don't remember what this is used for, pretty sure its not important 
-									// for sampler variants that signal when it is full
-									//else begin
-									//	n_remaining_reg = n_remaining_reg + 1'b1;
-									//end
-
 									// invalidate entry in LAT
 									valid_bits[match_index] = 1'b0;
 
@@ -298,7 +294,6 @@ always @(posedge clock_bus_i[0]) begin
 
 								// fifo replacement check - full scale is 9b - 256 avg
 								// --------------------------------------------------------
-							
 								if (fs_counter_reg[8:0] == lfsr_output[8:0]) begin
 
 									// generate new random number
@@ -383,7 +378,9 @@ always @(posedge clock_bus_i[0]) begin
 			else begin
 
 				if (table_writeout_flag) begin
-
+					if(!valid_bits) begin
+						no_entries<=1'b1;
+					end
 					// only store table entry if valid
 					if (valid_bits[rui_oldest_index_reg]) begin
 

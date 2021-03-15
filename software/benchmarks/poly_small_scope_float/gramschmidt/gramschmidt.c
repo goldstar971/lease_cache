@@ -96,6 +96,7 @@ void kernel_gramschmidt(int m, int n,
       R[k][k] = SQRT_FUN(nrm);
       for (i = 0; i < _PB_M; i++)
         Q[i][k] = A[i][k] / R[k][k];
+      set_phase(0x00000001);
       for (j = k + 1; j < _PB_N; j++)
 	{
 	  R[k][j] = SCALAR_VAL(0.0);

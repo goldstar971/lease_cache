@@ -97,6 +97,7 @@ void kernel_cholesky(int n,
         }
         A[i][j] /= A[j][j];
      }
+     set_phase(0x00000001);
      // i==j case
      for (k = 0; k < i; k++) {
         A[i][i] -= A[i][k] * A[i][k];

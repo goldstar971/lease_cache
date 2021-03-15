@@ -1,5 +1,5 @@
 module linear_shift_register_9b #(
-	parameter SEED = 9'b000000001
+	parameter SEED = 9'b000010001
 )(
 	input 			clock_i, 
 	input 			resetn_i, 

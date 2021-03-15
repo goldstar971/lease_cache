@@ -3,24 +3,28 @@ close all; clearvars; clc;
 
 % added dependency directories
 addpath("./src");
+base_path=[getenv('HOME'),'/Documents/Thesis_stuff/'];
+base_data_dir=[base_path,'software/fpga_proxy/results/track/'];
+base_save_dir=[base_path,'MATLAB_data_visualizations/lease_cache_tracking/'];
 
-
-
-base_dir=[getenv('HOME'),'/Documents/Thesis_stuff/software/fpga_proxy/results/track/'];
 benchmark_type=inputdlg("Give name of the benchmark type for which you'd like to plot tracker results: ",'s');
-full_path=[base_dir,cell2mat(benchmark_type),'/'];
+if(strcmp(benchmark_type{1},'carl'))
+	full_path=[base_save_dir,cell2mat(benchmark_type),'/'];
+else
+	full_path=[base_data_dir,cell2mat(benchmark_type),'/'];
+end
 file_list=dir([full_path,'*.txt']);
 
  % if directory for term doesn't exist, create it.
-    if(exist(['../lease_cache_tracking/',cell2mat(benchmark_type),'/'],'dir')~=7)
-        mkdir(['../lease_cache_tracking/',cell2mat(benchmark_type),'/']);
+    if(exist([base_save_dir,cell2mat(benchmark_type),'/'],'dir')~=7)
+        mkdir([base_save_dir,cell2mat(benchmark_type),'/']);
     end
 set(0,'DefaultFigureVisible','off')
 for i=1:length(file_list)
 % extract delimited fields
 benchmark=file_list(i).name(1:end-4);
 current_tracking_file=strcat(full_path,benchmark,'.txt');
-if(strcmp(benchmark,'floyd-warshall'))
+if(contains(benchmark,'floyd-warshall'))
 	[average,exp_mat,trace]=extract_tracking_data_2_large_set(current_tracking_file,128);
 else
 	[average,exp_mat,trace]=extract_tracking_data_2_small_set(current_tracking_file,128);
@@ -51,16 +55,16 @@ set(gcf, 'Position',[100,100,1000,600]);     % [low left x, low left y, top righ
 		caxis([0,3]);
 
 		pos = get(ax_1,'Position');
-        set(ax_1,'Position',[pos(1) 1.05*pos(2) pos(3) .95*pos(4)]);
+        set(ax_1,'Position',[pos(1) 1.09*pos(2) pos(3) .99*pos(4)]);
         pos = get(ax_2,'Position');
-        set(ax_2,'Position',[pos(1) 1.05*pos(2) pos(3) .95*pos(4)]);
+        set(ax_2,'Position',[pos(1) 1.09*pos(2) pos(3) .99*pos(4)]);
        
         cb = colorbar('Ticks',[0,1,2,3],...
                  'TickLabels',{'Long Lease','Medium Lease','Short Lease','Expired'},...
                  'FontSize',10,...
                  'Location','south');
-        cb.Position = [.15 .06 .725 .0213];
-         saveas(gcf,strcat(benchmark_type,"/",benchmark,".png"))
+        cb.Position = [.15 .04 .725 .0213];
+         saveas(gcf,strcat(base_save_dir,benchmark_type,"/",benchmark,".png"))
 close(gcf)
 end
 

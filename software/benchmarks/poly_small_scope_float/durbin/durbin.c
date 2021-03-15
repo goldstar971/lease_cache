@@ -84,7 +84,7 @@ void kernel_durbin(int n,
       sum += r[k-i-1]*y[i];
    }
    alpha = - (r[k] + sum)/beta;
-
+  set_phase(0x00000001);
    for (i=0; i<k; i++) {
       z[i] = y[i] + alpha*y[k-i-1];
    }

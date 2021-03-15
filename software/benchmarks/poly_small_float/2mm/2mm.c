@@ -105,6 +105,7 @@ void kernel_2mm(int ni, int nj, int nk, int nl,
 	for (k = 0; k < _PB_NJ; ++k)
 	  D[i][j] += tmp[i][k] * C[k][j];
       }
+
 #pragma endscop
 
 }
@@ -149,7 +150,9 @@ benchmark_timer_start();
 
   /* Stop and print timer. */
 benchmark_timer_stop();
-  
+
+
+	
   
 
   /* Prevent dead-code elimination. All live-out data must be printed

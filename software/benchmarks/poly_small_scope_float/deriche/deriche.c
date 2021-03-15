@@ -116,12 +116,11 @@ void kernel_deriche(int w, int h, DATA_TYPE alpha,
             yp1 = y2[i][j];
         }
     }
- set_phase(0x00000002);
     for (i=0; i<_PB_W; i++)
         for (j=0; j<_PB_H; j++) {
             imgOut[i][j] = c1 * (y1[i][j] + y2[i][j]);
         }
-
+set_phase(0x00000002);
     for (j=0; j<_PB_H; j++) {
         tm1 = SCALAR_VAL(0.0);
         ym1 = SCALAR_VAL(0.0);
@@ -148,7 +147,6 @@ void kernel_deriche(int w, int h, DATA_TYPE alpha,
             yp1 = y2[i][j];
         }
     }
-  set_phase(0x00000004);
     for (i=0; i<_PB_W; i++)
         for (j=0; j<_PB_H; j++)
             imgOut[i][j] = c2*(y1[i][j] + y2[i][j]);

@@ -322,7 +322,7 @@ always @(posedge clock_i) begin
 				word_counter 		= 'b0;
 			end
 			`FUSION_WRITE: begin
-				if (word_counter != 5'b10000) begin
+				if (word_counter != 5'b10010) begin
 					state_current 	= `WAIT_READY_WRITE; 	// request a write
 					add_o 			= fusion_write_add;			// write address
 					rx_get_data_reg = word_counter; 		// value to write is incrementing count

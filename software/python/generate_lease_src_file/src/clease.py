@@ -42,8 +42,8 @@ def generate(options):
 	# go through file extracting all strings between keywords
 	# -----------------------------------------------------------------------------------
 	#keyword_begin = "Lease Dump";
-	keyword_begin = "Dump formated leases";
-	keyword_end = "End Dump";
+	keyword_begin = "Dump formated leases with limited entry 128";
+	keyword_end = "End dump";
 	valid_flag = False;
 	lease_item_list = [];
 
@@ -99,10 +99,19 @@ def generate(options):
 	# make sure all the entries can fit in the table
 
 	for phase in phase_list_arr:
+	
 		if len(phase) > options.size:
 			print("Error: phase cannot fit in specified LLT size");
-			exit(0);
-	# then make sure all phases+config can fit in the memory
+#			print("reducing leases to fit LLT")
+#			#sort by lease length
+#			phase.sort(key=lambda x: int(x.lease0,16), reverse=True)
+			#delete items until leases fit into LLT
+#			while(len(phase)>options.size):
+#				del phase[0]
+			#resort array
+#			phase.sort(key=lambda x: (-x.dual, int(x.addr,16)), reverse=False)
+			exit(0)
+# then make sure all phases+config can fit in the memory
 	config_bytes = 4*16;
 	phase_bytes = 4*(4*options.size)*len(phase_list_arr)
 	if (config_bytes + phase_bytes) > options.mem_size:

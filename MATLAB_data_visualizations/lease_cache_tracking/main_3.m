@@ -1,4 +1,4 @@
-% initialize workspace
+p% initialize workspace
 close all; clearvars; clc;
 
 % added dependency directories

@@ -90,14 +90,13 @@ void kernel_lu(int n,
 #pragma scop
     set_phase(0x00000000);
   for (i = 0; i < _PB_N; i++) {
-       set_phase(0x00000001);
     for (j = 0; j <i; j++) {
        for (k = 0; k < j; k++) {
           A[i][j] -= A[i][k] * A[k][j];
        }
         A[i][j] /= A[j][j];
     }
-       set_phase(0x00000002);
+       set_phase(0x00000001);
    for (j = i; j < _PB_N; j++) {
        for (k = 0; k < i; k++) {
           A[i][j] -= A[i][k] * A[k][j];
