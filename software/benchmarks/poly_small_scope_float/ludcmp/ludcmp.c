@@ -103,9 +103,9 @@ void kernel_ludcmp(int n,
   DATA_TYPE w;
 
 #pragma scop
-     set_phase(0x00000000);
+    
   for (i = 0; i < _PB_N; i++) {
-   
+    set_phase(0x00000000);
     for (j = 0; j <i; j++) {
        w = A[i][j];
        for (k = 0; k < j; k++) {
@@ -113,6 +113,7 @@ void kernel_ludcmp(int n,
        }
         A[i][j] = w / A[j][j];
     }
+     set_phase(0x00000001);
    for (j = i; j < _PB_N; j++) {
        w = A[i][j];
        for (k = 0; k < i; k++) {
@@ -121,13 +122,14 @@ void kernel_ludcmp(int n,
        A[i][j] = w;
     }
   }
+   set_phase(0x00000002);
   for (i = 0; i < _PB_N; i++) {
      w = b[i];
      for (j = 0; j < i; j++)
         w -= A[i][j] * y[j];
      y[i] = w;
   }
-
+ set_phase(0x00000003);
    for (i = _PB_N-1; i >=0; i--) {
      w = y[i];
      for (j = i+1; j < _PB_N; j++)

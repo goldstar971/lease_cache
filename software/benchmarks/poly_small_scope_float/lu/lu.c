@@ -88,8 +88,9 @@ void kernel_lu(int n,
   int i, j, k;
 
 #pragma scop
-    set_phase(0x00000000);
+    
   for (i = 0; i < _PB_N; i++) {
+	  set_phase(0x00000000);
     for (j = 0; j <i; j++) {
        for (k = 0; k < j; k++) {
           A[i][j] -= A[i][k] * A[k][j];

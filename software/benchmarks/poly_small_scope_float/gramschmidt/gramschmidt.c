@@ -87,9 +87,10 @@ void kernel_gramschmidt(int m, int n,
   DATA_TYPE nrm;
 
 #pragma scop
-  set_phase(0x00000000);
+  
   for (k = 0; k < _PB_N; k++)
     {
+		set_phase(0x00000000);
       nrm = SCALAR_VAL(0.0);
       for (i = 0; i < _PB_M; i++)
         nrm += A[i][k] * A[i][k];

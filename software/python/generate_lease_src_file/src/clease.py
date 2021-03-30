@@ -46,23 +46,25 @@ def generate(options):
 	keyword_end = "End dump";
 	valid_flag = False;
 	lease_item_list = [];
+	
+	while(len(lease_item_list)==0):
+		for line in srcHandle:
+			# check for termination
+			if line.strip() == keyword_end:
+				valid_flag = False;
 
-	for line in srcHandle:
-		# check for termination
-		if line.strip() == keyword_end:
-			valid_flag = False;
-
-		# import to list
-		if valid_flag == True:
-			line = line.replace(" ","").strip(); 		# remove all whitespaces and newline
-			if (line != ""):
-				new_lease_item = lease_item(line);
-				lease_item_list.append(new_lease_item);
-
-		# check for import
-		if line.strip() == keyword_begin:
-			valid_flag = True;
-
+			# import to list
+			if valid_flag == True:
+				line = line.replace(" ","").strip(); 		# remove all whitespaces and newline
+				if (line != ""):
+					new_lease_item = lease_item(line);
+					lease_item_list.append(new_lease_item);
+			
+			# check for import
+			if line.strip() == keyword_begin:
+				valid_flag = True;
+		keyword_begin ="Dump formated leases"
+		srcHandle.seek(0)
 	# close file
 	srcHandle.close();
 

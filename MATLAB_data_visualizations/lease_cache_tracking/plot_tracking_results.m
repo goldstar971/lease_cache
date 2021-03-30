@@ -20,7 +20,7 @@ file_list=dir([full_path,'*.txt']);
         mkdir([base_save_dir,cell2mat(benchmark_type),'/']);
     end
 set(0,'DefaultFigureVisible','off')
-for i=1:length(file_list)
+for i=1:3 %length(file_list)
 % extract delimited fields
 benchmark=file_list(i).name(1:end-4);
 current_tracking_file=strcat(full_path,benchmark,'.txt');

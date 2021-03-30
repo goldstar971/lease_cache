@@ -46,7 +46,7 @@ j=1;
             title(benchmark_names{i});
            
             xlabel("Cache Replacement Policy");
-            set(gca,'xticklabel',{'PLRU','CARL','CARL\_SCOPE'});
+            set(gca,'xticklabel',{'PLRU','CARL','CARL\_SCOPE','CARL\_LLT'},'XTickLabelRotation',45);
             grid on;
             ax = gca;
             ax.YRuler.Exponent = 0;

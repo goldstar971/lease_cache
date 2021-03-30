@@ -71,8 +71,9 @@ void kernel_heat_3d(int tsteps,
 
 #pragma scop
 
-  set_phase(0x00000000);
+  
     for (t = 1; t <= TSTEPS; t++){
+      set_phase(0x00000000);
         for (i = 1; i < _PB_N-1; i++) {
             for (j = 1; j < _PB_N-1; j++) {
                 for (k = 1; k < _PB_N-1; k++) {
@@ -83,7 +84,7 @@ void kernel_heat_3d(int tsteps,
                 }
             }
         }
-
+        set_phase(0x00000001);
         for (i = 1; i < _PB_N-1; i++) {
            for (j = 1; j < _PB_N-1; j++) {
                for (k = 1; k < _PB_N-1; k++) {

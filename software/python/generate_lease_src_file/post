@@ -12,19 +12,33 @@ OPTIONS="-n 128 -b 9 -m 65520"
 # process
 for f in $FILES
 do
+lease_dir="$(basename "$(dirname -- "$f")")"
 filename=$(basename -- "$f") 		# get filename+ext without path
   filename="${filename%.*}" 		# get just filename
   python $PATHTEMP -i $f $OPTIONS -o $OUT/${filename}.c
-done
-for f in $OUT/*; do
-  benchmark_name=$(sed 's/_[^_]*_leases.*//'<<< ${f##.*/} | sed 's/_/-/g' | sed 's/syr2d/syr2k/')
+
+  benchmark_name=$(sed 's/_[^_]*_leases.*//'<<< ${f##.*/})
+  
   if [[ "$f" =~ .*"fnsl" ]]; then
- 	cp "$f" ../../benchmarks/poly_small_float/$benchmark_name/lease.c
+ 	cp "$OUT/${filename}.c" ../../benchmarks/poly_small_float/$benchmark_name/lease.c
   else
-  	cp "$f" ../../benchmarks/poly_small_scope_float/$benchmark_name/lease_scope.c
-  fi;
-done 
+  	if [[ "$lease_dir" == *"10" ]]; then
+	  cp "$OUT/${filename}.c" ../../benchmarks/poly_small_scope_float_10/$benchmark_name/lease_scope.c
+	elif [[ "$lease_dir" == *"30" ]]; then
+		cp "$OUT/${filename}.c" ../../benchmarks/poly_small_scope_float_30/$benchmark_name/lease_scope.c
+	elif [[ "$lease_dir" == *"50" ]]; then
+		 cp "$OUT/${filename}.c" ../../benchmarks/poly_small_scope_float_50/$benchmark_name/lease_scope.c
+	elif [[ "$lease_dir" == *"80" ]]; then
+		 cp "$OUT/${filename}.c" ../../benchmarks/poly_small_scope_float_80/$benchmark_name/lease_scope.c
+	else 
+		 cp "$OUT/${filename}.c" ../../benchmarks/poly_small_scope_float/$benchmark_name/lease_scope.c
+	fi
+fi
+done
 source ~/.bash_functions
 (cd ../../benchmarks/poly_small_float/ && make_benchmarks) 
 (cd ../../benchmarks/poly_small_scope_float/ && make_benchmarks) 
-
+#(cd ../../benchmarks/poly_small_scope_float_10/ && make_benchmarks) 
+#(cd ../../benchmarks/poly_small_scope_float_30/ && make_benchmarks) 
+#(cd ../../benchmarks/poly_small_scope_float_50/ && make_benchmarks) 
+#(cd ../../benchmarks/poly_small_scope_float_80/ && make_benchmarks) 
