@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # raw lease dump file directories
-FILES=../../CLAM/leases/poly_all/128blocks_128ways*/*
+FILES=../../CLAM/leases/poly_all/128blocks_128ways_*/*
 OUT=./output
 
 
@@ -38,7 +38,7 @@ done
 source ~/.bash_functions
 (cd ../../benchmarks/poly_small_float/ && make_benchmarks) 
 (cd ../../benchmarks/poly_small_scope_float/ && make_benchmarks) 
-#(cd ../../benchmarks/poly_small_scope_float_10/ && make_benchmarks) 
-#(cd ../../benchmarks/poly_small_scope_float_30/ && make_benchmarks) 
-#(cd ../../benchmarks/poly_small_scope_float_50/ && make_benchmarks) 
-#(cd ../../benchmarks/poly_small_scope_float_80/ && make_benchmarks) 
+(cd ../../benchmarks/poly_small_scope_float_10/ && make_benchmarks) 
+(cd ../../benchmarks/poly_small_scope_float_30/ && make_benchmarks) 
+(cd ../../benchmarks/poly_small_scope_float_50/ && make_benchmarks) 
+(cd ../../benchmarks/poly_small_scope_float_80/ && make_benchmarks) 

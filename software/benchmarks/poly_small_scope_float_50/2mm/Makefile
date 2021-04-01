@@ -1,1 +1,0 @@
-poly_small_scope_float/2mm/Makefile

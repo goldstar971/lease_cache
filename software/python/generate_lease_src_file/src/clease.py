@@ -42,15 +42,16 @@ def generate(options):
 	# go through file extracting all strings between keywords
 	# -----------------------------------------------------------------------------------
 	#keyword_begin = "Lease Dump";
-	keyword_begin = "Dump formated leases with limited entry 128";
+	keyword_begin = "Dump formated leases";
 	keyword_end = "End dump";
+	keyword_end2=""
 	valid_flag = False;
 	lease_item_list = [];
 	
 	while(len(lease_item_list)==0):
 		for line in srcHandle:
 			# check for termination
-			if line.strip() == keyword_end:
+			if line.strip() == keyword_end or line.strip() ==keyword_end2:
 				valid_flag = False;
 
 			# import to list

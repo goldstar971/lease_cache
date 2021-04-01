@@ -1,1 +1,0 @@
-poly_small_scope_float/jacobi-1d/Makefile
