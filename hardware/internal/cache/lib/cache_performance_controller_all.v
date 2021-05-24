@@ -1,6 +1,7 @@
 module cache_performance_controller_all #(
 	parameter CACHE_STRUCTURE 	=  	"",
-	parameter CACHE_REPLACEMENT = 	""
+	parameter CACHE_REPLACEMENT = 	"",
+	parameter CACHE_BLOCK_CAPACITY 	= 0
 )(	
 	input 	[1:0]		clock_i,
 	input 			resetn_i,
@@ -21,9 +22,9 @@ module cache_performance_controller_all #(
 	output 	[31:0] 	comm_o, 	 		// return value of comm_i
 	output 			stall_o,
 
-	input 	[127:0]	expired_flags_0_i,
-	input 	[127:0]	expired_flags_1_i,
-	input 	[127:0]	expired_flags_2_i,
+	input 	[CACHE_BLOCK_CAPACITY:0]	expired_flags_0_i,
+	input 	[CACHE_BLOCK_CAPACITY:0]	expired_flags_1_i,
+	input 	[CACHE_BLOCK_CAPACITY:0]	expired_flags_2_i,
 
 	input  [1:0] select_data_record
 );
@@ -188,7 +189,7 @@ end
 //tracker
 cache_line_tracker_3 #(
 	.FS 				(256 					),
-	.N_LINES 	 		(128 					)
+	.N_LINES 	 		(CACHE_BLOCK_CAPACITY 	)
 ) tracker_inst (
 	.clock_i  			(!clock_i[1]				), 		// phase = 90 deg		
 	.clock_memory_i 	(clock_i[0]			), 	 	// phase = 180 deg

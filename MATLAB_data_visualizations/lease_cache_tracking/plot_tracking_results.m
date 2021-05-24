@@ -54,9 +54,9 @@ set(gcf, 'Position',[100,100,1000,600]);     % [low left x, low left y, top righ
 		caxis([0,3]);
 
 		pos = get(ax_1,'Position');
-        set(ax_1,'Position',[pos(1) 1.09*pos(2) pos(3) .99*pos(4)]);
+        set(ax_1,'Position',[pos(1) 1.20*pos(2) pos(3) .99*pos(4)],'FontSize',13);
         pos = get(ax_2,'Position');
-        set(ax_2,'Position',[pos(1) 1.09*pos(2) pos(3) .99*pos(4)]);
+        set(ax_2,'Position',[pos(1) 1.20*pos(2) pos(3) .99*pos(4)],'FontSize',13);
        
         cb = colorbar('Ticks',[0,1,2,3],...
                  'TickLabels',{'Long Lease','Medium Lease','Short Lease','Expired'},...

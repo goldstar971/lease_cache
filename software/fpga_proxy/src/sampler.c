@@ -8,7 +8,7 @@
 #include <errno.h>
 
 
-void get_file_name(command *pcommand,char * file_name, char* dir ){
+void get_file_name(command *pcommand,char * file_name, char* dir, char * benchmark_name ){
 	char unsplit[200];
 	char parts[5][50];
 	int counter=0;
@@ -20,7 +20,7 @@ void get_file_name(command *pcommand,char * file_name, char* dir ){
 	     ptr = strtok(NULL,"/");
 	   counter=counter+1;
 	}
-	
+	sprintf(benchmark_name,"%s",parts[counter-2]);
 	sprintf(file_name,"%s.txt",parts[counter-2]);
 
 	sprintf(dir,"%s",parts[counter-3]);
@@ -173,6 +173,7 @@ uint32_t sampler_run(pHandle pInst, command *pCommand){
 	char file_path[200]; 
 	char file_name[50];
 	char benchmark_type[50];
+	char benchmark_name[50];
 	char full_output_path[250]; 
 	// put system in reset
 	sprintf(command_str, "CONFIG 0x2 0x0");
@@ -192,7 +193,7 @@ uint32_t sampler_run(pHandle pInst, command *pCommand){
 
 
 	//get file name
-	get_file_name(pCommand,file_name,benchmark_type);
+	get_file_name(pCommand,file_name,benchmark_type,benchmark_name);
 	//combine into full path
 	sprintf(file_path,"%s%s/",SAMPLER_OUTPUT_PATH,benchmark_type);
 	sprintf(full_output_path,"%s%s",file_path,file_name);
@@ -249,7 +250,6 @@ sleep(.2);
 
 	// continuously check for application completion
 	while(*(uint32_t *)rx_buffer != 0x00000001){
-
 		// check if the sampler buffer is full
 		sprintf(command_str, CHECK_IF_SAMPLER_FULL); 		// switch to full flag register
 		if(proxy_string_command(pInst, command_str)){
@@ -275,6 +275,7 @@ sleep(.2);
 		else{
 			protocol_read(pInst, rx_buffer, 4, TEST_DONE_ADDR); 	// read done flag
 		}
+		printf("%s%x\n","In loop, rx_buffer==",*(uint32_t *)rx_buffer);
 	}
 
 	// read out the remaining entries of the sampler buffer
@@ -282,7 +283,10 @@ sleep(.2);
 	if(proxy_string_command(pInst, command_str)){
 			return 1;
 		}
+
 	protocol_read(pInst, rx_buffer, 4, CACHE_L1D_ADDR); 		// read the number of buffer entries
+	printf("%s%x\n","Num_entries==",*(uint32_t *)rx_buffer);
+
 	sampler_read_buffer(pInst, *(uint32_t *)rx_buffer,file_handle);
 
 	// read out the remaining entries of the sampler lookup table
@@ -293,10 +297,12 @@ sleep(.2);
 	proxy_string_command(pInst, command_str);
 	sleep(1); 												// make sure table has time to writeout entries to buffer
 	sprintf(command_str, GET_NUM_BUFFER_ENTRIES); 	// switch to number of buffer(table) entries register
+	
 	if(proxy_string_command(pInst, command_str)){
 			return 1;
 		}
 	protocol_read(pInst, rx_buffer, 4, CACHE_L1D_ADDR); 	// read the number of buffer(table) entries
+	printf("%s%x\n","Num_entries==",*(uint32_t *)rx_buffer);
 	sampler_read_buffer(pInst, *(uint32_t *)rx_buffer,file_handle);
 
 	// report
@@ -320,6 +326,7 @@ uint32_t tracker_run(pHandle pInst, command *pCommand){
 	char file_path[200]; 
 	char file_name[50];
 	char benchmark_type[50];
+	char benchmark_name[50];
 	char full_output_path[250]; 
 
 	// put system in reset
@@ -337,7 +344,7 @@ uint32_t tracker_run(pHandle pInst, command *pCommand){
 	proxy_string_command(pInst, command_str);
 
 //get file name
-	get_file_name(pCommand,file_name,benchmark_type);
+	get_file_name(pCommand,file_name,benchmark_type,benchmark_name);
 	//combine into full path
 	sprintf(file_path,"%s%s/",TRACKER_OUTPUT_PATH,benchmark_type);
 	sprintf(full_output_path,"%s%s",file_path,file_name);
@@ -424,6 +431,7 @@ uint32_t tracker_run(pHandle pInst, command *pCommand){
 		else{
 			protocol_read(pInst, rx_buffer, 4, TEST_DONE_ADDR); 	// read done flag
 		}
+		printf("%s%x\n","In loop, rx_buffer==",*(uint32_t *)rx_buffer);
 	}
 
 	// read out the remaining entries of the sampler buffer

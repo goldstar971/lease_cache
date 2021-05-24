@@ -16,7 +16,7 @@ void benchmark_timer_start(void){
 
 void benchmark_timer_stop(void){
 	*pTimerControl = 0x00000000;    	// disable generic timer
-  	*pCommControl = 0x00000000;         // disable cache benchmarking timers
+	*pCommControl = 0x00000000;         // disable cache benchmarking timers
   	*pCommReg0 = 1; 					// used to signal to comm terminal that testing is complete
 };
 

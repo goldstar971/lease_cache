@@ -1,44 +1,106 @@
 #!/bin/bash
 
+
 # raw lease dump file directories
-FILES=../../CLAM/leases/poly_all/128blocks_128ways_*/*
+
+lt_num=256
+FILES=../../CLAM/leases/*$lt_num*/128blocks_128ways*/*
 OUT=./output
 
 
 # path to python processing script
 PATHTEMP=gen_lease_src.py
-OPTIONS="-n 128 -b 9 -m 65520"
+OPTIONS="-n $lt_num -b 9 -m 65520"
 
 # process
 for f in $FILES
 do
+	
 lease_dir="$(basename "$(dirname -- "$f")")"
-filename=$(basename -- "$f") 		# get filename+ext without path
-  filename="${filename%.*}" 		# get just filename
-  python $PATHTEMP -i $f $OPTIONS -o $OUT/${filename}.c
-
-  benchmark_name=$(sed 's/_[^_]*_leases.*//'<<< ${f##.*/})
-  
-  if [[ "$f" =~ .*"fnsl" ]]; then
- 	cp "$OUT/${filename}.c" ../../benchmarks/poly_small_float/$benchmark_name/lease.c
-  else
-  	if [[ "$lease_dir" == *"10" ]]; then
-	  cp "$OUT/${filename}.c" ../../benchmarks/poly_small_scope_float_10/$benchmark_name/lease_scope.c
-	elif [[ "$lease_dir" == *"30" ]]; then
-		cp "$OUT/${filename}.c" ../../benchmarks/poly_small_scope_float_30/$benchmark_name/lease_scope.c
-	elif [[ "$lease_dir" == *"50" ]]; then
-		 cp "$OUT/${filename}.c" ../../benchmarks/poly_small_scope_float_50/$benchmark_name/lease_scope.c
-	elif [[ "$lease_dir" == *"80" ]]; then
-		 cp "$OUT/${filename}.c" ../../benchmarks/poly_small_scope_float_80/$benchmark_name/lease_scope.c
-	else 
-		 cp "$OUT/${filename}.c" ../../benchmarks/poly_small_scope_float/$benchmark_name/lease_scope.c
-	fi
+filename=$(basename "$f") 
+if [[ "$lease_dir" == *"PRL"  ]] || [[ "$lease_dir" == *"limited"  ]]; then
+	sed -i "s/\(self.addr\s*\=\s*\).*/\1hex(int(extract_group[1]))[2:]/" src/clease.py
+	benchmark_name=$(echo "${filename%.*}")
+else
+	sed -i "s/\(self.addr\s*\=\s*\).*/\1extract_group[1]/" src/clease.py
+	benchmark_name=$(sed 's/_[^_]*_leases.*//'<<< ${f##.*/})
 fi
+
+python $PATHTEMP -i $f $OPTIONS -o "$OUT/$benchmark_name.c"
+
+echo "$lease_dir"
+ 	if [[ "$lease_dir" == *"C-SHEL_medium" ]]; then
+		cp "$OUT/${benchmark_name}.c" ../../benchmarks/C-SHEL_medium/$benchmark_name/lease_scope.c
+	elif [[ "$lease_dir" == *"C-SHEL" ]]; then
+		 cp "$OUT/${benchmark_name}.c" ../../benchmarks/C-SHEL/$benchmark_name/lease_scope.c
+	elif [[ "$lease_dir" == *"PRL" ]]; then
+		cp "$OUT/${benchmark_name}.c" ../../benchmarks/PRL/$benchmark_name/lease.c
+	elif [[ "$lease_dir" == *"CLAM_limited" ]]; then 
+		cp "$OUT/${benchmark_name}.c" ../../benchmarks/CLAM_limited/$benchmark_name/lease.c
+	elif [[ "$lease_dir" == *"CLAM_medium" ]]; then
+		cp "$OUT/${benchmark_name}.c" ../../benchmarks/CLAM_medium/$benchmark_name/lease.c
+	elif [[ "$lease_dir" == *"CLAM" ]]; then
+  	 	 cp "$OUT/${benchmark_name}.c" ../../benchmarks/CLAM/$benchmark_name/lease.c
+	elif [[ "$lease_dir" == *"SHEL_medium" ]]; then
+		cp "$OUT/${benchmark_name}.c" ../../benchmarks/SHEL_medium/$benchmark_name/lease_scope.c
+	else
+		cp "$OUT/${benchmark_name}.c" ../../benchmarks/SHEL/$benchmark_name/lease_scope.c
+	fi
 done
-source ~/.bash_functions
-(cd ../../benchmarks/poly_small_float/ && make_benchmarks) 
-(cd ../../benchmarks/poly_small_scope_float/ && make_benchmarks) 
-(cd ../../benchmarks/poly_small_scope_float_10/ && make_benchmarks) 
-(cd ../../benchmarks/poly_small_scope_float_30/ && make_benchmarks) 
-(cd ../../benchmarks/poly_small_scope_float_50/ && make_benchmarks) 
-(cd ../../benchmarks/poly_small_scope_float_80/ && make_benchmarks) 
+
+
+make_benchmarks (){
+shopt -s nocasematch
+for i in *; do 
+	group_dir=${PWD##*/}
+
+	if [ -d "$i" ]; then  
+		cd  "$i" 
+		rm program*
+		echo "doing $i"/		i
+#if [[ "$group_dir" =~ ".*scope.*" ]]; then 
+#			make no_scope;
+#		else
+			make scope;
+#		fi;
+		cd .. 
+	fi 
+done
+shopt -u nocasematch
+}
+
+make_run_all_script (){
+	variant=$(pwd |sed -n 's/.*\/\([0-9A-Za-z_]*\)/\1/p');
+	script_name=run_all_"$variant".pss;
+	file_path=../../fpga_proxy/scripts/;
+	rm -f "$file_path"/"$script_name";
+for i in *; do
+	if [ -d $i ]; then
+		echo RUN ../benchmarks/"$variant"/"$i"/program >>"$file_path"/"$script_name";
+	fi;
+done
+}
+
+
+make_track_all_script (){
+
+	variant=$(pwd |sed -n 's/.*\/\([0-9A-Za-z_]*\)/\1/p');
+	script_name=track_all_"$variant".pss;
+	file_path=../../fpga_proxy/scripts/;
+	rm -f "$file_path"/"$script_name";
+for i in *; do
+	if [ -d $i ]; then
+		echo TRACK ../benchmarks/"$variant"/"$i"/program >>"$file_path"/"$script_name";
+	fi;
+done_o
+}
+
+#(cd ../../benchmarks/CLAM/ && make_benchmarks  && make_run_all_script && make_track_all_script) 
+#(cd ../../benchmarks/SHEL/ && make_benchmarks && make_run_all_script && make_track_all_script) 
+#(cd ../../benchmarks/C-SHEL/ && make_benchmarks && make_run_all_script && make_track_all_script) 
+#(cd ../../benchmarks/PRL/ && make_benchmarks && make_run_all_script && make_track_all_script)
+#(cd ../../benchmarks/CLAM_limited/ && make_benchmarks && make_run_all_script && make_track_all_script)
+#(cd ../../benchmarks/SHEL_medium/ && make_benchmarks && make_run_all_script && make_track_all_script)
+#(cd ../../benchmarks/CLAM_medium && make_benchmarks && make_run_all_script && make_track_all_script)
+(cd ../../benchmarks/C-SHEL_medium/ && make_benchmarks && make_run_all_script && make_track_all_script)
+

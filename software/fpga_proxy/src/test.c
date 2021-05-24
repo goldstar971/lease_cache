@@ -1,6 +1,14 @@
+#include "sampler.h"
 #include "test.h"
 #include <time.h> 				// timers
 #include <inttypes.h> 
+#include <unistd.h> 			// sleep
+#include <string.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <errno.h>
+
+
 
 
 uint32_t test_run(pHandle pInst, command *pCommand){
@@ -11,20 +19,30 @@ uint32_t test_run(pHandle pInst, command *pCommand){
 
 	// put system in reset
 	sprintf(command_str, "CONFIG 0x2 0x0");
-	proxy_string_command(pInst, command_str); 
+	if(proxy_string_command(pInst, command_str)){
+			return 1;
+		}
 	sprintf(command_str, "CONFIG 0x1 0x0");
-	proxy_string_command(pInst, command_str); 
+	if(proxy_string_command(pInst, command_str)){
+			return 1;
+		}
 
 	// load fpga memory with target application
 	sprintf(command_str, "LOAD %s\r",pCommand->field[1]);
-	proxy_string_command(pInst, command_str);
+	if(proxy_string_command(pInst, command_str)){
+			return 1;
+		}
 
 	// pull system out of reset 
 	sprintf(command_str, "CONFIG 0x1 0x3");
-	proxy_string_command(pInst, command_str); 
+	if(proxy_string_command(pInst, command_str)){
+			return 1;
+		}
 	//begin wall-clock timer
 	sprintf(command_str, "CONFIG 0x2 0x1");
-	proxy_string_command(pInst, command_str); 
+	if(proxy_string_command(pInst, command_str)){
+			return 1;
+		}
 	
 	time0 = time(NULL); 						
 
@@ -42,6 +60,11 @@ uint32_t test_run(pHandle pInst, command *pCommand){
 	printf("Approx. Time-to-Execute: %lu seconds\n", time1-time0);
 
 	char report_buffer[CACHE_REPORT_BYTES];
+	char file_name[50];
+	char benchmark_type[50];
+	char benchmark_name[50];
+	get_file_name(pCommand,file_name,benchmark_type,benchmark_name);
+	printf("Benchmark_name:           %s\n", benchmark_name);
 	make_cache_report(pInst, report_buffer);
 
 	// write report to file
@@ -80,6 +103,7 @@ uint32_t script_run(pHandle pInst, command *pCommand){
 	FILE *pFile = fopen(pCommand->field[1],"r");
 	if(!pFile){
 		printf("Error, could not open %s\n", pCommand->field[1]);
+
     	return 1;
     }
 
@@ -98,13 +122,13 @@ uint32_t script_run(pHandle pInst, command *pCommand){
 
 
 uint32_t make_cache_report(pHandle pInst, char *rx_buffer){
-
+	
 	// gather cache data via fusion command
 	protocol_cache_fusion(pInst, rx_buffer, CACHE_RESULT_ADDR, CACHE_L1I_ADDR);
 	protocol_cache_fusion(pInst, (rx_buffer+64), CACHE_RESULT_ADDR, CACHE_L1D_ADDR);
 
 	uint64_t item;
-	for (uint32_t i = 0; i < 17; i++){
+	for (uint32_t i = 0; i < 18; i++){
 		item = (uint64_t) (*(uint32_t *)(rx_buffer+(8*i)+4)) << 32 | (*(uint32_t *)(rx_buffer+(8*i)+0));
 
 		switch(i){

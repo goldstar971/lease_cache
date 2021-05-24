@@ -17,7 +17,7 @@ class lease_item:
 
 		# init class
 		self.phase = 	extract_group[0];
-		self.addr = 	extract_group[1];
+		self.addr = 	extract_group[1]
 		self.lease0 = 	extract_group[2];
 		self.lease1 = 	extract_group[3];
 		self.prob = 	extract_group[4];
@@ -43,29 +43,28 @@ def generate(options):
 	# -----------------------------------------------------------------------------------
 	#keyword_begin = "Lease Dump";
 	keyword_begin = "Dump formated leases";
+	keyword_begin2 ="DUMP LEASES"
 	keyword_end = "End dump";
 	keyword_end2=""
+	keyword_end1="Dump dual leases"
 	valid_flag = False;
 	lease_item_list = [];
 	
-	while(len(lease_item_list)==0):
-		for line in srcHandle:
-			# check for termination
-			if line.strip() == keyword_end or line.strip() ==keyword_end2:
-				valid_flag = False;
+	for line in srcHandle:
+		# check for termination
+		if line.strip() == keyword_end or line.strip() ==keyword_end2 or line.strip()==keyword_end1:
+			valid_flag = False;
 
-			# import to list
-			if valid_flag == True:
-				line = line.replace(" ","").strip(); 		# remove all whitespaces and newline
-				if (line != ""):
-					new_lease_item = lease_item(line);
-					lease_item_list.append(new_lease_item);
-			
-			# check for import
-			if line.strip() == keyword_begin:
-				valid_flag = True;
-		keyword_begin ="Dump formated leases"
-		srcHandle.seek(0)
+		# import to list
+		if valid_flag == True:
+			line = line.replace(" ","").strip(); 		# remove all whitespaces and newline
+			if (line != ""):
+				new_lease_item = lease_item(line);
+				lease_item_list.append(new_lease_item);
+		
+		# check for import
+		if line.strip() == keyword_begin or line.strip() == keyword_begin2:
+			valid_flag = True;
 	# close file
 	srcHandle.close();
 

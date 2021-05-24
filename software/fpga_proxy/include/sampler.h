@@ -53,7 +53,7 @@ uint32_t tracker_run(pHandle, command *);
 // return: 				0: success, 1: fail
 // pHandle: 			proxy handle
 // command: 			command to execute
-void get_file_name(command *, char *, char*);
+void get_file_name(command *, char *, char*, char*);
 uint32_t sampler_read_buffer(pHandle, uint32_t n_entries,FILE *);
 uint32_t protocol_sampler_buffer_read(pHandle pInst, uint32_t buffer_start_address, uint32_t buffer_packet_size, FILE *);
 

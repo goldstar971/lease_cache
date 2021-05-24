@@ -1,9 +1,0 @@
-#!/bin/bash
-
-make -C ./atax/
-make -C ./doitgen/
-make -C ./floyd-warshall/
-make -C ./matrix2/
-make -C ./matrix3/
-make -C ./mvt/
-make -C ./nussinov/

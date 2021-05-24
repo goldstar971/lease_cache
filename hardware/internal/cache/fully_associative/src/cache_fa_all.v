@@ -141,7 +141,8 @@ wire 							cpc_stall_flag;
 
 	cache_performance_controller_all #(
 		.CACHE_STRUCTURE	(STRUCTURE 			), 
-		.CACHE_REPLACEMENT 	(POLICY				) 
+		.CACHE_REPLACEMENT 	(POLICY				), 
+		.CACHE_BLOCK_CAPACITY(CACHE_BLOCK_CAPACITY)
 	) perf_cont_inst(
 		.clock_i 			(clock_bus_i),
 		.resetn_i 			(resetn_i 			),

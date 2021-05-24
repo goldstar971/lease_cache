@@ -40,37 +40,7 @@ wire 	[BW_ENTRIES-1:0]			addr_table;
 
 assign addr_table = addr_i[BW_ENTRIES-1:0];
 
-test_bram_32b_512B ref_addr_inst(
-	.address 	(addr_table 				),
-	.clock 		(clock_i 					),
-	.data 		(data_i 			 		),
-	.wren 		(wren_i & (addr_i[BW_ADDR_SPACE-1:BW_ADDR_SPACE-2] == 2'b00)	),
-	.q 			()
-);
 
-test_bram_32b_512B ref_lease0_inst(
-	.address 	(addr_table 				),
-	.clock 		(clock_i 					),
-	.data 		(data_i 			 		),
-	.wren 		(wren_i & (addr_i[BW_ADDR_SPACE-1:BW_ADDR_SPACE-2] == 2'b01)	),
-	.q 			()
-);
-
-test_bram_32b_512B ref_lease1_inst(
-	.address 	(addr_table 				),
-	.clock 		(clock_i 					),
-	.data 		(data_i 			 		),
-	.wren 		(wren_i & (addr_i[BW_ADDR_SPACE-1:BW_ADDR_SPACE-2] == 2'b10)	),
-	.q 			()
-);
-
-test_bram_32b_512B lease0_prob_inst(
-	.address 	(addr_table 				),
-	.clock 		(clock_i 					),
-	.data 		(data_i 			 		),
-	.wren 		(wren_i & (addr_i[BW_ADDR_SPACE-1:BW_ADDR_SPACE-2] == 2'b11)	),
-	.q 			()
-);
 
 integer i;
 always @(posedge clock_i) begin

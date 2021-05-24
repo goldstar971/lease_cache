@@ -198,7 +198,7 @@
 
 // lease cache specific parameters
 // -------------------------------------------------------------------------------------------------
-`define LEASE_LLT_ENTRIES 				128
+`define LEASE_LLT_ENTRIES 				256
 `define LEASE_CONFIG_ENTRIES 			4 			// 0: default lease
 													// 1: backup policy - not used (05/12/2020)
 													// 2: pool 			- not used (05/12/2020)

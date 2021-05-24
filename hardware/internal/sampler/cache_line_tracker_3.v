@@ -164,17 +164,17 @@ end
 
 // memory instantiations
 // --------------------------------------------------------------------------------------------------
-wire 	[127:0]	eviction_data_0_bus,
+wire 	[N_LINES-1:0]	eviction_data_0_bus,
 				eviction_data_1_bus,
 				eviction_data_2_bus;
 
-reg 	[127:0]	eviction_data_0_reg,
+reg 	[N_LINES-1:0]	eviction_data_0_reg,
 				eviction_data_1_reg,
 				eviction_data_2_reg;
 
 memory_embedded #(
 	.N_ENTRIES 	(BUFFER_LIMIT			), 	
-	.BW_DATA 	(128					),
+	.BW_DATA 	(N_LINES				),
 	.DEBUG 		(1						)
 )mem_evictionbits0_inst(
 	.clock_i 	(clock_memory_i 		),
@@ -186,7 +186,7 @@ memory_embedded #(
 
 memory_embedded #(
 	.N_ENTRIES 	(BUFFER_LIMIT			), 	
-	.BW_DATA 	(128					),
+	.BW_DATA 	(N_LINES				),
 	.DEBUG 		(1						)
 )mem_evictionbits1_inst(
 	.clock_i 	(clock_memory_i 		),
@@ -198,7 +198,7 @@ memory_embedded #(
 
 memory_embedded #(
 	.N_ENTRIES 	(BUFFER_LIMIT			), 	
-	.BW_DATA 	(128					),
+	.BW_DATA 	(N_LINES				),
 	.DEBUG 		(1						)
 )mem_evictionbits2_inst(
 	.clock_i 	(clock_memory_i 		),
@@ -214,7 +214,7 @@ reg 	[127:0]	trace_data_reg;
 
 memory_embedded #(
 	.N_ENTRIES 	(BUFFER_LIMIT			),
-	.BW_DATA 	(128					),
+	.BW_DATA 	(N_LINES				),
 	.DEBUG 		(1						)
 )mem_trace_inst(
 	.clock_i 	(clock_memory_i 		),

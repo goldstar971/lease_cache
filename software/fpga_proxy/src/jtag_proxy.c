@@ -7,7 +7,9 @@ pHandle proxy_connect(void){
 	pHandle pInst = protocol_connect();
 
 	// synchronize host (software) and client (hardware)
+	
 	if(protocol_synchronize(pInst, 15, 0)){
+		
 		return NULL;
 	}
 	else{
@@ -85,7 +87,7 @@ uint32_t proxy_execute(pHandle pInst, command *pCommand){
 				return 1;
 			}
 			else{
-				printf("Write successful\n");
+				//printf("Write successful\n");
 				return 0;
 			}
 		}

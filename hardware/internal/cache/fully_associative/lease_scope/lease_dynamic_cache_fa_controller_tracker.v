@@ -389,7 +389,10 @@ always @(posedge clock_i) begin
 						else begin
 							n_transfer_reg = 'b0;
 							core_done_o_reg = 1'b1;
-							state_reg 		= ST_NORMAL;
+							state_reg 		= ST_UPDATE_REQUEST_LLT;
+							core_done_o_reg 	= 1'b0;
+							llt_counter_reg 		<= 'b0;
+							phase_reg 				<= phase_i[7:0];
 						end	
 					end
 				end
@@ -428,7 +431,6 @@ always @(posedge clock_i) begin
 						// if done with importing 
 						//if (llt_counter_reg == 4'b1111) begin
 						if (llt_counter_reg == llt_section_entries_bus) begin
-							llt_counter_reg <= 'b0;
 							n_transfer_reg 	<= 'b0;
 							state_reg 		<= ST_NORMAL;
 							// if there was no buffered request unstall the core
