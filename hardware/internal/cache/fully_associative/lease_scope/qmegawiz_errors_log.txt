@@ -1,0 +1,8 @@
+
+
+/home/matthew/Documents/Thesis_stuff/hardware/utilities/combinational_logic/identity_comparator.v
+
+Mar 02 11PM:25:39>: MegaWizard Plug-In Manager does not recognize /home/matthew/Documents/Thesis_stuff/hardware/utilities/combinational_logic/identity_comparator.v as a wizard-generated
+custom megafunction variation.
+
+Do you want to use a wizard to overwrite it?
