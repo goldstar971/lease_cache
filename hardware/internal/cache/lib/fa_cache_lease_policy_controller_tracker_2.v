@@ -319,19 +319,7 @@ always @(posedge clock_i) begin
 														// raise flag to record the occurrence
 						end
 					end		
-					/*if (llt_hit) begin
-						state_reg 			<= ST_GENERATE_REPLACEMENT_ADDR;
-						miss_followup_reg 	<= 1'b1;
-						swap_reg 			<= 1'b1;
-						lease_saved_reg 	<= lease_result;
-					end
-					else begin
-						state_reg 			<= ST_GENERATE_REPLACEMENT_ADDR;
-						miss_followup_reg 	<= 1'b1;
-						swap_reg 			<= 1'b1;
-						lease_saved_reg 	<= default_lease_reg;
-						default_reg 		<= 1'b1;
-					end*/
+					
 				end
 			end
 

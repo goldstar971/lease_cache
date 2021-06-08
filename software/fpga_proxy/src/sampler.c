@@ -170,26 +170,39 @@ uint32_t sampler_run(pHandle pInst, command *pCommand){
 	// temporaries
 	time_t time0, time1;
 	char command_str[200];
+
 	char file_path[200]; 
 	char file_name[50];
 	char benchmark_type[50];
 	char benchmark_name[50];
 	char full_output_path[250]; 
-	// put system in reset
-	sprintf(command_str, "CONFIG 0x2 0x0");
+	
+	
+
+	
+//applications sometimes fail to load to the FPGA, loop until the program written has been sucessfully 
+	//
+	do {
+		// put system in reset
+		sprintf(command_str, "CONFIG 0x2 0x0");
 	if(proxy_string_command(pInst, command_str)){
 		return 1;
 	}
+	sleep(.1);
 	sprintf(command_str, RESET);
+
 	if(proxy_string_command(pInst, command_str)){
 		return 1;
 	}
-	sleep(1);
-	// load fpga memory with target application
+		sleep(.1);
+		// load fpga memory with target application
 	sprintf(command_str, "LOAD %s\r",pCommand->field[1]);
-	if(proxy_string_command(pInst, command_str)){
-		return 1;
-	}
+		if(proxy_string_command(pInst, command_str)==2){
+			return 1;
+		}
+		sleep(.1);
+	sprintf(command_str, "VERIFY %s\r",pCommand->field[1]);
+	}while(proxy_string_command(pInst, command_str));
 
 
 	//get file name
@@ -221,13 +234,13 @@ uint32_t sampler_run(pHandle pInst, command *pCommand){
 	if(proxy_string_command(pInst, command_str)){
 		return 1;
 	}
-sleep(.2);
+
 	// begin wall-clock timer
 	sprintf(command_str, SEL_PERIPHS);
 	if(proxy_string_command(pInst, command_str)){
 		return 1;
 	}
-sleep(.2);
+
 		    //select sampling as metric
 	 sprintf(command_str, SAMPLING_SEL);
     if(proxy_string_command(pInst, command_str)){
@@ -275,7 +288,7 @@ sleep(.2);
 		else{
 			protocol_read(pInst, rx_buffer, 4, TEST_DONE_ADDR); 	// read done flag
 		}
-		printf("%s%x\n","In loop, rx_buffer==",*(uint32_t *)rx_buffer);
+
 	}
 
 	// read out the remaining entries of the sampler buffer
@@ -329,19 +342,27 @@ uint32_t tracker_run(pHandle pInst, command *pCommand){
 	char benchmark_name[50];
 	char full_output_path[250]; 
 
-	// put system in reset
-	sprintf(command_str, "CONFIG 0x2 0x0");
+	do {
+		// put system in reset
+		sprintf(command_str, "CONFIG 0x2 0x0");
 	if(proxy_string_command(pInst, command_str)){
-			return 1;
-		}
+		return 1;
+	}
+	sleep(.1);
 	sprintf(command_str, RESET);
+
 	if(proxy_string_command(pInst, command_str)){
+		return 1;
+	}
+		sleep(.1);
+		// load fpga memory with target application
+	sprintf(command_str, "LOAD %s\r",pCommand->field[1]);
+		if(proxy_string_command(pInst, command_str)==2){
 			return 1;
 		}
-	sleep(1);
-	// load fpga memory with target application
-	sprintf(command_str, "LOAD %s\r",pCommand->field[1]);
-	proxy_string_command(pInst, command_str);
+		sleep(.1);
+	sprintf(command_str, "VERIFY %s\r",pCommand->field[1]);
+	}while(proxy_string_command(pInst, command_str)==2);
 
 //get file name
 	get_file_name(pCommand,file_name,benchmark_type,benchmark_name);
@@ -374,13 +395,12 @@ uint32_t tracker_run(pHandle pInst, command *pCommand){
 	if(proxy_string_command(pInst, command_str)){
 		return 1;
 	}
-	sleep(.2);
+
 	// begin wall-clock timer
 	sprintf(command_str, SEL_PERIPHS);
 	if(proxy_string_command(pInst, command_str)){
 		return 1;
 	}
-	sleep(.2);
 		    //select tracking as metric
 	 sprintf(command_str, TRACKING_SEL);
     if(proxy_string_command(pInst, command_str)){
@@ -431,7 +451,7 @@ uint32_t tracker_run(pHandle pInst, command *pCommand){
 		else{
 			protocol_read(pInst, rx_buffer, 4, TEST_DONE_ADDR); 	// read done flag
 		}
-		printf("%s%x\n","In loop, rx_buffer==",*(uint32_t *)rx_buffer);
+
 	}
 
 	// read out the remaining entries of the sampler buffer

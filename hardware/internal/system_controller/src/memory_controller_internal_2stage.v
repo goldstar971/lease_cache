@@ -92,24 +92,24 @@ txrx_buffer buf0(
 	.clock_bus_i({clock_bus_i[2],clock_bus_i[0]}), .reset_i(reset_i), .exception_bus_o(exceptions_o[7:4]),
 
 	// controller side
-	.req_i(req_toMem), .reqBlock_i(reqBlock_toMem), .rw_i(rw_toMem), .add_i(add_toMem),
-	.write_en(write_en), .read_ack(read_ack), .data_i(data_toMem), .ready_write_o(ready_write), .ready_read_o(ready_read), .data_o(data_fromMem),
+	.req_i(req_toL2), .reqBlock_i(reqBlock_toL2), .rw_i(rw_toL2), .add_i(add_toL2),
+	.write_en(write_en_L2), .read_ack(read_ack_L2), .data_i(data_toL2), .ready_write_o(ready_write), .ready_read_o(ready_read), .data_o(data_fromL2),
 
 	// sdram side
 	.mem_req_o(mem_req_o), .mem_reqBlock_o(mem_reqBlock_o), .mem_clear_o(mem_clear_o), .mem_rw_o(mem_rw_o), .mem_add_o(mem_add_o), 
 	.mem_data_o(mem_data_o), .mem_done_i(mem_done_i), .mem_ready_i(mem_ready_i), .mem_valid_i(mem_valid_i), .mem_data_i(mem_data_i)
 );
 //buffer between l2 and l1
-txrx_buffer buf1(
+txrx_buffer_L2_L1 buf1(
 
 	// system i/o
 	.clock_bus_i({clock_bus_i[2],clock_bus_i[0]}), .reset_i(reset_i), .exception_bus_o(exceptions_o[7:4]),
 
-	// controller side
+	// L1 controller side
 	.req_i(req_toMem), .reqBlock_i(reqBlock_toMem), .rw_i(rw_toMem), .add_i(add_toMem),
 	.write_en(write_en), .read_ack(read_ack), .data_i(data_toMem), .ready_write_o(ready_write), .ready_read_o(ready_read), .data_o(data_fromMem),
 
-	// sdram side
+	// L2 controller side
 	.mem_req_o(mem_req_o), .mem_reqBlock_o(mem_reqBlock_o), .mem_clear_o(mem_clear_o), .mem_rw_o(mem_rw_o), .mem_add_o(mem_add_o), 
 	.mem_data_o(mem_data_o), .mem_done_i(mem_done_i), .mem_ready_i(mem_ready_i), .mem_valid_i(mem_valid_i), .mem_data_i(mem_data_i)
 );
@@ -197,8 +197,17 @@ assign reqBlock_toMem 			= (mem_access == `MEM_ACCESS_cacheL1I) ? cacheL1I_reqBl
 assign rw_toMem 				= (mem_access == `MEM_ACCESS_cacheL1I) ? cacheL1I_rw_i 			: cacheL1D_rw_i;
 assign write_en 				= (mem_access == `MEM_ACCESS_cacheL1I) ? cacheL1I_write_i 		: cacheL1D_write_i;
 assign read_ack 				= (mem_access == `MEM_ACCESS_cacheL1I) ? cacheL1I_read_i 		: cacheL1D_read_i;
-assign add_toMem 				= (mem_access == `MEM_ACCESS_cacheL1I) ? cacheL1I_add_i 		: cacheL1D_add_i;
 assign data_toMem 				= (mem_access == `MEM_ACCESS_cacheL1I) ? cacheL1I_data_i 		: cacheL1D_data_i;
+assign add_toMem 				= (mem_access == `MEM_ACCESS_cacheL1I) ? cacheL1I_add_i 		: cacheL1D_add_i;
 
+
+// memory controller ports (cache -> buffer)
+assign req_toL2 				= cacheL2_req_i;
+assign reqBlock_toL2 			= cacheL2_reqBlock_i ;
+assign rw_toL2 				= cacheL2_rw_i;
+assign write_en_L2 				= cacheL2_write_i;
+assign read_ack_L2 				= cacheL2_read_i;
+assign data_toL2 				= cacheL2_data_i;
+assign add_toL2 				= cacheL2_add_i;
 
 endmodule

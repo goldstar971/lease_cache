@@ -8,9 +8,7 @@ module internal_system_2(
 	input 			reset_i,
 	output 	[11:0]	exception_o,
 	input 	[31:0]	comm_i, 
-	`ifdef DATA_POLICY_DLEASE
 		input 	[31:0] 	phase_i,
-	`endif
 	output 	[31:0]	comm_cache0_o, 
 	output 	[31:0]	comm_cache1_o,
 	input    [1:0]    cpc_metric_switch_i,
@@ -161,9 +159,7 @@ wire 				mci_hitFromCache1, mci_reqFromCache1, mci_reqBlockFromCache1, mci_rwFro
 	.comm_i 				(comm_i 					), 
 	.comm_o 				(comm_cache1_o 				),
 	.PC_i             (core_inst_addr               ),  
-	`ifdef DATA_POLICY_DLEASE
 		.phase_i          (phase_i                   ),
-	`endif
 	.metric_sel_i    (cpc_metric_switch_i           ),
 	// core/hart					
 	.core_req_i 			(core_reqToCache1 			), 

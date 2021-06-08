@@ -78,7 +78,6 @@ void kernel_adi(int tsteps, int n,
   DATA_TYPE a, b, c, d, e, f;
 
 #pragma scop
-  set_phase(0x00000000);
   DX = SCALAR_VAL(1.0)/(DATA_TYPE)_PB_N;
   DY = SCALAR_VAL(1.0)/(DATA_TYPE)_PB_N;
   DT = SCALAR_VAL(1.0)/(DATA_TYPE)_PB_TSTEPS;
@@ -96,7 +95,7 @@ void kernel_adi(int tsteps, int n,
 
  for (t=1; t<=_PB_TSTEPS; t++) {
     //Column Sweep
-    set_phase(0x00000001);
+    set_phase(0x00000000);
     for (i=1; i<_PB_N-1; i++) {
       v[0][i] = SCALAR_VAL(1.0);
       p[i][0] = SCALAR_VAL(0.0);
@@ -112,7 +111,7 @@ void kernel_adi(int tsteps, int n,
       }
     }
     //Row Sweep
-     set_phase(0x00000002);
+     set_phase(0x00000001);
     for (i=1; i<_PB_N-1; i++) {
       u[i][0] = SCALAR_VAL(1.0);
       p[i][0] = SCALAR_VAL(0.0);

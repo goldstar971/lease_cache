@@ -291,8 +291,6 @@ always @(posedge clock_i) begin
 						state_next0 	= `FUSION_MANAGE0;
 					end
 
-					// CycloneV-DE0: Sampler
-					// CycloneV-GT:	 Tracker
 					if (config_bits[5] == 1'b1||config_bits[6]==1'b1) begin
 						fusion_write_add 	= 27'h4000110;
 						fusion_read_add 	= 27'h4000084;

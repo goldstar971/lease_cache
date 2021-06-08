@@ -1,3 +1,4 @@
+`include "../../../../include/float.h"
 module riscv_32F_alu_pipelined(
 		input  clock_float_i,
 		input [31:0] in0_i,
@@ -7,8 +8,8 @@ module riscv_32F_alu_pipelined(
 		input [4:0]  fsrc2_i,
 		input [2:0]  rm_i,
 		input [4:0] func5_i,
-		output float_stall,
-		output reg [31:0] out_o
+		output reg [31:0] out_o,
+		output [3:0] stall_cycles
 );
 
 wire [31:0] div_o, mul_o, add_in_1, add_in_2, add_sub_o,
@@ -106,6 +107,7 @@ ITF_unsigned fcvt_itfu(
   256 signaling NAN
   512 quiet NAN
 */
+//going to assume this is one clock cycle worth of latency
 	assign class_o = (in0_i[31]==1'b1 && in0_i[30:23]==8'hff && in0_i[22:0]==23'b00000000000000000000000) ? 32'h00000001 :
 	(in0_i[31]==1'b0 && in0_i[30:23]==32'hff && in0_i[22:0]==23'b00000000000000000000000) ? 32'h00000080 :
 	(in0_i[30:23]==32'hff && in0_i[22:0]==23'b10000000000000000000000) ? 32'h00000200:
@@ -133,10 +135,23 @@ assign fmax_o = (le_o==1'b1) ? in1_i : in0_i;
 //vice versa for fmin
 assign fmin_o = (le_o==1'b1) ? in0_i : in1_i;
 //if no float operations need to be preformed, no need to stall
-assign float_stall =(((encoding_i==`ENCODING_FARITH) &&((func5_i==`RV32F_FUNC5_CLASS)
-||(func5_i==`RV32F_FUNC5_MV_WX)||(func5_i==`RV32F_FUNC5_SGNJ)))
-|| (encoding_i==`ENCODING_FLOAD)||(encoding_i==`ENCODING_FSTORE)) ? 1'b0:
-	(!encoding_i[15:9]) ? 1'b0 :  1'b1;
+
+wire [3:0] stall_cycles_1, stall_cycles_2, stall_cycles_3, stall_cycles_4, stall_cycles_5, stall_cycles_6,
+stall_cycles_7,stall_cycles_8;
+
+//if we aren't a float operation than the result doesn't matter so just assume its a float operation
+//attempt at a balanced structural path
+
+assign stall_cycles_2=(func5_i==`RV32F_FUNC5_SQRT) ? `FSQRT_LATENCY : (func5_i==`RV32F_FUNC5_DIV) ?  `FDIV_LATENCY : 'b0;
+assign stall_cycles_1=(encoding_i[14:11]) ?`FMA_LATENCY : (func5_i<5'b00010) ? `FADD_SUB_LATENCY : 4'b0;
+assign stall_cycles_3=(func5_i==`RV32F_FUNC5_MUL) ? `FMUL_LATENCY : (func5_i==`RV32F_FUNC5_CLASS) ? `CLASS_LATENCY :4'b0;
+assign stall_cycles_4=(func5_i==`RV32F_FUNC5_FCVT_FTI) ? `FLOAT_TO_INT_LATENCY : (func5_i==`RV32F_FUNC5_FCVT_ITF) ? `INT_TO_FLOAT_LATENCY :4'b0;
+assign stall_cycles_5=(func5_i==`RV32F_FUNC5_CMP) ? `COMPARE_LATENCY : (func5_i==`RV32F_FUNC5_FMIN_MAX) ? `COMPARE_LATENCY : 4'b0;
+assign stall_cycles_6=(stall_cycles_5) ? stall_cycles_5 : stall_cycles_4;
+assign stall_cycles_7=(stall_cycles_3) ? stall_cycles_3 : stall_cycles_2;
+assign stall_cycles_8=(stall_cycles_1) ? stall_cycles_1 : stall_cycles_6;
+assign stall_cycles=(stall_cycles_7) ? stall_cycles_7 : stall_cycles_8;
+
 
 		
 		//assign output based on instruction

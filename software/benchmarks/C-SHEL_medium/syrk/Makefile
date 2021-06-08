@@ -1,1 +1,1 @@
-../../CLAM/2mm/Makefile
+../../CLAM_medium/2mm/Makefile

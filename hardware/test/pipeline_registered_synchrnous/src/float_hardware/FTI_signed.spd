@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<simPackage>
+ <file path="FTI_signed_sim/FTI_signed.vo" type="VERILOG" />
+ <topLevel name="FTI_signed" />
+ <deviceFamily name="cyclonev" />
+</simPackage>

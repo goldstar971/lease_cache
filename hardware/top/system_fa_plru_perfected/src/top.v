@@ -63,18 +63,14 @@ wire 	[31:0]	data_toCore, data_fromCore;
 wire 			req_core2per, rw_core2per;
 wire 	[31:0]	add_core2per;
 wire 	[31:0]	data_core2per, data_per2core;  	
-`ifdef DATA_POLICY_DLEASE
-	wire 	[31:0] 	phase_bus;
-`endif
+wire 	[31:0] 	phase_bus;
 
 internal_system_2 riscv_sys (
 
 	// general ports
 	.clock_bus_i 	({clock_gen_bus[5:3],clock_gen_bus[0]}	), // [20-270, 20-180, 20-90, 20]
 	.reset_i 		(reset_bus[0] 		),
-	`ifdef DATA_POLICY_DLEASE
-		.phase_i (phase_bus),
-	`endif
+	.phase_i (phase_bus),
 	.exception_o 	(), 
 	.comm_i 		(comm_toCore 		), 
 	.comm_cache0_o 	(comm_fromCache0 	), 
@@ -183,9 +179,7 @@ peripheral_system_2 per_sys_inst(
 	.data_cs_o 		(data_fromPer1 		),
 	
 	// periphery ports - used for communication/control of cache
-	`ifdef DATA_POLICY_DLEASE
-		.phase_o(phase_bus),
-	`endif
+	.phase_o(phase_bus),
 	.comm_cache0_i 	(comm_fromCache0	), 
 	.comm_cache1_i 	(comm_fromCache1	),
 	.metric_sel_o       (sel_cpc),

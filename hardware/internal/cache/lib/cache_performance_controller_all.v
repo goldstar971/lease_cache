@@ -5,9 +5,7 @@ module cache_performance_controller_all #(
 )(	
 	input 	[1:0]		clock_i,
 	input 			resetn_i,
-	`ifdef DATA_POLICY_DLEASE
-		input[31:0] phase_i,
-	`endif    
+	input[31:0] phase_i,   
 	input [31:0]	 pc_ref_i,         
 	input [`BW_CACHE_TAG-1:0] tag_ref_i,	
 	input          swap_i,
@@ -67,11 +65,7 @@ assign sampler_stall_o=buffer_full_flag | table_full_flag;
 assign stall_o=(enable_tracker) ? tracker_stall_o : (enable_sampler) ? sampler_stall_o : 1'b0;
 
 wire [31:0] pc_bus;
-`ifdef DATA_POLICY_DLEASE
-				assign pc_bus= {phase_i[7:0],pc_ref_i[23:0]};
-`else 
-				assign pc_bus=pc_ref_i;
-`endif										
+assign pc_bus= {phase_i[7:0],pc_ref_i[23:0]};
 
 
 always @(posedge clock_i[0]) begin

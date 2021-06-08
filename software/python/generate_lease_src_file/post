@@ -18,31 +18,47 @@ do
 	
 lease_dir="$(basename "$(dirname -- "$f")")"
 filename=$(basename "$f") 
-if [[ "$lease_dir" == *"PRL"  ]] || [[ "$lease_dir" == *"limited"  ]]; then
+if [[ "$lease_dir" == *"PRL"*  ]] || [[ "$lease_dir" == *"limited"  ]]; then
 	sed -i "s/\(self.addr\s*\=\s*\).*/\1hex(int(extract_group[1]))[2:]/" src/clease.py
-	benchmark_name=$(echo "${filename%.*}")
+	benchmark_name=$(sed 's/_[^_]*_leases.*//'<<< ${f##.*/})
 else
 	sed -i "s/\(self.addr\s*\=\s*\).*/\1extract_group[1]/" src/clease.py
 	benchmark_name=$(sed 's/_[^_]*_leases.*//'<<< ${f##.*/})
 fi
-
 python $PATHTEMP -i $f $OPTIONS -o "$OUT/$benchmark_name.c"
 
-echo "$lease_dir"
  	if [[ "$lease_dir" == *"C-SHEL_medium" ]]; then
 		cp "$OUT/${benchmark_name}.c" ../../benchmarks/C-SHEL_medium/$benchmark_name/lease_scope.c
+	elif [[ "$lease_dir" == *"C-SHEL_large" ]]; then
+		 cp "$OUT/${benchmark_name}.c" ../../benchmarks/C-SHEL_large/$benchmark_name/lease_scope.c
+	elif [[ "$lease_dir" == *"C-SHEL_extra_large" ]]; then
+		 cp "$OUT/${benchmark_name}.c" ../../benchmarks/C-SHEL_extra_large/$benchmark_name/lease_scope.c
 	elif [[ "$lease_dir" == *"C-SHEL" ]]; then
 		 cp "$OUT/${benchmark_name}.c" ../../benchmarks/C-SHEL/$benchmark_name/lease_scope.c
+	elif [[ "$lease_dir" == *"PRL_medium" ]]; then
+		cp "$OUT/${benchmark_name}.c" ../../benchmarks/PRL_medium/$benchmark_name/lease.c
+	elif [[ "$lease_dir" == *"PRL_large" ]]; then
+		cp "$OUT/${benchmark_name}.c" ../../benchmarks/PRL_large/$benchmark_name/lease.c
+	elif [[ "$lease_dir" == *"PRL_extra_large" ]]; then
+		cp "$OUT/${benchmark_name}.c" ../../benchmarks/PRL_extra_large/$benchmark_name/lease.c
 	elif [[ "$lease_dir" == *"PRL" ]]; then
 		cp "$OUT/${benchmark_name}.c" ../../benchmarks/PRL/$benchmark_name/lease.c
 	elif [[ "$lease_dir" == *"CLAM_limited" ]]; then 
 		cp "$OUT/${benchmark_name}.c" ../../benchmarks/CLAM_limited/$benchmark_name/lease.c
 	elif [[ "$lease_dir" == *"CLAM_medium" ]]; then
 		cp "$OUT/${benchmark_name}.c" ../../benchmarks/CLAM_medium/$benchmark_name/lease.c
+	elif [[ "$lease_dir" == *"CLAM_large" ]]; then
+		cp "$OUT/${benchmark_name}.c" ../../benchmarks/CLAM_large/$benchmark_name/lease.c
+	elif [[ "$lease_dir" == *"CLAM_extra_large" ]]; then
+		cp "$OUT/${benchmark_name}.c" ../../benchmarks/CLAM_extra_large/$benchmark_name/lease.c
 	elif [[ "$lease_dir" == *"CLAM" ]]; then
   	 	 cp "$OUT/${benchmark_name}.c" ../../benchmarks/CLAM/$benchmark_name/lease.c
-	elif [[ "$lease_dir" == *"SHEL_medium" ]]; then
+  	elif [[ "$lease_dir" == *"SHEL_medium" ]]; then
 		cp "$OUT/${benchmark_name}.c" ../../benchmarks/SHEL_medium/$benchmark_name/lease_scope.c
+	elif [[ "$lease_dir" == *"SHEL_large" ]]; then
+		cp "$OUT/${benchmark_name}.c" ../../benchmarks/SHEL_large/$benchmark_name/lease_scope.c
+	elif [[ "$lease_dir" == *"SHEL_extra_large" ]]; then
+		cp "$OUT/${benchmark_name}.c" ../../benchmarks/SHEL_extra_large/$benchmark_name/lease_scope.c
 	else
 		cp "$OUT/${benchmark_name}.c" ../../benchmarks/SHEL/$benchmark_name/lease_scope.c
 	fi
@@ -54,15 +70,11 @@ shopt -s nocasematch
 for i in *; do 
 	group_dir=${PWD##*/}
 
-	if [ -d "$i" ]; then  
+	if [[ -d "$i" ]]; then  
 		cd  "$i" 
 		rm program*
-		echo "doing $i"/		i
-#if [[ "$group_dir" =~ ".*scope.*" ]]; then 
-#			make no_scope;
-#		else
-			make scope;
-#		fi;
+		echo "doing $i"
+			make scope opt_level=O3;
 		cd .. 
 	fi 
 done
@@ -92,15 +104,22 @@ for i in *; do
 	if [ -d $i ]; then
 		echo TRACK ../benchmarks/"$variant"/"$i"/program >>"$file_path"/"$script_name";
 	fi;
-done_o
+done
 }
 
 #(cd ../../benchmarks/CLAM/ && make_benchmarks  && make_run_all_script && make_track_all_script) 
 #(cd ../../benchmarks/SHEL/ && make_benchmarks && make_run_all_script && make_track_all_script) 
 #(cd ../../benchmarks/C-SHEL/ && make_benchmarks && make_run_all_script && make_track_all_script) 
 #(cd ../../benchmarks/PRL/ && make_benchmarks && make_run_all_script && make_track_all_script)
-#(cd ../../benchmarks/CLAM_limited/ && make_benchmarks && make_run_all_script && make_track_all_script)
-#(cd ../../benchmarks/SHEL_medium/ && make_benchmarks && make_run_all_script && make_track_all_script)
-#(cd ../../benchmarks/CLAM_medium && make_benchmarks && make_run_all_script && make_track_all_script)
-(cd ../../benchmarks/C-SHEL_medium/ && make_benchmarks && make_run_all_script && make_track_all_script)
-
+#(cd ../../benchmarks/CLAM_medium/ && make_benchmarks  && make_run_all_script && make_track_all_script) 
+#(cd ../../benchmarks/SHEL_medium/ && make_benchmarks && make_run_all_script && make_track_all_script) 
+(cd ../../benchmarks/C-SHEL_medium/ && make_benchmarks && make_run_all_script && make_track_all_script) 
+#(cd ../../benchmarks/PRL_medium/ && make_benchmarks && make_run_all_script && make_track_all_script)
+#(cd ../../benchmarks/CLAM_large/ && make_benchmarks  && make_run_all_script && make_track_all_script) 
+#(cd ../../benchmarks/SHEL_large/ && make_benchmarks && make_run_all_script && make_track_all_script) 
+#(cd ../../benchmarks/C-SHEL_large/ && make_benchmarks && make_run_all_script && make_track_all_script) 
+#(cd ../../benchmarks/PRL_large/ && make_benchmarks && make_run_all_script && make_track_all_script)
+#(cd ../../benchmarks/CLAM_extra_large/ && make_benchmarks  && make_run_all_script && make_track_all_script) 
+#(cd ../../benchmarks/SHEL_extra_large/ && make_benchmarks && make_run_all_script && make_track_all_script) 
+#(cd ../../benchmarks/C-SHEL_extra_large/ && make_benchmarks && make_run_all_script && make_track_all_script) 
+#(cd ../../benchmarks/PRL_extra_large/ && make_benchmarks && make_run_all_script && make_track_all_script)

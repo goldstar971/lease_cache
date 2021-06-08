@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<simPackage>
+ <file path="compare_eq_sim/compare_eq.vo" type="VERILOG" />
+ <topLevel name="compare_eq" />
+ <deviceFamily name="cyclonev" />
+</simPackage>

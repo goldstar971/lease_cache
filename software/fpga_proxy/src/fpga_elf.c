@@ -8,7 +8,10 @@ uint32_t fpga_load_memory(pHandle pInst, command *pCommand){
 	uint32_t buffer_addr[10] = {0}; 		// memory address of where the section begins (byte address)
 	uint32_t buffer_size[10] = {0}; 		// number of bytes to transfer per section
 
-	if(get_elf_sections(pCommand->field[1], buffer_addr, buffer_size)){
+	if(get_elf_sections(pCommand->field[1], buffer_addr, buffer_size)==2){
+		return 2;
+	}
+	else if(get_elf_sections(pCommand->field[1], buffer_addr, buffer_size)){
 		return 1;
 	}
 
@@ -34,7 +37,10 @@ uint32_t fpga_verify_memory(pHandle pInst, command *pCommand){
 	uint32_t buffer_addr[10] = {0}; 		// memory address of where the section begins (byte address)
 	uint32_t buffer_size[10] = {0}; 		// number of bytes to transfer per section
 
-	if(get_elf_sections(pCommand->field[1], buffer_addr, buffer_size)){
+	if(get_elf_sections(pCommand->field[1], buffer_addr, buffer_size)==2){
+		return 2;
+	}
+	else if(get_elf_sections(pCommand->field[1], buffer_addr, buffer_size)){
 		return 1;
 	}
 
@@ -68,7 +74,7 @@ uint32_t get_elf_sections(char *filepath, uint32_t *pAddr, uint32_t *pSize){
 	FILE *pFile = fopen(info_path_str,"r");
 	if(!pFile){
 		printf("Error, could not open %s\n", info_path_str);
-    	return 1;
+    	return 2;
     }
 
     // loop through file line by line and parse into an address field and size field
@@ -93,9 +99,10 @@ uint32_t get_elf_sections(char *filepath, uint32_t *pAddr, uint32_t *pSize){
 	}
 
     // close file and return without error
+    //return 2 because returning one is to indicate verification failed.
 	if (fclose(pFile)){
 		printf("Error: could not close file\n");
-		return 1;
+		return 2;
 	}
     return 0;
 }
@@ -125,7 +132,7 @@ uint32_t dma_elf_data(pHandle pInst, char *filename, uint32_t address, uint32_t 
 		// read data
 		if(get_elf_data(filename, pBuffer, MAX_WRITE_BYTES, file_address, file_size)){
 			printf("Error: could not get program data\n");
-			return 1;
+			return 2;
 		}
 
 		// dma sequence

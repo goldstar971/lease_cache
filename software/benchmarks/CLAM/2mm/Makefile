@@ -9,9 +9,8 @@ INC=-I $(INC_PATH)
 LD=-T $(LD_PATH)
 LD_SCOPE=-T $(LD_PATH_SCOPE)
 OPTS=--specs=nosys.specs -march=rv32imf -mabi=ilp32f -mdiv -mfdiv -$(opt_level) \
--fno-branch-count-reg -fno-if-conversion -fno-inline-functions-called-once \
--fno-move-loop-invariants -fno-ssa-phiopt -fno-tree-bit-ccp -fno-tree-bit-ccp \
--fno-tree-sra -fno-if-conversion2
+-fno-tree-slp-vectorize -fno-tree-loop-vectorize -fno-tree-vectorize 
+
 pre_process:
 	$(RISCV_GCC_PATH)/riscv-none-embed-gcc $(INC) $(OPTS) $(LD) $(INC_PATH)/*.c *.c -E -DSMALL_DATASET -DDATA_TYPE_IS_FLOAT -DINTEGER_SUPPORT -lm >> preprocess.txt
 

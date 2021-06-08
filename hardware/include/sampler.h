@@ -24,20 +24,10 @@
 
 
 
-`include "../../../internal/sampler/cache_performance_controller_sampler.v"
 `include "../../../internal/sampler/bram_64kB_32b.v"
 `include "../../../internal/sampler/bram_128kB_64b.v"
 `include "../../../internal/sampler/comparator_identity_20b.v"
-`include "../../../internal/sampler/tag_match_encoder.v"
-
-`ifdef DATA_POLICY_DLEASE
-	`include "../../../internal/sampler/lease_sampler_phase.v"
-	`include "../../../internal/cache/fully_associative/lease_scope/lease_dynamic_cache_fa_sampler.v"
-	`include "../../../internal/cache/fully_associative/src/lease_cache_fa_controller.v"
-`else
-	`include "../../../internal/sampler/lease_sampler_final.v"
-	`include "../../../internal/cache/fully_associative/src/lease_cache_fa_sampler.v"
-	`include "../../../internal/cache/fully_associative/src/lease_cache_fa_controller.v"
-`endif
+`include "../../../internal/sampler/tag_match_encoder_6b.v"
+`include "../../../internal/sampler/tag_match_encoder_7b.v"
 
 `endif // _CACHE_H_

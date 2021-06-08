@@ -1,11 +1,11 @@
 //`include "riscv.h"
-
+`include "../../../../include/float.h"
 module riscv_alu_pipelined #(
 	parameter RV32F =0,
 	parameter RV32M = 0,
-	parameter DIV_STAGES = 1
+	parameter DIV_STAGES = 1,
+	parameter MUL_STAGES = 0
 )(
-	input             clock_float_i,
 	input 				clock_div_i,
 	input 		[31:0]	in0_i,
 	input 		[31:0]	in1_i,
@@ -19,10 +19,8 @@ module riscv_alu_pipelined #(
 	input		[6:0]	func7_i,
 	input       [4:0]   func5_i,
 	output		[31:0]	out_o,
-	output              flag_float_op_o,
-	output             flag_float_div_o,
-	output 				flag_mult_o,
-	output 				flag_div_o
+	output      [4:0]   stall_cycles
+	
 );
 
 // RISCV 32I extension
@@ -40,25 +38,31 @@ riscv_32I_alu riscv_32i_alu_inst(
 //will be optimized away if not used
 wire [31:0] alu_32m_result;
 wire [31:0] alu_32f_result;
+wire [3:0] falu_stall_cycles;
+wire [3:0] malu_stall_cycles;
+
+
 
 
 generate 
 	// RISCV 32M extension
+	
 	if (RV32M) begin
-
-		
 		riscv_32M_alu_pipelined  #(
-			.DIV_STAGES	(DIV_STAGES 	)
+			.DIV_STAGES	(DIV_STAGES 	),
+			.MUL_STAGES (MUL_STAGES     )
 		) riscv_32m_alu_inst (
 			.clock_div_i(clock_div_i 	),
 			.in0_i 		(in0_i 			), 		// Tsrc1
 			.in1_i 		(in1_i 			), 		// Tsrc2
 			.func3_i 	(func3_i 		), 		// operation switch
-			.result_o 	(alu_32m_result	) 		// modulated output (2's Comp if necessary)
+			.result_o 	(alu_32m_result	), 		// modulated output (2's Comp if necessary)
+			.stall_cycles(malu_stall_cycles)
 		);
 	end
 	// RISCV 32F Extension
 	if (RV32F) begin
+
 		riscv_32F_alu_pipelined riscv_32f_alu_inst(
 		.clock_float_i(clock_div_i),
 		.in0_i 		(in0_i			), 		// Tsrc1
@@ -68,15 +72,32 @@ generate
 		.func5_i    (func5_i        ),       //switch control
 		.rm_i       (rm_i),
 		.fsrc2_i    (fsrc2_i),
-		.float_stall (flag_float_op_o),
+		.stall_cycles(falu_stall_cycles),
 		.out_o		(alu_32f_result	));
 	end 
-	//if extensions not used, will be optimized at synthesis time.
-		assign out_o = ( (encoding_i == `ENCODING_ARITH_REG) & (func7_i == `RV32M_FUNC7) ) ? alu_32m_result : (encoding_i[15:9]) ?
+	
+
+		
+	if(RV32F && RV32M) begin
+		assign stall_cycles =(encoding_i[15:11]) ? falu_stall_cycles : ((encoding_i ==`ENCODING_ARITH_REG) &(func7_i== `RV32M_FUNC7)) ?
+		malu_stall_cycles : 'b0;
+		assign out_o = ( (encoding_i == `ENCODING_ARITH_REG) & (func7_i == `RV32M_FUNC7) ) ? alu_32m_result : (encoding_i[15:11]) ?
 		alu_32f_result : alu_32i_result;
-		assign flag_mult_o = ( (encoding_i == `ENCODING_ARITH_REG) & (func7_i == `RV32M_FUNC7) & (!func3_i[2]) ) ? 1'b1 : 1'b0;
-		assign flag_div_o =  ( (encoding_i == `ENCODING_ARITH_REG) & (func7_i == `RV32M_FUNC7) & (func3_i[2]) ) ? 1'b1 : 1'b0;
-		assign flag_float_div_o =( (encoding_i ==`ENCODING_FARITH) &  (func5_i == `RV32F_FUNC5_DIV)) ? 1'b1 : 1'b0;
+	end 
+	else if(RV32F) begin   
+		assign stall_cycles =(encoding_i[15:11]) ? falu_stall_cycles :'b0;
+		assign out_o =(encoding_i[15:11]) ? alu_32f_result : alu_32i_result;
+	end
+	else if(RV32M) begin
+		assign stall_cycles = ((encoding_i ==`ENCODING_ARITH_REG) &(func7_i== `RV32M_FUNC7)) ? malu_stall_cycles : 'b0;
+		assign out_o =  ( (encoding_i == `ENCODING_ARITH_REG) & (func7_i == `RV32M_FUNC7) ) ? alu_32m_result : alu_32i_result;
+	end
+	else begin 
+		assign stall_cycles = 'b0;
+		assign out_o = alu_32i_result;
+	end
+
+		
 endgenerate
 
 endmodule

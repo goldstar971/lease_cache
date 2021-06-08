@@ -1,7 +1,7 @@
 module riscv_hart_6stage_pipeline(
 
 	// system ports
-	input 	[1:0]			clock_i,
+	input 	clock_i,
 	input 				reset_i,
 
 	// instruction memory ports - just read
@@ -30,9 +30,7 @@ reg 	[31:0]	data_addr_reg;
 reg 	[31:0]	data_data_reg;
 reg 	[31:0]	data_ref_addr_reg;
 
-wire clk_20mhz, clk_100mhz;
-assign clk_20mhz = clock_i[1];
-assign clk_100mhz=clock_i[0];
+
 
 
 assign inst_req_o 		= inst_req_reg;
@@ -135,19 +133,19 @@ stage4_memory_operation stage4_inst(
 // if arith then route to alu
 // ~8Mhz max to convert, divide, and convert
 
-wire 	flag_divide, flag_float_divide;
-wire    flag_float_op;
+//output from integer and floating point ALU units corresponding to the time to stall for a given op
+wire [4:0] stall_cycles;
 
 
 
 
 riscv_alu_pipelined #(
 	.RV32M 						(1 						),
-	.RV32F                      (1                      ),
-	.DIV_STAGES 				(3 						)	// delay necessary is 
+	.RV32F                    (1                      ),
+	.DIV_STAGES 				(4'h4 						),	// delay necessary is 
+	.MUL_STAGES              (4'h1						)
 ) rv32_alu_inst(
-	.clock_div_i				(clk_20mhz 				),	// for multicycle pipelining
-	.clock_float_i          (clk_100mhz        ),
+	.clock_div_i				(clock_i 				),
 	.in0_i 						(Tsrc1_3_reg 			), 
 	.in1_i 						(Tsrc2_3_reg 			), 
 	.in2_i                      (Tsrc3_3_reg			),
@@ -160,10 +158,8 @@ riscv_alu_pipelined #(
 	.func5_i                    (func5_3_reg            ),
 	.func3_i 					(func3_3_reg 			), 
 	.func7_i 					(func7_3_reg			),
-	.flag_float_op_o           (flag_float_op          ),
-	.flag_mult_o 				( 						), 	// for future use - if sped up and requires multicycle
-	.flag_div_o 				(flag_divide 			), 	// 1: if executing a divide operation
-	.flag_float_div_o       (flag_float_divide)
+	.stall_cycles          (stall_cycles         )
+	
 );
 
 
@@ -233,6 +229,17 @@ dependency_handler dependency_handler_inst(
 );
 
 
+/*wire [`BW_BTYE_ADDR-1:0] prediction;
+branch_predictor_2b branch_predictor(
+	.clock_i(clock_i),
+	.reset(reset_i),
+	.PC_i(PC[25:2]),
+	.instruction_stage1(IR_1_reg),
+	.stage_1_instruct_addr(inst_addr_1_reg[25:2] ),
+	.stage_2_instruct_addr(inst_addr_2_reg[25:2] ),
+	.mispredict(jump_exception[2] & !flag_pipeline_jump),
+	.PC_o(prediction));
+*/
 // jump/branch address generation
 // -------------------------------------------------------
 wire [3:0]	jump_exception;
@@ -303,11 +310,15 @@ stage1_instruction_decode stage1_inst(
 reg 	[4:0]	pipeline_state_active, pipeline_state_saved;
 reg 			flag_pipeline_dependency_stall, flag_pipeline_jump;
 integer 		i;
-reg 			flag_divide_reg, flag_float_op_reg;
-reg 	[3:0] 	stall_counter_reg;
+reg 			flag_alu_reg;
+reg 	[4:0] 	stall_counter_reg;
 
 
-always @(posedge clk_20mhz) begin
+
+
+
+
+always @(posedge clock_i) begin
 
 	// reset state
 	// -----------------------------------------------------------------------------------------------------------
@@ -317,12 +328,12 @@ always @(posedge clk_20mhz) begin
 		pipeline_state_active 			= 5'b00001; 			// requesting out of reset so first stage is active
 		pipeline_state_saved 			= 5'b00000;
 		flag_pipeline_dependency_stall 	= 1'b0;
-		flag_pipeline_jump 				= 1'b0;
-		flag_divide_reg 				= 1'b0;
-		flag_float_op_reg =1'b0;
+		//flag_pipeline_jump 				<= 1'b0;
+		flag_pipeline_jump=1'b0;
 		stall_counter_reg 				= 'b0;
 		
-		PC <= 4;
+		//PC <= 4;
+		PC=4;
 		for (i = 0; i < 32; i = i + 1) begin
 			if (i != 2) 		RFI[i] <= 'b0;
 			else if (i == 2)	RFI[i] <= `SP_BASE;
@@ -359,6 +370,7 @@ always @(posedge clk_20mhz) begin
 		data_wren_reg 	<= 1'b0;
 		data_addr_reg 	<= 'b0;
 		data_data_reg 	<= 'b0;
+	
 
 	end
 
@@ -377,28 +389,15 @@ always @(posedge clk_20mhz) begin
 
 		// check for critical exceptions - need to do
 
-		// if multicycle alu operation stall entire pipeline
-		if (flag_divide & !flag_divide_reg) begin 	// first cycle that controller sees the operation, set flag and delay
-			flag_divide_reg = 1'b1;
-			stall_counter_reg = 4'b0011;
+		// if multicycle ALU op operation stall entire pipeline
+		if (stall_cycles && !flag_alu_reg) begin 	// first cycle that controller sees the operation, set flag and delay
+			flag_alu_reg = 1'b1;
+			stall_counter_reg = stall_cycles;
 		end
-		// if multicycle float op stall entire pipeline
-	
-		if (flag_float_op &!flag_float_op_reg) begin
-			if(flag_float_divide) begin
-				stall_counter_reg=4'b1010; //float divide takes 10 cycles at 20MHZ
-			end
-			else begin
-				stall_counter_reg=4'b0011;
-			end
-			flag_float_op_reg=1'b1;
-		end
-		if (flag_divide_reg & !stall_counter_reg) begin
-			flag_divide_reg = 1'b0;
-		end
-		// if multicycle float operation stall entire pipeline
-		if (flag_float_op & !stall_counter_reg) begin
-			flag_float_op_reg=1'b0;
+		
+		// unstall once the request number of stall cycles have elapsed
+		if (stall_cycles & !stall_counter_reg) begin
+			flag_alu_reg=1'b0;
 		end
 
 		// only proceed if not waiting for alu multicycle or float op
@@ -419,7 +418,8 @@ always @(posedge clk_20mhz) begin
 
 					// if the jump is serviced, restore state
 					else begin
-						flag_pipeline_jump 		= 1'b0;	
+						flag_pipeline_jump=1'b0;
+						//flag_pipeline_jump 		<= 1'b0;	
 						pipeline_state_active 	= pipeline_state_saved;
 					end
 				end
@@ -440,8 +440,9 @@ always @(posedge clk_20mhz) begin
 
 				// jump wrong address exception
 				if (jump_exception[2] & !flag_pipeline_jump & !flag_pipeline_dependency_stall) begin
+					//flag_pipeline_jump 		<= 1'b1;
 					flag_pipeline_jump 		= 1'b1;
-					PC 						= jump_addr_target_2;
+					PC=jump_addr_target_2;
 					pipeline_state_saved 	= pipeline_state_active; 		// save the active pipeline state, restored after filling up the pipeline
 					pipeline_state_active 	= `STATE_HART_PIPELINE_JUMP; 	// 5'b00001
 				end
@@ -467,6 +468,25 @@ always @(posedge clk_20mhz) begin
 				// ---------------------------------------------
 				if (pipeline_state_active[0]) begin
 					inst_req_reg 		<= 1'b1;
+			/*		
+					//if jump or branch misprediction, use other address
+					if(jump_exception[2] & !flag_pipeline_jump) begin
+						inst_addr_reg<=jump_addr_target_2;
+					end
+					//use pc as request
+					else begin
+						inst_addr_reg <=PC;
+					end
+					//if miss use writeback
+					if(jump_exception[2] & !flag_pipeline_jump)begin
+						PC<=jump_addr_target_2+4;
+					end
+					else begin
+						PC <= PC+4;  	// increment for next instruction
+					end
+					*/
+				
+				
 					inst_addr_reg 		= PC; 		// if blocking will not be overwritten by combinational logic above
 					PC 					= PC + 4; 	// increment for next instruction
 				end
@@ -531,7 +551,8 @@ always @(posedge clk_20mhz) begin
 
 				end
 				else begin
-					if (!flag_pipeline_jump) begin
+					//if (!jump_exception[2]) begin
+					if(!flag_pipeline_jump) begin
 						inst_encoding_3_reg <= `ENCODING_NONE;
 					end
 				end
@@ -550,7 +571,8 @@ always @(posedge clk_20mhz) begin
 				end
 				else begin
 					// if stall not result of jump correction
-					if (!flag_pipeline_jump) begin
+					//if (!jump_exception[2]) begin
+					if(!flag_pipeline_jump) begin
 						inst_encoding_4_reg <= `ENCODING_NONE;
 					end
 				end

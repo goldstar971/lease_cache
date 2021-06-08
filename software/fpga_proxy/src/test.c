@@ -7,7 +7,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <errno.h>
-
+#include <stdio.h>
 
 
 
@@ -17,21 +17,27 @@ uint32_t test_run(pHandle pInst, command *pCommand){
 	time_t time0, time1;
 	char command_str[200];
 
-	// put system in reset
-	sprintf(command_str, "CONFIG 0x2 0x0");
+	do {
+		// put system in reset
+		sprintf(command_str, "CONFIG 0x2 0x0");
 	if(proxy_string_command(pInst, command_str)){
-			return 1;
-		}
-	sprintf(command_str, "CONFIG 0x1 0x0");
-	if(proxy_string_command(pInst, command_str)){
-			return 1;
-		}
+		return 1;
+	}
+	sleep(.1);
+	sprintf(command_str, RESET);
 
-	// load fpga memory with target application
-	sprintf(command_str, "LOAD %s\r",pCommand->field[1]);
 	if(proxy_string_command(pInst, command_str)){
+		return 1;
+	}
+		sleep(.1);
+		// load fpga memory with target application
+	sprintf(command_str, "LOAD %s\r",pCommand->field[1]);
+		if(proxy_string_command(pInst, command_str)==2){
 			return 1;
 		}
+		sleep(.1);
+	sprintf(command_str, "VERIFY %s\r",pCommand->field[1]);
+	}while(proxy_string_command(pInst, command_str));
 
 	// pull system out of reset 
 	sprintf(command_str, "CONFIG 0x1 0x3");
@@ -57,8 +63,6 @@ uint32_t test_run(pHandle pInst, command *pCommand){
 
 	// report
 	time1 = time(NULL);
-	printf("Approx. Time-to-Execute: %lu seconds\n", time1-time0);
-
 	char report_buffer[CACHE_REPORT_BYTES];
 	char file_name[50];
 	char benchmark_type[50];
@@ -66,6 +70,9 @@ uint32_t test_run(pHandle pInst, command *pCommand){
 	get_file_name(pCommand,file_name,benchmark_type,benchmark_name);
 	printf("Benchmark_name:           %s\n", benchmark_name);
 	make_cache_report(pInst, report_buffer);
+	printf("Approx. Time-to-Execute: %lu seconds\n", time1-time0);
+
+	
 
 	// write report to file
 	char result_string[400];
@@ -86,8 +93,23 @@ uint32_t test_run(pHandle pInst, command *pCommand){
 				);
 
 	// write results to file
-	FILE *pFile = fopen("./results/cache/results.txt","a+");
+	FILE *pFile=NULL;
+	
+	if(strstr(benchmark_type,"medium")){
+		pFile = fopen("./results/cache/results_medium.txt","a+");
+	}
+	else if(strstr(benchmark_type, "large")){
+		pFile = fopen("./results/cache/results_large.txt","a+");
+	}
+	else if(strstr(benchmark_type, "extra_large")){
+		pFile = fopen("./results/cache/results_extra_large.txt","a+");
+	}	
+	else{
+		pFile = fopen("./results/cache/results.txt","a+");
+	}
+
 	if (!pFile){
+		printf("Could not open or create file!\n");
 		return 1;
 	}
 

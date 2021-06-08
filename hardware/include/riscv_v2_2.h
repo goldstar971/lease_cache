@@ -152,22 +152,42 @@
 
 // source files
 // ------------------------------------------------
-`ifdef FLOAT_INSTRUCTIONS
-	`include "../internal/core/pipeline_f/dependency_handler.v"
-	`include "../internal/core/pipeline_f/memory_reference_controller.v"
-	`include "../internal/core/pipeline_f/port_switch.v"
-	`include "../internal/core/pipeline_f/riscv_32I_alu.v"
-	`include "../internal/core/pipeline_f/riscv_32M_alu_pipelined.v"
-	`include "../internal/core/pipeline_f/riscv_32F_alu_pipelined.v"
-	`include "../internal/core/pipeline_f/riscv_alu_32M_converter.v"
-	`include "../internal/core/pipeline_f/riscv_alu_pipelined.v"
-	`include "../internal/core/pipeline_f/riscv_hart_6stage_pipeline.v"
-	`include "../internal/core/pipeline_f/riscv_hart_top.v"
-	`include "../internal/core/pipeline_f/stage1_instruction_decode.v"
-	`include "../internal/core/pipeline_f/stage4_memory_operation.v"
-	`include "../internal/core/pipeline_f/target_address_generator.v"
-	`include "../internal/core/pipeline_f/udivider32b.v"
-	`include "../internal/core/pipeline_f/umultiplier32b.v"
+`ifdef FLOAT_INSTRUCTIONS 
+	`ifdef NEW_RISC
+		`include "../internal/core/pipeline_f_registered/dependency_handler.v"
+		`include "../internal/core/pipeline_f_registered/memory_reference_controller.v"
+		`include "../internal/core/pipeline_f_registered/port_switch.v"
+		`include "../internal/core/pipeline_f_registered/riscv_alu_pipelined.v"
+		`include "../internal/core/pipeline_f_registered/riscv_32I_alu.v"
+		`include "../internal/core/pipeline_f_registered/riscv_32M_alu_pipelined.v"
+		`include "../internal/core/pipeline_f_registered/riscv_32F_alu_pipelined.v"
+		`include "../internal/core/pipeline_f_registered/riscv_alu_32M_converter.v"
+		`include "../internal/core/pipeline_f_registered/riscv_hart_6stage_pipeline.v"
+		`include "../internal/core/pipeline_f_registered/riscv_hart_top.v"
+		`include "../internal/core/pipeline_f_registered/stage1_instruction_decode.v"
+		`include "../internal/core/pipeline_f_registered/stage4_memory_operation.v"
+		`include "../internal/core/pipeline_f_registered/target_address_generator.v"
+		`include "../internal/core/pipeline_f_registered/udivider32b.v"
+		`include "../internal/core/pipeline_f_registered/umultiplier32b.v"
+	`else
+		`include "../internal/core/pipeline_f/dependency_handler.v"
+		`include "../internal/core/pipeline_f/memory_reference_controller.v"
+		`include "../internal/core/pipeline_f/port_switch.v"
+		`include "../internal/core/pipeline_f/riscv_alu_pipelined.v"
+		`include "../internal/core/pipeline_f/riscv_32I_alu.v"
+		`include "../internal/core/pipeline_f/riscv_32M_alu_pipelined.v"
+		`include "../internal/core/pipeline_f/riscv_32F_alu_pipelined.v"
+		`include "../internal/core/pipeline_f/riscv_alu_32M_converter.v"
+		`include "../internal/core/pipeline_f/branch_predictor_2b.v"
+		`include "../internal/core/pipeline_f/riscv_hart_6stage_pipeline.v"
+		`include "../internal/core/pipeline_f/riscv_hart_top.v"
+		`include "../internal/core/pipeline_f/stage1_instruction_decode.v"
+		`include "../internal/core/pipeline_f/stage4_memory_operation.v"
+		`include "../internal/core/pipeline_f/target_address_generator.v"
+		`include "../internal/core/pipeline_f/udivider32b.v"
+		`include "../internal/core/pipeline_f/umultiplier32b.v"
+
+	`endif
 `else
 	`include "../internal/core/pipeline/dependency_handler.v"
 	`include "../internal/core/pipeline/memory_reference_controller.v"

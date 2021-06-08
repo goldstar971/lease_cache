@@ -97,7 +97,6 @@ bram_64kB_32b target_fifo	(.address(add_sampler), .clock(clock_bus_i[1]), .data(
 // memory components
 integer 						i;
 reg 	[`BW_CACHE_TAG-1:0] 	tag_mem[0:`N_SAMPLER-1]; 	// for tag -> $add translation
-//reg 	[31:0]					target_mem[0:`N_SAMPLER-1];	// rui recording
 reg 	[31:0]					pc_mem[0:`N_SAMPLER-1];		// rui recording
 reg 	[31:0] 					counters[0:`N_SAMPLER-1];	// rui recording
 
@@ -116,11 +115,11 @@ generate
 	end
 endgenerate
 
-//tag_match_encoder tag_match((match_bits&valid_bits),match_index);
+//tag_match_encoder_6b tag_match((match_bits&valid_bits),match_index);
 
 
 //match_index==0 both when no bit in match_bits is set i.e., no match and when the match is the bottom entry i.e., match_bits[0]=1
-//	assign actual_match=|({match_index,match_bits[0]});
+//assign actual_match=|({match_index,match_bits[0]});
 //assign hit_flag = (actual_match)? valid_bits[match_index] : 1'b0;
  always @(*) begin
 	match_index = 'b0;
