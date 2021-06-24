@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<simPackage>
+ <file path="pll_half_speed_sim/pll_half_speed.vo" type="VERILOG" />
+ <topLevel name="pll_half_speed" />
+ <deviceFamily name="cyclonev" />
+</simPackage>

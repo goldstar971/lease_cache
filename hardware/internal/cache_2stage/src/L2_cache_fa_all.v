@@ -13,21 +13,24 @@ module L2_cache_fa_all #(
 	input 							resetn_i, 			
 	input 	[31:0]					comm_i, 			// generic comm port in
 	input   [1:0]                   metric_sel_i,
-	`ifdef DATA_POLICY_DLEASE
-		input[31:0] phase_i,
-	`endif    
+	input[31:0] phase_i,
 	
 	output 	[31:0]					comm_o,				// specific comm port out
 
-	// core/hart
-	input 							core_req_i,  		// 1: valid request 
+	// L1
+	input 							L1_req_i,  		// 1: valid request 
+	input                           L1_req_block_i
 	input 	[`BW_WORD_ADDR-1:0] 	core_ref_add_i, 	// address of the requesting instruction (only used in lease data caches)
-	input 							core_rw_i, 			// 1: write, 0: read
-	input 	[`BW_WORD_ADDR-1:0] 	core_add_i, 		// address of mem. request from core
-	input 	[31:0]					core_data_i,
-	input [31:0]					PC_i,
-	output 							core_done_o, 		// driven high when a cache operation is serviced
-	output 	[31:0]					core_data_o,
+	input 							L1_rw_i, 			// 1: write, 0: read
+	input 	[`BW_WORD_ADDR-1:0] 	L1_add_i, 		// address of mem. request from core
+	input 	[31:0]					L1_data_i,
+	output                          L1_valid_o,
+	output 							L1_done_o, 		// driven high when a cache operation is serviced
+	output 	[31:0]					L1_data_o,
+
+	//sampler
+	input    						core_req_i,
+	input [31:0]					PC_i, 
 
 	// internal memory controller
 	input 							en_i,  				// logic high if mem. controller enables cache
@@ -146,9 +149,7 @@ wire 							cpc_stall_flag;
 	) perf_cont_inst(
 		.clock_i 			(clock_bus_i),
 		.resetn_i 			(resetn_i 			),
-		`ifdef DATA_POLICY_DLEASE
 		.phase_i             (phase_i),
-		`endif
 		.select_data_record (metric_sel_i),
 		.req_i          (core_req_i         ),
 		.pc_ref_i           (PC_i),
@@ -168,17 +169,17 @@ wire 							cpc_stall_flag;
 		.stall_o 			(cpc_stall_flag	)
 	);
 
-wire core_done_bus, cache_contr_enable;
+wire L1_done_bus, cache_contr_enable;
 
-assign cache_contr_enable = en_i & !cpc_stall_flag;
+assign cache_contr_enable = !cpc_stall_flag;
 //assign cache_contr_enable = en_i;
-assign core_done_o = core_done_bus & !cpc_stall_flag;
+assign L1_done_o = L1_done_bus & !cpc_stall_flag;
 
 // cache controller
 // -----------------------------------------------------------------------------------------------
 
 
-`DATA_CACHE_CONTROLLER #(
+`L2_CACHE_CONTROLLER #(
 	.POLICY 				(POLICY 				),
 	.INIT_DONE 				(INIT_DONE 				),
 	.CACHE_BLOCK_CAPACITY 	(CACHE_BLOCK_CAPACITY 	)
@@ -196,18 +197,20 @@ assign core_done_o = core_done_bus & !cpc_stall_flag;
 	.enable_i 				(cache_contr_enable 					),
 
 	// core/hart signals
-	.core_req_i 			(core_req_i 			),
-	.core_ref_addr_i 		(core_ref_add_i 		),
-	.core_rw_i 				(core_rw_i 				),
-	.core_tag_i 			(req_tag 				),
-	.core_word_i 			(req_word 				),
-	.core_data_i 			(core_data_i 			),
-	.core_done_o 			(core_done_bus 			),
-	.core_hit_o 			(hit_o 					),
+	.L1_req_i 			(L1_req_i 			),
+	.L1_ref_addr_i 		(core_ref_add_i 		),
+	.L1_rw_i 				(L1_rw_i 				),
+	.L1_tag_i 			(req_tag 				),
+	.L1_word_i 			(req_word 				),
+	.L1_data_i 			(L1_data_i 			),
+	.L1_done_o 			(L1_done_bus 			),
+	.L1_hit_o 			(hit_o 					),
+	.L1_req_block_i       (L1_req_block_i),
+	.L1_valid_o         (L1_valid_o),
 	`ifdef DATA_POLICY_LEASE
-		.core_data_o 		(core_no_swap_data_bus 	), 
+		.L1_data_o 		(L1_no_swap_data_bus 	), 
 	`elsif DATA_POLICY_DLEASE
-		.core_data_o 		(core_no_swap_data_bus 	),
+		.L1_data_o 		(L1_no_swap_data_bus 	),
 	`endif
 
 

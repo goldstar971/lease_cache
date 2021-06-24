@@ -7,6 +7,7 @@
 
 `define COMM_CACHE0 			32'h04000080 		// read cache0 comm stuff here
 `define COMM_CACHE1 			32'h04000084 		// read cache1 comm stuff here
+`define COMM_CACHE2             32'h04000092        // read cache L2 comm stuff here
 `define CPC_METRIC_SWITCH  32'h04000088      //switch between tracker, sampler, and L1 cache statistics
 
 // read and write

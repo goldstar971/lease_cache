@@ -1,7 +1,7 @@
 module riscv_hart_6stage_pipeline(
 
 	// system ports
-	input 	clock_i,
+	input 	[2:0] clock_bus_i,
 	input 				reset_i,
 
 	// instruction memory ports - just read
@@ -17,7 +17,9 @@ module riscv_hart_6stage_pipeline(
 	output 				data_wren_o,
 	output 	[31:0]		data_addr_o,
 	output 	[31:0]		data_data_o,
-	output 	[31:0]		data_ref_addr_o
+	output 	[31:0]		data_ref_addr_o,
+	output  [63:0] stall_delay_counter_o,
+	output  [63:0] cycle_counter_o
 );
 
 // port mapping
@@ -142,10 +144,10 @@ wire [4:0] stall_cycles;
 riscv_alu_pipelined #(
 	.RV32M 						(1 						),
 	.RV32F                    (1                      ),
-	.DIV_STAGES 				(4'h4 						),	// delay necessary is 
-	.MUL_STAGES              (4'h1						)
+	.DIV_STAGES 				(4'h3 						),
+	.MUL_STAGES              (4'h0						)
 ) rv32_alu_inst(
-	.clock_div_i				(clock_i 				),
+	.clock_div_i				(clock_bus_i[0] 				),
 	.in0_i 						(Tsrc1_3_reg 			), 
 	.in1_i 						(Tsrc2_3_reg 			), 
 	.in2_i                      (Tsrc3_3_reg			),
@@ -228,18 +230,19 @@ dependency_handler dependency_handler_inst(
 	.src3_operand_o         (Tsrc3_2)
 );
 
-
-/*wire [`BW_BTYE_ADDR-1:0] prediction;
+wire [`BW_WORD_ADDR-1:0] jump_destination_o;
+wire [`BW_BTYE_ADDR-1:0] prediction;
 branch_predictor_2b branch_predictor(
-	.clock_i(clock_i),
-	.reset(reset_i),
+	.clock_bus_i(clock_bus_i[2:1]),
+	.resetn_i(reset_i),
+	.jump_destination_i(jump_destination_o),
 	.PC_i(PC[25:2]),
-	.instruction_stage1(IR_1_reg),
-	.stage_1_instruct_addr(inst_addr_1_reg[25:2] ),
-	.stage_2_instruct_addr(inst_addr_2_reg[25:2] ),
-	.mispredict(jump_exception[2] & !flag_pipeline_jump),
+	.stage_1_opcode_i(IR_1_reg[6:0]),
+	.stage_1_instruct_addr_i(inst_addr_1_reg[25:2] ),
+	.stage_2_instruct_addr_i(inst_addr_2_reg[25:2] ),
+	.mispredict_i(jump_exception[2]),
 	.PC_o(prediction));
-*/
+
 // jump/branch address generation
 // -------------------------------------------------------
 wire [3:0]	jump_exception;
@@ -253,6 +256,7 @@ target_address_generator jump_branch_cntrl_inst(
 	.src1_operand_i 			(Tsrc1_2 				),
 	.src2_operand_i 			(Tsrc2_2 				),
 	.immediate_i 				(imm32_2_reg 			), 	// immediate value to modulate jump
+	.jump_destination_o         (jump_destination_o),
 	.flag_jump_o 				(		), 	// 1: jump/branch operation
 	.addr_target_o 				(jump_addr_target_2 	), 	// target address of operation
 	.addr_writeback_o 			(jump_addr_wb_2 		), 	// address/value to writeback to register file 	
@@ -314,11 +318,11 @@ reg 			flag_alu_reg;
 reg 	[4:0] 	stall_counter_reg;
 
 
+reg [63:0] stall_delay_counter,cycle_counter;
+assign stall_delay_counter_o=stall_delay_counter;
+assign cycle_counter_o=cycle_counter;
 
-
-
-
-always @(posedge clock_i) begin
+always @(posedge clock_bus_i[0]) begin
 
 	// reset state
 	// -----------------------------------------------------------------------------------------------------------
@@ -328,9 +332,9 @@ always @(posedge clock_i) begin
 		pipeline_state_active 			= 5'b00001; 			// requesting out of reset so first stage is active
 		pipeline_state_saved 			= 5'b00000;
 		flag_pipeline_dependency_stall 	= 1'b0;
-		//flag_pipeline_jump 				<= 1'b0;
 		flag_pipeline_jump=1'b0;
 		stall_counter_reg 				= 'b0;
+		flag_alu_reg =1'b0;
 		
 		//PC <= 4;
 		PC=4;
@@ -370,14 +374,15 @@ always @(posedge clock_i) begin
 		data_wren_reg 	<= 1'b0;
 		data_addr_reg 	<= 'b0;
 		data_data_reg 	<= 'b0;
-	
+		stall_delay_counter<='b0;
+		cycle_counter<='b0;
 
 	end
 
 	// state machine sequencing
 	// -----------------------------------------------------------------------------------------------------------
 	else begin
-
+		cycle_counter<=cycle_counter+1'b1;
 		// -------------------------------------------------------------------------------------------------------
 		// pipeline controller logic
 		// -------------------------------------------------------------------------------------------------------
@@ -385,7 +390,7 @@ always @(posedge clock_i) begin
 		// default signals - control signals to memory components
 		inst_req_reg <= 1'b0;
 		data_req_reg <= 1'b0;
-
+		data_wren_reg <= 1'b0;
 
 		// check for critical exceptions - need to do
 
@@ -393,6 +398,7 @@ always @(posedge clock_i) begin
 		if (stall_cycles && !flag_alu_reg) begin 	// first cycle that controller sees the operation, set flag and delay
 			flag_alu_reg = 1'b1;
 			stall_counter_reg = stall_cycles;
+			stall_delay_counter=stall_delay_counter+stall_cycles;
 		end
 		
 		// unstall once the request number of stall cycles have elapsed
@@ -419,7 +425,6 @@ always @(posedge clock_i) begin
 					// if the jump is serviced, restore state
 					else begin
 						flag_pipeline_jump=1'b0;
-						//flag_pipeline_jump 		<= 1'b0;	
 						pipeline_state_active 	= pipeline_state_saved;
 					end
 				end
@@ -428,34 +433,30 @@ always @(posedge clock_i) begin
 				else if (flag_pipeline_dependency_stall) begin
 					if (!flag_dependency_2) begin
 						flag_pipeline_dependency_stall 	= 1'b0;
-						pipeline_state_active 			= pipeline_state_saved & 5'b00111; 	// because state will shift to 01111, leadings
-																							// zero will stop last stage from registering copy of the ld/st
-																							// instruction stalled for
+						pipeline_state_active 			= pipeline_state_saved & 5'b00111; 	// because state will shift to 01111, leadings																		// zero will stop last stage from registering copy of the ld/st																	// instruction stalled for
 					end
 				end
 
 
 				// pipeline exception checking and dependency handling
 				// ----------------------------------------------------------------------------------------------------------------------------------------
-
-				// jump wrong address exception
-				if (jump_exception[2] & !flag_pipeline_jump & !flag_pipeline_dependency_stall) begin
-					//flag_pipeline_jump 		<= 1'b1;
-					flag_pipeline_jump 		= 1'b1;
-					PC=jump_addr_target_2;
-					pipeline_state_saved 	= pipeline_state_active; 		// save the active pipeline state, restored after filling up the pipeline
-					pipeline_state_active 	= `STATE_HART_PIPELINE_JUMP; 	// 5'b00001
-				end
-
 				// forward dependency condition - load in the ALU stage, only enable the mem stage to register the result of the ld/st
-				else if (flag_dependency_2 & !flag_pipeline_dependency_stall & !flag_pipeline_jump) begin
+				if (flag_dependency_2 & !flag_pipeline_dependency_stall) begin
 					flag_pipeline_dependency_stall = 1'b1;
 					pipeline_state_saved 	= pipeline_state_active; 		// save the active pipeline state, restored after filling up the pipeline
 					pipeline_state_active 	= `STATE_HART_PIPELINE_DEPENDENCY_STALL; 	// 5'b10000
 				end
 
+				// jump wrong address exception
+				else if (jump_exception[2] & !flag_pipeline_jump & !flag_pipeline_dependency_stall) begin
+					
+					pipeline_state_saved 	= pipeline_state_active; 		// save the active pipeline state, restored after filling up the pipeline
+					pipeline_state_active 	= `STATE_HART_PIPELINE_JUMP; 	// 5'b00001
+				end
+
+				
 				// no issues
-				else if (!flag_pipeline_jump & !flag_pipeline_dependency_stall) begin
+				else if (!jump_exception[2] & !flag_pipeline_dependency_stall) begin
 					pipeline_state_active = {pipeline_state_active[3:0],1'b1};
 				end
 
@@ -468,27 +469,17 @@ always @(posedge clock_i) begin
 				// ---------------------------------------------
 				if (pipeline_state_active[0]) begin
 					inst_req_reg 		<= 1'b1;
-			/*		
-					//if jump or branch misprediction, use other address
 					if(jump_exception[2] & !flag_pipeline_jump) begin
-						inst_addr_reg<=jump_addr_target_2;
-					end
-					//use pc as request
-					else begin
-						inst_addr_reg <=PC;
-					end
-					//if miss use writeback
-					if(jump_exception[2] & !flag_pipeline_jump)begin
-						PC<=jump_addr_target_2+4;
+						flag_pipeline_jump 		= 1'b1;
+						PC=jump_addr_target_2;
+						inst_addr_reg=PC;
+						PC=PC+4;
 					end
 					else begin
-						PC <= PC+4;  	// increment for next instruction
+						inst_addr_reg 		= PC; 		// if blocking will not be overwritten by combinational logic above
+						PC = {5'b0,prediction}; 	
+					//	PC=PC+4;
 					end
-					*/
-				
-				
-					inst_addr_reg 		= PC; 		// if blocking will not be overwritten by combinational logic above
-					PC 					= PC + 4; 	// increment for next instruction
 				end
 
 				// stage 1 - instruction decode
@@ -551,7 +542,6 @@ always @(posedge clock_i) begin
 
 				end
 				else begin
-					//if (!jump_exception[2]) begin
 					if(!flag_pipeline_jump) begin
 						inst_encoding_3_reg <= `ENCODING_NONE;
 					end
@@ -571,7 +561,6 @@ always @(posedge clock_i) begin
 				end
 				else begin
 					// if stall not result of jump correction
-					//if (!jump_exception[2]) begin
 					if(!flag_pipeline_jump) begin
 						inst_encoding_4_reg <= `ENCODING_NONE;
 					end

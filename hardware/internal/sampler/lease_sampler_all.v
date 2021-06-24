@@ -12,7 +12,6 @@ module lease_sampler_all(
 	// input pins
 	input 						req_i,						
 	input 	[31:0]				pc_ref_i,
-	input 	[23:0] 				addr_ref_i,
 	input 	[`BW_CACHE_TAG-1:0]	tag_ref_i,
 
 	// output pins

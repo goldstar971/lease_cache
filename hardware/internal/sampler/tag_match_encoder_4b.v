@@ -14,7 +14,7 @@ wire [3:0] match_index;
 	assign match_index[3]=|({or_o[3][0]});
 always@(match_index)begin
 	match_index_reg=match_index;
-	actual_match=match_index&match_bits[0];
+	actual_match=|({match_index,match_bits[0]});
 end
 
 endmodule

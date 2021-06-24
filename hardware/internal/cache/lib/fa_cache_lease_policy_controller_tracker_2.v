@@ -182,14 +182,14 @@ endgenerate
 
 // backup policy address generator (LFSR)
 // -----------------------------------------------------------------
-wire 	[8:0] 						lfsr_val;
+wire 	[BW_CACHE_CAPACITY:0] 						lfsr_val;
 wire 	[BW_CACHE_CAPACITY-1:0] 	lfsr_set;
 reg 								lfsr_en_reg;
 
 assign lfsr_set = lfsr_val[BW_CACHE_CAPACITY:1];
 
-linear_shift_register_9b #(
-	.SEED 			(9'b101010101 		) 		
+linear_shift_register_12b #(
+	.SEED 			(12'b101000010001 ) 		
 ) lfsr_inst (
 	.clock_i 		(~clock_i 			), 
 	.resetn_i 		(resetn_i 			), 

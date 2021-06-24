@@ -65,7 +65,7 @@ data_buffer_ccd #(.BUFFER_SIZE(4), .DATA_SIZE(32), .CCD_POLARITY(1)) uart_tx_buf
 	.full_o 		(comm_full)
 );
 
-comm_controller_v2 comm_inst(
+`COMM_CONTROLLER comm_inst(
 	.clock_i		(clock_bus_i[0]), 		
 	.resetn_i		(resetn_i),
 	.tx_full_i		(comm_full),

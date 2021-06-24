@@ -303,7 +303,7 @@ wire [8:0] match_index;
 	assign match_index[8]=|({or_o[8][0],or_o[8][1],or_o[8][2],or_o[8][3],or_o[8][4],or_o[8][5],or_o[8][6],or_o[8][7],or_o[8][8],or_o[8][9],or_o[8][10],or_o[8][11],or_o[8][12],or_o[8][13],or_o[8][14],or_o[8][15],or_o[8][16],or_o[8][17],or_o[8][18],or_o[8][19],or_o[8][20],or_o[8][21],or_o[8][22],or_o[8][23],or_o[8][24],or_o[8][25],or_o[8][26],or_o[8][27],or_o[8][28],or_o[8][29],or_o[8][30],or_o[8][31]});
 always@(match_index)begin
 	match_index_reg=match_index;
-	actual_match=match_index&match_bits[0];
+	actual_match=|({match_index,match_bits[0]});
 end
 
 endmodule

@@ -36,7 +36,7 @@ wire [5:0] match_index;
 	assign match_index[5]=|({or_o[5][0],or_o[5][1],or_o[5][2],or_o[5][3]});
 always@(match_index)begin
 	match_index_reg=match_index;
-	actual_match=match_index&match_bits[0];
+	actual_match=|({match_index,match_bits[0]});
 end
 
 endmodule

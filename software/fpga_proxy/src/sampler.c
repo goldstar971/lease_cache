@@ -136,11 +136,77 @@ uint32_t protocol_tracker_buffer_read(pHandle pInst, uint32_t buffer_start_addre
 
 
 
+
+
+	#ifdef MULT_LEVEL_CACHE
+	for (uint32_t i = 0; i < 4*TRACKER_WORDS_PER_SAMPLE*buffer_packet_size; i = i + 4*TRACKER_WORDS_PER_SAMPLE){
+		char temp_line[1664];
+		sprintf(temp_line, "%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x, \
+			%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x, \
+			%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x\n",
+								*(uint32_t *)(rx_buffer),
+								*(uint32_t *)(rx_buffer+(i+4)),
+								*(uint32_t *)(rx_buffer+(i+8)),
+								*(uint32_t *)(rx_buffer+(i+12)),
+								*(uint32_t *)(rx_buffer+(i+16)),
+								*(uint32_t *)(rx_buffer+(i+20)),
+								*(uint32_t *)(rx_buffer+(i+24)),
+								*(uint32_t *)(rx_buffer+(i+28)),
+								*(uint32_t *)(rx_buffer+(i+32)),
+								*(uint32_t *)(rx_buffer+(i+36)),
+								*(uint32_t *)(rx_buffer+(i+40)),
+								*(uint32_t *)(rx_buffer+(i+44)),
+								*(uint32_t *)(rx_buffer+(i+48)),
+								*(uint32_t *)(rx_buffer+(i+52)),
+								*(uint32_t *)(rx_buffer+(i+56)),
+								*(uint32_t *)(rx_buffer+(i+60)),
+								*(uint32_t *)(rx_buffer+(i+64)),
+								*(uint32_t *)(rx_buffer+(i+68)),
+								*(uint32_t *)(rx_buffer+(i+72)),
+								*(uint32_t *)(rx_buffer+(i+76)),
+								*(uint32_t *)(rx_buffer+(i+80)),
+								*(uint32_t *)(rx_buffer+(i+84)),
+								*(uint32_t *)(rx_buffer+(i+88)),
+								*(uint32_t *)(rx_buffer+(i+92)),
+								*(uint32_t *)(rx_buffer+(i+96)),
+								*(uint32_t *)(rx_buffer+(i+100)),
+								*(uint32_t *)(rx_buffer+(i+104)),
+								*(uint32_t *)(rx_buffer+(i+108)),
+								*(uint32_t *)(rx_buffer+(i+112)),
+								*(uint32_t *)(rx_buffer+(i+116)),
+								*(uint32_t *)(rx_buffer+(i+120)),
+								*(uint32_t *)(rx_buffer+(i+124)),
+								*(uint32_t *)(rx_buffer+(i+128)),
+								*(uint32_t *)(rx_buffer+(i+132)),
+								*(uint32_t *)(rx_buffer+(i+136)),
+								*(uint32_t *)(rx_buffer+(i+140)),
+								*(uint32_t *)(rx_buffer+(i+144)),
+								*(uint32_t *)(rx_buffer+(i+148)),
+								*(uint32_t *)(rx_buffer+(i+152)),
+								*(uint32_t *)(rx_buffer+(i+156)),
+								*(uint32_t *)(rx_buffer+(i+160)),
+								*(uint32_t *)(rx_buffer+(i+164)),
+								*(uint32_t *)(rx_buffer+(i+168)),
+								*(uint32_t *)(rx_buffer+(i+172)),
+								*(uint32_t *)(rx_buffer+(i+176)),
+								*(uint32_t *)(rx_buffer+(i+180)),
+								*(uint32_t *)(rx_buffer+(i+184)),
+								*(uint32_t *)(rx_buffer+(i+188)),
+								*(uint32_t *)(rx_buffer+(i+192)),
+								*(uint32_t *)(rx_buffer+(i+196)),
+								*(uint32_t *)(rx_buffer+(i+200)),
+								*(uint32_t *)(rx_buffer+(i+204)));
+
+
+		fprintf(file_handle, "%s", temp_line);
+	}
+
+	#else
 	// write data to file
 	for (uint32_t i = 0; i < 4*TRACKER_WORDS_PER_SAMPLE*buffer_packet_size; i = i + 4*TRACKER_WORDS_PER_SAMPLE){
 		char temp_line[512];
 		sprintf(temp_line, "%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x\n",
-								*(uint32_t *)(rx_buffer+(i+0)),
+								*(uint32_t *)(rx_buffer),
 								*(uint32_t *)(rx_buffer+(i+4)),
 								*(uint32_t *)(rx_buffer+(i+8)),
 								*(uint32_t *)(rx_buffer+(i+12)),
@@ -156,10 +222,9 @@ uint32_t protocol_tracker_buffer_read(pHandle pInst, uint32_t buffer_start_addre
 								*(uint32_t *)(rx_buffer+(i+52)),
 								*(uint32_t *)(rx_buffer+(i+56)),
 								*(uint32_t *)(rx_buffer+(i+60)));
-
 		fprintf(file_handle, "%s", temp_line);
 	}
-
+	#endif
 
 	return 0;
 }
@@ -182,7 +247,13 @@ uint32_t sampler_run(pHandle pInst, command *pCommand){
 	
 //applications sometimes fail to load to the FPGA, loop until the program written has been sucessfully 
 	//
+	
+	int tries=0;
 	do {
+		//if more than ten tries, terminate.
+		if(tries>9){
+			return 1;
+		}
 		// put system in reset
 		sprintf(command_str, "CONFIG 0x2 0x0");
 	if(proxy_string_command(pInst, command_str)){
@@ -202,6 +273,7 @@ uint32_t sampler_run(pHandle pInst, command *pCommand){
 		}
 		sleep(.1);
 	sprintf(command_str, "VERIFY %s\r",pCommand->field[1]);
+	tries++;
 	}while(proxy_string_command(pInst, command_str));
 
 
@@ -342,7 +414,12 @@ uint32_t tracker_run(pHandle pInst, command *pCommand){
 	char benchmark_name[50];
 	char full_output_path[250]; 
 
+	int tries=0;
 	do {
+		//if more than ten tries, terminate.
+		if(tries>9){
+			return 1;
+		}
 		// put system in reset
 		sprintf(command_str, "CONFIG 0x2 0x0");
 	if(proxy_string_command(pInst, command_str)){
@@ -362,7 +439,8 @@ uint32_t tracker_run(pHandle pInst, command *pCommand){
 		}
 		sleep(.1);
 	sprintf(command_str, "VERIFY %s\r",pCommand->field[1]);
-	}while(proxy_string_command(pInst, command_str)==2);
+	tries++;
+	}while(proxy_string_command(pInst, command_str));
 
 //get file name
 	get_file_name(pCommand,file_name,benchmark_type,benchmark_name);

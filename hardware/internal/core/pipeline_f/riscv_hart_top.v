@@ -1,7 +1,7 @@
 module riscv_hart_top(
 
 	// system
-	input 			clock_i, 
+	input 	[2:0]	clock_bus_i, 
 	input 			reset_i,
 	output 	[3:0]	exception_bus_o,
 	output 	[31:0]	inst_addr_o,
@@ -61,7 +61,7 @@ wire [31:0]	hart_data_data_o;
 riscv_hart_6stage_pipeline hart_inst(
 
 	// system
-	.clock_i 			(clock_i),
+	.clock_bus_i 	(clock_bus_i),
 	.reset_i 			(reset_i 		 	),
 
 	// internal memory system (inst references)

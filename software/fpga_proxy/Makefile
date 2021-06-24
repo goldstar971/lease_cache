@@ -14,6 +14,8 @@ LDLIBS=-ljtag_atlantic -ljtag_client
 
 all:
 	$(CXX) $(INCFLAGS) $(SRC_DIR)/*.c $(LDFLAGS) $(LDLIBS) -o $(BUILD_DIR)/main
+multi_level:
+	$(CXX) $(INCFLAGS) $(SRC_DIR)/*.c $(LDFLAGS) $(LDLIBS) -DMULT_LEVEL_CACHE -o $(BUILD_DIR)/main
 
 pre_process:
 	$(CXX) $(INCFLAGS) $(SRC_DIR)/*.c $(LDFLAGS) $(LDLIBS) -E > pre_process.txt

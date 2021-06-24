@@ -8,6 +8,7 @@
 			outclk_3 : out std_logic;        -- clk
 			outclk_4 : out std_logic;        -- clk
 			outclk_5 : out std_logic;        -- clk
+			outclk_6 : out std_logic;        -- clk
 			locked   : out std_logic         -- export
 		);
 	end component cyclonegt_ccd_pll;

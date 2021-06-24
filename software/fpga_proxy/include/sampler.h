@@ -15,12 +15,22 @@
 												// legacy option, I believe there is no restriction with this version of the software
 
 #define TRACKER_OUTPUT_PATH 			"results/track/"
-#define TRACKER_WORDS_PER_SAMPLE 		16
-#define TRACKER_BUFFER_CAPACITY 		0x1000 	// buffer capacity (aggregrate) divided by pair size
+#ifdef MULT_LEVEL_CACHE
+	#define TRACKER_WORDS_PER_SAMPLE 		52
+	#define TRACKER_BUFFER_PACKET_CAPACITY  0x4C // line size is 1664 bits, which divided in 16kB and rounded down gives 76 
+	#define TRACKER_BUFFER_CAPACITY 		0x200 	// buffer capacity (aggregrate) divided by pair size
 												// ex, 256kB is buffer capacity, a line pair is 512 bit
 												// 2^18 / (2^6) = 2^12 = 0x1000
-#define TRACKER_BUFFER_PACKET_CAPACITY 	0xFA 	// max transfer size is 16kB
+
+#else
+	#define TRACKER_WORDS_PER_SAMPLE 		16
+	#define TRACKER_BUFFER_PACKET_CAPACITY 	0xFA 	// max transfer size is 16kB
 												// ex, if line size is 512bit = 64B, then can transfer 100 max
+	#define TRACKER_BUFFER_CAPACITY 		0x1000 	// buffer capacity (aggregrate) divided by pair size
+												// ex, 256kB is buffer capacity, a line pair is 512 bit
+												// 2^18 / (2^6) = 2^12 = 0x1000
+#endif
+
 
 #define COMM_CONTROL 0x04000110
 #define METRIC_SEL   0x04000088

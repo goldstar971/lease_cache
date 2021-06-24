@@ -87,7 +87,7 @@ module bram_32b_8kB (
 		altsyncram_component.clock_enable_input_a = "BYPASS",
 		altsyncram_component.clock_enable_output_a = "BYPASS",
 		altsyncram_component.intended_device_family = "Cyclone V",
-		altsyncram_component.lpm_hint = "ENABLE_RUNTIME_MOD=NO",
+		altsyncram_component.lpm_hint = "ENABLE_RUNTIME_MOD=YES,INSTANCE_NAME=NONE",
 		altsyncram_component.lpm_type = "altsyncram",
 		altsyncram_component.numwords_a = 2048,
 		altsyncram_component.operation_mode = "SINGLE_PORT",
@@ -121,7 +121,7 @@ endmodule
 // Retrieval info: PRIVATE: INIT_FILE_LAYOUT STRING "PORT_A"
 // Retrieval info: PRIVATE: INIT_TO_SIM_X NUMERIC "0"
 // Retrieval info: PRIVATE: INTENDED_DEVICE_FAMILY STRING "Cyclone V"
-// Retrieval info: PRIVATE: JTAG_ENABLED NUMERIC "0"
+// Retrieval info: PRIVATE: JTAG_ENABLED NUMERIC "1"
 // Retrieval info: PRIVATE: JTAG_ID STRING "NONE"
 // Retrieval info: PRIVATE: MAXIMUM_DEPTH NUMERIC "0"
 // Retrieval info: PRIVATE: MIFfilename STRING ""
@@ -130,7 +130,7 @@ endmodule
 // Retrieval info: PRIVATE: READ_DURING_WRITE_MODE_PORT_A NUMERIC "2"
 // Retrieval info: PRIVATE: RegAddr NUMERIC "1"
 // Retrieval info: PRIVATE: RegData NUMERIC "1"
-// Retrieval info: PRIVATE: RegOutput NUMERIC "1"
+// Retrieval info: PRIVATE: RegOutput NUMERIC "0"
 // Retrieval info: PRIVATE: SYNTH_WRAPPER_GEN_POSTFIX STRING "0"
 // Retrieval info: PRIVATE: SingleClock NUMERIC "1"
 // Retrieval info: PRIVATE: UseDQRAM NUMERIC "1"
@@ -142,12 +142,12 @@ endmodule
 // Retrieval info: CONSTANT: CLOCK_ENABLE_INPUT_A STRING "BYPASS"
 // Retrieval info: CONSTANT: CLOCK_ENABLE_OUTPUT_A STRING "BYPASS"
 // Retrieval info: CONSTANT: INTENDED_DEVICE_FAMILY STRING "Cyclone V"
-// Retrieval info: CONSTANT: LPM_HINT STRING "ENABLE_RUNTIME_MOD=NO"
+// Retrieval info: CONSTANT: LPM_HINT STRING "ENABLE_RUNTIME_MOD=YES,INSTANCE_NAME=NONE"
 // Retrieval info: CONSTANT: LPM_TYPE STRING "altsyncram"
 // Retrieval info: CONSTANT: NUMWORDS_A NUMERIC "2048"
 // Retrieval info: CONSTANT: OPERATION_MODE STRING "SINGLE_PORT"
 // Retrieval info: CONSTANT: OUTDATA_ACLR_A STRING "NONE"
-// Retrieval info: CONSTANT: OUTDATA_REG_A STRING "CLOCK0"
+// Retrieval info: CONSTANT: OUTDATA_REG_A STRING "UNREGISTERED"
 // Retrieval info: CONSTANT: POWER_UP_UNINITIALIZED STRING "FALSE"
 // Retrieval info: CONSTANT: READ_DURING_WRITE_MODE_PORT_A STRING "DONT_CARE"
 // Retrieval info: CONSTANT: WIDTHAD_A NUMERIC "11"

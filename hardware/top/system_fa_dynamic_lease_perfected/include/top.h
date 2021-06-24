@@ -207,10 +207,30 @@
 `define LEASE_VALUE_BW 					24
 `define LEASE_REF_ADDR_BW 				16
 
-	
+
 	`include "../../../include/sampler.h"
 	`include "../../../include/tracker.h"
 	`include "../../../include/cpc_all.h"
+	
+`ifndef Mult_level_cache
+
+`include "../../../peripheral/src/peripheral_system_2.v"
+`include "../../../internal/system/internal_system_2.v"
+`include "../../../internal/cache/fully_associative/src/cache_fa_all.v"
+
+`else
+`include "../../../peripheral/src/peripheral_system_2.v"
+`include "../../../internal/system/internal_system_2_multi_level.v"
+`include "../../../internal/system_controller/src/memory_controller_internal_2level.v"
+`include "../../../internal/cache_2level/L2_cache_fa_all.v"
+`include "../../../internal/cache_2level/lease_dynamic_cache_fa_controller_tracker_L2.v"
+`include "../../../internal/cache_2level/cache_performance_controller_all.v"
+`include "../../../internal/cache_2level/cache_2way_controller_multi_level.v"
+`include "../../../internal/cache_2level/cache_2way.v"
+`include "../../../internal/cache_2level/L2_cache.v"
+`endif
+
+
 
 
 

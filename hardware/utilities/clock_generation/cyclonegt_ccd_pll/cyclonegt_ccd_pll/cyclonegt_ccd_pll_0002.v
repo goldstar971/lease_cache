@@ -25,6 +25,9 @@ module  cyclonegt_ccd_pll_0002(
 	// interface 'outclk5'
 	output wire outclk_5,
 
+	// interface 'outclk6'
+	output wire outclk_6,
+
 	// interface 'locked'
 	output wire locked
 );
@@ -33,7 +36,7 @@ module  cyclonegt_ccd_pll_0002(
 		.fractional_vco_multiplier("false"),
 		.reference_clock_frequency("100.0 MHz"),
 		.operation_mode("direct"),
-		.number_of_clocks(6),
+		.number_of_clocks(7),
 		.output_clock_frequency0("20.000000 MHz"),
 		.phase_shift0("0 ps"),
 		.duty_cycle0(50),
@@ -52,7 +55,7 @@ module  cyclonegt_ccd_pll_0002(
 		.output_clock_frequency5("20.000000 MHz"),
 		.phase_shift5("37500 ps"),
 		.duty_cycle5(50),
-		.output_clock_frequency6("0 MHz"),
+		.output_clock_frequency6("80.000000 MHz"),
 		.phase_shift6("0 ps"),
 		.duty_cycle6(50),
 		.output_clock_frequency7("0 MHz"),
@@ -92,7 +95,7 @@ module  cyclonegt_ccd_pll_0002(
 		.pll_subtype("General")
 	) altera_pll_i (
 		.rst	(rst),
-		.outclk	({outclk_5, outclk_4, outclk_3, outclk_2, outclk_1, outclk_0}),
+		.outclk	({outclk_6, outclk_5, outclk_4, outclk_3, outclk_2, outclk_1, outclk_0}),
 		.locked	(locked),
 		.fboutclk	( ),
 		.fbclk	(1'b0),

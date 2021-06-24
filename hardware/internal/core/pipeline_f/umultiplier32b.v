@@ -55,7 +55,7 @@ module umultiplier32b #(parameter MUL_STAGES=0)(
 				.result (sub_wire0),
 				.aclr (1'b0),
 				.clken (1'b1),
-				.clock (clock),
+				.clock (1'b0),
 				.sclr (1'b0),
 				.sum (1'b0));
 	defparam

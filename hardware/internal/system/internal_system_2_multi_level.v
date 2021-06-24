@@ -8,9 +8,7 @@ module internal_system_2_multi_level(
 	input 			reset_i,
 	output 	[11:0]	exception_o,
 	input 	[31:0]	comm_i, 
-	`ifdef DATA_POLICY_DLEASE
 		input 	[31:0] 	phase_i,
-	`endif
 	output 	[31:0]	comm_cacheL1I_o, 
 	output 	[31:0]	comm_cacheL1D_o,
 	output  [31:0]  comm_cacheL2_o,
@@ -44,6 +42,8 @@ wire [31:0]	add0_core2mc, data0_core2mc, data0_mc2core;
 wire 		req1_core2mc, rw1_core2mc, done1_mc2core;
 wire [31:0]	add1_core2mc, data1_core2mc, data1_mc2core;
 wire [3:0]	core_exceptions;
+wire cpc_stall_flag;
+
 
 wire [31:0]  				core_inst_addr; 	// core address assumes 2GB space, byte addressible
 wire [`BW_WORD_ADDR-1:0] 	core_inst_addr_word;// word addressible, limited to max address space width
@@ -54,7 +54,7 @@ assign core_inst_addr_word = core_inst_addr[`BW_WORD_ADDR+1:2];
 `RISCV_HART_INST core0(
 
 	// system
-	.clock_i 		(clock_bus_i[0]			), 
+	.clock_bus_i 		({clock_bus_i[3],clock_bus_i[2],clock_bus_i[0]}			), 
 	.reset_i 		(reset_i				), 
 	.exception_bus_o(core_exceptions 		), 
 	.inst_addr_o 	(core_inst_addr 		), 
@@ -66,7 +66,7 @@ assign core_inst_addr_word = core_inst_addr[`BW_WORD_ADDR+1:2];
 	.mem_add0_o 	(add0_core2mc 			), 
 	.mem_data0_o 	(data0_core2mc 			), 
 	.mem_data0_i 	(data0_mc2core 			), 
-	.mem_done0_i 	(done0_mc2core 			),
+	.mem_done0_i 	(done0_mc2core & cpc_stall_flag),
 
 	// data references - to memory controller
 	.mem_req1_o 	(req1_core2mc 			), 
@@ -74,7 +74,7 @@ assign core_inst_addr_word = core_inst_addr[`BW_WORD_ADDR+1:2];
 	.mem_add1_o 	(add1_core2mc 			), 
 	.mem_data1_o 	(data1_core2mc 			), 
 	.mem_data1_i 	(data1_mc2core 			), 
-	.mem_done1_i 	(done1_mc2core 			),
+	.mem_done1_i 	(done1_mc2core & cpc_stall_flag),
 
 	// peripheral system
 	.per_req_o 		(per_req_o 				), 
@@ -88,21 +88,22 @@ assign core_inst_addr_word = core_inst_addr[`BW_WORD_ADDR+1:2];
 
 // data cache
 // ---------------------------------------------------------------------------------------------------------------
-// core <-> cache
-wire 				core_reqToCacheL2, core_rwToCacheL2, core_doneFromCacheL2;
-wire 		[23:0]	core_addToCacheL2;
-wire 		[31:0]	core_dataToCacheL2, core_dataFromCacheL2; 
+// L1 <-> L2
+wire 		L2_read_ack_i,L2_ready_read_o, L2_ready_write_o, L1_reqToCacheL2, L1_rwToCacheL2, L1_doneFromCacheL2,L1_validFromCacheL2, L1_reqBlockToCacheL2;
+wire 		[23:0]	L1_addToCacheL2;
+wire 		[31:0]	L1_dataToCacheL2, L1_dataFromCacheL2; 
 
-// cache <-> memory controller
+// L2 <-> memory controller
 wire 				mci_enableToCacheL2, mci_readyToCacheL2, mci_writeReadyToCacheL2, mci_readReadyToCacheL2;
 wire 		[31:0]	mci_dataToCacheL2, mci_dataFromCacheL2;
 wire 		[23:0]	mci_addFromCacheL2;
 wire 				mci_hitFromCacheL2, mci_reqFromCacheL2, mci_reqBlockFromCacheL2, mci_rwFromCacheL2, mci_writeFromCacheL2, mci_readFromCacheL2;
-	
+
+
 `L2_CACHE_INST #( 
 	.POLICY 				(`L2_CACHE_POLICY 		), 
-	.STRUCTURE 				(`INST_CACHE_STRUCTURE 		),
-	.INIT_DONE 				(`INST_CACHE_INIT 			), 
+	.STRUCTURE 				(`L2_CACHE_STRUCTURE 		),
+	.INIT_DONE 				(`L2_CACHE_INIT 			), 
 	.CACHE_BLOCK_CAPACITY 	(`L2_CACHE_BLOCK_CAPACITY	)
 ) L2_combined_cache(
 	// system 
@@ -110,16 +111,33 @@ wire 				mci_hitFromCacheL2, mci_reqFromCacheL2, mci_reqBlockFromCacheL2, mci_rw
 	.resetn_i 				(reset_i 					),
 	.comm_i 				(comm_i 					), 
 	.comm_o 				(comm_cacheL2_o 				),
+	.metric_sel_i(cpc_metric_switch_i),
+	.phase_i(phase_i),
+	
+	// L1					
+	.L1_req_i 			(L1_reqToCacheL2 			), 
+	.core_ref_add_i(core_inst_addr_word), //if we miss in L1 (and therefore have to get block from l2) cpu will stall which means this won't change
+	.L1_rw_i 				(L1_rwToCacheL2 			), 
+	.L1_add_i 			(L1_addToCacheL2 			), 
+	.L1_data_i 			(L1_dataToCacheL2 			),
+	.L1_done_o 			(L1_doneFromCacheL2 		), 
+	.L1_data_o 			(L1_dataFromCacheL2 		),
+	.L1_valid_o         (L1_validFromCacheL2),
+	.L2_read_ack_o      (L2_read_ack_i),
+	.L2_ready_read_i    (L2_ready_read_o),
+	.L2_ready_write_i   (L2_ready_write_o),
+	`ifdef L2_CACHE_POLICY_DLEASE
+		output swag_flag_o,
+	`endif
 
-	// core/hart					
-	.core_req_i 			(core_reqToCacheL2 			), 
-	.core_ref_add_i			(24'b0						), 	// only used in lease data cache
-	.core_rw_i 				(core_rwToCacheL2 			), 
-	.core_add_i 			(core_addToCacheL2 			), 
-	.core_data_i 			(core_dataToCacheL2 			),
-	.core_done_o 			(core_doneFromCacheL2 		), 
-	.core_data_o 			(core_dataFromCacheL2 		),
+	// for sampler (want to sample for all references, not just l1 misses, no specific leases for instructions, just rely on default lease)
+	//hence, just get data reqs.
+	.PC_i                   (core_inst_addr),
+	.core_req_i             (core_reqToCacheL1D),
 
+
+	//for sampler or tracker
+	.stall_o                 (cpc_stall_flag),
 	// memory controller	
 	.en_i 					(mci_enableToCacheL2			), 
 	.ready_req_i 			(mci_readyToCacheL2 			), 
@@ -171,9 +189,12 @@ wire 				mci_hitFromCacheL1I, mci_reqFromCacheL1I, mci_reqBlockFromCacheL1I, mci
 	.core_data_i 			(core_dataToCacheL1I 			),
 	.core_done_o 			(core_doneFromCacheL1I 		), 
 	.core_data_o 			(core_dataFromCacheL1I 		),
+	`ifdef L2_CACHE_POLICY_DLEASE
+		input swag_flag_i,
+	`endif
 
 	// memory controller	
-	.en_i 					(mci_enableToCacheL1I			), 
+	.en_i 					(cpc_stall_flag			), 
 	.ready_req_i 			(mci_readyToCacheL1I 			), 
 	.ready_write_i 			(mci_writeReadyToCacheL1I		), 
 	.ready_read_i			(mci_readReadyToCacheL1I 		), 
@@ -214,11 +235,6 @@ wire 				mci_hitFromCacheL1D, mci_reqFromCacheL1D, mci_reqBlockFromCacheL1D, mci
 	.resetn_i 				(reset_i 					),
 	.comm_i 				(comm_i 					), 
 	.comm_o 				(comm_cacheL1D_o 			),
-	.PC_i             (core_inst_addr               ),  
-	`ifdef DATA_POLICY_DLEASE
-		.phase_i          (phase_i                   ),
-	`endif
-	.metric_sel_i    (cpc_metric_switch_i           ),
 	// core/hart					
 	.core_req_i 			(core_reqToCacheL1D 			), 
 	.core_ref_add_i			(core_inst_addr_word		), 	// only used in lease data cache
@@ -228,8 +244,13 @@ wire 				mci_hitFromCacheL1D, mci_reqFromCacheL1D, mci_reqBlockFromCacheL1D, mci
 	.core_done_o 			(core_doneFromCacheL1D 		), 
 	.core_data_o 			(core_dataFromCacheL1D 		),
 
+	`ifdef L2_CACHE_POLICY_DLEASE
+		input swag_flag_i,
+	`endif
+
+
 	// memory controller	
-	.en_i 					(mci_enableToCacheL1D			), 
+	.en_i 					(cpc_stall_flag			), 
 	.ready_req_i 			(mci_readyToCacheL1D 			), 
 	.ready_write_i 			(mci_writeReadyToCacheL1D		), 
 	.ready_read_i			(mci_readReadyToCacheL1D 		), 
@@ -242,6 +263,8 @@ wire 				mci_hitFromCacheL1D, mci_reqFromCacheL1D, mci_reqBlockFromCacheL1D, mci
 	.read_o 				(mci_readFromCacheL1D 		), 
 	.add_o 					(mci_addFromCacheL1D 			), 
 	.data_o 				(mci_dataFromCacheL1D 		)
+
+
 );
 
 
@@ -250,7 +273,7 @@ wire 				mci_hitFromCacheL1D, mci_reqFromCacheL1D, mci_reqBlockFromCacheL1D, mci
 // --------------------------------------------------------------------
 wire [7:0]	int_mem_exceptions; 
 
-memory_controller_internal_2stage mem_cont_int(
+memory_controller_internal_2level mem_cont_int(
 
 	// general i/o
 	.clock_bus_i(clock_bus_i[3:1]), .reset_i(reset_i), .exceptions_o(int_mem_exceptions),
@@ -266,23 +289,34 @@ memory_controller_internal_2stage mem_cont_int(
 	.mem_req_o(mem_req_o), .mem_reqBlock_o(mem_reqBlock_o), .mem_clear_o(mem_clear_o), .mem_rw_o(mem_rw_o), .mem_add_o(mem_add_o), .mem_data_o(mem_data_o),
 	.mem_data_i(mem_data_i), .mem_done_i(mem_done_i), .mem_ready_i(mem_ready_i), .mem_valid_i(mem_valid_i),
 
-	// i/o cache 0
-	.CacheL1I_core_req_o(core_reqToCacheL1I), .CacheL1I_core_rw_o(core_rwToCacheL1I), .CacheL1I_core_add_o(core_addToCacheL1I), .CacheL1I_core_data_o(core_dataToCacheL1I),
-	.CacheL1I_core_done_i(core_doneFromCacheL1I), .CacheL1I_core_data_i(core_dataFromCacheL1I),				
+	// i/o to L1 instruction cache
+	.cacheL1I_core_req_o(core_reqToCacheL1I), .cacheL1I_core_rw_o(core_rwToCacheL1I), .cacheL1I_core_add_o(core_addToCacheL1I), .cacheL1I_core_data_o(core_dataToCacheL1I),
+	.cacheL1I_core_done_i(core_doneFromCacheL1I), .cacheL1I_core_data_i(core_dataFromCacheL1I),				
 
-	.CacheL1I_uc_en_o(mci_enableToCacheL1I), .CacheL1I_uc_ready_o(mci_readyToCacheL1I), .CacheL1I_uc_write_ready_o(mci_writeReadyToCacheL1I), .CacheL1I_uc_read_ready_o(mci_readReadyToCacheL1I),.CacheL1I_uc_data_o(mci_dataToCacheL1I),
-	.CacheL1I_hit_i(mci_hitFromCacheL1I), .CacheL1I_req_i(mci_reqFromCacheL1I), .CacheL1I_reqBlock_i(mci_reqBlockFromCacheL1I), .CacheL1I_rw_i(mci_rwFromCacheL1I), .CacheL1I_write_i(mci_writeFromCacheL1I), .CacheL1I_read_i(mci_readFromCacheL1I),
-	.CacheL1I_add_i(mci_addFromCacheL1I), .CacheL1I_data_i(mci_dataFromCacheL1I),
+	.cacheL1I_uc_ready_o(mci_readyToCacheL1I), .cacheL1I_uc_write_ready_o(mci_writeReadyToCacheL1I), .cacheL1I_uc_read_ready_o(mci_readReadyToCacheL1I),.cacheL1I_uc_data_o(mci_dataToCacheL1I),
+	.cacheL1I_hit_i(mci_hitFromCacheL1I), .cacheL1I_req_i(mci_reqFromCacheL1I), .cacheL1I_reqBlock_i(mci_reqBlockFromCacheL1I), .cacheL1I_rw_i(mci_rwFromCacheL1I), .cacheL1I_write_i(mci_writeFromCacheL1I), .cacheL1I_read_i(mci_readFromCacheL1I),
+	.cacheL1I_add_i(mci_addFromCacheL1I), .cacheL1I_data_i(mci_dataFromCacheL1I),
 
-	// i/o to cache 1
-	.CacheL1D_core_req_o(core_reqToCacheL1D), .CacheL1D_core_rw_o(core_rwToCacheL1D), .CacheL1D_core_add_o(core_addToCacheL1D), .CacheL1D_core_data_o(core_dataToCacheL1D),
-	.CacheL1D_core_done_i(core_doneFromCacheL1D), .CacheL1D_core_data_i(core_dataFromCacheL1D),				
+	// i/o to L1 data cache
+	.cacheL1D_core_req_o(core_reqToCacheL1D), .cacheL1D_core_rw_o(core_rwToCacheL1D), .cacheL1D_core_add_o(core_addToCacheL1D), .cacheL1D_core_data_o(core_dataToCacheL1D),
+	.cacheL1D_core_done_i(core_doneFromCacheL1D), .cacheL1D_core_data_i(core_dataFromCacheL1D),				
 
-	.CacheL1D_uc_en_o(mci_enableToCacheL1D), .CacheL1D_uc_ready_o(mci_readyToCacheL1D), .CacheL1D_uc_write_ready_o(mci_writeReadyToCacheL1D), .CacheL1D_uc_read_ready_o(mci_readReadyToCacheL1D),.CacheL1D_uc_data_o(mci_dataToCacheL1D),
-	.CacheL1D_hit_i(mci_hitFromCacheL1D), .CacheL1D_req_i(mci_reqFromCacheL1D), .CacheL1D_reqBlock_i(mci_reqBlockFromCacheL1D), .CacheL1D_rw_i(mci_rwFromCacheL1D), .CacheL1D_write_i(mci_writeFromCacheL1D), .CacheL1D_read_i(mci_readFromCacheL1D),
-	.CacheL1D_add_i(mci_addFromCacheL1D), .CacheL1D_data_i(mci_dataFromCacheL1D)
+	 .cacheL1D_uc_ready_o(mci_readyToCacheL1D), .cacheL1D_uc_write_ready_o(mci_writeReadyToCacheL1D), .cacheL1D_uc_read_ready_o(mci_readReadyToCacheL1D),.cacheL1D_uc_data_o(mci_dataToCacheL1D),
+	.cacheL1D_hit_i(mci_hitFromCacheL1D), .cacheL1D_req_i(mci_reqFromCacheL1D), .cacheL1D_reqBlock_i(mci_reqBlockFromCacheL1D), .cacheL1D_rw_i(mci_rwFromCacheL1D), .cacheL1D_write_i(mci_writeFromCacheL1D), .cacheL1D_read_i(mci_readFromCacheL1D),
+	.cacheL1D_add_i(mci_addFromCacheL1D), .cacheL1D_data_i(mci_dataFromCacheL1D),
 
+	// i/o to L2 cache
+	.cacheL2_L1_req_o(L1_reqToCacheL2), .cacheL2_L1_rw_o(L1_rwToCacheL2), .cacheL2_L1_add_o(L1_addToCacheL2), .cacheL2_L1_data_o(L1_dataToCacheL2),
+	.cacheL2_L1_ready_i(L1_doneFromCacheL2), .cacheL2_L1_data_i(L1_dataFromCacheL2), 
+	.cacheL2_L1_valid_i(L1_validFromCacheL2),
+
+	 .cacheL2_uc_ready_o(mci_readyToCacheL2), .cacheL2_uc_write_ready_o(mci_writeReadyToCacheL2), .cacheL2_uc_read_ready_o(mci_readReadyToCacheL2),.cacheL2_uc_data_o(mci_dataToCacheL2),
+	.cacheL2_hit_i(mci_hitFromCacheL2), .cacheL2_req_i(mci_reqFromCacheL2), .cacheL2_reqBlock_i(mci_reqBlockFromCacheL2), .cacheL2_rw_i(mci_rwFromCacheL2), .cacheL2_write_i(mci_writeFromCacheL2), .cacheL2_read_i(mci_readFromCacheL2),
+	.cacheL2_add_i(mci_addFromCacheL2), .cacheL2_data_i(mci_dataFromCacheL2), .L2_ready_read_o(L2_ready_read_o), .L2_read_ack_i(L2_read_ack_i),
+	.L2_ready_write_o(L2_ready_write_o)
 );
+
+
 
 // exception assignments
 // --------------------------------------------------------------------

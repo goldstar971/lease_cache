@@ -19,11 +19,11 @@ module cache_performance_controller_all #(
 	input 	[31:0]	comm_i, 			// configuration signal	
 	output 	[31:0] 	comm_o, 	 		// return value of comm_i
 	output 			stall_o,
-
-	input 	[CACHE_BLOCK_CAPACITY:0]	expired_flags_0_i,
-	input 	[CACHE_BLOCK_CAPACITY:0]	expired_flags_1_i,
-	input 	[CACHE_BLOCK_CAPACITY:0]	expired_flags_2_i,
-
+`ifdef DATA_POLICY_DLEASE
+	input 	[CACHE_BLOCK_CAPACITY-1:0]	expired_flags_0_i,
+	input 	[CACHE_BLOCK_CAPACITY-1:0]	expired_flags_1_i,
+	input 	[CACHE_BLOCK_CAPACITY-1:0]	expired_flags_2_i,
+`endif
 	input  [1:0] select_data_record
 );
 
@@ -32,10 +32,11 @@ reg 	[31:0]	comm_o_reg0,comm_o_reg1,comm_o_reg2;
 wire enable_tracker, enable_sampler, tracker_stall_o,sampler_stall_o, buffer_full_flag,table_full_flag;
 
 //wire 	[127:0]	eviction_bit_bus;
+`ifdef DATA_POLICY_DLEASE
 wire 	[127:0]	eviction_bit_0_bus,
 				eviction_bit_1_bus,
 				eviction_bit_2_bus;
-
+`endif
 
 wire 	[127:0]	trace_bus;
 wire 	[31:0]	count_bus;
@@ -54,15 +55,22 @@ wire 	[31:0]		rui_interval, rui_refpc, rui_used, rui_count, rui_remaining, rui_t
 wire 	[63:0]		rui_trace;
 
 
-//choose between cache statistics, sampler, or tracker
-assign comm_o = (select_data_record==2'b00) ? comm_o_reg0 : (select_data_record==2'b01) ? comm_o_reg1 :
-(select_data_record==2'b10) ? comm_o_reg2 : comm_o_reg0;
-
-assign enable_tracker = (select_data_record[1] & !select_data_record[0]);
 assign enable_sampler = (select_data_record[0] & !select_data_record[1]);
-
 assign sampler_stall_o=buffer_full_flag | table_full_flag;
-assign stall_o=(enable_tracker) ? tracker_stall_o : (enable_sampler) ? sampler_stall_o : 1'b0;
+
+//choose between cache statistics, sampler, or tracker
+`ifdef DATA_POLICY_DLEASE
+	assign enable_tracker = (select_data_record[1] & !select_data_record[0]);
+	assign stall_o=(enable_tracker) ? tracker_stall_o : (enable_sampler) ? sampler_stall_o : 1'b0;
+	//choose between cache statistics, sampler, or tracker
+	assign comm_o = (select_data_record==2'b00) ? comm_o_reg0 : (select_data_record==2'b01) ? comm_o_reg1 :
+	(select_data_record==2'b10) ? comm_o_reg2 : comm_o_reg0;
+`else
+	assign stall_o= (enable_sampler) ? sampler_stall_o : 1'b0;
+	//choose between cache statistics or sampler
+	assign comm_o = (select_data_record==2'b01) ? comm_o_reg1 : comm_o_reg0;
+`endif
+
 
 wire [31:0] pc_bus;
 assign pc_bus= {phase_i[7:0],pc_ref_i[23:0]};
@@ -121,7 +129,7 @@ always @(posedge clock_i[0]) begin
 
 			default comm_o_reg1 <= 'b0;
 		endcase
-
+`ifdef DATA_POLICY_DLEASE
 		case(comm_i[4:0])
 
 			5'b00000: 	comm_o_reg2 <= eviction_bit_0_bus[31:0];
@@ -151,7 +159,7 @@ always @(posedge clock_i[0]) begin
 
 			default: 	comm_o_reg2 <= 'b0;
 		endcase
-
+`endif
 		case (comm_i[4:0])
 
 			// primary outputs
@@ -181,6 +189,7 @@ always @(posedge clock_i[0]) begin
 	end
 end
 //tracker
+`ifdef DATA_POLICY_DLEASE
 cache_line_tracker_3 #(
 	.FS 				(256 					),
 	.N_LINES 	 		(CACHE_BLOCK_CAPACITY 	)
@@ -203,9 +212,9 @@ cache_line_tracker_3 #(
 	.expired_bits_2_o 	(eviction_bit_2_bus 	)
 
 );
-
+`endif
 //sampler
-
+/*
 	lease_sampler_all inst0(
 		.clock_bus_i 		(clock_i 		), 
 		.resetn_i 			(resetn_i 			), 
@@ -223,7 +232,7 @@ cache_line_tracker_3 #(
 		.remaining_o 		(rui_remaining 		),
 		.full_flag_o 		(buffer_full_flag 	), 
 		.stall_o 			(table_full_flag 		)
-	);
+	);*/
 
 endmodule
 

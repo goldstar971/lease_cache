@@ -51,7 +51,7 @@ assign core_inst_addr_word = core_inst_addr[`BW_WORD_ADDR+1:2];
 `RISCV_HART_INST core0(
 
 	// system
-	.clock_i 		(clock_bus_i[0]			), 
+	.clock_bus_i 		({clock_bus_i[3],clock_bus_i[1],clock_bus_i[0]}			), 
 	.reset_i 		(reset_i				), 
 	.exception_bus_o(core_exceptions 		), 
 	.inst_addr_o 	(core_inst_addr 		), 

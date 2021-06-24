@@ -11,8 +11,9 @@
 #define CACHE_RESULT_ADDR 	0x04000110
 #define CACHE_L1I_ADDR 		0x04000080
 #define CACHE_L1D_ADDR 		0x04000084
+#define CACHE_L2_ADDR       0x04000092
 
-#define CACHE_REPORT_BYTES 	136
+#define CACHE_REPORT_BYTES 	204
 
 
 uint32_t test_run(pHandle, command *);

@@ -91,10 +91,10 @@ localparam BW_ADDR_SPACE 			= BW_ENTRIES + 2; 				// four tables total (address,
 // ---------------------------------------------------------------------------------------------------------------------
 
 // core/hart
-reg 		core_done_o_reg;
+reg 		cache_ready_reg;
 reg [31:0]	core_data_reg;
 
-assign core_done_o = core_done_o_reg;
+assign core_done_o = cache_ready_reg;
 assign core_data_o = core_data_reg;
 
 // tag memory
@@ -256,8 +256,8 @@ always @(posedge clock_i) begin
 		replacement_ptr_reg = 	{BW_CACHE_ADDR_PART{1'b1}}; 	// start at max so first replacement rolls over into first cache line location 
 
 		// core/hart
-		//core_done_o_reg = 		INIT_DONE;
-		core_done_o_reg = 		1'b0;
+		//cache_ready_reg = 		INIT_DONE;
+		cache_ready_reg = 		1'b0;
 		core_data_reg = 		'b0;
 
 		// tag memory
@@ -377,7 +377,7 @@ always @(posedge clock_i) begin
 						end
 						else begin
 							n_transfer_reg = 'b0;
-							core_done_o_reg = 1'b1;
+							cache_ready_reg = 1'b1;
 							state_reg 		= ST_NORMAL;
 						end	
 					end
@@ -421,7 +421,7 @@ always @(posedge clock_i) begin
 							n_transfer_reg 	<= 'b0;
 							state_reg 		<= ST_NORMAL;
 							// if there was no buffered request unstall the core
-							if (!req_flag_reg) core_done_o_reg = 1'b1;
+							if (!req_flag_reg) cache_ready_reg = 1'b1;
 						end
 
 						else begin
@@ -451,7 +451,7 @@ always @(posedge clock_i) begin
 					if (phase_interrupt) begin
 
 						// stall core until done populating table
-						core_done_o_reg 	= 1'b0;
+						cache_ready_reg 	= 1'b0;
 
 						if (core_req_i) begin
 							req_flag_reg 	= 1'b1; 				// so that upon handling the miss the cache serves the core
@@ -485,7 +485,7 @@ always @(posedge clock_i) begin
 							flag_hit_reg 			= 1'b1;
 							cache_mem_add_reg 		= {cam_addr_i, core_word_i};		// set cache address
 							cache_mem_data_reg 		= core_data_i;						// redundant if cache read
-							core_done_o_reg 		= 1'b1; 							// unstall processor core
+							cache_ready_reg 		= 1'b1; 							// unstall processor core
 
 
 							// set dirty bit if write to the cache line
@@ -504,7 +504,7 @@ always @(posedge clock_i) begin
 							// register inputs and flag for reassessment after servicing miss
 							req_flag_reg 	= 1'b1; 				// so that upon handling the miss the cache serves the core
 							rw_flag_reg 	= core_rw_i; 			// register request type (ld/st)
-							core_done_o_reg = 1'b0;					// stall processor
+							cache_ready_reg = 1'b0;					// stall processor
 							// must wait one cycle to register the swap flag
 							latch_swap_reg 	= 1'b1;
 
@@ -560,7 +560,7 @@ always @(posedge clock_i) begin
 								state_reg 				= ST_NORMAL;
 								buffer_write_ack_reg 	= 1'b1; 				// write to buffer
 								buffer_data_reg 		= core_data_i;
-								core_done_o_reg 		= 1'b1;
+								cache_ready_reg 		= 1'b1;
 							end
 						end
 					end
@@ -649,7 +649,7 @@ always @(posedge clock_i) begin
 						core_data_reg 		= buffer_data_i;
 
 						// signal done and resume
-						core_done_o_reg	 	= 1'b1;
+						cache_ready_reg	 	= 1'b1;
 						state_reg 			= ST_NORMAL;
 					end
 				end

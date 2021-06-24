@@ -108,10 +108,6 @@ bram_32b_8kB cache_mem(
 		wire 								swap_flag; 				// when 1: route data from controller, not cache
 
 		assign core_data_o = (!swap_flag) ? core_no_swap_data_bus : data_fromCache;
-`elsif DATA_POLICY_LEASE
-		wire 	[31:0]						core_no_swap_data_bus; 	// data from the controller
-		wire 								swap_flag; 				// when 1: route data from controller, not cache
-		assign core_data_o = (!swap_flag) ? core_no_swap_data_bus : data_fromCache;
 `else 
 // if no_swap == 1 (do not allocate in cache) transaction is handled by controller (single word operation)
 // if no_swap == 0 then transaction is handled passively by logic (block operation)
@@ -130,9 +126,11 @@ wire 	hit_flag,  											// performance metric flags set by controller
 		expired_flag,
 		defaulted_flag,
 		expired_multi_flag;
+		`ifdef DATA_POLICY_LEASE
 		wire [CACHE_BLOCK_CAPACITY-1:0] flag_expired_0_bus,
 								flag_expired_1_bus,
 								flag_expired_2_bus;
+		`endif
 wire 							cpc_stall_flag;
 		
 
@@ -158,9 +156,11 @@ wire 							cpc_stall_flag;
 		.swap_i(swap_flag),		
 		.comm_i 			(comm_i 			), 				// configuration signal
 		.comm_o 			(comm_o 			), 				// return value of comm_i
+		`ifdef DATA_POLICY_DLEASE
 		.expired_flags_0_i 	(flag_expired_0_bus ),
 		.expired_flags_1_i 	(flag_expired_1_bus ),
 		.expired_flags_2_i 	(flag_expired_2_bus ),
+		`endif
 		.stall_o 			(cpc_stall_flag	)
 	);
 
@@ -182,9 +182,7 @@ assign core_done_o = core_done_bus & !cpc_stall_flag;
 
 	// system
 	.clock_i 				(clock_bus_i[0] 		), 		// 180 deg phase
-	`ifdef DATA_POLICY_LEASE
-		.clock_lease_i      (clock_bus_i[1]), 		// 270 deg phase
-	`elsif DATA_POLICY_DLEASE
+	`ifdef DATA_POLICY_DLEASE
 		.phase_i             (phase_i),
 		.clock_lease_i      (clock_bus_i[1]),		// 270 deg phase
 	`endif
@@ -200,10 +198,8 @@ assign core_done_o = core_done_bus & !cpc_stall_flag;
 	.core_data_i 			(core_data_i 			),
 	.core_done_o 			(core_done_bus 			),
 	.core_hit_o 			(hit_o 					),
-	`ifdef DATA_POLICY_LEASE
+	`ifdef DATA_POLICY_DLEASE
 		.core_data_o 		(core_no_swap_data_bus 	), 
-	`elsif DATA_POLICY_DLEASE
-		.core_data_o 		(core_no_swap_data_bus 	),
 	`endif
 
 
@@ -247,18 +243,7 @@ assign core_done_o = core_done_bus & !cpc_stall_flag;
 		.flag_expired_0_o 		(flag_expired_0_bus 	),
 		.flag_expired_1_o 		(flag_expired_1_bus 	),
 		.flag_expired_2_o 		(flag_expired_2_bus 	),
-	`elsif DATA_POLICY_LEASE	
-	//more performance ports
-		.flag_expired_o 		(expired_flag 			),
-		.flag_expired_multi_o	(expired_multi_flag 	),
-		.flag_defaulted_o 		(defaulted_flag 		),
-		.flag_swap_o 			(swap_flag 		 		),
-	//line tracking ports
-		.flag_expired_0_o 		(flag_expired_0_bus 	),
-		.flag_expired_1_o 		(flag_expired_1_bus 	),
-		.flag_expired_2_o 		(flag_expired_2_bus 	),
-
-`endif
+	`endif
 
 	// command ports
 	.mem_ready_i 			(ready_req_i 			),
