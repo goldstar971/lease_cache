@@ -42,7 +42,7 @@ wire [31:0]	add0_core2mc, data0_core2mc, data0_mc2core;
 wire 		req1_core2mc, rw1_core2mc, done1_mc2core;
 wire [31:0]	add1_core2mc, data1_core2mc, data1_mc2core;
 wire [3:0]	core_exceptions;
-wire cpc_stall_flag;
+wire cache_contr_enable;
 
 
 wire [31:0]  				core_inst_addr; 	// core address assumes 2GB space, byte addressible
@@ -66,7 +66,7 @@ assign core_inst_addr_word = core_inst_addr[`BW_WORD_ADDR+1:2];
 	.mem_add0_o 	(add0_core2mc 			), 
 	.mem_data0_o 	(data0_core2mc 			), 
 	.mem_data0_i 	(data0_mc2core 			), 
-	.mem_done0_i 	(done0_mc2core & !cpc_stall_flag),
+	.mem_done0_i 	(done0_mc2core & cache_contr_enable	),
 
 	// data references - to memory controller
 	.mem_req1_o 	(req1_core2mc 			), 
@@ -74,7 +74,7 @@ assign core_inst_addr_word = core_inst_addr[`BW_WORD_ADDR+1:2];
 	.mem_add1_o 	(add1_core2mc 			), 
 	.mem_data1_o 	(data1_core2mc 			), 
 	.mem_data1_i 	(data1_mc2core 			), 
-	.mem_done1_i 	(done1_mc2core & !cpc_stall_flag),
+	.mem_done1_i 	(done1_mc2core & cache_contr_enable	),
 
 	// peripheral system
 	.per_req_o 		(per_req_o 				), 
@@ -137,7 +137,7 @@ wire 				mci_hitFromCacheL2, mci_reqFromCacheL2, mci_reqBlockFromCacheL2, mci_rw
 
 
 	//for sampler or tracker
-	.stall_o                 (cpc_stall_flag),
+	.stall_o                 (cache_contr_enable	),
 	// memory controller	
 	.en_i 					(mci_enableToCacheL2			), 
 	.ready_req_i 			(mci_readyToCacheL2 			), 
@@ -194,7 +194,7 @@ wire 				mci_hitFromCacheL1I, mci_reqFromCacheL1I, mci_reqBlockFromCacheL1I, mci
 	//`endif
 
 	// memory controller	
-	.en_i 					(1'b1			), 
+	.en_i 					(cache_contr_enable			), 
 	.ready_req_i 			(mci_readyToCacheL1I 			), 
 	.ready_write_i 			(mci_writeReadyToCacheL1I		), 
 	.ready_read_i			(mci_readReadyToCacheL1I 		), 
@@ -248,7 +248,7 @@ wire 				mci_hitFromCacheL1D, mci_reqFromCacheL1D, mci_reqBlockFromCacheL1D, mci
 //	.swap_flag_i(swap_flag_o),
 //	`endif
 	// memory controller	
-	.en_i 					(1'b1		), 
+	.en_i 					(cache_contr_enable		), 
 	.ready_req_i 			(mci_readyToCacheL1D 			), 
 	.ready_write_i 			(mci_writeReadyToCacheL1D		), 
 	.ready_read_i			(mci_readReadyToCacheL1D 		), 

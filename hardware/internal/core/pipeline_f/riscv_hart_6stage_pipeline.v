@@ -146,8 +146,8 @@ wire [4:0] stall_cycles;
 riscv_alu_pipelined #(
 	.RV32M 						(1 						),
 	.RV32F                    (1                      ),
-	.DIV_STAGES 				(4'h6 						),
-	.MUL_STAGES              (4'h0						)
+	.DIV_STAGES 				(4'h7 						),
+	.MUL_STAGES              (4'h1						)
 ) rv32_alu_inst(
 	.clock_div_i				(clock_bus_i[0] 				),
 	.in0_i 						(Tsrc1_3_reg 			), 

@@ -16,7 +16,7 @@
 -- ---------------------------------------------------------------------------
 
 -- VHDL created from float_div_0002
--- VHDL created on Sun Jun 27 14:38:50 2021
+-- VHDL created on Sun Jul  4 02:28:24 2021
 
 
 library IEEE;
@@ -158,6 +158,7 @@ architecture normal of float_div_0002 is
     signal qDividerProdLTX_uid101_fpDivTest_c : STD_LOGIC_VECTOR (0 downto 0);
     signal betweenFPwF_uid102_fpDivTest_in : STD_LOGIC_VECTOR (0 downto 0);
     signal betweenFPwF_uid102_fpDivTest_b : STD_LOGIC_VECTOR (0 downto 0);
+    signal extraUlp_uid103_fpDivTest_qi : STD_LOGIC_VECTOR (0 downto 0);
     signal extraUlp_uid103_fpDivTest_q : STD_LOGIC_VECTOR (0 downto 0);
     signal fracPostRndFT_uid104_fpDivTest_b : STD_LOGIC_VECTOR (22 downto 0);
     signal fracRPreExcExt_uid105_fpDivTest_a : STD_LOGIC_VECTOR (23 downto 0);
@@ -338,106 +339,108 @@ architecture normal of float_div_0002 is
     signal prodXY_uid179_pT2_uid167_invPolyEval_cma_q : STD_LOGIC_VECTOR (37 downto 0);
     signal prodXY_uid179_pT2_uid167_invPolyEval_cma_ena0 : std_logic;
     signal prodXY_uid179_pT2_uid167_invPolyEval_cma_ena1 : std_logic;
-    signal redist0_sRPostExc_uid143_fpDivTest_q_2_q : STD_LOGIC_VECTOR (0 downto 0);
-    signal redist1_excREnc_uid133_fpDivTest_q_2_q : STD_LOGIC_VECTOR (1 downto 0);
-    signal redist2_fracPostRndFT_uid104_fpDivTest_b_2_q : STD_LOGIC_VECTOR (22 downto 0);
-    signal redist3_betweenFPwF_uid102_fpDivTest_b_2_q : STD_LOGIC_VECTOR (0 downto 0);
-    signal redist4_qDivProdExp_opA_uid94_fpDivTest_q_2_q : STD_LOGIC_VECTOR (8 downto 0);
-    signal redist5_expPostRndFR_uid81_fpDivTest_b_2_q : STD_LOGIC_VECTOR (7 downto 0);
+    signal redist0_sRPostExc_uid143_fpDivTest_q_3_q : STD_LOGIC_VECTOR (0 downto 0);
+    signal redist1_excREnc_uid133_fpDivTest_q_3_q : STD_LOGIC_VECTOR (1 downto 0);
+    signal redist2_fracPostRndFT_uid104_fpDivTest_b_1_q : STD_LOGIC_VECTOR (22 downto 0);
+    signal redist3_expPostRndFR_uid81_fpDivTest_b_2_q : STD_LOGIC_VECTOR (7 downto 0);
+    signal redist4_expPostRndFR_uid81_fpDivTest_b_3_q : STD_LOGIC_VECTOR (7 downto 0);
+    signal redist5_fracPostRndF_uid80_fpDivTest_q_2_q : STD_LOGIC_VECTOR (23 downto 0);
     signal redist6_lOAdded_uid57_fpDivTest_q_2_q : STD_LOGIC_VECTOR (23 downto 0);
     signal redist7_invYO_uid55_fpDivTest_b_2_q : STD_LOGIC_VECTOR (0 downto 0);
-    signal redist8_yPE_uid52_fpDivTest_b_2_q : STD_LOGIC_VECTOR (13 downto 0);
-    signal redist9_yPE_uid52_fpDivTest_b_4_q : STD_LOGIC_VECTOR (13 downto 0);
-    signal redist10_yAddr_uid51_fpDivTest_b_2_q : STD_LOGIC_VECTOR (8 downto 0);
-    signal redist11_yAddr_uid51_fpDivTest_b_4_q : STD_LOGIC_VECTOR (8 downto 0);
-    signal redist12_signR_uid46_fpDivTest_q_8_q : STD_LOGIC_VECTOR (0 downto 0);
-    signal redist16_fracX_uid10_fpDivTest_b_8_q : STD_LOGIC_VECTOR (22 downto 0);
-    signal redist17_fracX_uid10_fpDivTest_b_10_q : STD_LOGIC_VECTOR (22 downto 0);
-    signal redist19_expX_uid9_fpDivTest_b_10_q : STD_LOGIC_VECTOR (7 downto 0);
-    signal redist13_fracY_uid13_fpDivTest_b_8_mem_reset0 : std_logic;
-    signal redist13_fracY_uid13_fpDivTest_b_8_mem_ia : STD_LOGIC_VECTOR (22 downto 0);
-    signal redist13_fracY_uid13_fpDivTest_b_8_mem_aa : STD_LOGIC_VECTOR (2 downto 0);
-    signal redist13_fracY_uid13_fpDivTest_b_8_mem_ab : STD_LOGIC_VECTOR (2 downto 0);
-    signal redist13_fracY_uid13_fpDivTest_b_8_mem_iq : STD_LOGIC_VECTOR (22 downto 0);
-    signal redist13_fracY_uid13_fpDivTest_b_8_mem_q : STD_LOGIC_VECTOR (22 downto 0);
-    signal redist13_fracY_uid13_fpDivTest_b_8_rdcnt_q : STD_LOGIC_VECTOR (2 downto 0);
-    signal redist13_fracY_uid13_fpDivTest_b_8_rdcnt_i : UNSIGNED (2 downto 0);
-    attribute preserve of redist13_fracY_uid13_fpDivTest_b_8_rdcnt_i : signal is true;
-    signal redist13_fracY_uid13_fpDivTest_b_8_rdcnt_eq : std_logic;
-    attribute preserve of redist13_fracY_uid13_fpDivTest_b_8_rdcnt_eq : signal is true;
-    signal redist13_fracY_uid13_fpDivTest_b_8_wraddr_q : STD_LOGIC_VECTOR (2 downto 0);
-    signal redist13_fracY_uid13_fpDivTest_b_8_mem_last_q : STD_LOGIC_VECTOR (3 downto 0);
-    signal redist13_fracY_uid13_fpDivTest_b_8_cmp_b : STD_LOGIC_VECTOR (3 downto 0);
-    signal redist13_fracY_uid13_fpDivTest_b_8_cmp_q : STD_LOGIC_VECTOR (0 downto 0);
-    signal redist13_fracY_uid13_fpDivTest_b_8_cmpReg_q : STD_LOGIC_VECTOR (0 downto 0);
-    signal redist13_fracY_uid13_fpDivTest_b_8_notEnable_q : STD_LOGIC_VECTOR (0 downto 0);
-    signal redist13_fracY_uid13_fpDivTest_b_8_nor_q : STD_LOGIC_VECTOR (0 downto 0);
-    signal redist13_fracY_uid13_fpDivTest_b_8_sticky_ena_q : STD_LOGIC_VECTOR (0 downto 0);
+    signal redist8_invYO_uid55_fpDivTest_b_4_q : STD_LOGIC_VECTOR (0 downto 0);
+    signal redist9_yPE_uid52_fpDivTest_b_2_q : STD_LOGIC_VECTOR (13 downto 0);
+    signal redist10_yPE_uid52_fpDivTest_b_4_q : STD_LOGIC_VECTOR (13 downto 0);
+    signal redist11_yAddr_uid51_fpDivTest_b_2_q : STD_LOGIC_VECTOR (8 downto 0);
+    signal redist12_yAddr_uid51_fpDivTest_b_4_q : STD_LOGIC_VECTOR (8 downto 0);
+    signal redist13_signR_uid46_fpDivTest_q_8_q : STD_LOGIC_VECTOR (0 downto 0);
+    signal redist16_expY_uid12_fpDivTest_b_10_q : STD_LOGIC_VECTOR (7 downto 0);
+    signal redist18_fracX_uid10_fpDivTest_b_8_q : STD_LOGIC_VECTOR (22 downto 0);
+    signal redist19_fracX_uid10_fpDivTest_b_10_q : STD_LOGIC_VECTOR (22 downto 0);
+    signal redist21_expX_uid9_fpDivTest_b_10_q : STD_LOGIC_VECTOR (7 downto 0);
+    signal redist14_fracY_uid13_fpDivTest_b_8_mem_reset0 : std_logic;
+    signal redist14_fracY_uid13_fpDivTest_b_8_mem_ia : STD_LOGIC_VECTOR (22 downto 0);
+    signal redist14_fracY_uid13_fpDivTest_b_8_mem_aa : STD_LOGIC_VECTOR (2 downto 0);
+    signal redist14_fracY_uid13_fpDivTest_b_8_mem_ab : STD_LOGIC_VECTOR (2 downto 0);
+    signal redist14_fracY_uid13_fpDivTest_b_8_mem_iq : STD_LOGIC_VECTOR (22 downto 0);
+    signal redist14_fracY_uid13_fpDivTest_b_8_mem_q : STD_LOGIC_VECTOR (22 downto 0);
+    signal redist14_fracY_uid13_fpDivTest_b_8_rdcnt_q : STD_LOGIC_VECTOR (2 downto 0);
+    signal redist14_fracY_uid13_fpDivTest_b_8_rdcnt_i : UNSIGNED (2 downto 0);
+    attribute preserve of redist14_fracY_uid13_fpDivTest_b_8_rdcnt_i : signal is true;
+    signal redist14_fracY_uid13_fpDivTest_b_8_rdcnt_eq : std_logic;
+    attribute preserve of redist14_fracY_uid13_fpDivTest_b_8_rdcnt_eq : signal is true;
+    signal redist14_fracY_uid13_fpDivTest_b_8_wraddr_q : STD_LOGIC_VECTOR (2 downto 0);
+    signal redist14_fracY_uid13_fpDivTest_b_8_mem_last_q : STD_LOGIC_VECTOR (3 downto 0);
+    signal redist14_fracY_uid13_fpDivTest_b_8_cmp_b : STD_LOGIC_VECTOR (3 downto 0);
+    signal redist14_fracY_uid13_fpDivTest_b_8_cmp_q : STD_LOGIC_VECTOR (0 downto 0);
+    signal redist14_fracY_uid13_fpDivTest_b_8_cmpReg_q : STD_LOGIC_VECTOR (0 downto 0);
+    signal redist14_fracY_uid13_fpDivTest_b_8_notEnable_q : STD_LOGIC_VECTOR (0 downto 0);
+    signal redist14_fracY_uid13_fpDivTest_b_8_nor_q : STD_LOGIC_VECTOR (0 downto 0);
+    signal redist14_fracY_uid13_fpDivTest_b_8_sticky_ena_q : STD_LOGIC_VECTOR (0 downto 0);
     attribute dont_merge : boolean;
-    attribute dont_merge of redist13_fracY_uid13_fpDivTest_b_8_sticky_ena_q : signal is true;
-    signal redist13_fracY_uid13_fpDivTest_b_8_enaAnd_q : STD_LOGIC_VECTOR (0 downto 0);
-    signal redist14_expY_uid12_fpDivTest_b_8_mem_reset0 : std_logic;
-    signal redist14_expY_uid12_fpDivTest_b_8_mem_ia : STD_LOGIC_VECTOR (7 downto 0);
-    signal redist14_expY_uid12_fpDivTest_b_8_mem_aa : STD_LOGIC_VECTOR (2 downto 0);
-    signal redist14_expY_uid12_fpDivTest_b_8_mem_ab : STD_LOGIC_VECTOR (2 downto 0);
-    signal redist14_expY_uid12_fpDivTest_b_8_mem_iq : STD_LOGIC_VECTOR (7 downto 0);
-    signal redist14_expY_uid12_fpDivTest_b_8_mem_q : STD_LOGIC_VECTOR (7 downto 0);
-    signal redist14_expY_uid12_fpDivTest_b_8_rdcnt_q : STD_LOGIC_VECTOR (2 downto 0);
-    signal redist14_expY_uid12_fpDivTest_b_8_rdcnt_i : UNSIGNED (2 downto 0);
-    attribute preserve of redist14_expY_uid12_fpDivTest_b_8_rdcnt_i : signal is true;
-    signal redist14_expY_uid12_fpDivTest_b_8_rdcnt_eq : std_logic;
-    attribute preserve of redist14_expY_uid12_fpDivTest_b_8_rdcnt_eq : signal is true;
-    signal redist14_expY_uid12_fpDivTest_b_8_wraddr_q : STD_LOGIC_VECTOR (2 downto 0);
-    signal redist14_expY_uid12_fpDivTest_b_8_mem_last_q : STD_LOGIC_VECTOR (3 downto 0);
-    signal redist14_expY_uid12_fpDivTest_b_8_cmp_b : STD_LOGIC_VECTOR (3 downto 0);
-    signal redist14_expY_uid12_fpDivTest_b_8_cmp_q : STD_LOGIC_VECTOR (0 downto 0);
-    signal redist14_expY_uid12_fpDivTest_b_8_cmpReg_q : STD_LOGIC_VECTOR (0 downto 0);
-    signal redist14_expY_uid12_fpDivTest_b_8_notEnable_q : STD_LOGIC_VECTOR (0 downto 0);
-    signal redist14_expY_uid12_fpDivTest_b_8_nor_q : STD_LOGIC_VECTOR (0 downto 0);
-    signal redist14_expY_uid12_fpDivTest_b_8_sticky_ena_q : STD_LOGIC_VECTOR (0 downto 0);
-    attribute dont_merge of redist14_expY_uid12_fpDivTest_b_8_sticky_ena_q : signal is true;
-    signal redist14_expY_uid12_fpDivTest_b_8_enaAnd_q : STD_LOGIC_VECTOR (0 downto 0);
-    signal redist15_fracX_uid10_fpDivTest_b_6_mem_reset0 : std_logic;
-    signal redist15_fracX_uid10_fpDivTest_b_6_mem_ia : STD_LOGIC_VECTOR (22 downto 0);
-    signal redist15_fracX_uid10_fpDivTest_b_6_mem_aa : STD_LOGIC_VECTOR (2 downto 0);
-    signal redist15_fracX_uid10_fpDivTest_b_6_mem_ab : STD_LOGIC_VECTOR (2 downto 0);
-    signal redist15_fracX_uid10_fpDivTest_b_6_mem_iq : STD_LOGIC_VECTOR (22 downto 0);
-    signal redist15_fracX_uid10_fpDivTest_b_6_mem_q : STD_LOGIC_VECTOR (22 downto 0);
-    signal redist15_fracX_uid10_fpDivTest_b_6_rdcnt_q : STD_LOGIC_VECTOR (2 downto 0);
-    signal redist15_fracX_uid10_fpDivTest_b_6_rdcnt_i : UNSIGNED (2 downto 0);
-    attribute preserve of redist15_fracX_uid10_fpDivTest_b_6_rdcnt_i : signal is true;
-    signal redist15_fracX_uid10_fpDivTest_b_6_rdcnt_eq : std_logic;
-    attribute preserve of redist15_fracX_uid10_fpDivTest_b_6_rdcnt_eq : signal is true;
-    signal redist15_fracX_uid10_fpDivTest_b_6_wraddr_q : STD_LOGIC_VECTOR (2 downto 0);
-    signal redist15_fracX_uid10_fpDivTest_b_6_mem_last_q : STD_LOGIC_VECTOR (2 downto 0);
-    signal redist15_fracX_uid10_fpDivTest_b_6_cmp_q : STD_LOGIC_VECTOR (0 downto 0);
-    signal redist15_fracX_uid10_fpDivTest_b_6_cmpReg_q : STD_LOGIC_VECTOR (0 downto 0);
-    signal redist15_fracX_uid10_fpDivTest_b_6_notEnable_q : STD_LOGIC_VECTOR (0 downto 0);
-    signal redist15_fracX_uid10_fpDivTest_b_6_nor_q : STD_LOGIC_VECTOR (0 downto 0);
-    signal redist15_fracX_uid10_fpDivTest_b_6_sticky_ena_q : STD_LOGIC_VECTOR (0 downto 0);
-    attribute dont_merge of redist15_fracX_uid10_fpDivTest_b_6_sticky_ena_q : signal is true;
-    signal redist15_fracX_uid10_fpDivTest_b_6_enaAnd_q : STD_LOGIC_VECTOR (0 downto 0);
-    signal redist18_expX_uid9_fpDivTest_b_8_mem_reset0 : std_logic;
-    signal redist18_expX_uid9_fpDivTest_b_8_mem_ia : STD_LOGIC_VECTOR (7 downto 0);
-    signal redist18_expX_uid9_fpDivTest_b_8_mem_aa : STD_LOGIC_VECTOR (2 downto 0);
-    signal redist18_expX_uid9_fpDivTest_b_8_mem_ab : STD_LOGIC_VECTOR (2 downto 0);
-    signal redist18_expX_uid9_fpDivTest_b_8_mem_iq : STD_LOGIC_VECTOR (7 downto 0);
-    signal redist18_expX_uid9_fpDivTest_b_8_mem_q : STD_LOGIC_VECTOR (7 downto 0);
-    signal redist18_expX_uid9_fpDivTest_b_8_rdcnt_q : STD_LOGIC_VECTOR (2 downto 0);
-    signal redist18_expX_uid9_fpDivTest_b_8_rdcnt_i : UNSIGNED (2 downto 0);
-    attribute preserve of redist18_expX_uid9_fpDivTest_b_8_rdcnt_i : signal is true;
-    signal redist18_expX_uid9_fpDivTest_b_8_rdcnt_eq : std_logic;
-    attribute preserve of redist18_expX_uid9_fpDivTest_b_8_rdcnt_eq : signal is true;
-    signal redist18_expX_uid9_fpDivTest_b_8_wraddr_q : STD_LOGIC_VECTOR (2 downto 0);
-    signal redist18_expX_uid9_fpDivTest_b_8_mem_last_q : STD_LOGIC_VECTOR (3 downto 0);
-    signal redist18_expX_uid9_fpDivTest_b_8_cmp_b : STD_LOGIC_VECTOR (3 downto 0);
-    signal redist18_expX_uid9_fpDivTest_b_8_cmp_q : STD_LOGIC_VECTOR (0 downto 0);
-    signal redist18_expX_uid9_fpDivTest_b_8_cmpReg_q : STD_LOGIC_VECTOR (0 downto 0);
-    signal redist18_expX_uid9_fpDivTest_b_8_notEnable_q : STD_LOGIC_VECTOR (0 downto 0);
-    signal redist18_expX_uid9_fpDivTest_b_8_nor_q : STD_LOGIC_VECTOR (0 downto 0);
-    signal redist18_expX_uid9_fpDivTest_b_8_sticky_ena_q : STD_LOGIC_VECTOR (0 downto 0);
-    attribute dont_merge of redist18_expX_uid9_fpDivTest_b_8_sticky_ena_q : signal is true;
-    signal redist18_expX_uid9_fpDivTest_b_8_enaAnd_q : STD_LOGIC_VECTOR (0 downto 0);
+    attribute dont_merge of redist14_fracY_uid13_fpDivTest_b_8_sticky_ena_q : signal is true;
+    signal redist14_fracY_uid13_fpDivTest_b_8_enaAnd_q : STD_LOGIC_VECTOR (0 downto 0);
+    signal redist15_expY_uid12_fpDivTest_b_8_mem_reset0 : std_logic;
+    signal redist15_expY_uid12_fpDivTest_b_8_mem_ia : STD_LOGIC_VECTOR (7 downto 0);
+    signal redist15_expY_uid12_fpDivTest_b_8_mem_aa : STD_LOGIC_VECTOR (2 downto 0);
+    signal redist15_expY_uid12_fpDivTest_b_8_mem_ab : STD_LOGIC_VECTOR (2 downto 0);
+    signal redist15_expY_uid12_fpDivTest_b_8_mem_iq : STD_LOGIC_VECTOR (7 downto 0);
+    signal redist15_expY_uid12_fpDivTest_b_8_mem_q : STD_LOGIC_VECTOR (7 downto 0);
+    signal redist15_expY_uid12_fpDivTest_b_8_rdcnt_q : STD_LOGIC_VECTOR (2 downto 0);
+    signal redist15_expY_uid12_fpDivTest_b_8_rdcnt_i : UNSIGNED (2 downto 0);
+    attribute preserve of redist15_expY_uid12_fpDivTest_b_8_rdcnt_i : signal is true;
+    signal redist15_expY_uid12_fpDivTest_b_8_rdcnt_eq : std_logic;
+    attribute preserve of redist15_expY_uid12_fpDivTest_b_8_rdcnt_eq : signal is true;
+    signal redist15_expY_uid12_fpDivTest_b_8_wraddr_q : STD_LOGIC_VECTOR (2 downto 0);
+    signal redist15_expY_uid12_fpDivTest_b_8_mem_last_q : STD_LOGIC_VECTOR (3 downto 0);
+    signal redist15_expY_uid12_fpDivTest_b_8_cmp_b : STD_LOGIC_VECTOR (3 downto 0);
+    signal redist15_expY_uid12_fpDivTest_b_8_cmp_q : STD_LOGIC_VECTOR (0 downto 0);
+    signal redist15_expY_uid12_fpDivTest_b_8_cmpReg_q : STD_LOGIC_VECTOR (0 downto 0);
+    signal redist15_expY_uid12_fpDivTest_b_8_notEnable_q : STD_LOGIC_VECTOR (0 downto 0);
+    signal redist15_expY_uid12_fpDivTest_b_8_nor_q : STD_LOGIC_VECTOR (0 downto 0);
+    signal redist15_expY_uid12_fpDivTest_b_8_sticky_ena_q : STD_LOGIC_VECTOR (0 downto 0);
+    attribute dont_merge of redist15_expY_uid12_fpDivTest_b_8_sticky_ena_q : signal is true;
+    signal redist15_expY_uid12_fpDivTest_b_8_enaAnd_q : STD_LOGIC_VECTOR (0 downto 0);
+    signal redist17_fracX_uid10_fpDivTest_b_6_mem_reset0 : std_logic;
+    signal redist17_fracX_uid10_fpDivTest_b_6_mem_ia : STD_LOGIC_VECTOR (22 downto 0);
+    signal redist17_fracX_uid10_fpDivTest_b_6_mem_aa : STD_LOGIC_VECTOR (2 downto 0);
+    signal redist17_fracX_uid10_fpDivTest_b_6_mem_ab : STD_LOGIC_VECTOR (2 downto 0);
+    signal redist17_fracX_uid10_fpDivTest_b_6_mem_iq : STD_LOGIC_VECTOR (22 downto 0);
+    signal redist17_fracX_uid10_fpDivTest_b_6_mem_q : STD_LOGIC_VECTOR (22 downto 0);
+    signal redist17_fracX_uid10_fpDivTest_b_6_rdcnt_q : STD_LOGIC_VECTOR (2 downto 0);
+    signal redist17_fracX_uid10_fpDivTest_b_6_rdcnt_i : UNSIGNED (2 downto 0);
+    attribute preserve of redist17_fracX_uid10_fpDivTest_b_6_rdcnt_i : signal is true;
+    signal redist17_fracX_uid10_fpDivTest_b_6_rdcnt_eq : std_logic;
+    attribute preserve of redist17_fracX_uid10_fpDivTest_b_6_rdcnt_eq : signal is true;
+    signal redist17_fracX_uid10_fpDivTest_b_6_wraddr_q : STD_LOGIC_VECTOR (2 downto 0);
+    signal redist17_fracX_uid10_fpDivTest_b_6_mem_last_q : STD_LOGIC_VECTOR (2 downto 0);
+    signal redist17_fracX_uid10_fpDivTest_b_6_cmp_q : STD_LOGIC_VECTOR (0 downto 0);
+    signal redist17_fracX_uid10_fpDivTest_b_6_cmpReg_q : STD_LOGIC_VECTOR (0 downto 0);
+    signal redist17_fracX_uid10_fpDivTest_b_6_notEnable_q : STD_LOGIC_VECTOR (0 downto 0);
+    signal redist17_fracX_uid10_fpDivTest_b_6_nor_q : STD_LOGIC_VECTOR (0 downto 0);
+    signal redist17_fracX_uid10_fpDivTest_b_6_sticky_ena_q : STD_LOGIC_VECTOR (0 downto 0);
+    attribute dont_merge of redist17_fracX_uid10_fpDivTest_b_6_sticky_ena_q : signal is true;
+    signal redist17_fracX_uid10_fpDivTest_b_6_enaAnd_q : STD_LOGIC_VECTOR (0 downto 0);
+    signal redist20_expX_uid9_fpDivTest_b_8_mem_reset0 : std_logic;
+    signal redist20_expX_uid9_fpDivTest_b_8_mem_ia : STD_LOGIC_VECTOR (7 downto 0);
+    signal redist20_expX_uid9_fpDivTest_b_8_mem_aa : STD_LOGIC_VECTOR (2 downto 0);
+    signal redist20_expX_uid9_fpDivTest_b_8_mem_ab : STD_LOGIC_VECTOR (2 downto 0);
+    signal redist20_expX_uid9_fpDivTest_b_8_mem_iq : STD_LOGIC_VECTOR (7 downto 0);
+    signal redist20_expX_uid9_fpDivTest_b_8_mem_q : STD_LOGIC_VECTOR (7 downto 0);
+    signal redist20_expX_uid9_fpDivTest_b_8_rdcnt_q : STD_LOGIC_VECTOR (2 downto 0);
+    signal redist20_expX_uid9_fpDivTest_b_8_rdcnt_i : UNSIGNED (2 downto 0);
+    attribute preserve of redist20_expX_uid9_fpDivTest_b_8_rdcnt_i : signal is true;
+    signal redist20_expX_uid9_fpDivTest_b_8_rdcnt_eq : std_logic;
+    attribute preserve of redist20_expX_uid9_fpDivTest_b_8_rdcnt_eq : signal is true;
+    signal redist20_expX_uid9_fpDivTest_b_8_wraddr_q : STD_LOGIC_VECTOR (2 downto 0);
+    signal redist20_expX_uid9_fpDivTest_b_8_mem_last_q : STD_LOGIC_VECTOR (3 downto 0);
+    signal redist20_expX_uid9_fpDivTest_b_8_cmp_b : STD_LOGIC_VECTOR (3 downto 0);
+    signal redist20_expX_uid9_fpDivTest_b_8_cmp_q : STD_LOGIC_VECTOR (0 downto 0);
+    signal redist20_expX_uid9_fpDivTest_b_8_cmpReg_q : STD_LOGIC_VECTOR (0 downto 0);
+    signal redist20_expX_uid9_fpDivTest_b_8_notEnable_q : STD_LOGIC_VECTOR (0 downto 0);
+    signal redist20_expX_uid9_fpDivTest_b_8_nor_q : STD_LOGIC_VECTOR (0 downto 0);
+    signal redist20_expX_uid9_fpDivTest_b_8_sticky_ena_q : STD_LOGIC_VECTOR (0 downto 0);
+    attribute dont_merge of redist20_expX_uid9_fpDivTest_b_8_sticky_ena_q : signal is true;
+    signal redist20_expX_uid9_fpDivTest_b_8_enaAnd_q : STD_LOGIC_VECTOR (0 downto 0);
 
 begin
 
@@ -445,85 +448,85 @@ begin
     -- VCC(CONSTANT,1)
     VCC_q <= "1";
 
-    -- redist13_fracY_uid13_fpDivTest_b_8_notEnable(LOGICAL,216)
-    redist13_fracY_uid13_fpDivTest_b_8_notEnable_q <= STD_LOGIC_VECTOR(not (VCC_q));
+    -- redist14_fracY_uid13_fpDivTest_b_8_notEnable(LOGICAL,218)
+    redist14_fracY_uid13_fpDivTest_b_8_notEnable_q <= STD_LOGIC_VECTOR(not (VCC_q));
 
-    -- redist13_fracY_uid13_fpDivTest_b_8_nor(LOGICAL,217)
-    redist13_fracY_uid13_fpDivTest_b_8_nor_q <= not (redist13_fracY_uid13_fpDivTest_b_8_notEnable_q or redist13_fracY_uid13_fpDivTest_b_8_sticky_ena_q);
+    -- redist14_fracY_uid13_fpDivTest_b_8_nor(LOGICAL,219)
+    redist14_fracY_uid13_fpDivTest_b_8_nor_q <= not (redist14_fracY_uid13_fpDivTest_b_8_notEnable_q or redist14_fracY_uid13_fpDivTest_b_8_sticky_ena_q);
 
-    -- redist13_fracY_uid13_fpDivTest_b_8_mem_last(CONSTANT,213)
-    redist13_fracY_uid13_fpDivTest_b_8_mem_last_q <= "0101";
+    -- redist14_fracY_uid13_fpDivTest_b_8_mem_last(CONSTANT,215)
+    redist14_fracY_uid13_fpDivTest_b_8_mem_last_q <= "0101";
 
-    -- redist13_fracY_uid13_fpDivTest_b_8_cmp(LOGICAL,214)
-    redist13_fracY_uid13_fpDivTest_b_8_cmp_b <= STD_LOGIC_VECTOR("0" & redist13_fracY_uid13_fpDivTest_b_8_rdcnt_q);
-    redist13_fracY_uid13_fpDivTest_b_8_cmp_q <= "1" WHEN redist13_fracY_uid13_fpDivTest_b_8_mem_last_q = redist13_fracY_uid13_fpDivTest_b_8_cmp_b ELSE "0";
+    -- redist14_fracY_uid13_fpDivTest_b_8_cmp(LOGICAL,216)
+    redist14_fracY_uid13_fpDivTest_b_8_cmp_b <= STD_LOGIC_VECTOR("0" & redist14_fracY_uid13_fpDivTest_b_8_rdcnt_q);
+    redist14_fracY_uid13_fpDivTest_b_8_cmp_q <= "1" WHEN redist14_fracY_uid13_fpDivTest_b_8_mem_last_q = redist14_fracY_uid13_fpDivTest_b_8_cmp_b ELSE "0";
 
-    -- redist13_fracY_uid13_fpDivTest_b_8_cmpReg(REG,215)
-    redist13_fracY_uid13_fpDivTest_b_8_cmpReg_clkproc: PROCESS (clk, areset)
+    -- redist14_fracY_uid13_fpDivTest_b_8_cmpReg(REG,217)
+    redist14_fracY_uid13_fpDivTest_b_8_cmpReg_clkproc: PROCESS (clk, areset)
     BEGIN
         IF (areset = '1') THEN
-            redist13_fracY_uid13_fpDivTest_b_8_cmpReg_q <= "0";
+            redist14_fracY_uid13_fpDivTest_b_8_cmpReg_q <= "0";
         ELSIF (clk'EVENT AND clk = '1') THEN
-            redist13_fracY_uid13_fpDivTest_b_8_cmpReg_q <= STD_LOGIC_VECTOR(redist13_fracY_uid13_fpDivTest_b_8_cmp_q);
+            redist14_fracY_uid13_fpDivTest_b_8_cmpReg_q <= STD_LOGIC_VECTOR(redist14_fracY_uid13_fpDivTest_b_8_cmp_q);
         END IF;
     END PROCESS;
 
-    -- redist13_fracY_uid13_fpDivTest_b_8_sticky_ena(REG,218)
-    redist13_fracY_uid13_fpDivTest_b_8_sticky_ena_clkproc: PROCESS (clk, areset)
+    -- redist14_fracY_uid13_fpDivTest_b_8_sticky_ena(REG,220)
+    redist14_fracY_uid13_fpDivTest_b_8_sticky_ena_clkproc: PROCESS (clk, areset)
     BEGIN
         IF (areset = '1') THEN
-            redist13_fracY_uid13_fpDivTest_b_8_sticky_ena_q <= "0";
+            redist14_fracY_uid13_fpDivTest_b_8_sticky_ena_q <= "0";
         ELSIF (clk'EVENT AND clk = '1') THEN
-            IF (redist13_fracY_uid13_fpDivTest_b_8_nor_q = "1") THEN
-                redist13_fracY_uid13_fpDivTest_b_8_sticky_ena_q <= STD_LOGIC_VECTOR(redist13_fracY_uid13_fpDivTest_b_8_cmpReg_q);
+            IF (redist14_fracY_uid13_fpDivTest_b_8_nor_q = "1") THEN
+                redist14_fracY_uid13_fpDivTest_b_8_sticky_ena_q <= STD_LOGIC_VECTOR(redist14_fracY_uid13_fpDivTest_b_8_cmpReg_q);
             END IF;
         END IF;
     END PROCESS;
 
-    -- redist13_fracY_uid13_fpDivTest_b_8_enaAnd(LOGICAL,219)
-    redist13_fracY_uid13_fpDivTest_b_8_enaAnd_q <= redist13_fracY_uid13_fpDivTest_b_8_sticky_ena_q and VCC_q;
+    -- redist14_fracY_uid13_fpDivTest_b_8_enaAnd(LOGICAL,221)
+    redist14_fracY_uid13_fpDivTest_b_8_enaAnd_q <= redist14_fracY_uid13_fpDivTest_b_8_sticky_ena_q and VCC_q;
 
-    -- redist13_fracY_uid13_fpDivTest_b_8_rdcnt(COUNTER,211)
+    -- redist14_fracY_uid13_fpDivTest_b_8_rdcnt(COUNTER,213)
     -- low=0, high=6, step=1, init=0
-    redist13_fracY_uid13_fpDivTest_b_8_rdcnt_clkproc: PROCESS (clk, areset)
+    redist14_fracY_uid13_fpDivTest_b_8_rdcnt_clkproc: PROCESS (clk, areset)
     BEGIN
         IF (areset = '1') THEN
-            redist13_fracY_uid13_fpDivTest_b_8_rdcnt_i <= TO_UNSIGNED(0, 3);
-            redist13_fracY_uid13_fpDivTest_b_8_rdcnt_eq <= '0';
+            redist14_fracY_uid13_fpDivTest_b_8_rdcnt_i <= TO_UNSIGNED(0, 3);
+            redist14_fracY_uid13_fpDivTest_b_8_rdcnt_eq <= '0';
         ELSIF (clk'EVENT AND clk = '1') THEN
-            IF (redist13_fracY_uid13_fpDivTest_b_8_rdcnt_i = TO_UNSIGNED(5, 3)) THEN
-                redist13_fracY_uid13_fpDivTest_b_8_rdcnt_eq <= '1';
+            IF (redist14_fracY_uid13_fpDivTest_b_8_rdcnt_i = TO_UNSIGNED(5, 3)) THEN
+                redist14_fracY_uid13_fpDivTest_b_8_rdcnt_eq <= '1';
             ELSE
-                redist13_fracY_uid13_fpDivTest_b_8_rdcnt_eq <= '0';
+                redist14_fracY_uid13_fpDivTest_b_8_rdcnt_eq <= '0';
             END IF;
-            IF (redist13_fracY_uid13_fpDivTest_b_8_rdcnt_eq = '1') THEN
-                redist13_fracY_uid13_fpDivTest_b_8_rdcnt_i <= redist13_fracY_uid13_fpDivTest_b_8_rdcnt_i + 2;
+            IF (redist14_fracY_uid13_fpDivTest_b_8_rdcnt_eq = '1') THEN
+                redist14_fracY_uid13_fpDivTest_b_8_rdcnt_i <= redist14_fracY_uid13_fpDivTest_b_8_rdcnt_i + 2;
             ELSE
-                redist13_fracY_uid13_fpDivTest_b_8_rdcnt_i <= redist13_fracY_uid13_fpDivTest_b_8_rdcnt_i + 1;
+                redist14_fracY_uid13_fpDivTest_b_8_rdcnt_i <= redist14_fracY_uid13_fpDivTest_b_8_rdcnt_i + 1;
             END IF;
         END IF;
     END PROCESS;
-    redist13_fracY_uid13_fpDivTest_b_8_rdcnt_q <= STD_LOGIC_VECTOR(STD_LOGIC_VECTOR(RESIZE(redist13_fracY_uid13_fpDivTest_b_8_rdcnt_i, 3)));
+    redist14_fracY_uid13_fpDivTest_b_8_rdcnt_q <= STD_LOGIC_VECTOR(STD_LOGIC_VECTOR(RESIZE(redist14_fracY_uid13_fpDivTest_b_8_rdcnt_i, 3)));
 
     -- fracY_uid13_fpDivTest(BITSELECT,12)@0
     fracY_uid13_fpDivTest_b <= b(22 downto 0);
 
-    -- redist13_fracY_uid13_fpDivTest_b_8_wraddr(REG,212)
-    redist13_fracY_uid13_fpDivTest_b_8_wraddr_clkproc: PROCESS (clk, areset)
+    -- redist14_fracY_uid13_fpDivTest_b_8_wraddr(REG,214)
+    redist14_fracY_uid13_fpDivTest_b_8_wraddr_clkproc: PROCESS (clk, areset)
     BEGIN
         IF (areset = '1') THEN
-            redist13_fracY_uid13_fpDivTest_b_8_wraddr_q <= "110";
+            redist14_fracY_uid13_fpDivTest_b_8_wraddr_q <= "110";
         ELSIF (clk'EVENT AND clk = '1') THEN
-            redist13_fracY_uid13_fpDivTest_b_8_wraddr_q <= STD_LOGIC_VECTOR(redist13_fracY_uid13_fpDivTest_b_8_rdcnt_q);
+            redist14_fracY_uid13_fpDivTest_b_8_wraddr_q <= STD_LOGIC_VECTOR(redist14_fracY_uid13_fpDivTest_b_8_rdcnt_q);
         END IF;
     END PROCESS;
 
-    -- redist13_fracY_uid13_fpDivTest_b_8_mem(DUALMEM,210)
-    redist13_fracY_uid13_fpDivTest_b_8_mem_ia <= STD_LOGIC_VECTOR(fracY_uid13_fpDivTest_b);
-    redist13_fracY_uid13_fpDivTest_b_8_mem_aa <= redist13_fracY_uid13_fpDivTest_b_8_wraddr_q;
-    redist13_fracY_uid13_fpDivTest_b_8_mem_ab <= redist13_fracY_uid13_fpDivTest_b_8_rdcnt_q;
-    redist13_fracY_uid13_fpDivTest_b_8_mem_reset0 <= areset;
-    redist13_fracY_uid13_fpDivTest_b_8_mem_dmem : altera_syncram
+    -- redist14_fracY_uid13_fpDivTest_b_8_mem(DUALMEM,212)
+    redist14_fracY_uid13_fpDivTest_b_8_mem_ia <= STD_LOGIC_VECTOR(fracY_uid13_fpDivTest_b);
+    redist14_fracY_uid13_fpDivTest_b_8_mem_aa <= redist14_fracY_uid13_fpDivTest_b_8_wraddr_q;
+    redist14_fracY_uid13_fpDivTest_b_8_mem_ab <= redist14_fracY_uid13_fpDivTest_b_8_rdcnt_q;
+    redist14_fracY_uid13_fpDivTest_b_8_mem_reset0 <= areset;
+    redist14_fracY_uid13_fpDivTest_b_8_mem_dmem : altera_syncram
     GENERIC MAP (
         ram_block_type => "MLAB",
         operation_mode => "DUAL_PORT",
@@ -549,107 +552,107 @@ begin
         intended_device_family => "Cyclone V"
     )
     PORT MAP (
-        clocken1 => redist13_fracY_uid13_fpDivTest_b_8_enaAnd_q(0),
+        clocken1 => redist14_fracY_uid13_fpDivTest_b_8_enaAnd_q(0),
         clocken0 => VCC_q(0),
         clock0 => clk,
-        aclr1 => redist13_fracY_uid13_fpDivTest_b_8_mem_reset0,
+        aclr1 => redist14_fracY_uid13_fpDivTest_b_8_mem_reset0,
         clock1 => clk,
-        address_a => redist13_fracY_uid13_fpDivTest_b_8_mem_aa,
-        data_a => redist13_fracY_uid13_fpDivTest_b_8_mem_ia,
+        address_a => redist14_fracY_uid13_fpDivTest_b_8_mem_aa,
+        data_a => redist14_fracY_uid13_fpDivTest_b_8_mem_ia,
         wren_a => VCC_q(0),
-        address_b => redist13_fracY_uid13_fpDivTest_b_8_mem_ab,
-        q_b => redist13_fracY_uid13_fpDivTest_b_8_mem_iq
+        address_b => redist14_fracY_uid13_fpDivTest_b_8_mem_ab,
+        q_b => redist14_fracY_uid13_fpDivTest_b_8_mem_iq
     );
-    redist13_fracY_uid13_fpDivTest_b_8_mem_q <= redist13_fracY_uid13_fpDivTest_b_8_mem_iq(22 downto 0);
+    redist14_fracY_uid13_fpDivTest_b_8_mem_q <= redist14_fracY_uid13_fpDivTest_b_8_mem_iq(22 downto 0);
 
     -- paddingY_uid15_fpDivTest(CONSTANT,14)
     paddingY_uid15_fpDivTest_q <= "00000000000000000000000";
 
     -- fracXIsZero_uid39_fpDivTest(LOGICAL,38)@8
-    fracXIsZero_uid39_fpDivTest_q <= "1" WHEN paddingY_uid15_fpDivTest_q = redist13_fracY_uid13_fpDivTest_b_8_mem_q ELSE "0";
+    fracXIsZero_uid39_fpDivTest_q <= "1" WHEN paddingY_uid15_fpDivTest_q = redist14_fracY_uid13_fpDivTest_b_8_mem_q ELSE "0";
 
     -- cstAllOWE_uid18_fpDivTest(CONSTANT,17)
     cstAllOWE_uid18_fpDivTest_q <= "11111111";
 
-    -- redist14_expY_uid12_fpDivTest_b_8_notEnable(LOGICAL,226)
-    redist14_expY_uid12_fpDivTest_b_8_notEnable_q <= STD_LOGIC_VECTOR(not (VCC_q));
+    -- redist15_expY_uid12_fpDivTest_b_8_notEnable(LOGICAL,228)
+    redist15_expY_uid12_fpDivTest_b_8_notEnable_q <= STD_LOGIC_VECTOR(not (VCC_q));
 
-    -- redist14_expY_uid12_fpDivTest_b_8_nor(LOGICAL,227)
-    redist14_expY_uid12_fpDivTest_b_8_nor_q <= not (redist14_expY_uid12_fpDivTest_b_8_notEnable_q or redist14_expY_uid12_fpDivTest_b_8_sticky_ena_q);
+    -- redist15_expY_uid12_fpDivTest_b_8_nor(LOGICAL,229)
+    redist15_expY_uid12_fpDivTest_b_8_nor_q <= not (redist15_expY_uid12_fpDivTest_b_8_notEnable_q or redist15_expY_uid12_fpDivTest_b_8_sticky_ena_q);
 
-    -- redist14_expY_uid12_fpDivTest_b_8_mem_last(CONSTANT,223)
-    redist14_expY_uid12_fpDivTest_b_8_mem_last_q <= "0101";
+    -- redist15_expY_uid12_fpDivTest_b_8_mem_last(CONSTANT,225)
+    redist15_expY_uid12_fpDivTest_b_8_mem_last_q <= "0101";
 
-    -- redist14_expY_uid12_fpDivTest_b_8_cmp(LOGICAL,224)
-    redist14_expY_uid12_fpDivTest_b_8_cmp_b <= STD_LOGIC_VECTOR("0" & redist14_expY_uid12_fpDivTest_b_8_rdcnt_q);
-    redist14_expY_uid12_fpDivTest_b_8_cmp_q <= "1" WHEN redist14_expY_uid12_fpDivTest_b_8_mem_last_q = redist14_expY_uid12_fpDivTest_b_8_cmp_b ELSE "0";
+    -- redist15_expY_uid12_fpDivTest_b_8_cmp(LOGICAL,226)
+    redist15_expY_uid12_fpDivTest_b_8_cmp_b <= STD_LOGIC_VECTOR("0" & redist15_expY_uid12_fpDivTest_b_8_rdcnt_q);
+    redist15_expY_uid12_fpDivTest_b_8_cmp_q <= "1" WHEN redist15_expY_uid12_fpDivTest_b_8_mem_last_q = redist15_expY_uid12_fpDivTest_b_8_cmp_b ELSE "0";
 
-    -- redist14_expY_uid12_fpDivTest_b_8_cmpReg(REG,225)
-    redist14_expY_uid12_fpDivTest_b_8_cmpReg_clkproc: PROCESS (clk, areset)
+    -- redist15_expY_uid12_fpDivTest_b_8_cmpReg(REG,227)
+    redist15_expY_uid12_fpDivTest_b_8_cmpReg_clkproc: PROCESS (clk, areset)
     BEGIN
         IF (areset = '1') THEN
-            redist14_expY_uid12_fpDivTest_b_8_cmpReg_q <= "0";
+            redist15_expY_uid12_fpDivTest_b_8_cmpReg_q <= "0";
         ELSIF (clk'EVENT AND clk = '1') THEN
-            redist14_expY_uid12_fpDivTest_b_8_cmpReg_q <= STD_LOGIC_VECTOR(redist14_expY_uid12_fpDivTest_b_8_cmp_q);
+            redist15_expY_uid12_fpDivTest_b_8_cmpReg_q <= STD_LOGIC_VECTOR(redist15_expY_uid12_fpDivTest_b_8_cmp_q);
         END IF;
     END PROCESS;
 
-    -- redist14_expY_uid12_fpDivTest_b_8_sticky_ena(REG,228)
-    redist14_expY_uid12_fpDivTest_b_8_sticky_ena_clkproc: PROCESS (clk, areset)
+    -- redist15_expY_uid12_fpDivTest_b_8_sticky_ena(REG,230)
+    redist15_expY_uid12_fpDivTest_b_8_sticky_ena_clkproc: PROCESS (clk, areset)
     BEGIN
         IF (areset = '1') THEN
-            redist14_expY_uid12_fpDivTest_b_8_sticky_ena_q <= "0";
+            redist15_expY_uid12_fpDivTest_b_8_sticky_ena_q <= "0";
         ELSIF (clk'EVENT AND clk = '1') THEN
-            IF (redist14_expY_uid12_fpDivTest_b_8_nor_q = "1") THEN
-                redist14_expY_uid12_fpDivTest_b_8_sticky_ena_q <= STD_LOGIC_VECTOR(redist14_expY_uid12_fpDivTest_b_8_cmpReg_q);
+            IF (redist15_expY_uid12_fpDivTest_b_8_nor_q = "1") THEN
+                redist15_expY_uid12_fpDivTest_b_8_sticky_ena_q <= STD_LOGIC_VECTOR(redist15_expY_uid12_fpDivTest_b_8_cmpReg_q);
             END IF;
         END IF;
     END PROCESS;
 
-    -- redist14_expY_uid12_fpDivTest_b_8_enaAnd(LOGICAL,229)
-    redist14_expY_uid12_fpDivTest_b_8_enaAnd_q <= redist14_expY_uid12_fpDivTest_b_8_sticky_ena_q and VCC_q;
+    -- redist15_expY_uid12_fpDivTest_b_8_enaAnd(LOGICAL,231)
+    redist15_expY_uid12_fpDivTest_b_8_enaAnd_q <= redist15_expY_uid12_fpDivTest_b_8_sticky_ena_q and VCC_q;
 
-    -- redist14_expY_uid12_fpDivTest_b_8_rdcnt(COUNTER,221)
+    -- redist15_expY_uid12_fpDivTest_b_8_rdcnt(COUNTER,223)
     -- low=0, high=6, step=1, init=0
-    redist14_expY_uid12_fpDivTest_b_8_rdcnt_clkproc: PROCESS (clk, areset)
+    redist15_expY_uid12_fpDivTest_b_8_rdcnt_clkproc: PROCESS (clk, areset)
     BEGIN
         IF (areset = '1') THEN
-            redist14_expY_uid12_fpDivTest_b_8_rdcnt_i <= TO_UNSIGNED(0, 3);
-            redist14_expY_uid12_fpDivTest_b_8_rdcnt_eq <= '0';
+            redist15_expY_uid12_fpDivTest_b_8_rdcnt_i <= TO_UNSIGNED(0, 3);
+            redist15_expY_uid12_fpDivTest_b_8_rdcnt_eq <= '0';
         ELSIF (clk'EVENT AND clk = '1') THEN
-            IF (redist14_expY_uid12_fpDivTest_b_8_rdcnt_i = TO_UNSIGNED(5, 3)) THEN
-                redist14_expY_uid12_fpDivTest_b_8_rdcnt_eq <= '1';
+            IF (redist15_expY_uid12_fpDivTest_b_8_rdcnt_i = TO_UNSIGNED(5, 3)) THEN
+                redist15_expY_uid12_fpDivTest_b_8_rdcnt_eq <= '1';
             ELSE
-                redist14_expY_uid12_fpDivTest_b_8_rdcnt_eq <= '0';
+                redist15_expY_uid12_fpDivTest_b_8_rdcnt_eq <= '0';
             END IF;
-            IF (redist14_expY_uid12_fpDivTest_b_8_rdcnt_eq = '1') THEN
-                redist14_expY_uid12_fpDivTest_b_8_rdcnt_i <= redist14_expY_uid12_fpDivTest_b_8_rdcnt_i + 2;
+            IF (redist15_expY_uid12_fpDivTest_b_8_rdcnt_eq = '1') THEN
+                redist15_expY_uid12_fpDivTest_b_8_rdcnt_i <= redist15_expY_uid12_fpDivTest_b_8_rdcnt_i + 2;
             ELSE
-                redist14_expY_uid12_fpDivTest_b_8_rdcnt_i <= redist14_expY_uid12_fpDivTest_b_8_rdcnt_i + 1;
+                redist15_expY_uid12_fpDivTest_b_8_rdcnt_i <= redist15_expY_uid12_fpDivTest_b_8_rdcnt_i + 1;
             END IF;
         END IF;
     END PROCESS;
-    redist14_expY_uid12_fpDivTest_b_8_rdcnt_q <= STD_LOGIC_VECTOR(STD_LOGIC_VECTOR(RESIZE(redist14_expY_uid12_fpDivTest_b_8_rdcnt_i, 3)));
+    redist15_expY_uid12_fpDivTest_b_8_rdcnt_q <= STD_LOGIC_VECTOR(STD_LOGIC_VECTOR(RESIZE(redist15_expY_uid12_fpDivTest_b_8_rdcnt_i, 3)));
 
     -- expY_uid12_fpDivTest(BITSELECT,11)@0
     expY_uid12_fpDivTest_b <= b(30 downto 23);
 
-    -- redist14_expY_uid12_fpDivTest_b_8_wraddr(REG,222)
-    redist14_expY_uid12_fpDivTest_b_8_wraddr_clkproc: PROCESS (clk, areset)
+    -- redist15_expY_uid12_fpDivTest_b_8_wraddr(REG,224)
+    redist15_expY_uid12_fpDivTest_b_8_wraddr_clkproc: PROCESS (clk, areset)
     BEGIN
         IF (areset = '1') THEN
-            redist14_expY_uid12_fpDivTest_b_8_wraddr_q <= "110";
+            redist15_expY_uid12_fpDivTest_b_8_wraddr_q <= "110";
         ELSIF (clk'EVENT AND clk = '1') THEN
-            redist14_expY_uid12_fpDivTest_b_8_wraddr_q <= STD_LOGIC_VECTOR(redist14_expY_uid12_fpDivTest_b_8_rdcnt_q);
+            redist15_expY_uid12_fpDivTest_b_8_wraddr_q <= STD_LOGIC_VECTOR(redist15_expY_uid12_fpDivTest_b_8_rdcnt_q);
         END IF;
     END PROCESS;
 
-    -- redist14_expY_uid12_fpDivTest_b_8_mem(DUALMEM,220)
-    redist14_expY_uid12_fpDivTest_b_8_mem_ia <= STD_LOGIC_VECTOR(expY_uid12_fpDivTest_b);
-    redist14_expY_uid12_fpDivTest_b_8_mem_aa <= redist14_expY_uid12_fpDivTest_b_8_wraddr_q;
-    redist14_expY_uid12_fpDivTest_b_8_mem_ab <= redist14_expY_uid12_fpDivTest_b_8_rdcnt_q;
-    redist14_expY_uid12_fpDivTest_b_8_mem_reset0 <= areset;
-    redist14_expY_uid12_fpDivTest_b_8_mem_dmem : altera_syncram
+    -- redist15_expY_uid12_fpDivTest_b_8_mem(DUALMEM,222)
+    redist15_expY_uid12_fpDivTest_b_8_mem_ia <= STD_LOGIC_VECTOR(expY_uid12_fpDivTest_b);
+    redist15_expY_uid12_fpDivTest_b_8_mem_aa <= redist15_expY_uid12_fpDivTest_b_8_wraddr_q;
+    redist15_expY_uid12_fpDivTest_b_8_mem_ab <= redist15_expY_uid12_fpDivTest_b_8_rdcnt_q;
+    redist15_expY_uid12_fpDivTest_b_8_mem_reset0 <= areset;
+    redist15_expY_uid12_fpDivTest_b_8_mem_dmem : altera_syncram
     GENERIC MAP (
         ram_block_type => "MLAB",
         operation_mode => "DUAL_PORT",
@@ -675,103 +678,103 @@ begin
         intended_device_family => "Cyclone V"
     )
     PORT MAP (
-        clocken1 => redist14_expY_uid12_fpDivTest_b_8_enaAnd_q(0),
+        clocken1 => redist15_expY_uid12_fpDivTest_b_8_enaAnd_q(0),
         clocken0 => VCC_q(0),
         clock0 => clk,
-        aclr1 => redist14_expY_uid12_fpDivTest_b_8_mem_reset0,
+        aclr1 => redist15_expY_uid12_fpDivTest_b_8_mem_reset0,
         clock1 => clk,
-        address_a => redist14_expY_uid12_fpDivTest_b_8_mem_aa,
-        data_a => redist14_expY_uid12_fpDivTest_b_8_mem_ia,
+        address_a => redist15_expY_uid12_fpDivTest_b_8_mem_aa,
+        data_a => redist15_expY_uid12_fpDivTest_b_8_mem_ia,
         wren_a => VCC_q(0),
-        address_b => redist14_expY_uid12_fpDivTest_b_8_mem_ab,
-        q_b => redist14_expY_uid12_fpDivTest_b_8_mem_iq
+        address_b => redist15_expY_uid12_fpDivTest_b_8_mem_ab,
+        q_b => redist15_expY_uid12_fpDivTest_b_8_mem_iq
     );
-    redist14_expY_uid12_fpDivTest_b_8_mem_q <= redist14_expY_uid12_fpDivTest_b_8_mem_iq(7 downto 0);
+    redist15_expY_uid12_fpDivTest_b_8_mem_q <= redist15_expY_uid12_fpDivTest_b_8_mem_iq(7 downto 0);
 
     -- expXIsMax_uid38_fpDivTest(LOGICAL,37)@8
-    expXIsMax_uid38_fpDivTest_q <= "1" WHEN redist14_expY_uid12_fpDivTest_b_8_mem_q = cstAllOWE_uid18_fpDivTest_q ELSE "0";
+    expXIsMax_uid38_fpDivTest_q <= "1" WHEN redist15_expY_uid12_fpDivTest_b_8_mem_q = cstAllOWE_uid18_fpDivTest_q ELSE "0";
 
     -- excI_y_uid41_fpDivTest(LOGICAL,40)@8
     excI_y_uid41_fpDivTest_q <= expXIsMax_uid38_fpDivTest_q and fracXIsZero_uid39_fpDivTest_q;
 
-    -- redist15_fracX_uid10_fpDivTest_b_6_notEnable(LOGICAL,236)
-    redist15_fracX_uid10_fpDivTest_b_6_notEnable_q <= STD_LOGIC_VECTOR(not (VCC_q));
+    -- redist17_fracX_uid10_fpDivTest_b_6_notEnable(LOGICAL,238)
+    redist17_fracX_uid10_fpDivTest_b_6_notEnable_q <= STD_LOGIC_VECTOR(not (VCC_q));
 
-    -- redist15_fracX_uid10_fpDivTest_b_6_nor(LOGICAL,237)
-    redist15_fracX_uid10_fpDivTest_b_6_nor_q <= not (redist15_fracX_uid10_fpDivTest_b_6_notEnable_q or redist15_fracX_uid10_fpDivTest_b_6_sticky_ena_q);
+    -- redist17_fracX_uid10_fpDivTest_b_6_nor(LOGICAL,239)
+    redist17_fracX_uid10_fpDivTest_b_6_nor_q <= not (redist17_fracX_uid10_fpDivTest_b_6_notEnable_q or redist17_fracX_uid10_fpDivTest_b_6_sticky_ena_q);
 
-    -- redist15_fracX_uid10_fpDivTest_b_6_mem_last(CONSTANT,233)
-    redist15_fracX_uid10_fpDivTest_b_6_mem_last_q <= "011";
+    -- redist17_fracX_uid10_fpDivTest_b_6_mem_last(CONSTANT,235)
+    redist17_fracX_uid10_fpDivTest_b_6_mem_last_q <= "011";
 
-    -- redist15_fracX_uid10_fpDivTest_b_6_cmp(LOGICAL,234)
-    redist15_fracX_uid10_fpDivTest_b_6_cmp_q <= "1" WHEN redist15_fracX_uid10_fpDivTest_b_6_mem_last_q = redist15_fracX_uid10_fpDivTest_b_6_rdcnt_q ELSE "0";
+    -- redist17_fracX_uid10_fpDivTest_b_6_cmp(LOGICAL,236)
+    redist17_fracX_uid10_fpDivTest_b_6_cmp_q <= "1" WHEN redist17_fracX_uid10_fpDivTest_b_6_mem_last_q = redist17_fracX_uid10_fpDivTest_b_6_rdcnt_q ELSE "0";
 
-    -- redist15_fracX_uid10_fpDivTest_b_6_cmpReg(REG,235)
-    redist15_fracX_uid10_fpDivTest_b_6_cmpReg_clkproc: PROCESS (clk, areset)
+    -- redist17_fracX_uid10_fpDivTest_b_6_cmpReg(REG,237)
+    redist17_fracX_uid10_fpDivTest_b_6_cmpReg_clkproc: PROCESS (clk, areset)
     BEGIN
         IF (areset = '1') THEN
-            redist15_fracX_uid10_fpDivTest_b_6_cmpReg_q <= "0";
+            redist17_fracX_uid10_fpDivTest_b_6_cmpReg_q <= "0";
         ELSIF (clk'EVENT AND clk = '1') THEN
-            redist15_fracX_uid10_fpDivTest_b_6_cmpReg_q <= STD_LOGIC_VECTOR(redist15_fracX_uid10_fpDivTest_b_6_cmp_q);
+            redist17_fracX_uid10_fpDivTest_b_6_cmpReg_q <= STD_LOGIC_VECTOR(redist17_fracX_uid10_fpDivTest_b_6_cmp_q);
         END IF;
     END PROCESS;
 
-    -- redist15_fracX_uid10_fpDivTest_b_6_sticky_ena(REG,238)
-    redist15_fracX_uid10_fpDivTest_b_6_sticky_ena_clkproc: PROCESS (clk, areset)
+    -- redist17_fracX_uid10_fpDivTest_b_6_sticky_ena(REG,240)
+    redist17_fracX_uid10_fpDivTest_b_6_sticky_ena_clkproc: PROCESS (clk, areset)
     BEGIN
         IF (areset = '1') THEN
-            redist15_fracX_uid10_fpDivTest_b_6_sticky_ena_q <= "0";
+            redist17_fracX_uid10_fpDivTest_b_6_sticky_ena_q <= "0";
         ELSIF (clk'EVENT AND clk = '1') THEN
-            IF (redist15_fracX_uid10_fpDivTest_b_6_nor_q = "1") THEN
-                redist15_fracX_uid10_fpDivTest_b_6_sticky_ena_q <= STD_LOGIC_VECTOR(redist15_fracX_uid10_fpDivTest_b_6_cmpReg_q);
+            IF (redist17_fracX_uid10_fpDivTest_b_6_nor_q = "1") THEN
+                redist17_fracX_uid10_fpDivTest_b_6_sticky_ena_q <= STD_LOGIC_VECTOR(redist17_fracX_uid10_fpDivTest_b_6_cmpReg_q);
             END IF;
         END IF;
     END PROCESS;
 
-    -- redist15_fracX_uid10_fpDivTest_b_6_enaAnd(LOGICAL,239)
-    redist15_fracX_uid10_fpDivTest_b_6_enaAnd_q <= redist15_fracX_uid10_fpDivTest_b_6_sticky_ena_q and VCC_q;
+    -- redist17_fracX_uid10_fpDivTest_b_6_enaAnd(LOGICAL,241)
+    redist17_fracX_uid10_fpDivTest_b_6_enaAnd_q <= redist17_fracX_uid10_fpDivTest_b_6_sticky_ena_q and VCC_q;
 
-    -- redist15_fracX_uid10_fpDivTest_b_6_rdcnt(COUNTER,231)
+    -- redist17_fracX_uid10_fpDivTest_b_6_rdcnt(COUNTER,233)
     -- low=0, high=4, step=1, init=0
-    redist15_fracX_uid10_fpDivTest_b_6_rdcnt_clkproc: PROCESS (clk, areset)
+    redist17_fracX_uid10_fpDivTest_b_6_rdcnt_clkproc: PROCESS (clk, areset)
     BEGIN
         IF (areset = '1') THEN
-            redist15_fracX_uid10_fpDivTest_b_6_rdcnt_i <= TO_UNSIGNED(0, 3);
-            redist15_fracX_uid10_fpDivTest_b_6_rdcnt_eq <= '0';
+            redist17_fracX_uid10_fpDivTest_b_6_rdcnt_i <= TO_UNSIGNED(0, 3);
+            redist17_fracX_uid10_fpDivTest_b_6_rdcnt_eq <= '0';
         ELSIF (clk'EVENT AND clk = '1') THEN
-            IF (redist15_fracX_uid10_fpDivTest_b_6_rdcnt_i = TO_UNSIGNED(3, 3)) THEN
-                redist15_fracX_uid10_fpDivTest_b_6_rdcnt_eq <= '1';
+            IF (redist17_fracX_uid10_fpDivTest_b_6_rdcnt_i = TO_UNSIGNED(3, 3)) THEN
+                redist17_fracX_uid10_fpDivTest_b_6_rdcnt_eq <= '1';
             ELSE
-                redist15_fracX_uid10_fpDivTest_b_6_rdcnt_eq <= '0';
+                redist17_fracX_uid10_fpDivTest_b_6_rdcnt_eq <= '0';
             END IF;
-            IF (redist15_fracX_uid10_fpDivTest_b_6_rdcnt_eq = '1') THEN
-                redist15_fracX_uid10_fpDivTest_b_6_rdcnt_i <= redist15_fracX_uid10_fpDivTest_b_6_rdcnt_i + 4;
+            IF (redist17_fracX_uid10_fpDivTest_b_6_rdcnt_eq = '1') THEN
+                redist17_fracX_uid10_fpDivTest_b_6_rdcnt_i <= redist17_fracX_uid10_fpDivTest_b_6_rdcnt_i + 4;
             ELSE
-                redist15_fracX_uid10_fpDivTest_b_6_rdcnt_i <= redist15_fracX_uid10_fpDivTest_b_6_rdcnt_i + 1;
+                redist17_fracX_uid10_fpDivTest_b_6_rdcnt_i <= redist17_fracX_uid10_fpDivTest_b_6_rdcnt_i + 1;
             END IF;
         END IF;
     END PROCESS;
-    redist15_fracX_uid10_fpDivTest_b_6_rdcnt_q <= STD_LOGIC_VECTOR(STD_LOGIC_VECTOR(RESIZE(redist15_fracX_uid10_fpDivTest_b_6_rdcnt_i, 3)));
+    redist17_fracX_uid10_fpDivTest_b_6_rdcnt_q <= STD_LOGIC_VECTOR(STD_LOGIC_VECTOR(RESIZE(redist17_fracX_uid10_fpDivTest_b_6_rdcnt_i, 3)));
 
     -- fracX_uid10_fpDivTest(BITSELECT,9)@0
     fracX_uid10_fpDivTest_b <= a(22 downto 0);
 
-    -- redist15_fracX_uid10_fpDivTest_b_6_wraddr(REG,232)
-    redist15_fracX_uid10_fpDivTest_b_6_wraddr_clkproc: PROCESS (clk, areset)
+    -- redist17_fracX_uid10_fpDivTest_b_6_wraddr(REG,234)
+    redist17_fracX_uid10_fpDivTest_b_6_wraddr_clkproc: PROCESS (clk, areset)
     BEGIN
         IF (areset = '1') THEN
-            redist15_fracX_uid10_fpDivTest_b_6_wraddr_q <= "100";
+            redist17_fracX_uid10_fpDivTest_b_6_wraddr_q <= "100";
         ELSIF (clk'EVENT AND clk = '1') THEN
-            redist15_fracX_uid10_fpDivTest_b_6_wraddr_q <= STD_LOGIC_VECTOR(redist15_fracX_uid10_fpDivTest_b_6_rdcnt_q);
+            redist17_fracX_uid10_fpDivTest_b_6_wraddr_q <= STD_LOGIC_VECTOR(redist17_fracX_uid10_fpDivTest_b_6_rdcnt_q);
         END IF;
     END PROCESS;
 
-    -- redist15_fracX_uid10_fpDivTest_b_6_mem(DUALMEM,230)
-    redist15_fracX_uid10_fpDivTest_b_6_mem_ia <= STD_LOGIC_VECTOR(fracX_uid10_fpDivTest_b);
-    redist15_fracX_uid10_fpDivTest_b_6_mem_aa <= redist15_fracX_uid10_fpDivTest_b_6_wraddr_q;
-    redist15_fracX_uid10_fpDivTest_b_6_mem_ab <= redist15_fracX_uid10_fpDivTest_b_6_rdcnt_q;
-    redist15_fracX_uid10_fpDivTest_b_6_mem_reset0 <= areset;
-    redist15_fracX_uid10_fpDivTest_b_6_mem_dmem : altera_syncram
+    -- redist17_fracX_uid10_fpDivTest_b_6_mem(DUALMEM,232)
+    redist17_fracX_uid10_fpDivTest_b_6_mem_ia <= STD_LOGIC_VECTOR(fracX_uid10_fpDivTest_b);
+    redist17_fracX_uid10_fpDivTest_b_6_mem_aa <= redist17_fracX_uid10_fpDivTest_b_6_wraddr_q;
+    redist17_fracX_uid10_fpDivTest_b_6_mem_ab <= redist17_fracX_uid10_fpDivTest_b_6_rdcnt_q;
+    redist17_fracX_uid10_fpDivTest_b_6_mem_reset0 <= areset;
+    redist17_fracX_uid10_fpDivTest_b_6_mem_dmem : altera_syncram
     GENERIC MAP (
         ram_block_type => "MLAB",
         operation_mode => "DUAL_PORT",
@@ -797,106 +800,106 @@ begin
         intended_device_family => "Cyclone V"
     )
     PORT MAP (
-        clocken1 => redist15_fracX_uid10_fpDivTest_b_6_enaAnd_q(0),
+        clocken1 => redist17_fracX_uid10_fpDivTest_b_6_enaAnd_q(0),
         clocken0 => VCC_q(0),
         clock0 => clk,
-        aclr1 => redist15_fracX_uid10_fpDivTest_b_6_mem_reset0,
+        aclr1 => redist17_fracX_uid10_fpDivTest_b_6_mem_reset0,
         clock1 => clk,
-        address_a => redist15_fracX_uid10_fpDivTest_b_6_mem_aa,
-        data_a => redist15_fracX_uid10_fpDivTest_b_6_mem_ia,
+        address_a => redist17_fracX_uid10_fpDivTest_b_6_mem_aa,
+        data_a => redist17_fracX_uid10_fpDivTest_b_6_mem_ia,
         wren_a => VCC_q(0),
-        address_b => redist15_fracX_uid10_fpDivTest_b_6_mem_ab,
-        q_b => redist15_fracX_uid10_fpDivTest_b_6_mem_iq
+        address_b => redist17_fracX_uid10_fpDivTest_b_6_mem_ab,
+        q_b => redist17_fracX_uid10_fpDivTest_b_6_mem_iq
     );
-    redist15_fracX_uid10_fpDivTest_b_6_mem_q <= redist15_fracX_uid10_fpDivTest_b_6_mem_iq(22 downto 0);
+    redist17_fracX_uid10_fpDivTest_b_6_mem_q <= redist17_fracX_uid10_fpDivTest_b_6_mem_iq(22 downto 0);
 
-    -- redist16_fracX_uid10_fpDivTest_b_8(DELAY,206)
-    redist16_fracX_uid10_fpDivTest_b_8 : dspba_delay
+    -- redist18_fracX_uid10_fpDivTest_b_8(DELAY,208)
+    redist18_fracX_uid10_fpDivTest_b_8 : dspba_delay
     GENERIC MAP ( width => 23, depth => 2, reset_kind => "ASYNC" )
-    PORT MAP ( xin => redist15_fracX_uid10_fpDivTest_b_6_mem_q, xout => redist16_fracX_uid10_fpDivTest_b_8_q, clk => clk, aclr => areset );
+    PORT MAP ( xin => redist17_fracX_uid10_fpDivTest_b_6_mem_q, xout => redist18_fracX_uid10_fpDivTest_b_8_q, clk => clk, aclr => areset );
 
     -- fracXIsZero_uid25_fpDivTest(LOGICAL,24)@8
-    fracXIsZero_uid25_fpDivTest_q <= "1" WHEN paddingY_uid15_fpDivTest_q = redist16_fracX_uid10_fpDivTest_b_8_q ELSE "0";
+    fracXIsZero_uid25_fpDivTest_q <= "1" WHEN paddingY_uid15_fpDivTest_q = redist18_fracX_uid10_fpDivTest_b_8_q ELSE "0";
 
-    -- redist18_expX_uid9_fpDivTest_b_8_notEnable(LOGICAL,246)
-    redist18_expX_uid9_fpDivTest_b_8_notEnable_q <= STD_LOGIC_VECTOR(not (VCC_q));
+    -- redist20_expX_uid9_fpDivTest_b_8_notEnable(LOGICAL,248)
+    redist20_expX_uid9_fpDivTest_b_8_notEnable_q <= STD_LOGIC_VECTOR(not (VCC_q));
 
-    -- redist18_expX_uid9_fpDivTest_b_8_nor(LOGICAL,247)
-    redist18_expX_uid9_fpDivTest_b_8_nor_q <= not (redist18_expX_uid9_fpDivTest_b_8_notEnable_q or redist18_expX_uid9_fpDivTest_b_8_sticky_ena_q);
+    -- redist20_expX_uid9_fpDivTest_b_8_nor(LOGICAL,249)
+    redist20_expX_uid9_fpDivTest_b_8_nor_q <= not (redist20_expX_uid9_fpDivTest_b_8_notEnable_q or redist20_expX_uid9_fpDivTest_b_8_sticky_ena_q);
 
-    -- redist18_expX_uid9_fpDivTest_b_8_mem_last(CONSTANT,243)
-    redist18_expX_uid9_fpDivTest_b_8_mem_last_q <= "0101";
+    -- redist20_expX_uid9_fpDivTest_b_8_mem_last(CONSTANT,245)
+    redist20_expX_uid9_fpDivTest_b_8_mem_last_q <= "0101";
 
-    -- redist18_expX_uid9_fpDivTest_b_8_cmp(LOGICAL,244)
-    redist18_expX_uid9_fpDivTest_b_8_cmp_b <= STD_LOGIC_VECTOR("0" & redist18_expX_uid9_fpDivTest_b_8_rdcnt_q);
-    redist18_expX_uid9_fpDivTest_b_8_cmp_q <= "1" WHEN redist18_expX_uid9_fpDivTest_b_8_mem_last_q = redist18_expX_uid9_fpDivTest_b_8_cmp_b ELSE "0";
+    -- redist20_expX_uid9_fpDivTest_b_8_cmp(LOGICAL,246)
+    redist20_expX_uid9_fpDivTest_b_8_cmp_b <= STD_LOGIC_VECTOR("0" & redist20_expX_uid9_fpDivTest_b_8_rdcnt_q);
+    redist20_expX_uid9_fpDivTest_b_8_cmp_q <= "1" WHEN redist20_expX_uid9_fpDivTest_b_8_mem_last_q = redist20_expX_uid9_fpDivTest_b_8_cmp_b ELSE "0";
 
-    -- redist18_expX_uid9_fpDivTest_b_8_cmpReg(REG,245)
-    redist18_expX_uid9_fpDivTest_b_8_cmpReg_clkproc: PROCESS (clk, areset)
+    -- redist20_expX_uid9_fpDivTest_b_8_cmpReg(REG,247)
+    redist20_expX_uid9_fpDivTest_b_8_cmpReg_clkproc: PROCESS (clk, areset)
     BEGIN
         IF (areset = '1') THEN
-            redist18_expX_uid9_fpDivTest_b_8_cmpReg_q <= "0";
+            redist20_expX_uid9_fpDivTest_b_8_cmpReg_q <= "0";
         ELSIF (clk'EVENT AND clk = '1') THEN
-            redist18_expX_uid9_fpDivTest_b_8_cmpReg_q <= STD_LOGIC_VECTOR(redist18_expX_uid9_fpDivTest_b_8_cmp_q);
+            redist20_expX_uid9_fpDivTest_b_8_cmpReg_q <= STD_LOGIC_VECTOR(redist20_expX_uid9_fpDivTest_b_8_cmp_q);
         END IF;
     END PROCESS;
 
-    -- redist18_expX_uid9_fpDivTest_b_8_sticky_ena(REG,248)
-    redist18_expX_uid9_fpDivTest_b_8_sticky_ena_clkproc: PROCESS (clk, areset)
+    -- redist20_expX_uid9_fpDivTest_b_8_sticky_ena(REG,250)
+    redist20_expX_uid9_fpDivTest_b_8_sticky_ena_clkproc: PROCESS (clk, areset)
     BEGIN
         IF (areset = '1') THEN
-            redist18_expX_uid9_fpDivTest_b_8_sticky_ena_q <= "0";
+            redist20_expX_uid9_fpDivTest_b_8_sticky_ena_q <= "0";
         ELSIF (clk'EVENT AND clk = '1') THEN
-            IF (redist18_expX_uid9_fpDivTest_b_8_nor_q = "1") THEN
-                redist18_expX_uid9_fpDivTest_b_8_sticky_ena_q <= STD_LOGIC_VECTOR(redist18_expX_uid9_fpDivTest_b_8_cmpReg_q);
+            IF (redist20_expX_uid9_fpDivTest_b_8_nor_q = "1") THEN
+                redist20_expX_uid9_fpDivTest_b_8_sticky_ena_q <= STD_LOGIC_VECTOR(redist20_expX_uid9_fpDivTest_b_8_cmpReg_q);
             END IF;
         END IF;
     END PROCESS;
 
-    -- redist18_expX_uid9_fpDivTest_b_8_enaAnd(LOGICAL,249)
-    redist18_expX_uid9_fpDivTest_b_8_enaAnd_q <= redist18_expX_uid9_fpDivTest_b_8_sticky_ena_q and VCC_q;
+    -- redist20_expX_uid9_fpDivTest_b_8_enaAnd(LOGICAL,251)
+    redist20_expX_uid9_fpDivTest_b_8_enaAnd_q <= redist20_expX_uid9_fpDivTest_b_8_sticky_ena_q and VCC_q;
 
-    -- redist18_expX_uid9_fpDivTest_b_8_rdcnt(COUNTER,241)
+    -- redist20_expX_uid9_fpDivTest_b_8_rdcnt(COUNTER,243)
     -- low=0, high=6, step=1, init=0
-    redist18_expX_uid9_fpDivTest_b_8_rdcnt_clkproc: PROCESS (clk, areset)
+    redist20_expX_uid9_fpDivTest_b_8_rdcnt_clkproc: PROCESS (clk, areset)
     BEGIN
         IF (areset = '1') THEN
-            redist18_expX_uid9_fpDivTest_b_8_rdcnt_i <= TO_UNSIGNED(0, 3);
-            redist18_expX_uid9_fpDivTest_b_8_rdcnt_eq <= '0';
+            redist20_expX_uid9_fpDivTest_b_8_rdcnt_i <= TO_UNSIGNED(0, 3);
+            redist20_expX_uid9_fpDivTest_b_8_rdcnt_eq <= '0';
         ELSIF (clk'EVENT AND clk = '1') THEN
-            IF (redist18_expX_uid9_fpDivTest_b_8_rdcnt_i = TO_UNSIGNED(5, 3)) THEN
-                redist18_expX_uid9_fpDivTest_b_8_rdcnt_eq <= '1';
+            IF (redist20_expX_uid9_fpDivTest_b_8_rdcnt_i = TO_UNSIGNED(5, 3)) THEN
+                redist20_expX_uid9_fpDivTest_b_8_rdcnt_eq <= '1';
             ELSE
-                redist18_expX_uid9_fpDivTest_b_8_rdcnt_eq <= '0';
+                redist20_expX_uid9_fpDivTest_b_8_rdcnt_eq <= '0';
             END IF;
-            IF (redist18_expX_uid9_fpDivTest_b_8_rdcnt_eq = '1') THEN
-                redist18_expX_uid9_fpDivTest_b_8_rdcnt_i <= redist18_expX_uid9_fpDivTest_b_8_rdcnt_i + 2;
+            IF (redist20_expX_uid9_fpDivTest_b_8_rdcnt_eq = '1') THEN
+                redist20_expX_uid9_fpDivTest_b_8_rdcnt_i <= redist20_expX_uid9_fpDivTest_b_8_rdcnt_i + 2;
             ELSE
-                redist18_expX_uid9_fpDivTest_b_8_rdcnt_i <= redist18_expX_uid9_fpDivTest_b_8_rdcnt_i + 1;
+                redist20_expX_uid9_fpDivTest_b_8_rdcnt_i <= redist20_expX_uid9_fpDivTest_b_8_rdcnt_i + 1;
             END IF;
         END IF;
     END PROCESS;
-    redist18_expX_uid9_fpDivTest_b_8_rdcnt_q <= STD_LOGIC_VECTOR(STD_LOGIC_VECTOR(RESIZE(redist18_expX_uid9_fpDivTest_b_8_rdcnt_i, 3)));
+    redist20_expX_uid9_fpDivTest_b_8_rdcnt_q <= STD_LOGIC_VECTOR(STD_LOGIC_VECTOR(RESIZE(redist20_expX_uid9_fpDivTest_b_8_rdcnt_i, 3)));
 
     -- expX_uid9_fpDivTest(BITSELECT,8)@0
     expX_uid9_fpDivTest_b <= a(30 downto 23);
 
-    -- redist18_expX_uid9_fpDivTest_b_8_wraddr(REG,242)
-    redist18_expX_uid9_fpDivTest_b_8_wraddr_clkproc: PROCESS (clk, areset)
+    -- redist20_expX_uid9_fpDivTest_b_8_wraddr(REG,244)
+    redist20_expX_uid9_fpDivTest_b_8_wraddr_clkproc: PROCESS (clk, areset)
     BEGIN
         IF (areset = '1') THEN
-            redist18_expX_uid9_fpDivTest_b_8_wraddr_q <= "110";
+            redist20_expX_uid9_fpDivTest_b_8_wraddr_q <= "110";
         ELSIF (clk'EVENT AND clk = '1') THEN
-            redist18_expX_uid9_fpDivTest_b_8_wraddr_q <= STD_LOGIC_VECTOR(redist18_expX_uid9_fpDivTest_b_8_rdcnt_q);
+            redist20_expX_uid9_fpDivTest_b_8_wraddr_q <= STD_LOGIC_VECTOR(redist20_expX_uid9_fpDivTest_b_8_rdcnt_q);
         END IF;
     END PROCESS;
 
-    -- redist18_expX_uid9_fpDivTest_b_8_mem(DUALMEM,240)
-    redist18_expX_uid9_fpDivTest_b_8_mem_ia <= STD_LOGIC_VECTOR(expX_uid9_fpDivTest_b);
-    redist18_expX_uid9_fpDivTest_b_8_mem_aa <= redist18_expX_uid9_fpDivTest_b_8_wraddr_q;
-    redist18_expX_uid9_fpDivTest_b_8_mem_ab <= redist18_expX_uid9_fpDivTest_b_8_rdcnt_q;
-    redist18_expX_uid9_fpDivTest_b_8_mem_reset0 <= areset;
-    redist18_expX_uid9_fpDivTest_b_8_mem_dmem : altera_syncram
+    -- redist20_expX_uid9_fpDivTest_b_8_mem(DUALMEM,242)
+    redist20_expX_uid9_fpDivTest_b_8_mem_ia <= STD_LOGIC_VECTOR(expX_uid9_fpDivTest_b);
+    redist20_expX_uid9_fpDivTest_b_8_mem_aa <= redist20_expX_uid9_fpDivTest_b_8_wraddr_q;
+    redist20_expX_uid9_fpDivTest_b_8_mem_ab <= redist20_expX_uid9_fpDivTest_b_8_rdcnt_q;
+    redist20_expX_uid9_fpDivTest_b_8_mem_reset0 <= areset;
+    redist20_expX_uid9_fpDivTest_b_8_mem_dmem : altera_syncram
     GENERIC MAP (
         ram_block_type => "MLAB",
         operation_mode => "DUAL_PORT",
@@ -922,21 +925,21 @@ begin
         intended_device_family => "Cyclone V"
     )
     PORT MAP (
-        clocken1 => redist18_expX_uid9_fpDivTest_b_8_enaAnd_q(0),
+        clocken1 => redist20_expX_uid9_fpDivTest_b_8_enaAnd_q(0),
         clocken0 => VCC_q(0),
         clock0 => clk,
-        aclr1 => redist18_expX_uid9_fpDivTest_b_8_mem_reset0,
+        aclr1 => redist20_expX_uid9_fpDivTest_b_8_mem_reset0,
         clock1 => clk,
-        address_a => redist18_expX_uid9_fpDivTest_b_8_mem_aa,
-        data_a => redist18_expX_uid9_fpDivTest_b_8_mem_ia,
+        address_a => redist20_expX_uid9_fpDivTest_b_8_mem_aa,
+        data_a => redist20_expX_uid9_fpDivTest_b_8_mem_ia,
         wren_a => VCC_q(0),
-        address_b => redist18_expX_uid9_fpDivTest_b_8_mem_ab,
-        q_b => redist18_expX_uid9_fpDivTest_b_8_mem_iq
+        address_b => redist20_expX_uid9_fpDivTest_b_8_mem_ab,
+        q_b => redist20_expX_uid9_fpDivTest_b_8_mem_iq
     );
-    redist18_expX_uid9_fpDivTest_b_8_mem_q <= redist18_expX_uid9_fpDivTest_b_8_mem_iq(7 downto 0);
+    redist20_expX_uid9_fpDivTest_b_8_mem_q <= redist20_expX_uid9_fpDivTest_b_8_mem_iq(7 downto 0);
 
     -- expXIsMax_uid24_fpDivTest(LOGICAL,23)@8
-    expXIsMax_uid24_fpDivTest_q <= "1" WHEN redist18_expX_uid9_fpDivTest_b_8_mem_q = cstAllOWE_uid18_fpDivTest_q ELSE "0";
+    expXIsMax_uid24_fpDivTest_q <= "1" WHEN redist20_expX_uid9_fpDivTest_b_8_mem_q = cstAllOWE_uid18_fpDivTest_q ELSE "0";
 
     -- excI_x_uid27_fpDivTest(LOGICAL,26)@8
     excI_x_uid27_fpDivTest_q <= expXIsMax_uid24_fpDivTest_q and fracXIsZero_uid25_fpDivTest_q;
@@ -960,10 +963,10 @@ begin
     cstAllZWE_uid20_fpDivTest_q <= "00000000";
 
     -- excZ_y_uid37_fpDivTest(LOGICAL,36)@8
-    excZ_y_uid37_fpDivTest_q <= "1" WHEN redist14_expY_uid12_fpDivTest_b_8_mem_q = cstAllZWE_uid20_fpDivTest_q ELSE "0";
+    excZ_y_uid37_fpDivTest_q <= "1" WHEN redist15_expY_uid12_fpDivTest_b_8_mem_q = cstAllZWE_uid20_fpDivTest_q ELSE "0";
 
     -- excZ_x_uid23_fpDivTest(LOGICAL,22)@8
-    excZ_x_uid23_fpDivTest_q <= "1" WHEN redist18_expX_uid9_fpDivTest_b_8_mem_q = cstAllZWE_uid20_fpDivTest_q ELSE "0";
+    excZ_x_uid23_fpDivTest_q <= "1" WHEN redist20_expX_uid9_fpDivTest_b_8_mem_q = cstAllZWE_uid20_fpDivTest_q ELSE "0";
 
     -- excXZYZ_uid129_fpDivTest(LOGICAL,128)@8
     excXZYZ_uid129_fpDivTest_q <= excZ_x_uid23_fpDivTest_q and excZ_y_uid37_fpDivTest_q;
@@ -986,30 +989,30 @@ begin
     GENERIC MAP ( width => 1, depth => 1, reset_kind => "ASYNC" )
     PORT MAP ( xin => signR_uid46_fpDivTest_qi, xout => signR_uid46_fpDivTest_q, clk => clk, aclr => areset );
 
-    -- redist12_signR_uid46_fpDivTest_q_8(DELAY,202)
-    redist12_signR_uid46_fpDivTest_q_8 : dspba_delay
+    -- redist13_signR_uid46_fpDivTest_q_8(DELAY,203)
+    redist13_signR_uid46_fpDivTest_q_8 : dspba_delay
     GENERIC MAP ( width => 1, depth => 7, reset_kind => "ASYNC" )
-    PORT MAP ( xin => signR_uid46_fpDivTest_q, xout => redist12_signR_uid46_fpDivTest_q_8_q, clk => clk, aclr => areset );
+    PORT MAP ( xin => signR_uid46_fpDivTest_q, xout => redist13_signR_uid46_fpDivTest_q_8_q, clk => clk, aclr => areset );
 
     -- sRPostExc_uid143_fpDivTest(LOGICAL,142)@8 + 1
-    sRPostExc_uid143_fpDivTest_qi <= redist12_signR_uid46_fpDivTest_q_8_q and invExcRNaN_uid142_fpDivTest_q;
+    sRPostExc_uid143_fpDivTest_qi <= redist13_signR_uid46_fpDivTest_q_8_q and invExcRNaN_uid142_fpDivTest_q;
     sRPostExc_uid143_fpDivTest_delay : dspba_delay
     GENERIC MAP ( width => 1, depth => 1, reset_kind => "ASYNC" )
     PORT MAP ( xin => sRPostExc_uid143_fpDivTest_qi, xout => sRPostExc_uid143_fpDivTest_q, clk => clk, aclr => areset );
 
-    -- redist0_sRPostExc_uid143_fpDivTest_q_2(DELAY,190)
-    redist0_sRPostExc_uid143_fpDivTest_q_2 : dspba_delay
-    GENERIC MAP ( width => 1, depth => 1, reset_kind => "ASYNC" )
-    PORT MAP ( xin => sRPostExc_uid143_fpDivTest_q, xout => redist0_sRPostExc_uid143_fpDivTest_q_2_q, clk => clk, aclr => areset );
+    -- redist0_sRPostExc_uid143_fpDivTest_q_3(DELAY,190)
+    redist0_sRPostExc_uid143_fpDivTest_q_3 : dspba_delay
+    GENERIC MAP ( width => 1, depth => 2, reset_kind => "ASYNC" )
+    PORT MAP ( xin => sRPostExc_uid143_fpDivTest_q, xout => redist0_sRPostExc_uid143_fpDivTest_q_3_q, clk => clk, aclr => areset );
 
     -- GND(CONSTANT,0)
     GND_q <= "0";
 
     -- fracXExt_uid77_fpDivTest(BITJOIN,76)@8
-    fracXExt_uid77_fpDivTest_q <= redist16_fracX_uid10_fpDivTest_b_8_q & GND_q;
+    fracXExt_uid77_fpDivTest_q <= redist18_fracX_uid10_fpDivTest_b_8_q & GND_q;
 
     -- lOAdded_uid57_fpDivTest(BITJOIN,56)@6
-    lOAdded_uid57_fpDivTest_q <= VCC_q & redist15_fracX_uid10_fpDivTest_b_6_mem_q;
+    lOAdded_uid57_fpDivTest_q <= VCC_q & redist17_fracX_uid10_fpDivTest_b_6_mem_q;
 
     -- redist6_lOAdded_uid57_fpDivTest_q_2(DELAY,196)
     redist6_lOAdded_uid57_fpDivTest_q_2 : dspba_delay
@@ -1058,13 +1061,13 @@ begin
     -- yPE_uid52_fpDivTest(BITSELECT,51)@0
     yPE_uid52_fpDivTest_b <= b(13 downto 0);
 
-    -- redist8_yPE_uid52_fpDivTest_b_2(DELAY,198)
-    redist8_yPE_uid52_fpDivTest_b_2 : dspba_delay
+    -- redist9_yPE_uid52_fpDivTest_b_2(DELAY,199)
+    redist9_yPE_uid52_fpDivTest_b_2 : dspba_delay
     GENERIC MAP ( width => 14, depth => 2, reset_kind => "ASYNC" )
-    PORT MAP ( xin => yPE_uid52_fpDivTest_b, xout => redist8_yPE_uid52_fpDivTest_b_2_q, clk => clk, aclr => areset );
+    PORT MAP ( xin => yPE_uid52_fpDivTest_b, xout => redist9_yPE_uid52_fpDivTest_b_2_q, clk => clk, aclr => areset );
 
     -- yT1_uid160_invPolyEval(BITSELECT,159)@2
-    yT1_uid160_invPolyEval_b <= redist8_yPE_uid52_fpDivTest_b_2_q(13 downto 1);
+    yT1_uid160_invPolyEval_b <= redist9_yPE_uid52_fpDivTest_b_2_q(13 downto 1);
 
     -- prodXY_uid176_pT1_uid161_invPolyEval_cma(CHAINMULTADD,188)@2 + 2
     prodXY_uid176_pT1_uid161_invPolyEval_cma_reset <= areset;
@@ -1109,14 +1112,14 @@ begin
     -- highBBits_uid163_invPolyEval(BITSELECT,162)@4
     highBBits_uid163_invPolyEval_b <= STD_LOGIC_VECTOR(osig_uid177_pT1_uid161_invPolyEval_b(13 downto 1));
 
-    -- redist10_yAddr_uid51_fpDivTest_b_2(DELAY,200)
-    redist10_yAddr_uid51_fpDivTest_b_2 : dspba_delay
+    -- redist11_yAddr_uid51_fpDivTest_b_2(DELAY,201)
+    redist11_yAddr_uid51_fpDivTest_b_2 : dspba_delay
     GENERIC MAP ( width => 9, depth => 2, reset_kind => "ASYNC" )
-    PORT MAP ( xin => yAddr_uid51_fpDivTest_b, xout => redist10_yAddr_uid51_fpDivTest_b_2_q, clk => clk, aclr => areset );
+    PORT MAP ( xin => yAddr_uid51_fpDivTest_b, xout => redist11_yAddr_uid51_fpDivTest_b_2_q, clk => clk, aclr => areset );
 
     -- memoryC1_uid151_invTables_lutmem(DUALMEM,184)@2 + 2
     -- in j@20000000
-    memoryC1_uid151_invTables_lutmem_aa <= redist10_yAddr_uid51_fpDivTest_b_2_q;
+    memoryC1_uid151_invTables_lutmem_aa <= redist11_yAddr_uid51_fpDivTest_b_2_q;
     memoryC1_uid151_invTables_lutmem_reset0 <= areset;
     memoryC1_uid151_invTables_lutmem_dmem : altera_syncram
     GENERIC MAP (
@@ -1146,7 +1149,7 @@ begin
 
     -- memoryC1_uid150_invTables_lutmem(DUALMEM,183)@2 + 2
     -- in j@20000000
-    memoryC1_uid150_invTables_lutmem_aa <= redist10_yAddr_uid51_fpDivTest_b_2_q;
+    memoryC1_uid150_invTables_lutmem_aa <= redist11_yAddr_uid51_fpDivTest_b_2_q;
     memoryC1_uid150_invTables_lutmem_reset0 <= areset;
     memoryC1_uid150_invTables_lutmem_dmem : altera_syncram
     GENERIC MAP (
@@ -1190,10 +1193,10 @@ begin
     -- s1_uid165_invPolyEval(BITJOIN,164)@4
     s1_uid165_invPolyEval_q <= s1sumAHighB_uid164_invPolyEval_q & lowRangeB_uid162_invPolyEval_b;
 
-    -- redist9_yPE_uid52_fpDivTest_b_4(DELAY,199)
-    redist9_yPE_uid52_fpDivTest_b_4 : dspba_delay
+    -- redist10_yPE_uid52_fpDivTest_b_4(DELAY,200)
+    redist10_yPE_uid52_fpDivTest_b_4 : dspba_delay
     GENERIC MAP ( width => 14, depth => 2, reset_kind => "ASYNC" )
-    PORT MAP ( xin => redist8_yPE_uid52_fpDivTest_b_2_q, xout => redist9_yPE_uid52_fpDivTest_b_4_q, clk => clk, aclr => areset );
+    PORT MAP ( xin => redist9_yPE_uid52_fpDivTest_b_2_q, xout => redist10_yPE_uid52_fpDivTest_b_4_q, clk => clk, aclr => areset );
 
     -- prodXY_uid179_pT2_uid167_invPolyEval_cma(CHAINMULTADD,189)@4 + 2
     prodXY_uid179_pT2_uid167_invPolyEval_cma_reset <= areset;
@@ -1212,7 +1215,7 @@ begin
             prodXY_uid179_pT2_uid167_invPolyEval_cma_c0 <= (others => (others => '0'));
         ELSIF (clk'EVENT AND clk = '1') THEN
             IF (prodXY_uid179_pT2_uid167_invPolyEval_cma_ena0 = '1') THEN
-                prodXY_uid179_pT2_uid167_invPolyEval_cma_a0(0) <= RESIZE(UNSIGNED(redist9_yPE_uid52_fpDivTest_b_4_q),14);
+                prodXY_uid179_pT2_uid167_invPolyEval_cma_a0(0) <= RESIZE(UNSIGNED(redist10_yPE_uid52_fpDivTest_b_4_q),14);
                 prodXY_uid179_pT2_uid167_invPolyEval_cma_c0(0) <= RESIZE(SIGNED(s1_uid165_invPolyEval_q),24);
             END IF;
         END IF;
@@ -1238,14 +1241,14 @@ begin
     -- highBBits_uid169_invPolyEval(BITSELECT,168)@6
     highBBits_uid169_invPolyEval_b <= STD_LOGIC_VECTOR(osig_uid180_pT2_uid167_invPolyEval_b(24 downto 2));
 
-    -- redist11_yAddr_uid51_fpDivTest_b_4(DELAY,201)
-    redist11_yAddr_uid51_fpDivTest_b_4 : dspba_delay
+    -- redist12_yAddr_uid51_fpDivTest_b_4(DELAY,202)
+    redist12_yAddr_uid51_fpDivTest_b_4 : dspba_delay
     GENERIC MAP ( width => 9, depth => 2, reset_kind => "ASYNC" )
-    PORT MAP ( xin => redist10_yAddr_uid51_fpDivTest_b_2_q, xout => redist11_yAddr_uid51_fpDivTest_b_4_q, clk => clk, aclr => areset );
+    PORT MAP ( xin => redist11_yAddr_uid51_fpDivTest_b_2_q, xout => redist12_yAddr_uid51_fpDivTest_b_4_q, clk => clk, aclr => areset );
 
     -- memoryC0_uid147_invTables_lutmem(DUALMEM,182)@4 + 2
     -- in j@20000000
-    memoryC0_uid147_invTables_lutmem_aa <= redist11_yAddr_uid51_fpDivTest_b_4_q;
+    memoryC0_uid147_invTables_lutmem_aa <= redist12_yAddr_uid51_fpDivTest_b_4_q;
     memoryC0_uid147_invTables_lutmem_reset0 <= areset;
     memoryC0_uid147_invTables_lutmem_dmem : altera_syncram
     GENERIC MAP (
@@ -1275,7 +1278,7 @@ begin
 
     -- memoryC0_uid146_invTables_lutmem(DUALMEM,181)@4 + 2
     -- in j@20000000
-    memoryC0_uid146_invTables_lutmem_aa <= redist11_yAddr_uid51_fpDivTest_b_4_q;
+    memoryC0_uid146_invTables_lutmem_aa <= redist12_yAddr_uid51_fpDivTest_b_4_q;
     memoryC0_uid146_invTables_lutmem_reset0 <= areset;
     memoryC0_uid146_invTables_lutmem_dmem : altera_syncram
     GENERIC MAP (
@@ -1366,7 +1369,7 @@ begin
     updatedY_uid16_fpDivTest_q <= GND_q & paddingY_uid15_fpDivTest_q;
 
     -- fracYZero_uid15_fpDivTest(LOGICAL,16)@8
-    fracYZero_uid15_fpDivTest_a <= STD_LOGIC_VECTOR("0" & redist13_fracY_uid13_fpDivTest_b_8_mem_q);
+    fracYZero_uid15_fpDivTest_a <= STD_LOGIC_VECTOR("0" & redist14_fracY_uid13_fpDivTest_b_8_mem_q);
     fracYZero_uid15_fpDivTest_q <= "1" WHEN fracYZero_uid15_fpDivTest_a = updatedY_uid16_fpDivTest_q ELSE "0";
 
     -- divValPreNormYPow2Exc_uid63_fpDivTest(MUX,62)@8
@@ -1393,8 +1396,8 @@ begin
     cstBiasM1_uid6_fpDivTest_q <= "01111110";
 
     -- expXmY_uid47_fpDivTest(SUB,46)@8
-    expXmY_uid47_fpDivTest_a <= STD_LOGIC_VECTOR("0" & redist18_expX_uid9_fpDivTest_b_8_mem_q);
-    expXmY_uid47_fpDivTest_b <= STD_LOGIC_VECTOR("0" & redist14_expY_uid12_fpDivTest_b_8_mem_q);
+    expXmY_uid47_fpDivTest_a <= STD_LOGIC_VECTOR("0" & redist20_expX_uid9_fpDivTest_b_8_mem_q);
+    expXmY_uid47_fpDivTest_b <= STD_LOGIC_VECTOR("0" & redist15_expY_uid12_fpDivTest_b_8_mem_q);
     expXmY_uid47_fpDivTest_o <= STD_LOGIC_VECTOR(UNSIGNED(expXmY_uid47_fpDivTest_a) - UNSIGNED(expXmY_uid47_fpDivTest_b));
     expXmY_uid47_fpDivTest_q <= expXmY_uid47_fpDivTest_o(8 downto 0);
 
@@ -1456,30 +1459,35 @@ begin
         END CASE;
     END PROCESS;
 
-    -- fracPostRndFT_uid104_fpDivTest(BITSELECT,103)@8
-    fracPostRndFT_uid104_fpDivTest_b <= fracPostRndF_uid80_fpDivTest_q(23 downto 1);
+    -- redist5_fracPostRndF_uid80_fpDivTest_q_2(DELAY,195)
+    redist5_fracPostRndF_uid80_fpDivTest_q_2 : dspba_delay
+    GENERIC MAP ( width => 24, depth => 2, reset_kind => "ASYNC" )
+    PORT MAP ( xin => fracPostRndF_uid80_fpDivTest_q, xout => redist5_fracPostRndF_uid80_fpDivTest_q_2_q, clk => clk, aclr => areset );
 
-    -- redist2_fracPostRndFT_uid104_fpDivTest_b_2(DELAY,192)
-    redist2_fracPostRndFT_uid104_fpDivTest_b_2 : dspba_delay
-    GENERIC MAP ( width => 23, depth => 2, reset_kind => "ASYNC" )
-    PORT MAP ( xin => fracPostRndFT_uid104_fpDivTest_b, xout => redist2_fracPostRndFT_uid104_fpDivTest_b_2_q, clk => clk, aclr => areset );
+    -- fracPostRndFT_uid104_fpDivTest(BITSELECT,103)@10
+    fracPostRndFT_uid104_fpDivTest_b <= redist5_fracPostRndF_uid80_fpDivTest_q_2_q(23 downto 1);
 
-    -- fracRPreExcExt_uid105_fpDivTest(ADD,104)@10
-    fracRPreExcExt_uid105_fpDivTest_a <= STD_LOGIC_VECTOR("0" & redist2_fracPostRndFT_uid104_fpDivTest_b_2_q);
+    -- redist2_fracPostRndFT_uid104_fpDivTest_b_1(DELAY,192)
+    redist2_fracPostRndFT_uid104_fpDivTest_b_1 : dspba_delay
+    GENERIC MAP ( width => 23, depth => 1, reset_kind => "ASYNC" )
+    PORT MAP ( xin => fracPostRndFT_uid104_fpDivTest_b, xout => redist2_fracPostRndFT_uid104_fpDivTest_b_1_q, clk => clk, aclr => areset );
+
+    -- fracRPreExcExt_uid105_fpDivTest(ADD,104)@11
+    fracRPreExcExt_uid105_fpDivTest_a <= STD_LOGIC_VECTOR("0" & redist2_fracPostRndFT_uid104_fpDivTest_b_1_q);
     fracRPreExcExt_uid105_fpDivTest_b <= STD_LOGIC_VECTOR("00000000000000000000000" & extraUlp_uid103_fpDivTest_q);
     fracRPreExcExt_uid105_fpDivTest_o <= STD_LOGIC_VECTOR(UNSIGNED(fracRPreExcExt_uid105_fpDivTest_a) + UNSIGNED(fracRPreExcExt_uid105_fpDivTest_b));
     fracRPreExcExt_uid105_fpDivTest_q <= fracRPreExcExt_uid105_fpDivTest_o(23 downto 0);
 
-    -- ovfIncRnd_uid109_fpDivTest(BITSELECT,108)@10
+    -- ovfIncRnd_uid109_fpDivTest(BITSELECT,108)@11
     ovfIncRnd_uid109_fpDivTest_b <= STD_LOGIC_VECTOR(fracRPreExcExt_uid105_fpDivTest_q(23 downto 23));
 
-    -- expFracPostRndInc_uid110_fpDivTest(ADD,109)@10
-    expFracPostRndInc_uid110_fpDivTest_a <= STD_LOGIC_VECTOR("0" & redist5_expPostRndFR_uid81_fpDivTest_b_2_q);
+    -- expFracPostRndInc_uid110_fpDivTest(ADD,109)@11
+    expFracPostRndInc_uid110_fpDivTest_a <= STD_LOGIC_VECTOR("0" & redist4_expPostRndFR_uid81_fpDivTest_b_3_q);
     expFracPostRndInc_uid110_fpDivTest_b <= STD_LOGIC_VECTOR("00000000" & ovfIncRnd_uid109_fpDivTest_b);
     expFracPostRndInc_uid110_fpDivTest_o <= STD_LOGIC_VECTOR(UNSIGNED(expFracPostRndInc_uid110_fpDivTest_a) + UNSIGNED(expFracPostRndInc_uid110_fpDivTest_b));
     expFracPostRndInc_uid110_fpDivTest_q <= expFracPostRndInc_uid110_fpDivTest_o(8 downto 0);
 
-    -- expFracPostRndR_uid111_fpDivTest(BITSELECT,110)@10
+    -- expFracPostRndR_uid111_fpDivTest(BITSELECT,110)@11
     expFracPostRndR_uid111_fpDivTest_in <= expFracPostRndInc_uid110_fpDivTest_q(7 downto 0);
     expFracPostRndR_uid111_fpDivTest_b <= expFracPostRndR_uid111_fpDivTest_in(7 downto 0);
 
@@ -1487,35 +1495,35 @@ begin
     expPostRndFR_uid81_fpDivTest_in <= expFracPostRnd_uid76_fpDivTest_q(32 downto 0);
     expPostRndFR_uid81_fpDivTest_b <= expPostRndFR_uid81_fpDivTest_in(32 downto 25);
 
-    -- redist5_expPostRndFR_uid81_fpDivTest_b_2(DELAY,195)
-    redist5_expPostRndFR_uid81_fpDivTest_b_2 : dspba_delay
+    -- redist3_expPostRndFR_uid81_fpDivTest_b_2(DELAY,193)
+    redist3_expPostRndFR_uid81_fpDivTest_b_2 : dspba_delay
     GENERIC MAP ( width => 8, depth => 2, reset_kind => "ASYNC" )
-    PORT MAP ( xin => expPostRndFR_uid81_fpDivTest_b, xout => redist5_expPostRndFR_uid81_fpDivTest_b_2_q, clk => clk, aclr => areset );
+    PORT MAP ( xin => expPostRndFR_uid81_fpDivTest_b, xout => redist3_expPostRndFR_uid81_fpDivTest_b_2_q, clk => clk, aclr => areset );
 
-    -- betweenFPwF_uid102_fpDivTest(BITSELECT,101)@8
-    betweenFPwF_uid102_fpDivTest_in <= STD_LOGIC_VECTOR(fracPostRndF_uid80_fpDivTest_q(0 downto 0));
+    -- redist4_expPostRndFR_uid81_fpDivTest_b_3(DELAY,194)
+    redist4_expPostRndFR_uid81_fpDivTest_b_3 : dspba_delay
+    GENERIC MAP ( width => 8, depth => 1, reset_kind => "ASYNC" )
+    PORT MAP ( xin => redist3_expPostRndFR_uid81_fpDivTest_b_2_q, xout => redist4_expPostRndFR_uid81_fpDivTest_b_3_q, clk => clk, aclr => areset );
+
+    -- betweenFPwF_uid102_fpDivTest(BITSELECT,101)@10
+    betweenFPwF_uid102_fpDivTest_in <= STD_LOGIC_VECTOR(redist5_fracPostRndF_uid80_fpDivTest_q_2_q(0 downto 0));
     betweenFPwF_uid102_fpDivTest_b <= STD_LOGIC_VECTOR(betweenFPwF_uid102_fpDivTest_in(0 downto 0));
 
-    -- redist3_betweenFPwF_uid102_fpDivTest_b_2(DELAY,193)
-    redist3_betweenFPwF_uid102_fpDivTest_b_2 : dspba_delay
-    GENERIC MAP ( width => 1, depth => 2, reset_kind => "ASYNC" )
-    PORT MAP ( xin => betweenFPwF_uid102_fpDivTest_b, xout => redist3_betweenFPwF_uid102_fpDivTest_b_2_q, clk => clk, aclr => areset );
-
-    -- redist19_expX_uid9_fpDivTest_b_10(DELAY,209)
-    redist19_expX_uid9_fpDivTest_b_10 : dspba_delay
+    -- redist21_expX_uid9_fpDivTest_b_10(DELAY,211)
+    redist21_expX_uid9_fpDivTest_b_10 : dspba_delay
     GENERIC MAP ( width => 8, depth => 2, reset_kind => "ASYNC" )
-    PORT MAP ( xin => redist18_expX_uid9_fpDivTest_b_8_mem_q, xout => redist19_expX_uid9_fpDivTest_b_10_q, clk => clk, aclr => areset );
+    PORT MAP ( xin => redist20_expX_uid9_fpDivTest_b_8_mem_q, xout => redist21_expX_uid9_fpDivTest_b_10_q, clk => clk, aclr => areset );
 
-    -- redist17_fracX_uid10_fpDivTest_b_10(DELAY,207)
-    redist17_fracX_uid10_fpDivTest_b_10 : dspba_delay
+    -- redist19_fracX_uid10_fpDivTest_b_10(DELAY,209)
+    redist19_fracX_uid10_fpDivTest_b_10 : dspba_delay
     GENERIC MAP ( width => 23, depth => 2, reset_kind => "ASYNC" )
-    PORT MAP ( xin => redist16_fracX_uid10_fpDivTest_b_8_q, xout => redist17_fracX_uid10_fpDivTest_b_10_q, clk => clk, aclr => areset );
+    PORT MAP ( xin => redist18_fracX_uid10_fpDivTest_b_8_q, xout => redist19_fracX_uid10_fpDivTest_b_10_q, clk => clk, aclr => areset );
 
     -- qDivProdLTX_opB_uid100_fpDivTest(BITJOIN,99)@10
-    qDivProdLTX_opB_uid100_fpDivTest_q <= redist19_expX_uid9_fpDivTest_b_10_q & redist17_fracX_uid10_fpDivTest_b_10_q;
+    qDivProdLTX_opB_uid100_fpDivTest_q <= redist21_expX_uid9_fpDivTest_b_10_q & redist19_fracX_uid10_fpDivTest_b_10_q;
 
     -- lOAdded_uid87_fpDivTest(BITJOIN,86)@8
-    lOAdded_uid87_fpDivTest_q <= VCC_q & redist13_fracY_uid13_fpDivTest_b_8_mem_q;
+    lOAdded_uid87_fpDivTest_q <= VCC_q & redist14_fracY_uid13_fpDivTest_b_8_mem_q;
 
     -- lOAdded_uid84_fpDivTest(BITJOIN,83)@8
     lOAdded_uid84_fpDivTest_q <= VCC_q & fracPostRndF_uid80_fpDivTest_q;
@@ -1568,37 +1576,35 @@ begin
     qDivProdExp_opBs_uid95_fpDivTest_o <= STD_LOGIC_VECTOR(UNSIGNED(qDivProdExp_opBs_uid95_fpDivTest_a) - UNSIGNED(qDivProdExp_opBs_uid95_fpDivTest_b));
     qDivProdExp_opBs_uid95_fpDivTest_q <= qDivProdExp_opBs_uid95_fpDivTest_o(8 downto 0);
 
-    -- expPostRndF_uid82_fpDivTest(MUX,81)@8
-    expPostRndF_uid82_fpDivTest_s <= redist7_invYO_uid55_fpDivTest_b_2_q;
-    expPostRndF_uid82_fpDivTest_combproc: PROCESS (expPostRndF_uid82_fpDivTest_s, expPostRndFR_uid81_fpDivTest_b, redist18_expX_uid9_fpDivTest_b_8_mem_q)
+    -- redist8_invYO_uid55_fpDivTest_b_4(DELAY,198)
+    redist8_invYO_uid55_fpDivTest_b_4 : dspba_delay
+    GENERIC MAP ( width => 1, depth => 2, reset_kind => "ASYNC" )
+    PORT MAP ( xin => redist7_invYO_uid55_fpDivTest_b_2_q, xout => redist8_invYO_uid55_fpDivTest_b_4_q, clk => clk, aclr => areset );
+
+    -- expPostRndF_uid82_fpDivTest(MUX,81)@10
+    expPostRndF_uid82_fpDivTest_s <= redist8_invYO_uid55_fpDivTest_b_4_q;
+    expPostRndF_uid82_fpDivTest_combproc: PROCESS (expPostRndF_uid82_fpDivTest_s, redist3_expPostRndFR_uid81_fpDivTest_b_2_q, redist21_expX_uid9_fpDivTest_b_10_q)
     BEGIN
         CASE (expPostRndF_uid82_fpDivTest_s) IS
-            WHEN "0" => expPostRndF_uid82_fpDivTest_q <= expPostRndFR_uid81_fpDivTest_b;
-            WHEN "1" => expPostRndF_uid82_fpDivTest_q <= redist18_expX_uid9_fpDivTest_b_8_mem_q;
+            WHEN "0" => expPostRndF_uid82_fpDivTest_q <= redist3_expPostRndFR_uid81_fpDivTest_b_2_q;
+            WHEN "1" => expPostRndF_uid82_fpDivTest_q <= redist21_expX_uid9_fpDivTest_b_10_q;
             WHEN OTHERS => expPostRndF_uid82_fpDivTest_q <= (others => '0');
         END CASE;
     END PROCESS;
 
-    -- qDivProdExp_opA_uid94_fpDivTest(ADD,93)@8 + 1
-    qDivProdExp_opA_uid94_fpDivTest_a <= STD_LOGIC_VECTOR("0" & redist14_expY_uid12_fpDivTest_b_8_mem_q);
+    -- redist16_expY_uid12_fpDivTest_b_10(DELAY,206)
+    redist16_expY_uid12_fpDivTest_b_10 : dspba_delay
+    GENERIC MAP ( width => 8, depth => 2, reset_kind => "ASYNC" )
+    PORT MAP ( xin => redist15_expY_uid12_fpDivTest_b_8_mem_q, xout => redist16_expY_uid12_fpDivTest_b_10_q, clk => clk, aclr => areset );
+
+    -- qDivProdExp_opA_uid94_fpDivTest(ADD,93)@10
+    qDivProdExp_opA_uid94_fpDivTest_a <= STD_LOGIC_VECTOR("0" & redist16_expY_uid12_fpDivTest_b_10_q);
     qDivProdExp_opA_uid94_fpDivTest_b <= STD_LOGIC_VECTOR("0" & expPostRndF_uid82_fpDivTest_q);
-    qDivProdExp_opA_uid94_fpDivTest_clkproc: PROCESS (clk, areset)
-    BEGIN
-        IF (areset = '1') THEN
-            qDivProdExp_opA_uid94_fpDivTest_o <= (others => '0');
-        ELSIF (clk'EVENT AND clk = '1') THEN
-            qDivProdExp_opA_uid94_fpDivTest_o <= STD_LOGIC_VECTOR(UNSIGNED(qDivProdExp_opA_uid94_fpDivTest_a) + UNSIGNED(qDivProdExp_opA_uid94_fpDivTest_b));
-        END IF;
-    END PROCESS;
+    qDivProdExp_opA_uid94_fpDivTest_o <= STD_LOGIC_VECTOR(UNSIGNED(qDivProdExp_opA_uid94_fpDivTest_a) + UNSIGNED(qDivProdExp_opA_uid94_fpDivTest_b));
     qDivProdExp_opA_uid94_fpDivTest_q <= qDivProdExp_opA_uid94_fpDivTest_o(8 downto 0);
 
-    -- redist4_qDivProdExp_opA_uid94_fpDivTest_q_2(DELAY,194)
-    redist4_qDivProdExp_opA_uid94_fpDivTest_q_2 : dspba_delay
-    GENERIC MAP ( width => 9, depth => 1, reset_kind => "ASYNC" )
-    PORT MAP ( xin => qDivProdExp_opA_uid94_fpDivTest_q, xout => redist4_qDivProdExp_opA_uid94_fpDivTest_q_2_q, clk => clk, aclr => areset );
-
     -- qDivProdExp_uid96_fpDivTest(SUB,95)@10
-    qDivProdExp_uid96_fpDivTest_a <= STD_LOGIC_VECTOR(STD_LOGIC_VECTOR("000" & redist4_qDivProdExp_opA_uid94_fpDivTest_q_2_q));
+    qDivProdExp_uid96_fpDivTest_a <= STD_LOGIC_VECTOR(STD_LOGIC_VECTOR("000" & qDivProdExp_opA_uid94_fpDivTest_q));
     qDivProdExp_uid96_fpDivTest_b <= STD_LOGIC_VECTOR(STD_LOGIC_VECTOR((11 downto 9 => qDivProdExp_opBs_uid95_fpDivTest_q(8)) & qDivProdExp_opBs_uid95_fpDivTest_q));
     qDivProdExp_uid96_fpDivTest_o <= STD_LOGIC_VECTOR(SIGNED(qDivProdExp_uid96_fpDivTest_a) - SIGNED(qDivProdExp_uid96_fpDivTest_b));
     qDivProdExp_uid96_fpDivTest_q <= qDivProdExp_uid96_fpDivTest_o(10 downto 0);
@@ -1638,15 +1644,18 @@ begin
     qDividerProdLTX_uid101_fpDivTest_o <= STD_LOGIC_VECTOR(UNSIGNED(qDividerProdLTX_uid101_fpDivTest_a) - UNSIGNED(qDividerProdLTX_uid101_fpDivTest_b));
     qDividerProdLTX_uid101_fpDivTest_c(0) <= qDividerProdLTX_uid101_fpDivTest_o(32);
 
-    -- extraUlp_uid103_fpDivTest(LOGICAL,102)@10
-    extraUlp_uid103_fpDivTest_q <= qDividerProdLTX_uid101_fpDivTest_c and redist3_betweenFPwF_uid102_fpDivTest_b_2_q;
+    -- extraUlp_uid103_fpDivTest(LOGICAL,102)@10 + 1
+    extraUlp_uid103_fpDivTest_qi <= qDividerProdLTX_uid101_fpDivTest_c and betweenFPwF_uid102_fpDivTest_b;
+    extraUlp_uid103_fpDivTest_delay : dspba_delay
+    GENERIC MAP ( width => 1, depth => 1, reset_kind => "ASYNC" )
+    PORT MAP ( xin => extraUlp_uid103_fpDivTest_qi, xout => extraUlp_uid103_fpDivTest_q, clk => clk, aclr => areset );
 
-    -- expRPreExc_uid112_fpDivTest(MUX,111)@10
+    -- expRPreExc_uid112_fpDivTest(MUX,111)@11
     expRPreExc_uid112_fpDivTest_s <= extraUlp_uid103_fpDivTest_q;
-    expRPreExc_uid112_fpDivTest_combproc: PROCESS (expRPreExc_uid112_fpDivTest_s, redist5_expPostRndFR_uid81_fpDivTest_b_2_q, expFracPostRndR_uid111_fpDivTest_b)
+    expRPreExc_uid112_fpDivTest_combproc: PROCESS (expRPreExc_uid112_fpDivTest_s, redist4_expPostRndFR_uid81_fpDivTest_b_3_q, expFracPostRndR_uid111_fpDivTest_b)
     BEGIN
         CASE (expRPreExc_uid112_fpDivTest_s) IS
-            WHEN "0" => expRPreExc_uid112_fpDivTest_q <= redist5_expPostRndFR_uid81_fpDivTest_b_2_q;
+            WHEN "0" => expRPreExc_uid112_fpDivTest_q <= redist4_expPostRndFR_uid81_fpDivTest_b_3_q;
             WHEN "1" => expRPreExc_uid112_fpDivTest_q <= expFracPostRndR_uid111_fpDivTest_b;
             WHEN OTHERS => expRPreExc_uid112_fpDivTest_q <= (others => '0');
         END CASE;
@@ -1739,13 +1748,13 @@ begin
         END IF;
     END PROCESS;
 
-    -- redist1_excREnc_uid133_fpDivTest_q_2(DELAY,191)
-    redist1_excREnc_uid133_fpDivTest_q_2 : dspba_delay
-    GENERIC MAP ( width => 2, depth => 1, reset_kind => "ASYNC" )
-    PORT MAP ( xin => excREnc_uid133_fpDivTest_q, xout => redist1_excREnc_uid133_fpDivTest_q_2_q, clk => clk, aclr => areset );
+    -- redist1_excREnc_uid133_fpDivTest_q_3(DELAY,191)
+    redist1_excREnc_uid133_fpDivTest_q_3 : dspba_delay
+    GENERIC MAP ( width => 2, depth => 2, reset_kind => "ASYNC" )
+    PORT MAP ( xin => excREnc_uid133_fpDivTest_q, xout => redist1_excREnc_uid133_fpDivTest_q_3_q, clk => clk, aclr => areset );
 
-    -- expRPostExc_uid141_fpDivTest(MUX,140)@10
-    expRPostExc_uid141_fpDivTest_s <= redist1_excREnc_uid133_fpDivTest_q_2_q;
+    -- expRPostExc_uid141_fpDivTest(MUX,140)@11
+    expRPostExc_uid141_fpDivTest_s <= redist1_excREnc_uid133_fpDivTest_q_3_q;
     expRPostExc_uid141_fpDivTest_combproc: PROCESS (expRPostExc_uid141_fpDivTest_s, cstAllZWE_uid20_fpDivTest_q, expRPreExc_uid112_fpDivTest_q, cstAllOWE_uid18_fpDivTest_q)
     BEGIN
         CASE (expRPostExc_uid141_fpDivTest_s) IS
@@ -1760,23 +1769,23 @@ begin
     -- oneFracRPostExc2_uid134_fpDivTest(CONSTANT,133)
     oneFracRPostExc2_uid134_fpDivTest_q <= "00000000000000000000001";
 
-    -- fracPostRndFPostUlp_uid106_fpDivTest(BITSELECT,105)@10
+    -- fracPostRndFPostUlp_uid106_fpDivTest(BITSELECT,105)@11
     fracPostRndFPostUlp_uid106_fpDivTest_in <= fracRPreExcExt_uid105_fpDivTest_q(22 downto 0);
     fracPostRndFPostUlp_uid106_fpDivTest_b <= fracPostRndFPostUlp_uid106_fpDivTest_in(22 downto 0);
 
-    -- fracRPreExc_uid107_fpDivTest(MUX,106)@10
+    -- fracRPreExc_uid107_fpDivTest(MUX,106)@11
     fracRPreExc_uid107_fpDivTest_s <= extraUlp_uid103_fpDivTest_q;
-    fracRPreExc_uid107_fpDivTest_combproc: PROCESS (fracRPreExc_uid107_fpDivTest_s, redist2_fracPostRndFT_uid104_fpDivTest_b_2_q, fracPostRndFPostUlp_uid106_fpDivTest_b)
+    fracRPreExc_uid107_fpDivTest_combproc: PROCESS (fracRPreExc_uid107_fpDivTest_s, redist2_fracPostRndFT_uid104_fpDivTest_b_1_q, fracPostRndFPostUlp_uid106_fpDivTest_b)
     BEGIN
         CASE (fracRPreExc_uid107_fpDivTest_s) IS
-            WHEN "0" => fracRPreExc_uid107_fpDivTest_q <= redist2_fracPostRndFT_uid104_fpDivTest_b_2_q;
+            WHEN "0" => fracRPreExc_uid107_fpDivTest_q <= redist2_fracPostRndFT_uid104_fpDivTest_b_1_q;
             WHEN "1" => fracRPreExc_uid107_fpDivTest_q <= fracPostRndFPostUlp_uid106_fpDivTest_b;
             WHEN OTHERS => fracRPreExc_uid107_fpDivTest_q <= (others => '0');
         END CASE;
     END PROCESS;
 
-    -- fracRPostExc_uid137_fpDivTest(MUX,136)@10
-    fracRPostExc_uid137_fpDivTest_s <= redist1_excREnc_uid133_fpDivTest_q_2_q;
+    -- fracRPostExc_uid137_fpDivTest(MUX,136)@11
+    fracRPostExc_uid137_fpDivTest_s <= redist1_excREnc_uid133_fpDivTest_q_3_q;
     fracRPostExc_uid137_fpDivTest_combproc: PROCESS (fracRPostExc_uid137_fpDivTest_s, paddingY_uid15_fpDivTest_q, fracRPreExc_uid107_fpDivTest_q, oneFracRPostExc2_uid134_fpDivTest_q)
     BEGIN
         CASE (fracRPostExc_uid137_fpDivTest_s) IS
@@ -1788,10 +1797,10 @@ begin
         END CASE;
     END PROCESS;
 
-    -- divR_uid144_fpDivTest(BITJOIN,143)@10
-    divR_uid144_fpDivTest_q <= redist0_sRPostExc_uid143_fpDivTest_q_2_q & expRPostExc_uid141_fpDivTest_q & fracRPostExc_uid137_fpDivTest_q;
+    -- divR_uid144_fpDivTest(BITJOIN,143)@11
+    divR_uid144_fpDivTest_q <= redist0_sRPostExc_uid143_fpDivTest_q_3_q & expRPostExc_uid141_fpDivTest_q & fracRPostExc_uid137_fpDivTest_q;
 
-    -- xOut(GPOUT,4)@10
+    -- xOut(GPOUT,4)@11
     q <= divR_uid144_fpDivTest_q;
 
 END normal;

@@ -71,18 +71,18 @@ always@(posedge clock_bus_i[0])begin
 	if(!resetn_i)begin
 		L1_req_reg<=1'b0;
 		L1_rw_reg<=1'b0;
-		phase_reg<=1'b0;
+		phase_reg<='b0;
 	end
 	else begin
-		if(cpc_stall_flag)begin
-			L1_req_reg<=L1_req_reg;
-			L1_rw_reg<=L1_req_reg;
-			phase_reg<=phase_reg;
-		end
-		else begin
+		if(cache_contr_enable)begin
 			L1_req_reg<=L1_req_i;
 			L1_rw_reg<=L1_rw_i;
 			phase_reg<=phase_i;
+		end
+		else begin
+			L1_req_reg<=L1_req_reg;
+			L1_rw_reg<=L1_rw_reg;
+			phase_reg<=phase_reg;
 		end
 	end
 end

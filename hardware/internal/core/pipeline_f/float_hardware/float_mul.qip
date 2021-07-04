@@ -35,7 +35,7 @@ set_global_assignment -entity "float_mul_0002" -library "float_mul" -name IP_COM
 set_global_assignment -entity "float_mul_0002" -library "float_mul" -name IP_COMPONENT_PARAMETER "ZnBfbWFu::MjM=::TWFudGlzc2E="
 set_global_assignment -entity "float_mul_0002" -library "float_mul" -name IP_COMPONENT_PARAMETER "ZnBfbWFuX2Rlcml2ZWQ=::MjM=::ZnBfbWFuX2Rlcml2ZWQ="
 set_global_assignment -entity "float_mul_0002" -library "float_mul" -name IP_COMPONENT_PARAMETER "ZXhwb25lbnRfd2lkdGg=::MjM=::RXhwb25lbnQgV2lkdGg="
-set_global_assignment -entity "float_mul_0002" -library "float_mul" -name IP_COMPONENT_PARAMETER "ZnJlcXVlbmN5X3RhcmdldA==::NDA=::VGFyZ2V0"
+set_global_assignment -entity "float_mul_0002" -library "float_mul" -name IP_COMPONENT_PARAMETER "ZnJlcXVlbmN5X3RhcmdldA==::NTA=::VGFyZ2V0"
 set_global_assignment -entity "float_mul_0002" -library "float_mul" -name IP_COMPONENT_PARAMETER "bGF0ZW5jeV90YXJnZXQ=::Mg==::VGFyZ2V0"
 set_global_assignment -entity "float_mul_0002" -library "float_mul" -name IP_COMPONENT_PARAMETER "cGVyZm9ybWFuY2VfZ29hbA==::ZnJlcXVlbmN5::R29hbA=="
 set_global_assignment -entity "float_mul_0002" -library "float_mul" -name IP_COMPONENT_PARAMETER "cm91bmRpbmdfbW9kZQ==::bmVhcmVzdCB3aXRoIHRpZSBicmVha2luZyBhd2F5IGZyb20gemVybw==::TW9kZQ=="

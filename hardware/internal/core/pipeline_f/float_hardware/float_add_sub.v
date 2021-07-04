@@ -63,7 +63,7 @@ endmodule
 // Retrieval info: 	<generic name="fp_exp" value="8" />
 // Retrieval info: 	<generic name="fp_man" value="23" />
 // Retrieval info: 	<generic name="exponent_width" value="23" />
-// Retrieval info: 	<generic name="frequency_target" value="40" />
+// Retrieval info: 	<generic name="frequency_target" value="50" />
 // Retrieval info: 	<generic name="latency_target" value="2" />
 // Retrieval info: 	<generic name="performance_goal" value="frequency" />
 // Retrieval info: 	<generic name="rounding_mode" value="nearest with tie breaking away from zero" />

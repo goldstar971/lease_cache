@@ -249,7 +249,7 @@ cache_line_tracker_4 #(
 );
 `endif
 //sampler
-/*
+
 	lease_sampler_all inst0(
 		.clock_bus_i 		(clock_i 		), 
 		.resetn_i 			(resetn_i 			), 
@@ -267,7 +267,7 @@ cache_line_tracker_4 #(
 		.remaining_o 		(rui_remaining 		),
 		.full_flag_o 		(buffer_full_flag 	), 
 		.stall_o 			(table_full_flag 		)
-	);*/
+	);
 
 endmodule
 

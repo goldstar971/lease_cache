@@ -16,7 +16,7 @@
 -- ---------------------------------------------------------------------------
 
 -- VHDL created from float_sqrt_0002
--- VHDL created on Sun Jun 27 14:42:49 2021
+-- VHDL created on Sun Jul  4 02:30:52 2021
 
 
 library IEEE;
@@ -57,7 +57,6 @@ architecture normal of float_sqrt_0002 is
     signal frac_x_uid12_fpSqrtTest_b : STD_LOGIC_VECTOR (22 downto 0);
     signal excZ_x_uid13_fpSqrtTest_q : STD_LOGIC_VECTOR (0 downto 0);
     signal expXIsMax_uid14_fpSqrtTest_q : STD_LOGIC_VECTOR (0 downto 0);
-    signal fracXIsZero_uid15_fpSqrtTest_qi : STD_LOGIC_VECTOR (0 downto 0);
     signal fracXIsZero_uid15_fpSqrtTest_q : STD_LOGIC_VECTOR (0 downto 0);
     signal fracXIsNotZero_uid16_fpSqrtTest_q : STD_LOGIC_VECTOR (0 downto 0);
     signal excI_x_uid17_fpSqrtTest_q : STD_LOGIC_VECTOR (0 downto 0);
@@ -109,6 +108,7 @@ architecture normal of float_sqrt_0002 is
     signal fracNaN_uid54_fpSqrtTest_q : STD_LOGIC_VECTOR (22 downto 0);
     signal fracRPostExc_uid58_fpSqrtTest_s : STD_LOGIC_VECTOR (1 downto 0);
     signal fracRPostExc_uid58_fpSqrtTest_q : STD_LOGIC_VECTOR (22 downto 0);
+    signal negZero_uid59_fpSqrtTest_qi : STD_LOGIC_VECTOR (0 downto 0);
     signal negZero_uid59_fpSqrtTest_q : STD_LOGIC_VECTOR (0 downto 0);
     signal RSqrt_uid60_fpSqrtTest_q : STD_LOGIC_VECTOR (31 downto 0);
     signal yT1_uid74_invPolyEval_b : STD_LOGIC_VECTOR (11 downto 0);
@@ -189,173 +189,61 @@ architecture normal of float_sqrt_0002 is
     signal prodXY_uid90_pT2_uid81_invPolyEval_cma_q : STD_LOGIC_VECTOR (38 downto 0);
     signal prodXY_uid90_pT2_uid81_invPolyEval_cma_ena0 : std_logic;
     signal prodXY_uid90_pT2_uid81_invPolyEval_cma_ena1 : std_logic;
-    signal redist0_yForPe_uid36_fpSqrtTest_b_2_q : STD_LOGIC_VECTOR (15 downto 0);
-    signal redist1_yForPe_uid36_fpSqrtTest_b_4_q : STD_LOGIC_VECTOR (15 downto 0);
-    signal redist2_yAddr_uid35_fpSqrtTest_b_2_q : STD_LOGIC_VECTOR (7 downto 0);
-    signal redist3_yAddr_uid35_fpSqrtTest_b_4_q : STD_LOGIC_VECTOR (7 downto 0);
-    signal redist4_expOddSelect_uid30_fpSqrtTest_q_6_q : STD_LOGIC_VECTOR (0 downto 0);
-    signal redist5_fracXIsZero_uid15_fpSqrtTest_q_6_q : STD_LOGIC_VECTOR (0 downto 0);
-    signal redist6_signX_uid7_fpSqrtTest_b_6_q : STD_LOGIC_VECTOR (0 downto 0);
-    signal redist7_expX_uid6_fpSqrtTest_b_6_mem_reset0 : std_logic;
-    signal redist7_expX_uid6_fpSqrtTest_b_6_mem_ia : STD_LOGIC_VECTOR (7 downto 0);
-    signal redist7_expX_uid6_fpSqrtTest_b_6_mem_aa : STD_LOGIC_VECTOR (2 downto 0);
-    signal redist7_expX_uid6_fpSqrtTest_b_6_mem_ab : STD_LOGIC_VECTOR (2 downto 0);
-    signal redist7_expX_uid6_fpSqrtTest_b_6_mem_iq : STD_LOGIC_VECTOR (7 downto 0);
-    signal redist7_expX_uid6_fpSqrtTest_b_6_mem_q : STD_LOGIC_VECTOR (7 downto 0);
-    signal redist7_expX_uid6_fpSqrtTest_b_6_rdcnt_q : STD_LOGIC_VECTOR (2 downto 0);
-    signal redist7_expX_uid6_fpSqrtTest_b_6_rdcnt_i : UNSIGNED (2 downto 0);
-    attribute preserve of redist7_expX_uid6_fpSqrtTest_b_6_rdcnt_i : signal is true;
-    signal redist7_expX_uid6_fpSqrtTest_b_6_rdcnt_eq : std_logic;
-    attribute preserve of redist7_expX_uid6_fpSqrtTest_b_6_rdcnt_eq : signal is true;
-    signal redist7_expX_uid6_fpSqrtTest_b_6_wraddr_q : STD_LOGIC_VECTOR (2 downto 0);
-    signal redist7_expX_uid6_fpSqrtTest_b_6_mem_last_q : STD_LOGIC_VECTOR (2 downto 0);
-    signal redist7_expX_uid6_fpSqrtTest_b_6_cmp_q : STD_LOGIC_VECTOR (0 downto 0);
-    signal redist7_expX_uid6_fpSqrtTest_b_6_cmpReg_q : STD_LOGIC_VECTOR (0 downto 0);
-    signal redist7_expX_uid6_fpSqrtTest_b_6_notEnable_q : STD_LOGIC_VECTOR (0 downto 0);
-    signal redist7_expX_uid6_fpSqrtTest_b_6_nor_q : STD_LOGIC_VECTOR (0 downto 0);
-    signal redist7_expX_uid6_fpSqrtTest_b_6_sticky_ena_q : STD_LOGIC_VECTOR (0 downto 0);
+    signal redist0_negZero_uid59_fpSqrtTest_q_6_q : STD_LOGIC_VECTOR (0 downto 0);
+    signal redist1_fracSel_uid48_fpSqrtTest_q_6_q : STD_LOGIC_VECTOR (1 downto 0);
+    signal redist2_yForPe_uid36_fpSqrtTest_b_2_q : STD_LOGIC_VECTOR (15 downto 0);
+    signal redist3_yForPe_uid36_fpSqrtTest_b_4_q : STD_LOGIC_VECTOR (15 downto 0);
+    signal redist4_yAddr_uid35_fpSqrtTest_b_2_q : STD_LOGIC_VECTOR (7 downto 0);
+    signal redist5_yAddr_uid35_fpSqrtTest_b_4_q : STD_LOGIC_VECTOR (7 downto 0);
+    signal redist6_expRMux_uid31_fpSqrtTest_q_6_mem_reset0 : std_logic;
+    signal redist6_expRMux_uid31_fpSqrtTest_q_6_mem_ia : STD_LOGIC_VECTOR (7 downto 0);
+    signal redist6_expRMux_uid31_fpSqrtTest_q_6_mem_aa : STD_LOGIC_VECTOR (1 downto 0);
+    signal redist6_expRMux_uid31_fpSqrtTest_q_6_mem_ab : STD_LOGIC_VECTOR (1 downto 0);
+    signal redist6_expRMux_uid31_fpSqrtTest_q_6_mem_iq : STD_LOGIC_VECTOR (7 downto 0);
+    signal redist6_expRMux_uid31_fpSqrtTest_q_6_mem_q : STD_LOGIC_VECTOR (7 downto 0);
+    signal redist6_expRMux_uid31_fpSqrtTest_q_6_rdcnt_q : STD_LOGIC_VECTOR (1 downto 0);
+    signal redist6_expRMux_uid31_fpSqrtTest_q_6_rdcnt_i : UNSIGNED (1 downto 0);
+    attribute preserve of redist6_expRMux_uid31_fpSqrtTest_q_6_rdcnt_i : signal is true;
+    signal redist6_expRMux_uid31_fpSqrtTest_q_6_wraddr_q : STD_LOGIC_VECTOR (1 downto 0);
+    signal redist6_expRMux_uid31_fpSqrtTest_q_6_mem_last_q : STD_LOGIC_VECTOR (2 downto 0);
+    signal redist6_expRMux_uid31_fpSqrtTest_q_6_cmp_b : STD_LOGIC_VECTOR (2 downto 0);
+    signal redist6_expRMux_uid31_fpSqrtTest_q_6_cmp_q : STD_LOGIC_VECTOR (0 downto 0);
+    signal redist6_expRMux_uid31_fpSqrtTest_q_6_cmpReg_q : STD_LOGIC_VECTOR (0 downto 0);
+    signal redist6_expRMux_uid31_fpSqrtTest_q_6_notEnable_q : STD_LOGIC_VECTOR (0 downto 0);
+    signal redist6_expRMux_uid31_fpSqrtTest_q_6_nor_q : STD_LOGIC_VECTOR (0 downto 0);
+    signal redist6_expRMux_uid31_fpSqrtTest_q_6_sticky_ena_q : STD_LOGIC_VECTOR (0 downto 0);
     attribute dont_merge : boolean;
-    attribute dont_merge of redist7_expX_uid6_fpSqrtTest_b_6_sticky_ena_q : signal is true;
-    signal redist7_expX_uid6_fpSqrtTest_b_6_enaAnd_q : STD_LOGIC_VECTOR (0 downto 0);
+    attribute dont_merge of redist6_expRMux_uid31_fpSqrtTest_q_6_sticky_ena_q : signal is true;
+    signal redist6_expRMux_uid31_fpSqrtTest_q_6_enaAnd_q : STD_LOGIC_VECTOR (0 downto 0);
 
 begin
 
 
+    -- VCC(CONSTANT,1)
+    VCC_q <= "1";
+
     -- signX_uid7_fpSqrtTest(BITSELECT,6)@0
     signX_uid7_fpSqrtTest_b <= STD_LOGIC_VECTOR(a(31 downto 31));
-
-    -- redist6_signX_uid7_fpSqrtTest_b_6(DELAY,103)
-    redist6_signX_uid7_fpSqrtTest_b_6 : dspba_delay
-    GENERIC MAP ( width => 1, depth => 6, reset_kind => "ASYNC" )
-    PORT MAP ( xin => signX_uid7_fpSqrtTest_b, xout => redist6_signX_uid7_fpSqrtTest_b_6_q, clk => clk, aclr => areset );
 
     -- cstAllZWE_uid10_fpSqrtTest(CONSTANT,9)
     cstAllZWE_uid10_fpSqrtTest_q <= "00000000";
 
-    -- redist7_expX_uid6_fpSqrtTest_b_6_notEnable(LOGICAL,111)
-    redist7_expX_uid6_fpSqrtTest_b_6_notEnable_q <= STD_LOGIC_VECTOR(not (VCC_q));
-
-    -- redist7_expX_uid6_fpSqrtTest_b_6_nor(LOGICAL,112)
-    redist7_expX_uid6_fpSqrtTest_b_6_nor_q <= not (redist7_expX_uid6_fpSqrtTest_b_6_notEnable_q or redist7_expX_uid6_fpSqrtTest_b_6_sticky_ena_q);
-
-    -- redist7_expX_uid6_fpSqrtTest_b_6_mem_last(CONSTANT,108)
-    redist7_expX_uid6_fpSqrtTest_b_6_mem_last_q <= "011";
-
-    -- redist7_expX_uid6_fpSqrtTest_b_6_cmp(LOGICAL,109)
-    redist7_expX_uid6_fpSqrtTest_b_6_cmp_q <= "1" WHEN redist7_expX_uid6_fpSqrtTest_b_6_mem_last_q = redist7_expX_uid6_fpSqrtTest_b_6_rdcnt_q ELSE "0";
-
-    -- redist7_expX_uid6_fpSqrtTest_b_6_cmpReg(REG,110)
-    redist7_expX_uid6_fpSqrtTest_b_6_cmpReg_clkproc: PROCESS (clk, areset)
-    BEGIN
-        IF (areset = '1') THEN
-            redist7_expX_uid6_fpSqrtTest_b_6_cmpReg_q <= "0";
-        ELSIF (clk'EVENT AND clk = '1') THEN
-            redist7_expX_uid6_fpSqrtTest_b_6_cmpReg_q <= STD_LOGIC_VECTOR(redist7_expX_uid6_fpSqrtTest_b_6_cmp_q);
-        END IF;
-    END PROCESS;
-
-    -- redist7_expX_uid6_fpSqrtTest_b_6_sticky_ena(REG,113)
-    redist7_expX_uid6_fpSqrtTest_b_6_sticky_ena_clkproc: PROCESS (clk, areset)
-    BEGIN
-        IF (areset = '1') THEN
-            redist7_expX_uid6_fpSqrtTest_b_6_sticky_ena_q <= "0";
-        ELSIF (clk'EVENT AND clk = '1') THEN
-            IF (redist7_expX_uid6_fpSqrtTest_b_6_nor_q = "1") THEN
-                redist7_expX_uid6_fpSqrtTest_b_6_sticky_ena_q <= STD_LOGIC_VECTOR(redist7_expX_uid6_fpSqrtTest_b_6_cmpReg_q);
-            END IF;
-        END IF;
-    END PROCESS;
-
-    -- redist7_expX_uid6_fpSqrtTest_b_6_enaAnd(LOGICAL,114)
-    redist7_expX_uid6_fpSqrtTest_b_6_enaAnd_q <= redist7_expX_uid6_fpSqrtTest_b_6_sticky_ena_q and VCC_q;
-
-    -- redist7_expX_uid6_fpSqrtTest_b_6_rdcnt(COUNTER,106)
-    -- low=0, high=4, step=1, init=0
-    redist7_expX_uid6_fpSqrtTest_b_6_rdcnt_clkproc: PROCESS (clk, areset)
-    BEGIN
-        IF (areset = '1') THEN
-            redist7_expX_uid6_fpSqrtTest_b_6_rdcnt_i <= TO_UNSIGNED(0, 3);
-            redist7_expX_uid6_fpSqrtTest_b_6_rdcnt_eq <= '0';
-        ELSIF (clk'EVENT AND clk = '1') THEN
-            IF (redist7_expX_uid6_fpSqrtTest_b_6_rdcnt_i = TO_UNSIGNED(3, 3)) THEN
-                redist7_expX_uid6_fpSqrtTest_b_6_rdcnt_eq <= '1';
-            ELSE
-                redist7_expX_uid6_fpSqrtTest_b_6_rdcnt_eq <= '0';
-            END IF;
-            IF (redist7_expX_uid6_fpSqrtTest_b_6_rdcnt_eq = '1') THEN
-                redist7_expX_uid6_fpSqrtTest_b_6_rdcnt_i <= redist7_expX_uid6_fpSqrtTest_b_6_rdcnt_i + 4;
-            ELSE
-                redist7_expX_uid6_fpSqrtTest_b_6_rdcnt_i <= redist7_expX_uid6_fpSqrtTest_b_6_rdcnt_i + 1;
-            END IF;
-        END IF;
-    END PROCESS;
-    redist7_expX_uid6_fpSqrtTest_b_6_rdcnt_q <= STD_LOGIC_VECTOR(STD_LOGIC_VECTOR(RESIZE(redist7_expX_uid6_fpSqrtTest_b_6_rdcnt_i, 3)));
-
     -- expX_uid6_fpSqrtTest(BITSELECT,5)@0
     expX_uid6_fpSqrtTest_b <= a(30 downto 23);
 
-    -- redist7_expX_uid6_fpSqrtTest_b_6_wraddr(REG,107)
-    redist7_expX_uid6_fpSqrtTest_b_6_wraddr_clkproc: PROCESS (clk, areset)
-    BEGIN
-        IF (areset = '1') THEN
-            redist7_expX_uid6_fpSqrtTest_b_6_wraddr_q <= "100";
-        ELSIF (clk'EVENT AND clk = '1') THEN
-            redist7_expX_uid6_fpSqrtTest_b_6_wraddr_q <= STD_LOGIC_VECTOR(redist7_expX_uid6_fpSqrtTest_b_6_rdcnt_q);
-        END IF;
-    END PROCESS;
+    -- excZ_x_uid13_fpSqrtTest(LOGICAL,12)@0
+    excZ_x_uid13_fpSqrtTest_q <= "1" WHEN expX_uid6_fpSqrtTest_b = cstAllZWE_uid10_fpSqrtTest_q ELSE "0";
 
-    -- redist7_expX_uid6_fpSqrtTest_b_6_mem(DUALMEM,105)
-    redist7_expX_uid6_fpSqrtTest_b_6_mem_ia <= STD_LOGIC_VECTOR(expX_uid6_fpSqrtTest_b);
-    redist7_expX_uid6_fpSqrtTest_b_6_mem_aa <= redist7_expX_uid6_fpSqrtTest_b_6_wraddr_q;
-    redist7_expX_uid6_fpSqrtTest_b_6_mem_ab <= redist7_expX_uid6_fpSqrtTest_b_6_rdcnt_q;
-    redist7_expX_uid6_fpSqrtTest_b_6_mem_reset0 <= areset;
-    redist7_expX_uid6_fpSqrtTest_b_6_mem_dmem : altera_syncram
-    GENERIC MAP (
-        ram_block_type => "MLAB",
-        operation_mode => "DUAL_PORT",
-        width_a => 8,
-        widthad_a => 3,
-        numwords_a => 5,
-        width_b => 8,
-        widthad_b => 3,
-        numwords_b => 5,
-        lpm_type => "altera_syncram",
-        width_byteena_a => 1,
-        address_reg_b => "CLOCK0",
-        indata_reg_b => "CLOCK0",
-        rdcontrol_reg_b => "CLOCK0",
-        byteena_reg_b => "CLOCK0",
-        outdata_reg_b => "CLOCK1",
-        outdata_aclr_b => "CLEAR1",
-        clock_enable_input_a => "NORMAL",
-        clock_enable_input_b => "NORMAL",
-        clock_enable_output_b => "NORMAL",
-        read_during_write_mode_mixed_ports => "DONT_CARE",
-        power_up_uninitialized => "TRUE",
-        intended_device_family => "Cyclone V"
-    )
-    PORT MAP (
-        clocken1 => redist7_expX_uid6_fpSqrtTest_b_6_enaAnd_q(0),
-        clocken0 => VCC_q(0),
-        clock0 => clk,
-        aclr1 => redist7_expX_uid6_fpSqrtTest_b_6_mem_reset0,
-        clock1 => clk,
-        address_a => redist7_expX_uid6_fpSqrtTest_b_6_mem_aa,
-        data_a => redist7_expX_uid6_fpSqrtTest_b_6_mem_ia,
-        wren_a => VCC_q(0),
-        address_b => redist7_expX_uid6_fpSqrtTest_b_6_mem_ab,
-        q_b => redist7_expX_uid6_fpSqrtTest_b_6_mem_iq
-    );
-    redist7_expX_uid6_fpSqrtTest_b_6_mem_q <= redist7_expX_uid6_fpSqrtTest_b_6_mem_iq(7 downto 0);
+    -- negZero_uid59_fpSqrtTest(LOGICAL,58)@0 + 1
+    negZero_uid59_fpSqrtTest_qi <= excZ_x_uid13_fpSqrtTest_q and signX_uid7_fpSqrtTest_b;
+    negZero_uid59_fpSqrtTest_delay : dspba_delay
+    GENERIC MAP ( width => 1, depth => 1, reset_kind => "ASYNC" )
+    PORT MAP ( xin => negZero_uid59_fpSqrtTest_qi, xout => negZero_uid59_fpSqrtTest_q, clk => clk, aclr => areset );
 
-    -- excZ_x_uid13_fpSqrtTest(LOGICAL,12)@6
-    excZ_x_uid13_fpSqrtTest_q <= "1" WHEN redist7_expX_uid6_fpSqrtTest_b_6_mem_q = cstAllZWE_uid10_fpSqrtTest_q ELSE "0";
-
-    -- VCC(CONSTANT,1)
-    VCC_q <= "1";
-
-    -- negZero_uid59_fpSqrtTest(LOGICAL,58)@6
-    negZero_uid59_fpSqrtTest_q <= excZ_x_uid13_fpSqrtTest_q and redist6_signX_uid7_fpSqrtTest_b_6_q;
+    -- redist0_negZero_uid59_fpSqrtTest_q_6(DELAY,97)
+    redist0_negZero_uid59_fpSqrtTest_q_6 : dspba_delay
+    GENERIC MAP ( width => 1, depth => 5, reset_kind => "ASYNC" )
+    PORT MAP ( xin => negZero_uid59_fpSqrtTest_q, xout => redist0_negZero_uid59_fpSqrtTest_q_6_q, clk => clk, aclr => areset );
 
     -- cstAllOWE_uid8_fpSqrtTest(CONSTANT,7)
     cstAllOWE_uid8_fpSqrtTest_q <= "11111111";
@@ -410,13 +298,13 @@ begin
     yForPe_uid36_fpSqrtTest_in <= frac_x_uid12_fpSqrtTest_b(15 downto 0);
     yForPe_uid36_fpSqrtTest_b <= yForPe_uid36_fpSqrtTest_in(15 downto 0);
 
-    -- redist0_yForPe_uid36_fpSqrtTest_b_2(DELAY,97)
-    redist0_yForPe_uid36_fpSqrtTest_b_2 : dspba_delay
+    -- redist2_yForPe_uid36_fpSqrtTest_b_2(DELAY,99)
+    redist2_yForPe_uid36_fpSqrtTest_b_2 : dspba_delay
     GENERIC MAP ( width => 16, depth => 2, reset_kind => "ASYNC" )
-    PORT MAP ( xin => yForPe_uid36_fpSqrtTest_b, xout => redist0_yForPe_uid36_fpSqrtTest_b_2_q, clk => clk, aclr => areset );
+    PORT MAP ( xin => yForPe_uid36_fpSqrtTest_b, xout => redist2_yForPe_uid36_fpSqrtTest_b_2_q, clk => clk, aclr => areset );
 
     -- yT1_uid74_invPolyEval(BITSELECT,73)@2
-    yT1_uid74_invPolyEval_b <= redist0_yForPe_uid36_fpSqrtTest_b_2_q(15 downto 4);
+    yT1_uid74_invPolyEval_b <= redist2_yForPe_uid36_fpSqrtTest_b_2_q(15 downto 4);
 
     -- prodXY_uid87_pT1_uid75_invPolyEval_cma(CHAINMULTADD,95)@2 + 2
     prodXY_uid87_pT1_uid75_invPolyEval_cma_reset <= areset;
@@ -461,14 +349,14 @@ begin
     -- highBBits_uid77_invPolyEval(BITSELECT,76)@4
     highBBits_uid77_invPolyEval_b <= STD_LOGIC_VECTOR(osig_uid88_pT1_uid75_invPolyEval_b(12 downto 1));
 
-    -- redist2_yAddr_uid35_fpSqrtTest_b_2(DELAY,99)
-    redist2_yAddr_uid35_fpSqrtTest_b_2 : dspba_delay
+    -- redist4_yAddr_uid35_fpSqrtTest_b_2(DELAY,101)
+    redist4_yAddr_uid35_fpSqrtTest_b_2 : dspba_delay
     GENERIC MAP ( width => 8, depth => 2, reset_kind => "ASYNC" )
-    PORT MAP ( xin => yAddr_uid35_fpSqrtTest_b, xout => redist2_yAddr_uid35_fpSqrtTest_b_2_q, clk => clk, aclr => areset );
+    PORT MAP ( xin => yAddr_uid35_fpSqrtTest_b, xout => redist4_yAddr_uid35_fpSqrtTest_b_2_q, clk => clk, aclr => areset );
 
     -- memoryC1_uid65_sqrtTables_lutmem(DUALMEM,93)@2 + 2
     -- in j@20000000
-    memoryC1_uid65_sqrtTables_lutmem_aa <= redist2_yAddr_uid35_fpSqrtTest_b_2_q;
+    memoryC1_uid65_sqrtTables_lutmem_aa <= redist4_yAddr_uid35_fpSqrtTest_b_2_q;
     memoryC1_uid65_sqrtTables_lutmem_reset0 <= areset;
     memoryC1_uid65_sqrtTables_lutmem_dmem : altera_syncram
     GENERIC MAP (
@@ -509,10 +397,10 @@ begin
     -- s1_uid79_invPolyEval(BITJOIN,78)@4
     s1_uid79_invPolyEval_q <= s1sumAHighB_uid78_invPolyEval_q & lowRangeB_uid76_invPolyEval_b;
 
-    -- redist1_yForPe_uid36_fpSqrtTest_b_4(DELAY,98)
-    redist1_yForPe_uid36_fpSqrtTest_b_4 : dspba_delay
+    -- redist3_yForPe_uid36_fpSqrtTest_b_4(DELAY,100)
+    redist3_yForPe_uid36_fpSqrtTest_b_4 : dspba_delay
     GENERIC MAP ( width => 16, depth => 2, reset_kind => "ASYNC" )
-    PORT MAP ( xin => redist0_yForPe_uid36_fpSqrtTest_b_2_q, xout => redist1_yForPe_uid36_fpSqrtTest_b_4_q, clk => clk, aclr => areset );
+    PORT MAP ( xin => redist2_yForPe_uid36_fpSqrtTest_b_2_q, xout => redist3_yForPe_uid36_fpSqrtTest_b_4_q, clk => clk, aclr => areset );
 
     -- GND(CONSTANT,0)
     GND_q <= "0";
@@ -534,7 +422,7 @@ begin
             prodXY_uid90_pT2_uid81_invPolyEval_cma_c0 <= (others => (others => '0'));
         ELSIF (clk'EVENT AND clk = '1') THEN
             IF (prodXY_uid90_pT2_uid81_invPolyEval_cma_ena0 = '1') THEN
-                prodXY_uid90_pT2_uid81_invPolyEval_cma_a0(0) <= RESIZE(UNSIGNED(redist1_yForPe_uid36_fpSqrtTest_b_4_q),16);
+                prodXY_uid90_pT2_uid81_invPolyEval_cma_a0(0) <= RESIZE(UNSIGNED(redist3_yForPe_uid36_fpSqrtTest_b_4_q),16);
                 prodXY_uid90_pT2_uid81_invPolyEval_cma_c0(0) <= RESIZE(SIGNED(s1_uid79_invPolyEval_q),23);
             END IF;
         END IF;
@@ -560,14 +448,14 @@ begin
     -- highBBits_uid83_invPolyEval(BITSELECT,82)@6
     highBBits_uid83_invPolyEval_b <= STD_LOGIC_VECTOR(osig_uid91_pT2_uid81_invPolyEval_b(23 downto 2));
 
-    -- redist3_yAddr_uid35_fpSqrtTest_b_4(DELAY,100)
-    redist3_yAddr_uid35_fpSqrtTest_b_4 : dspba_delay
+    -- redist5_yAddr_uid35_fpSqrtTest_b_4(DELAY,102)
+    redist5_yAddr_uid35_fpSqrtTest_b_4 : dspba_delay
     GENERIC MAP ( width => 8, depth => 2, reset_kind => "ASYNC" )
-    PORT MAP ( xin => redist2_yAddr_uid35_fpSqrtTest_b_2_q, xout => redist3_yAddr_uid35_fpSqrtTest_b_4_q, clk => clk, aclr => areset );
+    PORT MAP ( xin => redist4_yAddr_uid35_fpSqrtTest_b_2_q, xout => redist5_yAddr_uid35_fpSqrtTest_b_4_q, clk => clk, aclr => areset );
 
     -- memoryC0_uid62_sqrtTables_lutmem(DUALMEM,92)@4 + 2
     -- in j@20000000
-    memoryC0_uid62_sqrtTables_lutmem_aa <= redist3_yAddr_uid35_fpSqrtTest_b_4_q;
+    memoryC0_uid62_sqrtTables_lutmem_aa <= redist5_yAddr_uid35_fpSqrtTest_b_4_q;
     memoryC0_uid62_sqrtTables_lutmem_reset0 <= areset;
     memoryC0_uid62_sqrtTables_lutmem_dmem : altera_syncram
     GENERIC MAP (
@@ -612,48 +500,151 @@ begin
     expInc_uid38_fpSqrtTest_in <= STD_LOGIC_VECTOR(s2_uid85_invPolyEval_q(30 downto 0));
     expInc_uid38_fpSqrtTest_b <= STD_LOGIC_VECTOR(expInc_uid38_fpSqrtTest_in(30 downto 30));
 
+    -- redist6_expRMux_uid31_fpSqrtTest_q_6_notEnable(LOGICAL,110)
+    redist6_expRMux_uid31_fpSqrtTest_q_6_notEnable_q <= STD_LOGIC_VECTOR(not (VCC_q));
+
+    -- redist6_expRMux_uid31_fpSqrtTest_q_6_nor(LOGICAL,111)
+    redist6_expRMux_uid31_fpSqrtTest_q_6_nor_q <= not (redist6_expRMux_uid31_fpSqrtTest_q_6_notEnable_q or redist6_expRMux_uid31_fpSqrtTest_q_6_sticky_ena_q);
+
+    -- redist6_expRMux_uid31_fpSqrtTest_q_6_mem_last(CONSTANT,107)
+    redist6_expRMux_uid31_fpSqrtTest_q_6_mem_last_q <= "010";
+
+    -- redist6_expRMux_uid31_fpSqrtTest_q_6_cmp(LOGICAL,108)
+    redist6_expRMux_uid31_fpSqrtTest_q_6_cmp_b <= STD_LOGIC_VECTOR("0" & redist6_expRMux_uid31_fpSqrtTest_q_6_rdcnt_q);
+    redist6_expRMux_uid31_fpSqrtTest_q_6_cmp_q <= "1" WHEN redist6_expRMux_uid31_fpSqrtTest_q_6_mem_last_q = redist6_expRMux_uid31_fpSqrtTest_q_6_cmp_b ELSE "0";
+
+    -- redist6_expRMux_uid31_fpSqrtTest_q_6_cmpReg(REG,109)
+    redist6_expRMux_uid31_fpSqrtTest_q_6_cmpReg_clkproc: PROCESS (clk, areset)
+    BEGIN
+        IF (areset = '1') THEN
+            redist6_expRMux_uid31_fpSqrtTest_q_6_cmpReg_q <= "0";
+        ELSIF (clk'EVENT AND clk = '1') THEN
+            redist6_expRMux_uid31_fpSqrtTest_q_6_cmpReg_q <= STD_LOGIC_VECTOR(redist6_expRMux_uid31_fpSqrtTest_q_6_cmp_q);
+        END IF;
+    END PROCESS;
+
+    -- redist6_expRMux_uid31_fpSqrtTest_q_6_sticky_ena(REG,112)
+    redist6_expRMux_uid31_fpSqrtTest_q_6_sticky_ena_clkproc: PROCESS (clk, areset)
+    BEGIN
+        IF (areset = '1') THEN
+            redist6_expRMux_uid31_fpSqrtTest_q_6_sticky_ena_q <= "0";
+        ELSIF (clk'EVENT AND clk = '1') THEN
+            IF (redist6_expRMux_uid31_fpSqrtTest_q_6_nor_q = "1") THEN
+                redist6_expRMux_uid31_fpSqrtTest_q_6_sticky_ena_q <= STD_LOGIC_VECTOR(redist6_expRMux_uid31_fpSqrtTest_q_6_cmpReg_q);
+            END IF;
+        END IF;
+    END PROCESS;
+
+    -- redist6_expRMux_uid31_fpSqrtTest_q_6_enaAnd(LOGICAL,113)
+    redist6_expRMux_uid31_fpSqrtTest_q_6_enaAnd_q <= redist6_expRMux_uid31_fpSqrtTest_q_6_sticky_ena_q and VCC_q;
+
+    -- redist6_expRMux_uid31_fpSqrtTest_q_6_rdcnt(COUNTER,105)
+    -- low=0, high=3, step=1, init=0
+    redist6_expRMux_uid31_fpSqrtTest_q_6_rdcnt_clkproc: PROCESS (clk, areset)
+    BEGIN
+        IF (areset = '1') THEN
+            redist6_expRMux_uid31_fpSqrtTest_q_6_rdcnt_i <= TO_UNSIGNED(0, 2);
+        ELSIF (clk'EVENT AND clk = '1') THEN
+            redist6_expRMux_uid31_fpSqrtTest_q_6_rdcnt_i <= redist6_expRMux_uid31_fpSqrtTest_q_6_rdcnt_i + 1;
+        END IF;
+    END PROCESS;
+    redist6_expRMux_uid31_fpSqrtTest_q_6_rdcnt_q <= STD_LOGIC_VECTOR(STD_LOGIC_VECTOR(RESIZE(redist6_expRMux_uid31_fpSqrtTest_q_6_rdcnt_i, 2)));
+
     -- sBiasM1_uid26_fpSqrtTest(CONSTANT,25)
     sBiasM1_uid26_fpSqrtTest_q <= "01111110";
 
-    -- expOddSig_uid27_fpSqrtTest(ADD,26)@6
-    expOddSig_uid27_fpSqrtTest_a <= STD_LOGIC_VECTOR("0" & redist7_expX_uid6_fpSqrtTest_b_6_mem_q);
+    -- expOddSig_uid27_fpSqrtTest(ADD,26)@0
+    expOddSig_uid27_fpSqrtTest_a <= STD_LOGIC_VECTOR("0" & expX_uid6_fpSqrtTest_b);
     expOddSig_uid27_fpSqrtTest_b <= STD_LOGIC_VECTOR("0" & sBiasM1_uid26_fpSqrtTest_q);
     expOddSig_uid27_fpSqrtTest_o <= STD_LOGIC_VECTOR(UNSIGNED(expOddSig_uid27_fpSqrtTest_a) + UNSIGNED(expOddSig_uid27_fpSqrtTest_b));
     expOddSig_uid27_fpSqrtTest_q <= expOddSig_uid27_fpSqrtTest_o(8 downto 0);
 
-    -- expROdd_uid28_fpSqrtTest(BITSELECT,27)@6
+    -- expROdd_uid28_fpSqrtTest(BITSELECT,27)@0
     expROdd_uid28_fpSqrtTest_b <= expOddSig_uid27_fpSqrtTest_q(8 downto 1);
 
     -- sBias_uid22_fpSqrtTest(CONSTANT,21)
     sBias_uid22_fpSqrtTest_q <= "01111111";
 
-    -- expEvenSig_uid24_fpSqrtTest(ADD,23)@6
-    expEvenSig_uid24_fpSqrtTest_a <= STD_LOGIC_VECTOR("0" & redist7_expX_uid6_fpSqrtTest_b_6_mem_q);
+    -- expEvenSig_uid24_fpSqrtTest(ADD,23)@0
+    expEvenSig_uid24_fpSqrtTest_a <= STD_LOGIC_VECTOR("0" & expX_uid6_fpSqrtTest_b);
     expEvenSig_uid24_fpSqrtTest_b <= STD_LOGIC_VECTOR("0" & sBias_uid22_fpSqrtTest_q);
     expEvenSig_uid24_fpSqrtTest_o <= STD_LOGIC_VECTOR(UNSIGNED(expEvenSig_uid24_fpSqrtTest_a) + UNSIGNED(expEvenSig_uid24_fpSqrtTest_b));
     expEvenSig_uid24_fpSqrtTest_q <= expEvenSig_uid24_fpSqrtTest_o(8 downto 0);
 
-    -- expREven_uid25_fpSqrtTest(BITSELECT,24)@6
+    -- expREven_uid25_fpSqrtTest(BITSELECT,24)@0
     expREven_uid25_fpSqrtTest_b <= expEvenSig_uid24_fpSqrtTest_q(8 downto 1);
 
-    -- redist4_expOddSelect_uid30_fpSqrtTest_q_6(DELAY,101)
-    redist4_expOddSelect_uid30_fpSqrtTest_q_6 : dspba_delay
-    GENERIC MAP ( width => 1, depth => 6, reset_kind => "ASYNC" )
-    PORT MAP ( xin => expOddSelect_uid30_fpSqrtTest_q, xout => redist4_expOddSelect_uid30_fpSqrtTest_q_6_q, clk => clk, aclr => areset );
-
-    -- expRMux_uid31_fpSqrtTest(MUX,30)@6
-    expRMux_uid31_fpSqrtTest_s <= redist4_expOddSelect_uid30_fpSqrtTest_q_6_q;
-    expRMux_uid31_fpSqrtTest_combproc: PROCESS (expRMux_uid31_fpSqrtTest_s, expREven_uid25_fpSqrtTest_b, expROdd_uid28_fpSqrtTest_b)
+    -- expRMux_uid31_fpSqrtTest(MUX,30)@0 + 1
+    expRMux_uid31_fpSqrtTest_s <= expOddSelect_uid30_fpSqrtTest_q;
+    expRMux_uid31_fpSqrtTest_clkproc: PROCESS (clk, areset)
     BEGIN
-        CASE (expRMux_uid31_fpSqrtTest_s) IS
-            WHEN "0" => expRMux_uid31_fpSqrtTest_q <= expREven_uid25_fpSqrtTest_b;
-            WHEN "1" => expRMux_uid31_fpSqrtTest_q <= expROdd_uid28_fpSqrtTest_b;
-            WHEN OTHERS => expRMux_uid31_fpSqrtTest_q <= (others => '0');
-        END CASE;
+        IF (areset = '1') THEN
+            expRMux_uid31_fpSqrtTest_q <= (others => '0');
+        ELSIF (clk'EVENT AND clk = '1') THEN
+            CASE (expRMux_uid31_fpSqrtTest_s) IS
+                WHEN "0" => expRMux_uid31_fpSqrtTest_q <= expREven_uid25_fpSqrtTest_b;
+                WHEN "1" => expRMux_uid31_fpSqrtTest_q <= expROdd_uid28_fpSqrtTest_b;
+                WHEN OTHERS => expRMux_uid31_fpSqrtTest_q <= (others => '0');
+            END CASE;
+        END IF;
     END PROCESS;
 
+    -- redist6_expRMux_uid31_fpSqrtTest_q_6_wraddr(REG,106)
+    redist6_expRMux_uid31_fpSqrtTest_q_6_wraddr_clkproc: PROCESS (clk, areset)
+    BEGIN
+        IF (areset = '1') THEN
+            redist6_expRMux_uid31_fpSqrtTest_q_6_wraddr_q <= "11";
+        ELSIF (clk'EVENT AND clk = '1') THEN
+            redist6_expRMux_uid31_fpSqrtTest_q_6_wraddr_q <= STD_LOGIC_VECTOR(redist6_expRMux_uid31_fpSqrtTest_q_6_rdcnt_q);
+        END IF;
+    END PROCESS;
+
+    -- redist6_expRMux_uid31_fpSqrtTest_q_6_mem(DUALMEM,104)
+    redist6_expRMux_uid31_fpSqrtTest_q_6_mem_ia <= STD_LOGIC_VECTOR(expRMux_uid31_fpSqrtTest_q);
+    redist6_expRMux_uid31_fpSqrtTest_q_6_mem_aa <= redist6_expRMux_uid31_fpSqrtTest_q_6_wraddr_q;
+    redist6_expRMux_uid31_fpSqrtTest_q_6_mem_ab <= redist6_expRMux_uid31_fpSqrtTest_q_6_rdcnt_q;
+    redist6_expRMux_uid31_fpSqrtTest_q_6_mem_reset0 <= areset;
+    redist6_expRMux_uid31_fpSqrtTest_q_6_mem_dmem : altera_syncram
+    GENERIC MAP (
+        ram_block_type => "MLAB",
+        operation_mode => "DUAL_PORT",
+        width_a => 8,
+        widthad_a => 2,
+        numwords_a => 4,
+        width_b => 8,
+        widthad_b => 2,
+        numwords_b => 4,
+        lpm_type => "altera_syncram",
+        width_byteena_a => 1,
+        address_reg_b => "CLOCK0",
+        indata_reg_b => "CLOCK0",
+        rdcontrol_reg_b => "CLOCK0",
+        byteena_reg_b => "CLOCK0",
+        outdata_reg_b => "CLOCK1",
+        outdata_aclr_b => "CLEAR1",
+        clock_enable_input_a => "NORMAL",
+        clock_enable_input_b => "NORMAL",
+        clock_enable_output_b => "NORMAL",
+        read_during_write_mode_mixed_ports => "DONT_CARE",
+        power_up_uninitialized => "TRUE",
+        intended_device_family => "Cyclone V"
+    )
+    PORT MAP (
+        clocken1 => redist6_expRMux_uid31_fpSqrtTest_q_6_enaAnd_q(0),
+        clocken0 => VCC_q(0),
+        clock0 => clk,
+        aclr1 => redist6_expRMux_uid31_fpSqrtTest_q_6_mem_reset0,
+        clock1 => clk,
+        address_a => redist6_expRMux_uid31_fpSqrtTest_q_6_mem_aa,
+        data_a => redist6_expRMux_uid31_fpSqrtTest_q_6_mem_ia,
+        wren_a => VCC_q(0),
+        address_b => redist6_expRMux_uid31_fpSqrtTest_q_6_mem_ab,
+        q_b => redist6_expRMux_uid31_fpSqrtTest_q_6_mem_iq
+    );
+    redist6_expRMux_uid31_fpSqrtTest_q_6_mem_q <= redist6_expRMux_uid31_fpSqrtTest_q_6_mem_iq(7 downto 0);
+
     -- expR_uid40_fpSqrtTest(ADD,39)@6
-    expR_uid40_fpSqrtTest_a <= STD_LOGIC_VECTOR("0" & expRMux_uid31_fpSqrtTest_q);
+    expR_uid40_fpSqrtTest_a <= STD_LOGIC_VECTOR("0" & redist6_expRMux_uid31_fpSqrtTest_q_6_mem_q);
     expR_uid40_fpSqrtTest_b <= STD_LOGIC_VECTOR("00000000" & expInc_uid38_fpSqrtTest_b);
     expR_uid40_fpSqrtTest_o <= STD_LOGIC_VECTOR(UNSIGNED(expR_uid40_fpSqrtTest_a) + UNSIGNED(expR_uid40_fpSqrtTest_b));
     expR_uid40_fpSqrtTest_q <= expR_uid40_fpSqrtTest_o(8 downto 0);
@@ -662,91 +653,90 @@ begin
     expRR_uid51_fpSqrtTest_in <= expR_uid40_fpSqrtTest_q(7 downto 0);
     expRR_uid51_fpSqrtTest_b <= expRR_uid51_fpSqrtTest_in(7 downto 0);
 
-    -- expXIsMax_uid14_fpSqrtTest(LOGICAL,13)@6
-    expXIsMax_uid14_fpSqrtTest_q <= "1" WHEN redist7_expX_uid6_fpSqrtTest_b_6_mem_q = cstAllOWE_uid8_fpSqrtTest_q ELSE "0";
+    -- expXIsMax_uid14_fpSqrtTest(LOGICAL,13)@0
+    expXIsMax_uid14_fpSqrtTest_q <= "1" WHEN expX_uid6_fpSqrtTest_b = cstAllOWE_uid8_fpSqrtTest_q ELSE "0";
 
-    -- invExpXIsMax_uid19_fpSqrtTest(LOGICAL,18)@6
+    -- invExpXIsMax_uid19_fpSqrtTest(LOGICAL,18)@0
     invExpXIsMax_uid19_fpSqrtTest_q <= not (expXIsMax_uid14_fpSqrtTest_q);
 
-    -- InvExpXIsZero_uid20_fpSqrtTest(LOGICAL,19)@6
+    -- InvExpXIsZero_uid20_fpSqrtTest(LOGICAL,19)@0
     InvExpXIsZero_uid20_fpSqrtTest_q <= not (excZ_x_uid13_fpSqrtTest_q);
 
-    -- excR_x_uid21_fpSqrtTest(LOGICAL,20)@6
+    -- excR_x_uid21_fpSqrtTest(LOGICAL,20)@0
     excR_x_uid21_fpSqrtTest_q <= InvExpXIsZero_uid20_fpSqrtTest_q and invExpXIsMax_uid19_fpSqrtTest_q;
 
-    -- minReg_uid43_fpSqrtTest(LOGICAL,42)@6
-    minReg_uid43_fpSqrtTest_q <= excR_x_uid21_fpSqrtTest_q and redist6_signX_uid7_fpSqrtTest_b_6_q;
+    -- minReg_uid43_fpSqrtTest(LOGICAL,42)@0
+    minReg_uid43_fpSqrtTest_q <= excR_x_uid21_fpSqrtTest_q and signX_uid7_fpSqrtTest_b;
 
     -- cstZeroWF_uid9_fpSqrtTest(CONSTANT,8)
     cstZeroWF_uid9_fpSqrtTest_q <= "00000000000000000000000";
 
-    -- fracXIsZero_uid15_fpSqrtTest(LOGICAL,14)@0 + 1
-    fracXIsZero_uid15_fpSqrtTest_qi <= "1" WHEN cstZeroWF_uid9_fpSqrtTest_q = frac_x_uid12_fpSqrtTest_b ELSE "0";
-    fracXIsZero_uid15_fpSqrtTest_delay : dspba_delay
-    GENERIC MAP ( width => 1, depth => 1, reset_kind => "ASYNC" )
-    PORT MAP ( xin => fracXIsZero_uid15_fpSqrtTest_qi, xout => fracXIsZero_uid15_fpSqrtTest_q, clk => clk, aclr => areset );
+    -- fracXIsZero_uid15_fpSqrtTest(LOGICAL,14)@0
+    fracXIsZero_uid15_fpSqrtTest_q <= "1" WHEN cstZeroWF_uid9_fpSqrtTest_q = frac_x_uid12_fpSqrtTest_b ELSE "0";
 
-    -- redist5_fracXIsZero_uid15_fpSqrtTest_q_6(DELAY,102)
-    redist5_fracXIsZero_uid15_fpSqrtTest_q_6 : dspba_delay
-    GENERIC MAP ( width => 1, depth => 5, reset_kind => "ASYNC" )
-    PORT MAP ( xin => fracXIsZero_uid15_fpSqrtTest_q, xout => redist5_fracXIsZero_uid15_fpSqrtTest_q_6_q, clk => clk, aclr => areset );
+    -- excI_x_uid17_fpSqrtTest(LOGICAL,16)@0
+    excI_x_uid17_fpSqrtTest_q <= expXIsMax_uid14_fpSqrtTest_q and fracXIsZero_uid15_fpSqrtTest_q;
 
-    -- excI_x_uid17_fpSqrtTest(LOGICAL,16)@6
-    excI_x_uid17_fpSqrtTest_q <= expXIsMax_uid14_fpSqrtTest_q and redist5_fracXIsZero_uid15_fpSqrtTest_q_6_q;
+    -- minInf_uid44_fpSqrtTest(LOGICAL,43)@0
+    minInf_uid44_fpSqrtTest_q <= excI_x_uid17_fpSqrtTest_q and signX_uid7_fpSqrtTest_b;
 
-    -- minInf_uid44_fpSqrtTest(LOGICAL,43)@6
-    minInf_uid44_fpSqrtTest_q <= excI_x_uid17_fpSqrtTest_q and redist6_signX_uid7_fpSqrtTest_b_6_q;
+    -- fracXIsNotZero_uid16_fpSqrtTest(LOGICAL,15)@0
+    fracXIsNotZero_uid16_fpSqrtTest_q <= not (fracXIsZero_uid15_fpSqrtTest_q);
 
-    -- fracXIsNotZero_uid16_fpSqrtTest(LOGICAL,15)@6
-    fracXIsNotZero_uid16_fpSqrtTest_q <= not (redist5_fracXIsZero_uid15_fpSqrtTest_q_6_q);
-
-    -- excN_x_uid18_fpSqrtTest(LOGICAL,17)@6
+    -- excN_x_uid18_fpSqrtTest(LOGICAL,17)@0
     excN_x_uid18_fpSqrtTest_q <= expXIsMax_uid14_fpSqrtTest_q and fracXIsNotZero_uid16_fpSqrtTest_q;
 
-    -- excRNaN_uid45_fpSqrtTest(LOGICAL,44)@6
+    -- excRNaN_uid45_fpSqrtTest(LOGICAL,44)@0
     excRNaN_uid45_fpSqrtTest_q <= excN_x_uid18_fpSqrtTest_q or minInf_uid44_fpSqrtTest_q or minReg_uid43_fpSqrtTest_q;
 
-    -- invSignX_uid41_fpSqrtTest(LOGICAL,40)@6
-    invSignX_uid41_fpSqrtTest_q <= not (redist6_signX_uid7_fpSqrtTest_b_6_q);
+    -- invSignX_uid41_fpSqrtTest(LOGICAL,40)@0
+    invSignX_uid41_fpSqrtTest_q <= not (signX_uid7_fpSqrtTest_b);
 
-    -- inInfAndNotNeg_uid42_fpSqrtTest(LOGICAL,41)@6
+    -- inInfAndNotNeg_uid42_fpSqrtTest(LOGICAL,41)@0
     inInfAndNotNeg_uid42_fpSqrtTest_q <= excI_x_uid17_fpSqrtTest_q and invSignX_uid41_fpSqrtTest_q;
 
-    -- excConc_uid46_fpSqrtTest(BITJOIN,45)@6
+    -- excConc_uid46_fpSqrtTest(BITJOIN,45)@0
     excConc_uid46_fpSqrtTest_q <= excRNaN_uid45_fpSqrtTest_q & inInfAndNotNeg_uid42_fpSqrtTest_q & excZ_x_uid13_fpSqrtTest_q;
 
-    -- fracSelIn_uid47_fpSqrtTest(BITJOIN,46)@6
-    fracSelIn_uid47_fpSqrtTest_q <= redist6_signX_uid7_fpSqrtTest_b_6_q & excConc_uid46_fpSqrtTest_q;
+    -- fracSelIn_uid47_fpSqrtTest(BITJOIN,46)@0
+    fracSelIn_uid47_fpSqrtTest_q <= signX_uid7_fpSqrtTest_b & excConc_uid46_fpSqrtTest_q;
 
-    -- fracSel_uid48_fpSqrtTest(LOOKUP,47)@6
-    fracSel_uid48_fpSqrtTest_combproc: PROCESS (fracSelIn_uid47_fpSqrtTest_q)
+    -- fracSel_uid48_fpSqrtTest(LOOKUP,47)@0 + 1
+    fracSel_uid48_fpSqrtTest_clkproc: PROCESS (clk, areset)
     BEGIN
-        -- Begin reserved scope level
-        CASE (fracSelIn_uid47_fpSqrtTest_q) IS
-            WHEN "0000" => fracSel_uid48_fpSqrtTest_q <= "01";
-            WHEN "0001" => fracSel_uid48_fpSqrtTest_q <= "00";
-            WHEN "0010" => fracSel_uid48_fpSqrtTest_q <= "10";
-            WHEN "0011" => fracSel_uid48_fpSqrtTest_q <= "00";
-            WHEN "0100" => fracSel_uid48_fpSqrtTest_q <= "11";
-            WHEN "0101" => fracSel_uid48_fpSqrtTest_q <= "00";
-            WHEN "0110" => fracSel_uid48_fpSqrtTest_q <= "10";
-            WHEN "0111" => fracSel_uid48_fpSqrtTest_q <= "00";
-            WHEN "1000" => fracSel_uid48_fpSqrtTest_q <= "11";
-            WHEN "1001" => fracSel_uid48_fpSqrtTest_q <= "00";
-            WHEN "1010" => fracSel_uid48_fpSqrtTest_q <= "11";
-            WHEN "1011" => fracSel_uid48_fpSqrtTest_q <= "11";
-            WHEN "1100" => fracSel_uid48_fpSqrtTest_q <= "11";
-            WHEN "1101" => fracSel_uid48_fpSqrtTest_q <= "11";
-            WHEN "1110" => fracSel_uid48_fpSqrtTest_q <= "11";
-            WHEN "1111" => fracSel_uid48_fpSqrtTest_q <= "11";
-            WHEN OTHERS => -- unreachable
-                           fracSel_uid48_fpSqrtTest_q <= (others => '-');
-        END CASE;
-        -- End reserved scope level
+        IF (areset = '1') THEN
+            fracSel_uid48_fpSqrtTest_q <= "01";
+        ELSIF (clk'EVENT AND clk = '1') THEN
+            CASE (fracSelIn_uid47_fpSqrtTest_q) IS
+                WHEN "0000" => fracSel_uid48_fpSqrtTest_q <= "01";
+                WHEN "0001" => fracSel_uid48_fpSqrtTest_q <= "00";
+                WHEN "0010" => fracSel_uid48_fpSqrtTest_q <= "10";
+                WHEN "0011" => fracSel_uid48_fpSqrtTest_q <= "00";
+                WHEN "0100" => fracSel_uid48_fpSqrtTest_q <= "11";
+                WHEN "0101" => fracSel_uid48_fpSqrtTest_q <= "00";
+                WHEN "0110" => fracSel_uid48_fpSqrtTest_q <= "10";
+                WHEN "0111" => fracSel_uid48_fpSqrtTest_q <= "00";
+                WHEN "1000" => fracSel_uid48_fpSqrtTest_q <= "11";
+                WHEN "1001" => fracSel_uid48_fpSqrtTest_q <= "00";
+                WHEN "1010" => fracSel_uid48_fpSqrtTest_q <= "11";
+                WHEN "1011" => fracSel_uid48_fpSqrtTest_q <= "11";
+                WHEN "1100" => fracSel_uid48_fpSqrtTest_q <= "11";
+                WHEN "1101" => fracSel_uid48_fpSqrtTest_q <= "11";
+                WHEN "1110" => fracSel_uid48_fpSqrtTest_q <= "11";
+                WHEN "1111" => fracSel_uid48_fpSqrtTest_q <= "11";
+                WHEN OTHERS => -- unreachable
+                               fracSel_uid48_fpSqrtTest_q <= (others => '-');
+            END CASE;
+        END IF;
     END PROCESS;
 
+    -- redist1_fracSel_uid48_fpSqrtTest_q_6(DELAY,98)
+    redist1_fracSel_uid48_fpSqrtTest_q_6 : dspba_delay
+    GENERIC MAP ( width => 2, depth => 5, reset_kind => "ASYNC" )
+    PORT MAP ( xin => fracSel_uid48_fpSqrtTest_q, xout => redist1_fracSel_uid48_fpSqrtTest_q_6_q, clk => clk, aclr => areset );
+
     -- expRPostExc_uid53_fpSqrtTest(MUX,52)@6
-    expRPostExc_uid53_fpSqrtTest_s <= fracSel_uid48_fpSqrtTest_q;
+    expRPostExc_uid53_fpSqrtTest_s <= redist1_fracSel_uid48_fpSqrtTest_q_6_q;
     expRPostExc_uid53_fpSqrtTest_combproc: PROCESS (expRPostExc_uid53_fpSqrtTest_s, cstAllZWE_uid10_fpSqrtTest_q, expRR_uid51_fpSqrtTest_b, cstAllOWE_uid8_fpSqrtTest_q)
     BEGIN
         CASE (expRPostExc_uid53_fpSqrtTest_s) IS
@@ -766,7 +756,7 @@ begin
     fracRPostProcessings_uid39_fpSqrtTest_b <= fracRPostProcessings_uid39_fpSqrtTest_in(28 downto 6);
 
     -- fracRPostExc_uid58_fpSqrtTest(MUX,57)@6
-    fracRPostExc_uid58_fpSqrtTest_s <= fracSel_uid48_fpSqrtTest_q;
+    fracRPostExc_uid58_fpSqrtTest_s <= redist1_fracSel_uid48_fpSqrtTest_q_6_q;
     fracRPostExc_uid58_fpSqrtTest_combproc: PROCESS (fracRPostExc_uid58_fpSqrtTest_s, cstZeroWF_uid9_fpSqrtTest_q, fracRPostProcessings_uid39_fpSqrtTest_b, fracNaN_uid54_fpSqrtTest_q)
     BEGIN
         CASE (fracRPostExc_uid58_fpSqrtTest_s) IS
@@ -779,7 +769,7 @@ begin
     END PROCESS;
 
     -- RSqrt_uid60_fpSqrtTest(BITJOIN,59)@6
-    RSqrt_uid60_fpSqrtTest_q <= negZero_uid59_fpSqrtTest_q & expRPostExc_uid53_fpSqrtTest_q & fracRPostExc_uid58_fpSqrtTest_q;
+    RSqrt_uid60_fpSqrtTest_q <= redist0_negZero_uid59_fpSqrtTest_q_6_q & expRPostExc_uid53_fpSqrtTest_q & fracRPostExc_uid58_fpSqrtTest_q;
 
     -- xOut(GPOUT,4)@6
     q <= RSqrt_uid60_fpSqrtTest_q;
