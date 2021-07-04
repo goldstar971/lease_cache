@@ -15,12 +15,11 @@
 												// legacy option, I believe there is no restriction with this version of the software
 
 #define TRACKER_OUTPUT_PATH 			"results/track/"
-#ifdef MULT_LEVEL_CACHE
+#ifdef MULTI_LEVEL_CACHE
 	#define TRACKER_WORDS_PER_SAMPLE 		52
 	#define TRACKER_BUFFER_PACKET_CAPACITY  0x4C // line size is 1664 bits, which divided in 16kB and rounded down gives 76 
-	#define TRACKER_BUFFER_CAPACITY 		0x200 	// buffer capacity (aggregrate) divided by pair size
-												// ex, 256kB is buffer capacity, a line pair is 512 bit
-												// 2^18 / (2^6) = 2^12 = 0x1000
+	#define TRACKER_BUFFER_CAPACITY 		0x4CF 	// buffer capacity (aggregrate) divided by line size
+												
 
 #else
 	#define TRACKER_WORDS_PER_SAMPLE 		16
@@ -43,9 +42,13 @@
 #define SET_CPU "CONFIG 0x1 0x3"
 #define RESET "CONFIG 0x1 0x0"
 #define CHECK_IF_TRACKER_FULL "WRITE 0x04000110 0x00000011"
+#define CHECK_IF_TRACKER_FULL_L2 "WRITE 0x04000110 0x00000035"
 #define CHECK_IF_SAMPLER_FULL "WRITE 0x04000110 0x0000000F"
 #define CLEAR_BUFFER "WRITE 0x04000110 0x00800000"
-#define GET_NUM_BUFFER_ENTRIES "WRITE 0x04000110 0x00000008"
+#define GET_NUM_BUFFER_ENTRIES_SAMPLER    "WRITE 0x04000110 0x00000008"
+#define GET_NUM_BUFFER_ENTRIES_TRACKER 	  "WRITE 0x04000110 0x00000010"
+#define GET_NUM_BUFFER_ENTRIES_TRACKER_L2 "WRITE 0x04000110 0x00000034"
+#define WRITEOUT_TABLE "WRITE 0x04000110 0x00400000"
 #define SEL_PERIPHS           "CONFIG 0x2 0x1"
 
 

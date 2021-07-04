@@ -46,7 +46,7 @@ module L2_cache_fa_all #(
 	output 							req_block_o, 
 	output 							rw_o, 
 	`ifdef L2_CACHE_POLICY_DLEASE
-		output swag_flag_o,
+		output swap_flag_o,
 	`endif
 	output 							write_o,  			// drive high when writing to buffer
 	output 							read_o, 			// drive high when reading from buffer
@@ -66,14 +66,24 @@ localparam BW_TAG 				= `BW_WORD_ADDR - `BW_BLOCK;
 
 //delay req_i and rw_i from L1 one clock cycle so that tag lookup can have an entire clock cycle to complete
 reg L1_rw_reg, L1_req_reg;
+reg [31:0] phase_reg;
 always@(posedge clock_bus_i[0])begin
 	if(!resetn_i)begin
 		L1_req_reg<=1'b0;
 		L1_rw_reg<=1'b0;
+		phase_reg<=1'b0;
 	end
 	else begin
-		L1_req_reg<=L1_req_i;
-		L1_rw_reg<=L1_rw_i;
+		if(cpc_stall_flag)begin
+			L1_req_reg<=L1_req_reg;
+			L1_rw_reg<=L1_req_reg;
+			phase_reg<=phase_reg;
+		end
+		else begin
+			L1_req_reg<=L1_req_i;
+			L1_rw_reg<=L1_rw_i;
+			phase_reg<=phase_i;
+		end
 	end
 end
 
@@ -215,7 +225,7 @@ assign stall_o   =cache_contr_enable; //core can unstall if L1 is done, even if 
 	// system
 	.clock_i 				(clock_bus_i[0] 		), 		// 180 deg phase
 	`ifdef L2_CACHE_POLICY_DLEASE
-		.phase_i             (phase_i),
+		.phase_i             (phase_reg),
 		.clock_lease_i      (clock_bus_i[1]), 		// 270 deg phase
 	`endif
 	.resetn_i 				(resetn_i 				),

@@ -16,7 +16,7 @@
 -- ---------------------------------------------------------------------------
 
 -- VHDL created from compare_eq_0002
--- VHDL created on Thu Jan 28 22:53:38 2021
+-- VHDL created on Sun Jun 27 14:35:13 2021
 
 
 library IEEE;

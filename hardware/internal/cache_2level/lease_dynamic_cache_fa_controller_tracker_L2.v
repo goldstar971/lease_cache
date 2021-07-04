@@ -85,7 +85,6 @@ localparam ST_TRANSFER_LLT_DATA 	= 4'b0110;
 localparam ST_NO_SWAP_READ 			= 4'b0111;
 localparam ST_UPDATE_REQUEST_LLT 	= 4'b1000;
 localparam ST_UPDATE_SERVICE_LLT 	= 4'b1001;
-localparam ST_STALL 				= 4'b1010;
 localparam ST_READ_FROM_L1_BUFFER =4'b1011;
 localparam ST_WRITE_TO_L1_BUFFER =4'b1100;
 localparam ST_TAG_WAIT        = 4'b1101;
@@ -397,8 +396,9 @@ always @(posedge clock_i) begin
 						end
 						else begin
 							n_transfer_reg = 'b0;
-							cache_ready_reg = 1'b1;
-							state_reg 		= ST_NORMAL;
+							cache_ready_reg = 1'b0;
+							state_reg 		= ST_UPDATE_REQUEST_LLT;
+							phase_reg 				<= phase_i[7:0];
 						end	
 					end
 				end
@@ -411,7 +411,7 @@ always @(posedge clock_i) begin
 						mem_req_block_reg 	= 1'b1; 									// request block
 						mem_rw_reg 			= 1'b0; 									// request a read
 						mem_addr_reg 		= phase_addr_ptr_bus + llt_counter_reg; 	// always points to first element of block
-						state_reg 			<= ST_UPDATE_SERVICE_LLT;
+						state_reg 			= ST_UPDATE_SERVICE_LLT;
 					end
 				end
 
@@ -435,11 +435,11 @@ always @(posedge clock_i) begin
 						// -----------------------------------------------------------------
 
 						// if done with importing 
-						//if (llt_counter_reg == 4'b1111) begin
+						
 						if (llt_counter_reg == llt_section_entries_bus) begin
-							llt_counter_reg <= 'b0;
+
 							n_transfer_reg 	<= 'b0;
-							state_reg 		<= ST_NORMAL;
+							state_reg 		= ST_NORMAL;
 							// if there was no buffered request unstall the L1
 							if (!req_flag_reg) cache_ready_reg = 1'b1;
 						end
@@ -455,13 +455,10 @@ always @(posedge clock_i) begin
 							end
 							else begin
 								n_transfer_reg 	= 'b0;
-								state_reg 		<= ST_UPDATE_REQUEST_LLT;
+								state_reg 		= ST_UPDATE_REQUEST_LLT;
 							end
 						end
 					end
-				end
-
-				ST_STALL: begin
 				end
 
 				// --------------------------------------------------------------------------------------------------------------------------------
@@ -479,7 +476,7 @@ always @(posedge clock_i) begin
 						end
 
 						// switch to population sequence
-						state_reg  				<=  ST_UPDATE_REQUEST_LLT;
+						state_reg  				=  ST_UPDATE_REQUEST_LLT;
 						llt_counter_reg 		<= 'b0;
 						phase_reg 				<= phase_i[7:0];
 
@@ -501,11 +498,11 @@ always @(posedge clock_i) begin
 							end
 						
 							if(rw_flag_reg)begin
-								state_reg <= ST_READ_FROM_L1_BUFFER;
+								state_reg = ST_READ_FROM_L1_BUFFER;
 								dirtybits_reg[cam_addr_i] = 1'b1; 	// set dirty bit if writing back cache block from L1
 							end
 							else begin
-								state_reg <= ST_WRITE_TO_L1_BUFFER;
+								state_reg = ST_WRITE_TO_L1_BUFFER;
 							end
 
 							n_transfer_reg          ='b0;                  
@@ -523,7 +520,7 @@ always @(posedge clock_i) begin
 							// register inputs and flag for reassessment after servicing miss
 							// not need to service a hit if L1 write back after servicing the miss
 							rw_flag_reg 	= L1_rw_i; 			// register request type (ld/st)
-							req_flag_reg 	= (rw_flag_req) ? 1'b0: 1'b1; 				
+							req_flag_reg 	=  1'b1; 				
 							
 											// stall processor
 							// must wait one cycle to register the swap flag
@@ -544,7 +541,6 @@ always @(posedge clock_i) begin
 						// transfer complete
 						if (n_transfer_reg == {1'b0,{`BW_BLOCK{1'b1}}}) begin
 							n_transfer_reg 		= 'b0;
-							
 							state_reg 			= ST_NORMAL; 			// read in new block and write it to cache
 							cache_ready_reg = 1'b1; //unstall processor
 						end
@@ -561,6 +557,7 @@ always @(posedge clock_i) begin
 							L2_read_ack_reg=1'b1;
 						cache_mem_rw_reg 	= 1'b1;
 						cache_mem_add_reg 	= {cam_addr_i, n_transfer_reg[`BW_BLOCK-1:0]};
+						cache_mem_data_reg=L1_data_i;
 						if (n_transfer_reg == {1'b0,{`BW_BLOCK{1'b1}}}) begin
 							n_transfer_reg 		= 'b0;
 							state_reg 			= ST_NORMAL; 			// read in new block and write it to cache
@@ -601,24 +598,27 @@ always @(posedge clock_i) begin
 
 						// lease only condition - do not cache the item, just service the miss
 						else begin
+							//if reading from memory or if the L1 cache has written a value to the buffer upon reciept of no swap signal.
+							if((rw_flag_reg&&L2_ready_read_i)||!rw_flag_reg)begin
 							// clear the L1 request flag so that upon returning without writing/reading entire cache 
 							// block the controller doesn't try to reservice the request
-							req_flag_reg 		= 1'b0;
+								req_flag_reg 		= 1'b0;
 
-							// request the item
-							mem_req_reg 		= 1'b1;
-							mem_req_block_reg 	= 1'b0;
-							mem_addr_reg 		= {L1_tag_i, L1_word_i};
-							mem_rw_reg 			= rw_flag_reg;
+								// request the item
+								mem_req_reg 		= 1'b1;
+								mem_req_block_reg 	= 1'b0;
+								mem_addr_reg 		= {L1_tag_i, L1_word_i};
+								mem_rw_reg 			= rw_flag_reg;
 
-							if (!rw_flag_reg) begin
-								state_reg 				= ST_NO_SWAP_READ;
-							end
-							else begin
-								state_reg 				= ST_NORMAL;
-								buffer_write_ack_reg 	= 1'b1; 				// write to buffer
-								buffer_data_reg 		= L1_data_i;
-								cache_ready_reg 		= 1'b1;
+								if (!rw_flag_reg) begin
+									state_reg 				= ST_NO_SWAP_READ;
+								end
+								else begin
+									state_reg 				= ST_NORMAL;
+									buffer_write_ack_reg 	= 1'b1; 				// write to buffer
+									buffer_data_reg 		= L1_data_i;
+									cache_ready_reg 		= 1'b1;
+								end
 							end
 						end
 					end
@@ -735,7 +735,7 @@ always @(posedge clock_i) begin
 						// pull data from buffer and route to L2
 						buffer_read_ack_reg = 1'b1;
 						L1_data_reg 		= buffer_data_i;
-
+						data_valid_reg          = 1'b1;//signal that data is valid so rx buffer starts reading in values from L2 cache
 						// signal done and resume
 						cache_ready_reg	 	= 1'b1;
 						state_reg 			= ST_NORMAL;

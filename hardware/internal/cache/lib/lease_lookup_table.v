@@ -73,8 +73,14 @@ always @(posedge clock_i) begin
 			2'b10: if (wren_i) lease1_mem[addr_table] 		<= data_i[BW_LEASE_REGISTER-1:0];
 
 			// lease 0 percentage array
-			2'b11: if (wren_i) lease0_prob_mem[addr_table] 	<= data_i[BW_PERCENTAGE-1:0];
-
+			2'b11: begin 
+				if (wren_i) lease0_prob_mem[addr_table] 	<= data_i[BW_PERCENTAGE-1:0];
+				//if not actually a lease i.e., no lease1 and no lease0 value, because we are never going to assign a zero lease in the algorithm
+				//invalidate the entry.
+				if(lease0_mem[addr_table]==24'b0 && lease1_mem[addr_table]==24'b0)begin
+					 validbits[addr_table] 					<= 1'b0;
+				end
+			end
 		endcase
 	end
 end

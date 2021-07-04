@@ -2,11 +2,11 @@
 module branch_predictor_2b(
 	input [1:0] clock_bus_i,
 	input resetn_i,
-	input   [6:0]       stage_1_opcode_i,
 	input [`BW_WORD_ADDR-1:0] PC_i,
 	input [`BW_WORD_ADDR-1:0] jump_destination_i,
 	input [`BW_WORD_ADDR-1:0] stage_1_instruct_addr_i,
-	input [`BW_WORD_ADDR-1:0] stage_2_instruct_addr_i,
+	input [`BW_WORD_ADDR-1:0] stage_3_instruct_addr_i,
+	input [15:0] stage_3_encoding_i,
 	input mispredict_i,
 	output [`BW_BTYE_ADDR-1:0] PC_o);
 
@@ -42,16 +42,16 @@ reg   [1:0]	branch_predictors[`BRANCH_TABLE_BUFFER_SIZE-1:0];
 reg	 [`BW_WORD_ADDR-1:0] branch_pcs  [`BRANCH_TABLE_BUFFER_SIZE-1:0];
 reg	 [`BW_WORD_ADDR-1:0] branch_destinations[`BRANCH_TABLE_BUFFER_SIZE-1:0];
 reg	[branch_table_mem_width-1:0] branch_uses  [`BRANCH_TABLE_BUFFER_SIZE-1:0];
-reg [branch_table_mem_width-1:0] last_match_index,match_index1,match_index2;
+reg [branch_table_mem_width-1:0] last_match_index,match_index1,match_index2, match_index3;
 reg [`BRANCH_TABLE_BUFFER_SIZE-1:0]LRU_stack_bits, valid_bits;
 reg [branch_table_mem_width:0] entries_used; //when all spaces used MSB will be 1.
-reg update_table,was_match,match1,match2;
+reg update_table,was_match,match1,match2, match3;
 
 
-reg[`BW_WORD_ADDR-1:0] last_update_pc;
+reg[`BW_WORD_ADDR-1:0] last_pc,last_update_pc;
 
-//trigger at 90 degrees
-always@(posedge clock_bus_i[0])begin
+//trigger at 180 degrees
+always@(posedge clock_bus_i[1])begin
 	if(!resetn_i)begin
 		for(k=0;k<`BRANCH_TABLE_BUFFER_SIZE;k=k+1)begin
 			branch_predictors[k]<='b0;
@@ -60,11 +60,13 @@ always@(posedge clock_bus_i[0])begin
 			branch_uses[k]<='b0;
 			valid_bits[k]<='b0;
 			LRU_stack_bits[k]<='b0;
+			
 		end
 		entries_used<='b0;
 	end
 	else begin
 //update recently used
+
 		if(update_table)begin
 			for(i=0;i<`BRANCH_TABLE_BUFFER_SIZE;i=i+1)begin
 				//hit	
@@ -122,7 +124,7 @@ always@(posedge clock_bus_i[0])begin
 						branch_predictors[LRU_index]<=2'b10; 
 					end
 					branch_destinations[LRU_index]<=jump_destination_i;
-					branch_pcs[LRU_index]<=last_update_pc;
+					branch_pcs[LRU_index]<=stage_3_instruct_addr_i;
 				end
 					//if unused space in buffer
 				else begin
@@ -130,7 +132,7 @@ always@(posedge clock_bus_i[0])begin
 						branch_predictors[entries_used]<=2'b10; 
 					end
 					branch_destinations[entries_used]<=jump_destination_i;
-					branch_pcs[entries_used]<=last_update_pc;
+					branch_pcs[entries_used]<=stage_3_instruct_addr_i;
 					entries_used<=entries_used+1'b1;
 					valid_bits[entries_used]<=1'b1;
 				end
@@ -139,40 +141,49 @@ always@(posedge clock_bus_i[0])begin
 	end
 end
 
-//trigger at 270 degrees
-always@(posedge clock_bus_i[1] )begin
+//trigger at 0 degrees
+always@(posedge clock_bus_i[0] )begin
 	if(!resetn_i) begin
 		last_match_index<='b0;
 		was_match<=1'b0;
 		update_table<=1'b0;
 		match1<=1'b0;
-		match2<=1'b0;
 		match_index1<='b0;
+		last_pc<='b0;
+		match3<=1'b0;
+		match2<=1'b0;
 		match_index2<='b0;
+		match_index3<='b0;
 		last_update_pc<='b0;
+
 	end
 	else begin
-	//table update is two clock cycles delayed from when a match is detected.
-		match1<=match;
-		match2<=match1;
-		match_index1<=match_index;
-		match_index2<=match_index1;
-		//store index of prediction to avoid additional circuitry
-		//decide whether to update the table
-		update_table<=1'b0;
-		was_match<=1'b0;
-		last_update_pc<=stage_1_instruct_addr_i;
-		if(stage_1_opcode_i[6:5]==2'b11) begin
-			if(stage_1_instruct_addr_i!=last_update_pc&&!mispredict_i)begin
-				if(match2)begin
-					last_match_index<=match_index2;
-					was_match<=1'b1;
-				end
-			//if we haven't already updated the table and there hasn't been a detected mispredict_iion
-			//which would mean the instruction in stage 1 isn't valid and shouldn't result in a table update
-			
+	//update table
+		
+
+		last_pc<=PC_i;
+		last_update_pc<=stage_3_instruct_addr_i;
+		//only update table once.
+		if((stage_3_encoding_i==`ENCODING_JAL||stage_3_encoding_i==`ENCODING_BRANCH)&&(stage_3_instruct_addr_i!=last_update_pc))begin
+				
 				update_table<=1'b1;
+			end 
+			else begin
+				update_table<=1'b0;
 			end
+	//if not stalled, 
+		if(PC_i!=last_pc)begin
+
+			match1<=match;
+			match_index1<=match_index;
+			match2<=match1;
+			match_index2<=match_index1;
+			match3<=match2;
+			match_index3<=match_index2;
+			was_match<=match3;
+			last_match_index<=match_index3;
+			
+			
 		end
 	end
 end

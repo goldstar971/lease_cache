@@ -13,9 +13,8 @@ module target_address_generator(
 	output  			flag_jump_o, 			// 1: jump/branch operation
 	output 	[31:0] 		addr_target_o, 			// target address of operation
 	output 	[31:0]		addr_writeback_o, 		// address/value to writeback to register file 	
-	output  [31:0]      jump_destination_o,
-	output 	[3:0]		exception_o  			// [3] - unknown/unsupported func3 if branch operation
-												// [2] - if jump/branch goes high if next instruction addr is not == target of operation
+	output 	[3:0]		exception_o,  			// [3] - unknown/unsupported func3 if branch operation
+	output  [31:0]      jump_destination_o			// [2] - if jump/branch goes high if next instruction addr is not == target of operation
 												// [1] - target address word misaligned
 												// [0] - target address half-word misaligned
 );
@@ -32,7 +31,7 @@ assign flag_jump_o 		= flag_jump_reg;
 assign addr_target_o 	= addr_target_reg;
 assign addr_writeback_o = addr_writeback_reg;
 assign exception_o 		= {exception_reg, exception_bus};
-
+assign jump_destination_o =instruction_addr_i + immediate_i;
 
 // exception logic
 // ---------------------------------------------------------------------------------------------------------------
@@ -48,8 +47,7 @@ assign exception_bus[2] = 	(flag_jump_reg) ?
 assign exception_bus[1] = (flag_jump_reg & addr_target_reg[1]) ? 1'b1 : 1'b0;
 assign exception_bus[0] = (flag_jump_reg & addr_target_reg[0]) ? 1'b1 : 1'b0;
 
-assign jump_destination_o =(encoding_i==`ENCODING_JALR) ? (src1_operand_i + immediate_i) & 32'hFFFFFFFE 
-: instruction_addr_i + immediate_i;
+
 // module logic
 // ---------------------------------------------------------------------------------------------------------------
 always @(*) begin

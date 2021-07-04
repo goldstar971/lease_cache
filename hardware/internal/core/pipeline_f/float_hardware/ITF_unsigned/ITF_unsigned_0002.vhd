@@ -16,7 +16,7 @@
 -- ---------------------------------------------------------------------------
 
 -- VHDL created from ITF_unsigned_0002
--- VHDL created on Thu Jan 28 22:32:24 2021
+-- VHDL created on Sun Jun 27 14:33:18 2021
 
 
 library IEEE;
@@ -57,6 +57,7 @@ architecture normal of ITF_unsigned_0002 is
     signal expPreRnd_uid10_fxpToFPTest_o : STD_LOGIC_VECTOR (8 downto 0);
     signal expPreRnd_uid10_fxpToFPTest_q : STD_LOGIC_VECTOR (8 downto 0);
     signal expFracRnd_uid12_fxpToFPTest_q : STD_LOGIC_VECTOR (32 downto 0);
+    signal sticky_uid16_fxpToFPTest_qi : STD_LOGIC_VECTOR (0 downto 0);
     signal sticky_uid16_fxpToFPTest_q : STD_LOGIC_VECTOR (0 downto 0);
     signal nr_uid17_fxpToFPTest_q : STD_LOGIC_VECTOR (0 downto 0);
     signal rnd_uid18_fxpToFPTest_q : STD_LOGIC_VECTOR (0 downto 0);
@@ -138,6 +139,7 @@ architecture normal of ITF_unsigned_0002 is
     signal fracRnd_uid11_fxpToFPTest_merged_bit_select_in : STD_LOGIC_VECTOR (30 downto 0);
     signal fracRnd_uid11_fxpToFPTest_merged_bit_select_b : STD_LOGIC_VECTOR (23 downto 0);
     signal fracRnd_uid11_fxpToFPTest_merged_bit_select_c : STD_LOGIC_VECTOR (6 downto 0);
+    signal redist0_fracRnd_uid11_fxpToFPTest_merged_bit_select_b_1_q : STD_LOGIC_VECTOR (23 downto 0);
 
 begin
 
@@ -287,18 +289,21 @@ begin
     fracRnd_uid11_fxpToFPTest_merged_bit_select_b <= fracRnd_uid11_fxpToFPTest_merged_bit_select_in(30 downto 7);
     fracRnd_uid11_fxpToFPTest_merged_bit_select_c <= fracRnd_uid11_fxpToFPTest_merged_bit_select_in(6 downto 0);
 
-    -- sticky_uid16_fxpToFPTest(LOGICAL,15)@0
-    sticky_uid16_fxpToFPTest_q <= "1" WHEN fracRnd_uid11_fxpToFPTest_merged_bit_select_c /= "0000000" ELSE "0";
+    -- sticky_uid16_fxpToFPTest(LOGICAL,15)@0 + 1
+    sticky_uid16_fxpToFPTest_qi <= "1" WHEN fracRnd_uid11_fxpToFPTest_merged_bit_select_c /= "0000000" ELSE "0";
+    sticky_uid16_fxpToFPTest_delay : dspba_delay
+    GENERIC MAP ( width => 1, depth => 1, reset_kind => "ASYNC" )
+    PORT MAP ( xin => sticky_uid16_fxpToFPTest_qi, xout => sticky_uid16_fxpToFPTest_q, clk => clk, aclr => areset );
 
-    -- nr_uid17_fxpToFPTest(LOGICAL,16)@0
+    -- nr_uid17_fxpToFPTest(LOGICAL,16)@1
     nr_uid17_fxpToFPTest_q <= not (l_uid13_fxpToFPTest_merged_bit_select_c);
 
-    -- l_uid13_fxpToFPTest_merged_bit_select(BITSELECT,84)@0
+    -- l_uid13_fxpToFPTest_merged_bit_select(BITSELECT,84)@1
     l_uid13_fxpToFPTest_merged_bit_select_in <= STD_LOGIC_VECTOR(expFracRnd_uid12_fxpToFPTest_q(1 downto 0));
     l_uid13_fxpToFPTest_merged_bit_select_b <= STD_LOGIC_VECTOR(l_uid13_fxpToFPTest_merged_bit_select_in(1 downto 1));
     l_uid13_fxpToFPTest_merged_bit_select_c <= STD_LOGIC_VECTOR(l_uid13_fxpToFPTest_merged_bit_select_in(0 downto 0));
 
-    -- rnd_uid18_fxpToFPTest(LOGICAL,17)@0
+    -- rnd_uid18_fxpToFPTest(LOGICAL,17)@1
     rnd_uid18_fxpToFPTest_q <= l_uid13_fxpToFPTest_merged_bit_select_b or nr_uid17_fxpToFPTest_q or sticky_uid16_fxpToFPTest_q;
 
     -- maxCount_uid7_fxpToFPTest(CONSTANT,6)
@@ -313,67 +318,76 @@ begin
     vCountBig_uid80_lzcShifterZ1_uid6_fxpToFPTest_o <= STD_LOGIC_VECTOR(UNSIGNED(vCountBig_uid80_lzcShifterZ1_uid6_fxpToFPTest_a) - UNSIGNED(vCountBig_uid80_lzcShifterZ1_uid6_fxpToFPTest_b));
     vCountBig_uid80_lzcShifterZ1_uid6_fxpToFPTest_c(0) <= vCountBig_uid80_lzcShifterZ1_uid6_fxpToFPTest_o(7);
 
-    -- vCountFinal_uid82_lzcShifterZ1_uid6_fxpToFPTest(MUX,81)@0
+    -- vCountFinal_uid82_lzcShifterZ1_uid6_fxpToFPTest(MUX,81)@0 + 1
     vCountFinal_uid82_lzcShifterZ1_uid6_fxpToFPTest_s <= vCountBig_uid80_lzcShifterZ1_uid6_fxpToFPTest_c;
-    vCountFinal_uid82_lzcShifterZ1_uid6_fxpToFPTest_combproc: PROCESS (vCountFinal_uid82_lzcShifterZ1_uid6_fxpToFPTest_s, vCount_uid78_lzcShifterZ1_uid6_fxpToFPTest_q, maxCount_uid7_fxpToFPTest_q)
+    vCountFinal_uid82_lzcShifterZ1_uid6_fxpToFPTest_clkproc: PROCESS (clk, areset)
     BEGIN
-        CASE (vCountFinal_uid82_lzcShifterZ1_uid6_fxpToFPTest_s) IS
-            WHEN "0" => vCountFinal_uid82_lzcShifterZ1_uid6_fxpToFPTest_q <= vCount_uid78_lzcShifterZ1_uid6_fxpToFPTest_q;
-            WHEN "1" => vCountFinal_uid82_lzcShifterZ1_uid6_fxpToFPTest_q <= maxCount_uid7_fxpToFPTest_q;
-            WHEN OTHERS => vCountFinal_uid82_lzcShifterZ1_uid6_fxpToFPTest_q <= (others => '0');
-        END CASE;
+        IF (areset = '1') THEN
+            vCountFinal_uid82_lzcShifterZ1_uid6_fxpToFPTest_q <= (others => '0');
+        ELSIF (clk'EVENT AND clk = '1') THEN
+            CASE (vCountFinal_uid82_lzcShifterZ1_uid6_fxpToFPTest_s) IS
+                WHEN "0" => vCountFinal_uid82_lzcShifterZ1_uid6_fxpToFPTest_q <= vCount_uid78_lzcShifterZ1_uid6_fxpToFPTest_q;
+                WHEN "1" => vCountFinal_uid82_lzcShifterZ1_uid6_fxpToFPTest_q <= maxCount_uid7_fxpToFPTest_q;
+                WHEN OTHERS => vCountFinal_uid82_lzcShifterZ1_uid6_fxpToFPTest_q <= (others => '0');
+            END CASE;
+        END IF;
     END PROCESS;
 
     -- msbIn_uid9_fxpToFPTest(CONSTANT,8)
     msbIn_uid9_fxpToFPTest_q <= "10011110";
 
-    -- expPreRnd_uid10_fxpToFPTest(SUB,9)@0
+    -- expPreRnd_uid10_fxpToFPTest(SUB,9)@1
     expPreRnd_uid10_fxpToFPTest_a <= STD_LOGIC_VECTOR("0" & msbIn_uid9_fxpToFPTest_q);
     expPreRnd_uid10_fxpToFPTest_b <= STD_LOGIC_VECTOR("000" & vCountFinal_uid82_lzcShifterZ1_uid6_fxpToFPTest_q);
     expPreRnd_uid10_fxpToFPTest_o <= STD_LOGIC_VECTOR(UNSIGNED(expPreRnd_uid10_fxpToFPTest_a) - UNSIGNED(expPreRnd_uid10_fxpToFPTest_b));
     expPreRnd_uid10_fxpToFPTest_q <= expPreRnd_uid10_fxpToFPTest_o(8 downto 0);
 
-    -- expFracRnd_uid12_fxpToFPTest(BITJOIN,11)@0
-    expFracRnd_uid12_fxpToFPTest_q <= expPreRnd_uid10_fxpToFPTest_q & fracRnd_uid11_fxpToFPTest_merged_bit_select_b;
+    -- redist0_fracRnd_uid11_fxpToFPTest_merged_bit_select_b_1(DELAY,91)
+    redist0_fracRnd_uid11_fxpToFPTest_merged_bit_select_b_1 : dspba_delay
+    GENERIC MAP ( width => 24, depth => 1, reset_kind => "ASYNC" )
+    PORT MAP ( xin => fracRnd_uid11_fxpToFPTest_merged_bit_select_b, xout => redist0_fracRnd_uid11_fxpToFPTest_merged_bit_select_b_1_q, clk => clk, aclr => areset );
 
-    -- expFracR_uid20_fxpToFPTest(ADD,19)@0
+    -- expFracRnd_uid12_fxpToFPTest(BITJOIN,11)@1
+    expFracRnd_uid12_fxpToFPTest_q <= expPreRnd_uid10_fxpToFPTest_q & redist0_fracRnd_uid11_fxpToFPTest_merged_bit_select_b_1_q;
+
+    -- expFracR_uid20_fxpToFPTest(ADD,19)@1
     expFracR_uid20_fxpToFPTest_a <= STD_LOGIC_VECTOR(STD_LOGIC_VECTOR((34 downto 33 => expFracRnd_uid12_fxpToFPTest_q(32)) & expFracRnd_uid12_fxpToFPTest_q));
     expFracR_uid20_fxpToFPTest_b <= STD_LOGIC_VECTOR(STD_LOGIC_VECTOR("0000000000000000000000000000000000" & rnd_uid18_fxpToFPTest_q));
     expFracR_uid20_fxpToFPTest_o <= STD_LOGIC_VECTOR(SIGNED(expFracR_uid20_fxpToFPTest_a) + SIGNED(expFracR_uid20_fxpToFPTest_b));
     expFracR_uid20_fxpToFPTest_q <= expFracR_uid20_fxpToFPTest_o(33 downto 0);
 
-    -- expR_uid22_fxpToFPTest(BITSELECT,21)@0
+    -- expR_uid22_fxpToFPTest(BITSELECT,21)@1
     expR_uid22_fxpToFPTest_b <= STD_LOGIC_VECTOR(expFracR_uid20_fxpToFPTest_q(33 downto 24));
 
-    -- expR_uid34_fxpToFPTest(BITSELECT,33)@0
+    -- expR_uid34_fxpToFPTest(BITSELECT,33)@1
     expR_uid34_fxpToFPTest_in <= expR_uid22_fxpToFPTest_b(7 downto 0);
     expR_uid34_fxpToFPTest_b <= expR_uid34_fxpToFPTest_in(7 downto 0);
 
-    -- ovf_uid25_fxpToFPTest(COMPARE,24)@0
+    -- ovf_uid25_fxpToFPTest(COMPARE,24)@1
     ovf_uid25_fxpToFPTest_a <= STD_LOGIC_VECTOR(STD_LOGIC_VECTOR((11 downto 10 => expR_uid22_fxpToFPTest_b(9)) & expR_uid22_fxpToFPTest_b));
     ovf_uid25_fxpToFPTest_b <= STD_LOGIC_VECTOR(STD_LOGIC_VECTOR("0000" & expInf_uid24_fxpToFPTest_q));
     ovf_uid25_fxpToFPTest_o <= STD_LOGIC_VECTOR(SIGNED(ovf_uid25_fxpToFPTest_a) - SIGNED(ovf_uid25_fxpToFPTest_b));
     ovf_uid25_fxpToFPTest_n(0) <= not (ovf_uid25_fxpToFPTest_o(11));
 
-    -- inIsZero_uid8_fxpToFPTest(LOGICAL,7)@0
+    -- inIsZero_uid8_fxpToFPTest(LOGICAL,7)@1
     inIsZero_uid8_fxpToFPTest_q <= "1" WHEN vCountFinal_uid82_lzcShifterZ1_uid6_fxpToFPTest_q = maxCount_uid7_fxpToFPTest_q ELSE "0";
 
-    -- udf_uid23_fxpToFPTest(COMPARE,22)@0
+    -- udf_uid23_fxpToFPTest(COMPARE,22)@1
     udf_uid23_fxpToFPTest_a <= STD_LOGIC_VECTOR(STD_LOGIC_VECTOR("00000000000" & GND_q));
     udf_uid23_fxpToFPTest_b <= STD_LOGIC_VECTOR(STD_LOGIC_VECTOR((11 downto 10 => expR_uid22_fxpToFPTest_b(9)) & expR_uid22_fxpToFPTest_b));
     udf_uid23_fxpToFPTest_o <= STD_LOGIC_VECTOR(SIGNED(udf_uid23_fxpToFPTest_a) - SIGNED(udf_uid23_fxpToFPTest_b));
     udf_uid23_fxpToFPTest_n(0) <= not (udf_uid23_fxpToFPTest_o(11));
 
-    -- udfOrInZero_uid29_fxpToFPTest(LOGICAL,28)@0
+    -- udfOrInZero_uid29_fxpToFPTest(LOGICAL,28)@1
     udfOrInZero_uid29_fxpToFPTest_q <= udf_uid23_fxpToFPTest_n or inIsZero_uid8_fxpToFPTest_q;
 
-    -- excSelector_uid30_fxpToFPTest(BITJOIN,29)@0
+    -- excSelector_uid30_fxpToFPTest(BITJOIN,29)@1
     excSelector_uid30_fxpToFPTest_q <= ovf_uid25_fxpToFPTest_n & udfOrInZero_uid29_fxpToFPTest_q;
 
     -- VCC(CONSTANT,1)
     VCC_q <= "1";
 
-    -- expRPostExc_uid35_fxpToFPTest(MUX,34)@0
+    -- expRPostExc_uid35_fxpToFPTest(MUX,34)@1
     expRPostExc_uid35_fxpToFPTest_s <= excSelector_uid30_fxpToFPTest_q;
     expRPostExc_uid35_fxpToFPTest_combproc: PROCESS (expRPostExc_uid35_fxpToFPTest_s, expR_uid34_fxpToFPTest_b, expZ_uid33_fxpToFPTest_q, expInf_uid24_fxpToFPTest_q)
     BEGIN
@@ -389,14 +403,14 @@ begin
     -- fracZ_uid27_fxpToFPTest(CONSTANT,26)
     fracZ_uid27_fxpToFPTest_q <= "00000000000000000000000";
 
-    -- fracR_uid21_fxpToFPTest(BITSELECT,20)@0
+    -- fracR_uid21_fxpToFPTest(BITSELECT,20)@1
     fracR_uid21_fxpToFPTest_in <= expFracR_uid20_fxpToFPTest_q(23 downto 0);
     fracR_uid21_fxpToFPTest_b <= fracR_uid21_fxpToFPTest_in(23 downto 1);
 
-    -- excSelector_uid26_fxpToFPTest(LOGICAL,25)@0
+    -- excSelector_uid26_fxpToFPTest(LOGICAL,25)@1
     excSelector_uid26_fxpToFPTest_q <= inIsZero_uid8_fxpToFPTest_q or ovf_uid25_fxpToFPTest_n or udf_uid23_fxpToFPTest_n;
 
-    -- fracRPostExc_uid28_fxpToFPTest(MUX,27)@0
+    -- fracRPostExc_uid28_fxpToFPTest(MUX,27)@1
     fracRPostExc_uid28_fxpToFPTest_s <= excSelector_uid26_fxpToFPTest_q;
     fracRPostExc_uid28_fxpToFPTest_combproc: PROCESS (fracRPostExc_uid28_fxpToFPTest_s, fracR_uid21_fxpToFPTest_b, fracZ_uid27_fxpToFPTest_q)
     BEGIN
@@ -407,10 +421,10 @@ begin
         END CASE;
     END PROCESS;
 
-    -- outRes_uid36_fxpToFPTest(BITJOIN,35)@0
+    -- outRes_uid36_fxpToFPTest(BITJOIN,35)@1
     outRes_uid36_fxpToFPTest_q <= GND_q & expRPostExc_uid35_fxpToFPTest_q & fracRPostExc_uid28_fxpToFPTest_q;
 
-    -- xOut(GPOUT,4)@0
+    -- xOut(GPOUT,4)@1
     q <= outRes_uid36_fxpToFPTest_q;
 
 END normal;

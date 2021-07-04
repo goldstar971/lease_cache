@@ -66,7 +66,7 @@ assign core_inst_addr_word = core_inst_addr[`BW_WORD_ADDR+1:2];
 	.mem_add0_o 	(add0_core2mc 			), 
 	.mem_data0_o 	(data0_core2mc 			), 
 	.mem_data0_i 	(data0_mc2core 			), 
-	.mem_done0_i 	(done0_mc2core & cpc_stall_flag),
+	.mem_done0_i 	(done0_mc2core & !cpc_stall_flag),
 
 	// data references - to memory controller
 	.mem_req1_o 	(req1_core2mc 			), 
@@ -74,7 +74,7 @@ assign core_inst_addr_word = core_inst_addr[`BW_WORD_ADDR+1:2];
 	.mem_add1_o 	(add1_core2mc 			), 
 	.mem_data1_o 	(data1_core2mc 			), 
 	.mem_data1_i 	(data1_mc2core 			), 
-	.mem_done1_i 	(done1_mc2core & cpc_stall_flag),
+	.mem_done1_i 	(done1_mc2core & !cpc_stall_flag),
 
 	// peripheral system
 	.per_req_o 		(per_req_o 				), 
@@ -91,7 +91,7 @@ assign core_inst_addr_word = core_inst_addr[`BW_WORD_ADDR+1:2];
 // L1 <-> L2
 wire 		L2_read_ack_i,L2_ready_read_o, L2_ready_write_o, L1_reqToCacheL2, L1_rwToCacheL2, L1_doneFromCacheL2,L1_validFromCacheL2, L1_reqBlockToCacheL2;
 wire 		[23:0]	L1_addToCacheL2;
-wire 		[31:0]	L1_dataToCacheL2, L1_dataFromCacheL2; 
+wire 		[31:0]	L1_dataToCacheL2, L1_dataFromCacheL2, swap_flag_o; 
 
 // L2 <-> memory controller
 wire 				mci_enableToCacheL2, mci_readyToCacheL2, mci_writeReadyToCacheL2, mci_readReadyToCacheL2;
@@ -127,7 +127,7 @@ wire 				mci_hitFromCacheL2, mci_reqFromCacheL2, mci_reqBlockFromCacheL2, mci_rw
 	.L2_ready_read_i    (L2_ready_read_o),
 	.L2_ready_write_i   (L2_ready_write_o),
 	`ifdef L2_CACHE_POLICY_DLEASE
-		output swag_flag_o,
+	.swap_flag_o(swap_flag_o),
 	`endif
 
 	// for sampler (want to sample for all references, not just l1 misses, no specific leases for instructions, just rely on default lease)
@@ -189,12 +189,12 @@ wire 				mci_hitFromCacheL1I, mci_reqFromCacheL1I, mci_reqBlockFromCacheL1I, mci
 	.core_data_i 			(core_dataToCacheL1I 			),
 	.core_done_o 			(core_doneFromCacheL1I 		), 
 	.core_data_o 			(core_dataFromCacheL1I 		),
-	`ifdef L2_CACHE_POLICY_DLEASE
-		input swag_flag_i,
-	`endif
+	//`ifdef L2_CACHE_POLICY_DLEASE
+	//.swap_flag_i(swap_flag_o),
+	//`endif
 
 	// memory controller	
-	.en_i 					(cpc_stall_flag			), 
+	.en_i 					(1'b1			), 
 	.ready_req_i 			(mci_readyToCacheL1I 			), 
 	.ready_write_i 			(mci_writeReadyToCacheL1I		), 
 	.ready_read_i			(mci_readReadyToCacheL1I 		), 
@@ -244,13 +244,11 @@ wire 				mci_hitFromCacheL1D, mci_reqFromCacheL1D, mci_reqBlockFromCacheL1D, mci
 	.core_done_o 			(core_doneFromCacheL1D 		), 
 	.core_data_o 			(core_dataFromCacheL1D 		),
 
-	`ifdef L2_CACHE_POLICY_DLEASE
-		input swag_flag_i,
-	`endif
-
-
+//	`ifdef L2_CACHE_POLICY_DLEASE
+//	.swap_flag_i(swap_flag_o),
+//	`endif
 	// memory controller	
-	.en_i 					(cpc_stall_flag			), 
+	.en_i 					(1'b1		), 
 	.ready_req_i 			(mci_readyToCacheL1D 			), 
 	.ready_write_i 			(mci_writeReadyToCacheL1D		), 
 	.ready_read_i			(mci_readReadyToCacheL1D 		), 
@@ -263,8 +261,6 @@ wire 				mci_hitFromCacheL1D, mci_reqFromCacheL1D, mci_reqBlockFromCacheL1D, mci
 	.read_o 				(mci_readFromCacheL1D 		), 
 	.add_o 					(mci_addFromCacheL1D 			), 
 	.data_o 				(mci_dataFromCacheL1D 		)
-
-
 );
 
 

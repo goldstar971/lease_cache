@@ -59,8 +59,8 @@ endmodule
 // Retrieval info: 	<generic name="fp_exp" value="8" />
 // Retrieval info: 	<generic name="fp_man" value="23" />
 // Retrieval info: 	<generic name="exponent_width" value="23" />
-// Retrieval info: 	<generic name="frequency_target" value="20" />
-// Retrieval info: 	<generic name="latency_target" value="2" />
+// Retrieval info: 	<generic name="frequency_target" value="40" />
+// Retrieval info: 	<generic name="latency_target" value="6" />
 // Retrieval info: 	<generic name="performance_goal" value="frequency" />
 // Retrieval info: 	<generic name="rounding_mode" value="nearest with tie breaking away from zero" />
 // Retrieval info: 	<generic name="faithful_rounding" value="false" />
@@ -84,7 +84,7 @@ endmodule
 // Retrieval info: 	<generic name="manual_dsp_planning" value="true" />
 // Retrieval info: 	<generic name="forceRegisters" value="1111" />
 // Retrieval info: 	<generic name="selected_device_family" value="Cyclone V" />
-// Retrieval info: 	<generic name="selected_device_speedgrade" value="Unknown" />
+// Retrieval info: 	<generic name="selected_device_speedgrade" value="7" />
 // Retrieval info: </instance>
 // IPFS_FILES : ITF_unsigned.vo
 // RELATED_FILES: ITF_unsigned.v, dspba_library_package.vhd, dspba_library.vhd, ITF_unsigned_0002.vhd

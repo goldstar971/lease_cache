@@ -35,7 +35,7 @@ set_global_assignment -entity "float_sqrt_0002" -library "float_sqrt" -name IP_C
 set_global_assignment -entity "float_sqrt_0002" -library "float_sqrt" -name IP_COMPONENT_PARAMETER "ZnBfbWFu::MjM=::TWFudGlzc2E="
 set_global_assignment -entity "float_sqrt_0002" -library "float_sqrt" -name IP_COMPONENT_PARAMETER "ZnBfbWFuX2Rlcml2ZWQ=::MjM=::ZnBfbWFuX2Rlcml2ZWQ="
 set_global_assignment -entity "float_sqrt_0002" -library "float_sqrt" -name IP_COMPONENT_PARAMETER "ZXhwb25lbnRfd2lkdGg=::MjM=::RXhwb25lbnQgV2lkdGg="
-set_global_assignment -entity "float_sqrt_0002" -library "float_sqrt" -name IP_COMPONENT_PARAMETER "ZnJlcXVlbmN5X3RhcmdldA==::MjA=::VGFyZ2V0"
+set_global_assignment -entity "float_sqrt_0002" -library "float_sqrt" -name IP_COMPONENT_PARAMETER "ZnJlcXVlbmN5X3RhcmdldA==::NDA=::VGFyZ2V0"
 set_global_assignment -entity "float_sqrt_0002" -library "float_sqrt" -name IP_COMPONENT_PARAMETER "bGF0ZW5jeV90YXJnZXQ=::Mg==::VGFyZ2V0"
 set_global_assignment -entity "float_sqrt_0002" -library "float_sqrt" -name IP_COMPONENT_PARAMETER "cGVyZm9ybWFuY2VfZ29hbA==::ZnJlcXVlbmN5::R29hbA=="
 set_global_assignment -entity "float_sqrt_0002" -library "float_sqrt" -name IP_COMPONENT_PARAMETER "cm91bmRpbmdfbW9kZQ==::bmVhcmVzdCB3aXRoIHRpZSBicmVha2luZyBhd2F5IGZyb20gemVybw==::TW9kZQ=="
@@ -73,7 +73,7 @@ set_global_assignment -entity "float_sqrt_0002" -library "float_sqrt" -name IP_C
 set_global_assignment -entity "float_sqrt_0002" -library "float_sqrt" -name IP_COMPONENT_PARAMETER "UkVTX01CSVRfcGFyYW0=::MTU4NzI=::TWVtb3J5IEJpdHM="
 set_global_assignment -entity "float_sqrt_0002" -library "float_sqrt" -name IP_COMPONENT_PARAMETER "UkVTX01CTE9DS19wYXJhbQ==::Mw==::TWVtb3J5IEJsb2Nrcw=="
 set_global_assignment -entity "float_sqrt_0002" -library "float_sqrt" -name IP_COMPONENT_PARAMETER "c2VsZWN0ZWRfZGV2aWNlX2ZhbWlseQ==::Q3ljbG9uZSBW::c2VsZWN0ZWRfZGV2aWNlX2ZhbWlseQ=="
-set_global_assignment -entity "float_sqrt_0002" -library "float_sqrt" -name IP_COMPONENT_PARAMETER "c2VsZWN0ZWRfZGV2aWNlX3NwZWVkZ3JhZGU=::VW5rbm93bg==::c2VsZWN0ZWRfZGV2aWNlX3NwZWVkZ3JhZGU="
+set_global_assignment -entity "float_sqrt_0002" -library "float_sqrt" -name IP_COMPONENT_PARAMETER "c2VsZWN0ZWRfZGV2aWNlX3NwZWVkZ3JhZGU=::Nw==::c2VsZWN0ZWRfZGV2aWNlX3NwZWVkZ3JhZGU="
 set_global_assignment -entity "float_sqrt_0002" -library "float_sqrt" -name IP_COMPONENT_PARAMETER "dmFsaWRhdGlvbl9mYWlsZWQ=::ZmFsc2U=::dmFsaWRhdGlvbl9mYWlsZWQ="
 
 set_global_assignment -library "float_sqrt" -name VERILOG_FILE [file join $::quartus(qip_path) "float_sqrt.v"]

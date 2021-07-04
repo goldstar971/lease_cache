@@ -126,7 +126,7 @@ wire 	hit_flag,  											// performance metric flags set by controller
 		expired_flag,
 		defaulted_flag,
 		expired_multi_flag;
-		`ifdef DATA_POLICY_LEASE
+		`ifdef DATA_POLICY_DLEASE
 		wire [CACHE_BLOCK_CAPACITY-1:0] flag_expired_0_bus,
 								flag_expired_1_bus,
 								flag_expired_2_bus;

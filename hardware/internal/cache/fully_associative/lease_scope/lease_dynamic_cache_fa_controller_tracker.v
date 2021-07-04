@@ -377,10 +377,8 @@ always @(posedge clock_i) begin
 						end
 						else begin
 							n_transfer_reg = 'b0;
-							core_done_o_reg = 1'b1;
 							state_reg 		= ST_UPDATE_REQUEST_LLT;
 							core_done_o_reg 	= 1'b0;
-							llt_counter_reg 		<= 'b0;
 							phase_reg 				<= phase_i[7:0];
 						end	
 					end

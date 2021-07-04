@@ -8,7 +8,8 @@ base_data_dir=[base_path,'software/fpga_proxy/results/track/'];
 base_save_dir=[base_path,'MATLAB_data_visualizations/lease_cache_tracking/'];
 
 benchmark_type=inputdlg("Give name of the benchmark type for which you'd like to plot tracker results: ",'s');
-
+cache_size=inputdlg("Give number of cache lines: ",'s');
+cache_size=str2num(cache_size{1});
 full_path=[base_data_dir,cell2mat(benchmark_type),'/'];
 
 file_list=dir([full_path,'*.txt']);
@@ -17,16 +18,16 @@ file_list=dir([full_path,'*.txt']);
     if(exist([base_save_dir,cell2mat(benchmark_type),'/'],'dir')~=7)
         mkdir([base_save_dir,cell2mat(benchmark_type),'/']);
     end
-set(0,'DefaultFigureVisible','off')
+%set(0,'DefaultFigureVisible','off')
 for i=1:length(file_list)
 	display(i);
 % extract delimited fields
 benchmark=file_list(i).name(1:end-4);
 current_tracking_file=strcat(full_path,benchmark,'.txt');
 if(contains(benchmark,'floyd-warshall'))
-	[average,exp_mat,trace]=extract_tracking_data_2_large_set(current_tracking_file,128);
+	[average,exp_mat,trace]=extract_tracking_data_all(current_tracking_file,cache_size,'large');
 else
-	[average,exp_mat,trace]=extract_tracking_data_2_small_set(current_tracking_file,128);
+	[average,exp_mat,trace]=extract_tracking_data_all(current_tracking_file,cache_size,'small');
 end
 trace_millions =trace/1000000;
 mean =movmean(average.exp,128);
@@ -41,9 +42,9 @@ set(gcf, 'Position',[100,100,1000,600]);     % [low left x, low left y, top righ
         axis tight;
         xlabel('Millions of accesses');
         title('-Aggregate Cache Vacancy');
-        ylim([0 128]);
+        ylim([0 cache_size]);
     ax_2=subplot(1,3,2:3);
-        s = surface(trace_millions,1:128,exp_mat.fin');
+        s = surface(trace_millions,1:cache_size,exp_mat.fin');
         s.EdgeColor = 'none';
         axis tight;
         title('Individual Cache Line Status');

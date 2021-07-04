@@ -138,7 +138,7 @@ uint32_t protocol_tracker_buffer_read(pHandle pInst, uint32_t buffer_start_addre
 
 
 
-	#ifdef MULT_LEVEL_CACHE
+	#ifdef MULTI_LEVEL_CACHE
 	for (uint32_t i = 0; i < 4*TRACKER_WORDS_PER_SAMPLE*buffer_packet_size; i = i + 4*TRACKER_WORDS_PER_SAMPLE){
 		char temp_line[1664];
 		sprintf(temp_line, "%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x, \
@@ -280,7 +280,11 @@ uint32_t sampler_run(pHandle pInst, command *pCommand){
 	//get file name
 	get_file_name(pCommand,file_name,benchmark_type,benchmark_name);
 	//combine into full path
-	sprintf(file_path,"%s%s/",SAMPLER_OUTPUT_PATH,benchmark_type);
+	#ifdef MULTI_LEVEL_CACHE
+		sprintf(file_path,"%s%s%s/",SAMPLER_OUTPUT_PATH,benchmark_type,"_multi_level");
+	#else
+		sprintf(file_path,"%s%s/",SAMPLER_OUTPUT_PATH,benchmark_type);
+	#endif
 	sprintf(full_output_path,"%s%s",file_path,file_name);
 	//if directory doesn't exist, try to create it.
 	if(0!= access(file_path,F_OK)){
@@ -340,7 +344,12 @@ uint32_t sampler_run(pHandle pInst, command *pCommand){
 		if(proxy_string_command(pInst, command_str)){
 				return 1;
 			}
-		protocol_read(pInst, rx_buffer, 4, CACHE_L1D_ADDR); 		// read the full flag
+		#ifdef MULTI_LEVEL_CACHE
+			protocol_read(pInst, rx_buffer, 4, CACHE_L2_ADDR); 
+		#else
+		protocol_read(pInst, rx_buffer, 4, CACHE_L1D_ADDR); 
+		#endif	
+			// read the full flag
 
 		// if full then read out the contents of the buffer
 		if (*(uint32_t *)rx_buffer == 0x00000001){
@@ -364,12 +373,15 @@ uint32_t sampler_run(pHandle pInst, command *pCommand){
 	}
 
 	// read out the remaining entries of the sampler buffer
-	sprintf(command_str, GET_NUM_BUFFER_ENTRIES); 		// switch to number of buffer entries register
+	sprintf(command_str, GET_NUM_BUFFER_ENTRIES_SAMPLER); 		// switch to number of buffer entries register
 	if(proxy_string_command(pInst, command_str)){
 			return 1;
 		}
-
-	protocol_read(pInst, rx_buffer, 4, CACHE_L1D_ADDR); 		// read the number of buffer entries
+			#ifdef MULTI_LEVEL_CACHE
+			protocol_read(pInst, rx_buffer, 4, CACHE_L2_ADDR); 
+		#else
+		protocol_read(pInst, rx_buffer, 4, CACHE_L1D_ADDR); 
+		#endif	
 	printf("%s%x\n","Num_entries==",*(uint32_t *)rx_buffer);
 
 	sampler_read_buffer(pInst, *(uint32_t *)rx_buffer,file_handle);
@@ -378,15 +390,19 @@ uint32_t sampler_run(pHandle pInst, command *pCommand){
 	// it takes 64 cycles to dump the table; takes longer in software here to transition so no external delay necessary - allegedly (Ian)
 	sprintf(command_str, CLEAR_BUFFER); 	// writing this bit clears the buffer and full flag
 	proxy_string_command(pInst, command_str);
-	sprintf(command_str, "WRITE 0x04000110 0x00400000");	// command sampler to writeout table contents to buffer
+	sprintf(command_str, WRITEOUT_TABLE);	// command sampler to writeout table contents to buffer
 	proxy_string_command(pInst, command_str);
 	sleep(1); 												// make sure table has time to writeout entries to buffer
-	sprintf(command_str, GET_NUM_BUFFER_ENTRIES); 	// switch to number of buffer(table) entries register
+	sprintf(command_str, GET_NUM_BUFFER_ENTRIES_SAMPLER); 	// switch to number of buffer(table) entries register
 	
 	if(proxy_string_command(pInst, command_str)){
 			return 1;
 		}
-	protocol_read(pInst, rx_buffer, 4, CACHE_L1D_ADDR); 	// read the number of buffer(table) entries
+		#ifdef MULTI_LEVEL_CACHE
+			protocol_read(pInst, rx_buffer, 4, CACHE_L2_ADDR); 
+		#else
+		protocol_read(pInst, rx_buffer, 4, CACHE_L1D_ADDR); 
+		#endif	 	// read the number of buffer(table) entries
 	printf("%s%x\n","Num_entries==",*(uint32_t *)rx_buffer);
 	sampler_read_buffer(pInst, *(uint32_t *)rx_buffer,file_handle);
 
@@ -445,7 +461,11 @@ uint32_t tracker_run(pHandle pInst, command *pCommand){
 //get file name
 	get_file_name(pCommand,file_name,benchmark_type,benchmark_name);
 	//combine into full path
-	sprintf(file_path,"%s%s/",TRACKER_OUTPUT_PATH,benchmark_type);
+	#ifdef MULTI_LEVEL_CACHE
+		sprintf(file_path,"%s%s%s/",TRACKER_OUTPUT_PATH,benchmark_type,"_multi_level");
+	#else
+		sprintf(file_path,"%s%s/",TRACKER_OUTPUT_PATH,benchmark_type);
+	#endif
 	sprintf(full_output_path,"%s%s",file_path,file_name);
 	//if directory doesn't exist, try to create it.
 	if(0!= access(file_path,F_OK)){
@@ -505,11 +525,19 @@ uint32_t tracker_run(pHandle pInst, command *pCommand){
 	while(*(uint32_t *)rx_buffer != 0x00000001){
 
 		// check if the tracker buffer is full
+		#ifdef MULTI_LEVEL_CACHE
+			sprintf(command_str, CHECK_IF_TRACKER_FULL_L2); 		// switch to full flag register
+		#else
 		sprintf(command_str, CHECK_IF_TRACKER_FULL); 		// switch to full flag register
+		#endif
 		if(proxy_string_command(pInst, command_str)){
 				return 1;
 			}
-		protocol_read(pInst, rx_buffer, 4, CACHE_L1D_ADDR); 		// read the full flag
+		#ifdef MULTI_LEVEL_CACHE
+			protocol_read(pInst, rx_buffer, 4, CACHE_L2_ADDR); 
+		#else
+		protocol_read(pInst, rx_buffer, 4, CACHE_L1D_ADDR); 
+		#endif	 		// read the full flag
 
 		// if full then read out the contents of the buffer
 		if (*(uint32_t *)rx_buffer == 0x00000001){
@@ -531,13 +559,22 @@ uint32_t tracker_run(pHandle pInst, command *pCommand){
 		}
 
 	}
-
-	// read out the remaining entries of the sampler buffer
-	sprintf(command_str, "WRITE 0x04000110 0x00000010"); 		// switch to number of used entries
+	// read out the remaining entries of the tracker buffer
+	#ifdef MULTI_LEVEL_CACHE
+			sprintf(command_str, GET_NUM_BUFFER_ENTRIES_TRACKER_L2); 		// switch to number of used entries
+	#else
+			sprintf(command_str, GET_NUM_BUFFER_ENTRIES_TRACKER); 		// switch to number of used entries
+	#endif	 	
+	
+	
 	if(proxy_string_command(pInst, command_str)){
 			return 1;
 		}
-	protocol_read(pInst, rx_buffer, 4, CACHE_L1D_ADDR); 		// read the number of buffer entries
+		#ifdef MULTI_LEVEL_CACHE
+			protocol_read(pInst, rx_buffer, 4, CACHE_L2_ADDR); 
+		#else
+		protocol_read(pInst, rx_buffer, 4, CACHE_L1D_ADDR); 
+		#endif	 		// read the number of buffer entries
 	tracker_read_buffer(pInst, *(uint32_t *)rx_buffer, file_handle);
 
 	// report

@@ -32,17 +32,15 @@ module top(
 wire [5:0]	clock_gen_bus;
 wire 		pll_locked;
 
-cyclonegt_ccd_pll pll_reset(
-
+two_half_speed_pll pll_reset(
 	.refclk			(clkin_r_p			), 
 	.rst 			(~user_pb 			), 
-	.outclk_0 		(clock_gen_bus[0] 	), 	// 20 Mhz
-	.outclk_1 		(clock_gen_bus[1]	), 	// 40 Mhz
-	.outclk_2 		(clock_gen_bus[2]	),  // 40 Mhz, 180deg phase
-	.outclk_3 		(clock_gen_bus[3]	),  // 20 Mhz, 90deg phase
-	.outclk_4 		(clock_gen_bus[4]	),  // 20 Mhz, 180deg phase
-	.outclk_5 		(clock_gen_bus[5]	),  // 20 Mhz, 270deg phase
-	.outclk_6      (),
+	.outclk_0 		(clock_gen_bus[0] 	), 	// 40 Mhz
+	.outclk_1 		(clock_gen_bus[1]	), 	// 80 Mhz
+	.outclk_2 		(clock_gen_bus[2]	),  // 80 Mhz, 180deg phase
+	.outclk_3 		(clock_gen_bus[3]	),  // 40 Mhz, 90deg phase
+	.outclk_4 		(clock_gen_bus[4]	),  // 40 Mhz, 180deg phase
+	.outclk_5 		(clock_gen_bus[5]	),  // 40 Mhz, 270deg phase
 	.locked 		(pll_locked 		)
 );
 
@@ -71,7 +69,7 @@ wire 	[31:0] 	phase_bus;
 internal_system_2_multi_level riscv_sys (
 
 	// general ports
-	.clock_bus_i 	({clock_gen_bus[5:3],clock_gen_bus[0]}	), // [20-270, 20-180, 20-90, 20]
+	.clock_bus_i 	({clock_gen_bus[5:3],clock_gen_bus[0]}	), // [40-270, 40-180, 40-90, 40]
 	.reset_i 		(reset_bus[0] 		),
 	.phase_i (phase_bus),
 	.exception_o 	(), 
@@ -137,7 +135,7 @@ external_memory_system_2 system_ext_inst(
 	.cpu_resetn 	(cpu_resetn			),
 	.rzqin_1_5v 	(rzqin_1_5v			),
 	.reset_bus_o	(reset_bus 			), 		// [0] = internal sys reset, [1] = peripheral system reset
-	.clock_bus_i 	({clock_gen_bus[2:1],clock_gen_bus[4],clock_gen_bus[0]} ), 		// 20 Mhz, 20 Mhz 180deg phase, 40 Mhz, 40 Mhz 180deg phase
+	.clock_bus_i 	({clock_gen_bus[2:1],clock_gen_bus[4],clock_gen_bus[0]} ), 		// 80 Mhz 180deg phase, 80 MHZ, 40 Mhz 180deg, phase,40 MHZ
 
 	// internal system ports
 	.int_req_i 		(req_fromCore 		),
@@ -164,7 +162,7 @@ external_memory_system_2 system_ext_inst(
 peripheral_system_3 per_sys_inst(
 
 	// system ports
-	.clock_i 		(clock_gen_bus[4]	), 	// 20 Mhz, 180 deg phase
+	.clock_i 		(clock_gen_bus[0]	), 	// 40 Mhz, 180 deg phase
 	.reset_i 		(reset_bus[1] 		), 
 
 	

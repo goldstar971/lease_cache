@@ -19,7 +19,8 @@ module riscv_hart_6stage_pipeline(
 	output 	[31:0]		data_data_o,
 	output 	[31:0]		data_ref_addr_o,
 	output  [63:0] stall_delay_counter_o,
-	output  [63:0] cycle_counter_o
+	output  [63:0] cycle_counter_o,
+	output  [63:0] mem_stall_counter_o
 );
 
 // port mapping
@@ -73,7 +74,7 @@ reg 	[31:0]	imm32_2_reg;
 wire 	[31:0]	Tsrc1_2, Tsrc2_2, Tsrc3_2;
 wire 			flag_dependency_2;
 
-wire 	[31:0]	jump_addr_target_2, jump_addr_wb_2;
+
 
 // stage 3
 reg 	[31:0]	inst_addr_3_reg;
@@ -83,11 +84,12 @@ reg 	[2:0]	func3_3_reg, rm_3_reg;
 reg 	[4:0]	fdest_3_reg, func5_3_reg, fsrc2_3_reg;
 reg 	[31:0]	Tsrc1_3_reg, Tsrc2_3_reg, Tsrc3_3_reg;
 reg 	[31:0]	imm32_3_reg;
-reg 	[31:0]	jump_addr_wb_3_reg;
+
 
 wire 	[31:0] 	alu_result_3;
 reg 	[31:0]	mux_output_3;
 wire 	[31:0]	ldst_addr_2, ldst_data_2;
+wire 	[31:0]	jump_addr_target_3, jump_addr_wb_3;
 
 
 // stage 4
@@ -144,7 +146,7 @@ wire [4:0] stall_cycles;
 riscv_alu_pipelined #(
 	.RV32M 						(1 						),
 	.RV32F                    (1                      ),
-	.DIV_STAGES 				(4'h3 						),
+	.DIV_STAGES 				(4'h6 						),
 	.MUL_STAGES              (4'h0						)
 ) rv32_alu_inst(
 	.clock_div_i				(clock_bus_i[0] 				),
@@ -170,7 +172,7 @@ always @(*) begin
 	// signal routing
 	case(inst_encoding_3_reg)
 
-		`ENCODING_JAL, `ENCODING_JALR: 												mux_output_3 = jump_addr_wb_3_reg;
+		`ENCODING_JAL, `ENCODING_JALR: 												mux_output_3 = jump_addr_wb_3;
 		`ENCODING_LUI, `ENCODING_AUIPC, `ENCODING_ARITH_IMM, `ENCODING_ARITH_REG,
 		`ENCODING_FARITH, `ENCODING_FNMADD, `ENCODING_FNMSUB, `ENCODING_FMADD, `ENCODING_FMSUB: 	mux_output_3 = alu_result_3;            
 		// load, store, none, branch
@@ -237,9 +239,9 @@ branch_predictor_2b branch_predictor(
 	.resetn_i(reset_i),
 	.jump_destination_i(jump_destination_o),
 	.PC_i(PC[25:2]),
-	.stage_1_opcode_i(IR_1_reg[6:0]),
+	.stage_3_encoding_i(inst_encoding_3_reg),
 	.stage_1_instruct_addr_i(inst_addr_1_reg[25:2] ),
-	.stage_2_instruct_addr_i(inst_addr_2_reg[25:2] ),
+	.stage_3_instruct_addr_i(inst_addr_3_reg[25:2] ),
 	.mispredict_i(jump_exception[2]),
 	.PC_o(prediction));
 
@@ -249,17 +251,17 @@ wire [3:0]	jump_exception;
 
 target_address_generator jump_branch_cntrl_inst(
 
-	.encoding_i 				(inst_encoding_2_reg 	),
-	.instruction_addr_i			(inst_addr_2_reg 		),
-	.instruction_next_addr_i	(inst_addr_1_reg 		),	// used to throw out of sequence exception
-	.func3_i 					(func3_2_reg 			),
-	.src1_operand_i 			(Tsrc1_2 				),
-	.src2_operand_i 			(Tsrc2_2 				),
-	.immediate_i 				(imm32_2_reg 			), 	// immediate value to modulate jump
+	.encoding_i 				(inst_encoding_3_reg 	),
+	.instruction_addr_i			(inst_addr_3_reg 		),
+	.instruction_next_addr_i	(inst_addr_2_reg 		),	// used to throw out of sequence exception
+	.func3_i 					(func3_3_reg 			),
+	.src1_operand_i 			(Tsrc1_3_reg 				),
+	.src2_operand_i 			(Tsrc2_3_reg 				),
+	.immediate_i 				(imm32_3_reg 			), 	// immediate value to modulate jump
 	.jump_destination_o         (jump_destination_o),
 	.flag_jump_o 				(		), 	// 1: jump/branch operation
-	.addr_target_o 				(jump_addr_target_2 	), 	// target address of operation
-	.addr_writeback_o 			(jump_addr_wb_2 		), 	// address/value to writeback to register file 	
+	.addr_target_o 				(jump_addr_target_3 	), 	// target address of operation
+	.addr_writeback_o 			(jump_addr_wb_3 		), 	// address/value to writeback to register file 	
 	.exception_o 				(jump_exception 		) 	// [3] - unknown/unsupported func3 if branch operation
 															// [2] - if jump/branch goes high if next instruction addr is not == target of operation
 															// [1] - target address word misaligned
@@ -318,9 +320,10 @@ reg 			flag_alu_reg;
 reg 	[4:0] 	stall_counter_reg;
 
 
-reg [63:0] stall_delay_counter,cycle_counter;
+reg [63:0] stall_delay_counter,cycle_counter,mem_stall_counter;
 assign stall_delay_counter_o=stall_delay_counter;
 assign cycle_counter_o=cycle_counter;
+assign mem_stall_counter_o=mem_stall_counter;
 
 always @(posedge clock_bus_i[0]) begin
 
@@ -360,7 +363,7 @@ always @(posedge clock_bus_i[0]) begin
 		// stage 3 components
 		inst_encoding_3_reg <= `ENCODING_NONE; inst_addr_3_reg <= 'b0;
 		func7_3_reg <= 'b0; func3_3_reg <= 'b0; fdest_3_reg <= 'b0; imm32_3_reg <= 'b0;
-		Tsrc1_3_reg <= 'b0; Tsrc2_3_reg <= 'b0; jump_addr_wb_3_reg <= 'b0; func5_3_reg<='b0;
+		Tsrc1_3_reg <= 'b0; Tsrc2_3_reg <= 'b0;  func5_3_reg<='b0;
 		Tsrc3_3_reg<='b0; data_ldst_reg <= 'b0;
 
 		// stage 4 components
@@ -375,6 +378,7 @@ always @(posedge clock_bus_i[0]) begin
 		data_addr_reg 	<= 'b0;
 		data_data_reg 	<= 'b0;
 		stall_delay_counter<='b0;
+		mem_stall_counter<='b0;
 		cycle_counter<='b0;
 
 	end
@@ -383,6 +387,9 @@ always @(posedge clock_bus_i[0]) begin
 	// -----------------------------------------------------------------------------------------------------------
 	else begin
 		cycle_counter<=cycle_counter+1'b1;
+		if(!inst_done_i || !data_done_i)begin
+			mem_stall_counter<=mem_stall_counter+1'b1;
+		end
 		// -------------------------------------------------------------------------------------------------------
 		// pipeline controller logic
 		// -------------------------------------------------------------------------------------------------------
@@ -471,7 +478,7 @@ always @(posedge clock_bus_i[0]) begin
 					inst_req_reg 		<= 1'b1;
 					if(jump_exception[2] & !flag_pipeline_jump) begin
 						flag_pipeline_jump 		= 1'b1;
-						PC=jump_addr_target_2;
+						PC=jump_addr_target_3;
 						inst_addr_reg=PC;
 						PC=PC+4;
 					end
@@ -518,7 +525,6 @@ always @(posedge clock_bus_i[0]) begin
 					Tsrc2_3_reg 		<= 	Tsrc2_2;
 					Tsrc3_3_reg       <=  	Tsrc3_2;
 					imm32_3_reg 		<= 	imm32_2_reg;
-					jump_addr_wb_3_reg 	<= jump_addr_wb_2;
 					rm_3_reg <= rm_2_reg; //for switching
 					fsrc2_3_reg <=fsrc2_2_reg;							//for FTI/ITF signedness switching
 				

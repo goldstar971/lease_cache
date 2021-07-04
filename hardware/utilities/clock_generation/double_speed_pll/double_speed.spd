@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<simPackage>
+ <file path="double_speed_sim/double_speed.vo" type="VERILOG" />
+ <topLevel name="double_speed" />
+ <deviceFamily name="cyclonev" />
+</simPackage>

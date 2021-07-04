@@ -43,9 +43,9 @@
 //define DATA_POLICY_DLEASE
 //`define DATA_POLICY_LEASE
 
-`define MULT_LEVEL_CACHE
+`define MULTI_LEVEL_CACHE
 
-`ifdef MULT_LEVEL_CACHE
+`ifdef MULTI_LEVEL_CACHE
 	`define L2_CACHE_INST_FA
 	`define L2_CACHE_STRUCTURE  `ID_CACHE_FULLY_ASSOCIATIVE
 	`define L2_CACHE_POLICY_PLRU
@@ -156,7 +156,7 @@
 		`define DATA_CACHE_INST 				cache_fa_all
 		`define LEASE_POLICY_CONTROLLER_INST 	fa_cache_lease_policy_controller_tracker_2
 		`define DATA_CACHE_CONTROLLER           lease_dynamic_cache_fa_controller_tracker
-	`elsif MULT_LEVEL_CACHE
+	`elsif MULTI_LEVEL_CACHE
 		`define DATA_CACHE_CONTROLLER           cache_fa_controller_multi_level
 		`define DATA_CACHE_INST                 cache_fa
 		`define LEASE_POLICY_CONTROLLER_INST	fa_cache_policy_controller
@@ -252,7 +252,7 @@
 	
 
 
-`ifdef MULT_LEVEL_CACHE
+`ifdef MULTI_LEVEL_CACHE
 	`include "../../../internal/system/internal_system_2_multi_level.v"
 	`include "../../../internal/system_controller/src/memory_controller_internal_2level.v"
 	`include "../../../internal/cache_2level/L2_cache_fa_all.v"

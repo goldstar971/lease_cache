@@ -103,8 +103,8 @@ reg 	[`BW_SAMPLER-1:0]		add_stack[0:`N_SAMPLER-1]; 	// open address stack for ca
 reg 	[`N_SAMPLER-1:0]		valid_bits;
 wire 	[`N_SAMPLER-1:0] 		match_bits;
 wire 							hit_flag, full_flag, actual_match;
-reg	[`BW_SAMPLER-1:0] 		match_index;
-//wire 	[`BW_SAMPLER-1:0] 		match_index;
+//reg	[`BW_SAMPLER-1:0] 		match_index;
+wire 	[`BW_SAMPLER-1:0] 		match_index;
 reg 	[`BW_SAMPLER-1:0] 		add_stack_ptr;
 
 genvar j;
@@ -114,20 +114,20 @@ generate
 	end
 endgenerate
 
-//tag_match_encoder_6b tag_match((match_bits&valid_bits),match_index);
+tag_match_encoder_6b tag_match((match_bits&valid_bits),match_index);
 
 
 //match_index==0 both when no bit in match_bits is set i.e., no match and when the match is the bottom entry i.e., match_bits[0]=1
-//assign actual_match=|({match_index,match_bits[0]});
-//assign hit_flag = (actual_match)? valid_bits[match_index] : 1'b0;
- always @(*) begin
-	match_index = 'b0;
-	for (i = 0; i < `N_SAMPLER; i = i + 1'b1) begin
-		if (match_bits[i] & valid_bits[i]) match_index = i[`BW_SAMPLER-1:0];
-	end
-end
+assign actual_match=|({match_index,match_bits[0]});
+assign hit_flag = (actual_match)? valid_bits[match_index] : 1'b0;
+// always @(*) begin
+//	match_index = 'b0;
+//	for (i = 0; i < `N_SAMPLER; i = i + 1'b1) begin
+//		if (match_bits[i] & valid_bits[i]) match_index = i[`BW_SAMPLER-1:0];
+//	end
+//end
 
-assign hit_flag = |(match_bits & valid_bits); 
+//assign hit_flag = |(match_bits & valid_bits); 
 
 
 // full flag dependent on table entries

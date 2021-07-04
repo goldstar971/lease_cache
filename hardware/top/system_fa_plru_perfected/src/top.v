@@ -3,7 +3,7 @@
 module top(
 
 	// DDR3 pins
-	output	[13:0]		ddr3b_a,
+	output	[13:0]	ddr3b_a,
 	output	[2:0]		ddr3b_ba,
 	output 				ddr3b_casn,
 	output 				ddr3b_clk_n,
@@ -20,7 +20,7 @@ module top(
 	inout 	[7:0] 		ddr3b_dqs_p,
 
 	// operational and debugging pins
-	input 				user_pb, 			// pll reset
+	input 				user_pb, 				// pll reset
 	output 	[7:0] 		user_led, 			// status LEDs
 	input 				clkin_r_p,        	// base clock for DDR3 (100 Mhz)
 	input 				cpu_resetn,       	// top level reset (reset controller, jtag-uart, & ddr3)
@@ -32,7 +32,7 @@ module top(
 wire [5:0]	clock_gen_bus;
 wire 		pll_locked;
 
-cyclonegt_ccd_pll pll_reset(
+two_half_speed_pll pll_reset(
 	.refclk			(clkin_r_p			), 
 	.rst 			(~user_pb 			), 
 	.outclk_0 		(clock_gen_bus[0] 	), 	// 20 Mhz

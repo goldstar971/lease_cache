@@ -78,7 +78,7 @@ uint32_t test_run(pHandle pInst, command *pCommand){
 	printf("Approx. Time-to-Execute: %lu seconds\n", time1-time0);
 
 	
-	#ifndef MULT_LEVEL_CACHE
+	#ifndef MULTI_LEVEL_CACHE
 	// write report to file
 	char result_string[400];
 	sprintf(result_string, "%s,%lu,%lu,%lu,%lu,%u,%lu,%lu,%lu,%lu,%lu,%lu,%u\n",
@@ -122,19 +122,38 @@ uint32_t test_run(pHandle pInst, command *pCommand){
 
 	// write results to file
 	FILE *pFile=NULL;
-	
-	if(strstr(benchmark_type,"medium")){
-		pFile = fopen("./results/cache/results_medium.txt","a+");
-	}
-	else if(strstr(benchmark_type, "large")){
-		pFile = fopen("./results/cache/results_large.txt","a+");
-	}
-	else if(strstr(benchmark_type, "extra_large")){
-		pFile = fopen("./results/cache/results_extra_large.txt","a+");
-	}	
-	else{
-		pFile = fopen("./results/cache/results.txt","a+");
-	}
+	#ifdef MULTI_LEVEL_CACHE
+		if(strstr(benchmark_type,"medium")){
+			pFile = fopen("./results/cache/results_medium_multi_level.txt","a+");
+		}
+		else if(strstr(benchmark_type, "large")){
+			pFile = fopen("./results/cache/results_large_multi_level.txt","a+");
+		}
+		else if(strstr(benchmark_type, "extra_large")){
+			pFile = fopen("./results/cache/results_extra_large_multi_level.txt","a+");
+		}	
+		else{
+			pFile = fopen("./results/cache/results_multi_level.txt","a+");
+		}
+
+		if (!pFile){
+			printf("Could not open or create file!\n");
+			return 1;
+		}
+	#else
+		if(strstr(benchmark_type,"medium")){
+			pFile = fopen("./results/cache/results_medium.txt","a+");
+		}
+		else if(strstr(benchmark_type, "large")){
+			pFile = fopen("./results/cache/results_large.txt","a+");
+		}
+		else if(strstr(benchmark_type, "extra_large")){
+			pFile = fopen("./results/cache/results_extra_large.txt","a+");
+		}	
+		else{
+			pFile = fopen("./results/cache/results.txt","a+");
+		}
+	#endif
 
 	if (!pFile){
 		printf("Could not open or create file!\n");
@@ -176,11 +195,11 @@ uint32_t make_cache_report(pHandle pInst, char *rx_buffer){
 	// gather cache data via fusion command
 	protocol_cache_fusion(pInst, rx_buffer, CACHE_RESULT_ADDR, CACHE_L1I_ADDR);
 	protocol_cache_fusion(pInst, (rx_buffer+64), CACHE_RESULT_ADDR, CACHE_L1D_ADDR);
-	#ifdef MULT_LEVEL_CACHE
+	#ifdef MULTI_LEVEL_CACHE
 	protocol_cache_fusion(pInst, (rx_buffer+128), CACHE_RESULT_ADDR, CACHE_L2_ADDR);
 	#endif
 	uint64_t item;
-	#ifndef MULT_LEVEL_CACHE
+	#ifndef MULTI_LEVEL_CACHE
 	for (uint32_t i = 0; i < 18; i++){
 		item = (uint64_t) (*(uint32_t *)(rx_buffer+(8*i)+4)) << 32 | (*(uint32_t *)(rx_buffer+(8*i)+0));
 

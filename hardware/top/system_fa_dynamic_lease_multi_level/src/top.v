@@ -32,7 +32,7 @@ module top(
 wire [5:0]	clock_gen_bus;
 wire 		pll_locked;
 
-cyclonegt_ccd_pll pll_reset(
+two_half_speed_pll pll_reset(
 	.refclk			(clkin_r_p			), 
 	.rst 			(~user_pb 			), 
 	.outclk_0 		(clock_gen_bus[0] 	), 	// 20 Mhz
@@ -162,7 +162,7 @@ external_memory_system_2 system_ext_inst(
 peripheral_system_3 per_sys_inst(
 
 	// system ports
-	.clock_i 		(clock_gen_bus[4]	), 	// 20 Mhz, 180 deg phase
+	.clock_i 		(clock_gen_bus[0]	), 	// 20 Mhz, 180 deg phase
 	.reset_i 		(reset_bus[1] 		), 
 
 	

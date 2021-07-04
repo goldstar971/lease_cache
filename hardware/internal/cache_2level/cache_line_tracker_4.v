@@ -25,7 +25,8 @@ module cache_line_tracker_4 #(
 // parameterizations
 // --------------------------------------------------------------------------------------------------
 //localparam BUFFER_LIMIT = 256*(2*10) / (512 / 8); 	// buffer capacity (B) divided by size of one sample
-localparam BUFFER_LIMIT = 2**10;
+//256kB/(52*4)
+localparam BUFFER_LIMIT = 11'h4Cf;
 localparam BW_BUFFER 	= `CLOG2(BUFFER_LIMIT);
 
 

@@ -3,28 +3,27 @@
 
 # raw lease dump file directories
 
-lt_num=256
-FILES=../../CLAM/leases/*$lt_num*/128blocks_128ways*/*
+if [[ "$1" == "" || "$2" == "" || "$3" == "" ]]; then
+	echo "must give lease lookup table size, cache size, and number of ways";
+	exit 1;
+fi
+
+FILES=../../CLAM/leases/128_llt_entries/"$2"blocks_"$3"ways*/*
 OUT=./output
 
 
 # path to python processing script
 PATHTEMP=gen_lease_src.py
-OPTIONS="-n $lt_num -b 9 -m 65520"
+OPTIONS="-n "$1" -b 9 -m 65520"
 
 # process
 for f in $FILES
 do
-	
+echo $f
 lease_dir="$(basename "$(dirname -- "$f")")"
 filename=$(basename "$f") 
-if [[ "$lease_dir" == *"PRL"*  ]] || [[ "$lease_dir" == *"limited"  ]]; then
-	sed -i "s/\(self.addr\s*\=\s*\).*/\1hex(int(extract_group[1]))[2:]/" src/clease.py
-	benchmark_name=$(sed 's/_[^_]*_leases.*//'<<< ${f##.*/})
-else
-	sed -i "s/\(self.addr\s*\=\s*\).*/\1extract_group[1]/" src/clease.py
-	benchmark_name=$(sed 's/_[^_]*_leases.*//'<<< ${f##.*/})
-fi
+benchmark_name=$(sed 's/_[^_]*_leases.*//'<<< ${f##.*/})
+
 python $PATHTEMP -i $f $OPTIONS -o "$OUT/$benchmark_name.c"
 
  	if [[ "$lease_dir" == *"C-SHEL_medium" ]]; then
@@ -107,14 +106,14 @@ for i in *; do
 done
 }
 
-(cd ../../benchmarks/CLAM/ && make_benchmarks  && make_run_all_script && make_track_all_script) 
-(cd ../../benchmarks/SHEL/ && make_benchmarks && make_run_all_script && make_track_all_script) 
-(cd ../../benchmarks/C-SHEL/ && make_benchmarks && make_run_all_script && make_track_all_script) 
+(cd ../../benchmarks/CLAM/ && make_benchmarks  && make_run_all_script && make_track_all_script)
+(cd ../../benchmarks/SHEL/ && make_benchmarks && make_run_all_script && make_track_all_script)
+(cd ../../benchmarks/C-SHEL/ && make_benchmarks && make_run_all_script && make_track_all_script)
 (cd ../../benchmarks/PRL/ && make_benchmarks && make_run_all_script && make_track_all_script)
-#(cd ../../benchmarks/CLAM_medium/ && make_benchmarks  && make_run_all_script && make_track_all_script) 
-#(cd ../../benchmarks/SHEL_medium/ && make_benchmarks && make_run_all_script && make_track_all_script) 
-#(cd ../../benchmarks/C-SHEL_medium/ && make_benchmarks && make_run_all_script && make_track_all_script) 
-#(cd ../../benchmarks/PRL_medium/ && make_benchmarks && make_run_all_script && make_track_all_script)
+(cd ../../benchmarks/CLAM_medium/ && make_benchmarks  && make_run_all_script && make_track_all_script) 
+(cd ../../benchmarks/SHEL_medium/ && make_benchmarks && make_run_all_script && make_track_all_script)
+(cd ../../benchmarks/C-SHEL_medium/ && make_benchmarks && make_run_all_script && make_track_all_script)
+(cd ../../benchmarks/PRL_medium/ && make_benchmarks && make_run_all_script && make_track_all_script)
 #(cd ../../benchmarks/CLAM_large/ && make_benchmarks  && make_run_all_script && make_track_all_script) 
 #(cd ../../benchmarks/SHEL_large/ && make_benchmarks && make_run_all_script && make_track_all_script) 
 #(cd ../../benchmarks/C-SHEL_large/ && make_benchmarks && make_run_all_script && make_track_all_script) 
