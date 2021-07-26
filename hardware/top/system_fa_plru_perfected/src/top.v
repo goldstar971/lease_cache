@@ -32,7 +32,7 @@ module top(
 wire [5:0]	clock_gen_bus;
 wire 		pll_locked;
 
-two_half_speed_pll pll_reset(
+double_speed pll_reset(
 	.refclk			(clkin_r_p			), 
 	.rst 			(~user_pb 			), 
 	.outclk_0 		(clock_gen_bus[0] 	), 	// 20 Mhz

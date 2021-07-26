@@ -1,12 +1,17 @@
-function [avg, mat, trace] = extract_tracking_data_all(path, size,set_size)
+function [avg, mat, trace] = extract_tracking_data_all(path, cache_size,set_cache_size)
 
 % read data from file as table
-results = readtable(path,'Delimiter',',','ReadVariableNames',false,...
+if(cache_size==512)
+	results = readtable(path,'Delimiter',',','ReadVariableNames',false,...
+                     'Format','%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s');
+else
+	results = readtable(path,'Delimiter',',','ReadVariableNames',false,...
                     'Format','%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s');
-
-if(set_size=="large")begin
+end
+	
+if(set_cache_size=="large")
 	interval=10;
-elseif(set_size=="very_large")begin
+elseif(set_cache_size=="very_large")
 	interval=60;
 else
 	interval=1;
@@ -29,16 +34,16 @@ end
 trace = data(:,end);
 
 % create matrix of the individual cache line bits of columns 1:4
-% row size is number of trace samples
-% col size is the number of cache lines
+% row cache_size is number of trace samples
+% col cache_size is the number of cache lines
 % lowest index of mat is cache line 0
-mat_low = zeros(length(data(:,1)),size);
-mat_mid = zeros(length(data(:,1)),size);
-mat_upp = zeros(length(data(:,1)),size);
-mat_exp = zeros(length(data(:,1)),size);
-mat_fin = zeros(length(data(:,1)),size);
+mat_low = int8(zeros(length(data(:,1)),cache_size));
+mat_mid = int8(zeros(length(data(:,1)),cache_size));
+mat_upp = int8(zeros(length(data(:,1)),cache_size));
+mat_exp = int8(zeros(length(data(:,1)),cache_size));
+mat_fin = int8(zeros(length(data(:,1)),cache_size));
 
-for i=1:(size/32)       % raw data iterator
+for i=1:(cache_size/32)       % raw data iterator
     
     % create bit mask for isolating 
     bit_mask = 1;
@@ -48,8 +53,8 @@ for i=1:(size/32)       % raw data iterator
         % mask out bit and shift to lsb position
         % create new mask after
         mat_low(:,j+32*(i-1)) = bitshift(bitand(data(:,i), bit_mask),-(j-1));
-        mat_mid(:,j+32*(i-1)) = bitshift(bitand(data(:,i+size/32), bit_mask),-(j-1));
-        mat_upp(:,j+32*(i-1)) = bitshift(bitand(data(:,i+size/32*2), bit_mask),-(j-1));
+        mat_mid(:,j+32*(i-1)) = bitshift(bitand(data(:,i+cache_size/32), bit_mask),-(j-1));
+        mat_upp(:,j+32*(i-1)) = bitshift(bitand(data(:,i+cache_size/32*2), bit_mask),-(j-1));
         mat_exp(:,j+32*(i-1)) = ~(mat_low(:,j+32*(i-1)) | mat_mid(:,j+32*(i-1)) | mat_upp(:,j+32*(i-1)));
         
 
@@ -81,19 +86,19 @@ end
 
 
 % create an average utilization vector at each trace sample
-for i = 1:length(mat_low(:,1))
-    avg.low(i,1) = sum(mat_low(i,:));
-end
+%for i = 1:length(mat_low(:,1))
+ %   avg.low(i,1) = sum(mat_low(i,:));
+%end
 mat.low = mat_low;
 clear mat_low
-for i = 1:length(mat_mid(:,1))
-      avg.mid(i,1) = sum(mat_mid(i,:));
-end
+%for i = 1:length(mat_mid(:,1))
+%      avg.mid(i,1) = sum(mat_mid(i,:));
+%end
 mat.mid = mat_mid;
 clear mat_mid
-for i = 1:length(mat_upp(:,1))
-     avg.upp(i,1) = sum(mat_upp(i,:));
-end
+%for i = 1:length(mat_upp(:,1))
+%     avg.upp(i,1) = sum(mat_upp(i,:));
+%end
 mat.upp = mat_upp;
 clear mat_upp
 for i = 1:length(mat_exp(:,1))

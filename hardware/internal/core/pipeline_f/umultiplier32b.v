@@ -36,7 +36,7 @@
 // synopsys translate_off
 `timescale 1 ps / 1 ps
 // synopsys translate_on
-module umultiplier32b #( parameter MUL_STAGES =1)(
+module umultiplier32b #(parameter MUL_STAGES = 0)(
 	clock,
 	dataa,
 	datab,
@@ -51,7 +51,7 @@ module umultiplier32b #( parameter MUL_STAGES =1)(
 	wire [63:0] result = sub_wire0[63:0];
 
 	lpm_mult	lpm_mult_component (
-				.clock (clock),
+				.clock (),
 				.dataa (dataa),
 				.datab (datab),
 				.result (sub_wire0),
@@ -60,8 +60,8 @@ module umultiplier32b #( parameter MUL_STAGES =1)(
 				.sclr (1'b0),
 				.sum (1'b0));
 	defparam
-		lpm_mult_component.lpm_hint = "DEDICATED_MULTIPLIER_CIRCUITRY=YES,MAXIMIZE_SPEED=9",
-		lpm_mult_component.lpm_pipeline = MUL_STAGES ,
+		lpm_mult_component.lpm_hint = "MAXIMIZE_SPEED=9",
+		lpm_mult_component.lpm_pipeline = MUL_STAGES,
 		lpm_mult_component.lpm_representation = "UNSIGNED",
 		lpm_mult_component.lpm_type = "LPM_MULT",
 		lpm_mult_component.lpm_widtha = 32,
@@ -92,7 +92,7 @@ endmodule
 // Retrieval info: PRIVATE: new_diagram STRING "1"
 // Retrieval info: PRIVATE: optimize NUMERIC "1"
 // Retrieval info: LIBRARY: lpm lpm.lpm_components.all
-// Retrieval info: CONSTANT: LPM_HINT STRING "DEDICATED_MULTIPLIER_CIRCUITRY=YES,MAXIMIZE_SPEED=9"
+// Retrieval info: CONSTANT: LPM_HINT STRING "MAXIMIZE_SPEED=9"
 // Retrieval info: CONSTANT: LPM_PIPELINE NUMERIC "1"
 // Retrieval info: CONSTANT: LPM_REPRESENTATION STRING "UNSIGNED"
 // Retrieval info: CONSTANT: LPM_TYPE STRING "LPM_MULT"

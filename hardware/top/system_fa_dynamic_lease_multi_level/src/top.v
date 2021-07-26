@@ -10,14 +10,14 @@ module top(
 	output 				ddr3b_clk_p,
 	output 				ddr3b_cke,
 	output 				ddr3b_csn,
-	output	[7:0] 		ddr3b_dm,
+	output	[7:0] 	ddr3b_dm,
 	output 				ddr3b_odt,
 	output 				ddr3b_rasn,
 	output 				ddr3b_resetn,
 	output 				ddr3b_wen,
 	inout	[63:0] 		ddr3b_dq,
 	inout	[7:0] 		ddr3b_dqs_n,
-	inout 	[7:0] 		ddr3b_dqs_p,
+	inout [7:0] 	   ddr3b_dqs_p,
 
 	// operational and debugging pins
 	input 				user_pb, 			// pll reset
@@ -32,7 +32,7 @@ module top(
 wire [5:0]	clock_gen_bus;
 wire 		pll_locked;
 
-two_half_speed_pll pll_reset(
+double_speed pll_reset(
 	.refclk			(clkin_r_p			), 
 	.rst 			(~user_pb 			), 
 	.outclk_0 		(clock_gen_bus[0] 	), 	// 20 Mhz

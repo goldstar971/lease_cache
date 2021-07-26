@@ -184,7 +184,7 @@ wire 							cpc_stall_flag;
 		.resetn_i 			(resetn_i 			),
 		.phase_i             (phase_i),
 		.select_data_record (metric_sel_i),
-		.req_i          (L1_req_i         ),
+		.req_i          (L1_req_reg         ),
 		.pc_ref_i           (PC_i),
 		.tag_ref_i			(req_tag            ),
 		.hit_i 				(hit_flag 			), 				// logic high when there is a cache hit

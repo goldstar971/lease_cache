@@ -9,7 +9,10 @@ int main(int argc, char** argv)
 {
        // connect and synchronize
     pHandle proxy_inst = proxy_connect();
-
+    if(proxy_inst==NULL){
+        printf("Synchronization failed\n");
+        return(1);
+    }
 
     //if running ui
     if(argc<2){

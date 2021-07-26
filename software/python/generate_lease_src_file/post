@@ -65,47 +65,87 @@ done
 
 
 make_benchmarks (){
-shopt -s nocasematch
+variant=$(pwd |sed -n 's/.*\/\([0-9A-Za-z_]*\)/\1/p');
 for i in *; do 
-	group_dir=${PWD##*/}
-
-	if [[ -d "$i" ]]; then  
-		cd  "$i" 
-		rm program*
-		echo "doing $i"
+	if [[ "$variant" == "SHEL"* || "$variant" == "C-SHEL"* ]]; then
+            if [[ -d "$i" && "$i" != "atax" && "$i" != "bicg" && "$i" != "cholesky" && "$i" != "floyd-warshall" && "$i" != "gemm" && "$i" != "gesummv" && "$i" != "gramschmidt" && "$i" != "jacobi-1d" && "$i" != "nussinov" && "$i" != "seidel-2d" && "$i" != "symm" && "$i" != "syr2k" && "$i" != "syrk" && "$i" != "trisolv" && "$i" != "trmm" && "$i" != "doitgen" && "$i" != "durbin" ]]; then
+                cd  "$i" 
+				rm program*
+				echo "doing $i"
+				make scope opt_level=O3;
+				cd .. 
+            fi;
+   elif [[ -d "$i" ]]; then
+            cd  "$i" 
+			rm program*
+			echo "doing $i"
 			make scope opt_level=O3;
-		cd .. 
-	fi 
-done
-shopt -u nocasematch
-}
-
-make_run_all_script (){
-	variant=$(pwd |sed -n 's/.*\/\([0-9A-Za-z_]*\)/\1/p');
-	script_name=run_all_"$variant".pss;
-	file_path=../../fpga_proxy/scripts/;
-	rm -f "$file_path"/"$script_name";
-for i in *; do
-	if [ -d $i ]; then
-		echo RUN ../benchmarks/"$variant"/"$i"/program >>"$file_path"/"$script_name";
-	fi;
+			cd .. 
+   fi;
 done
 }
 
 
-make_track_all_script (){
 
-	variant=$(pwd |sed -n 's/.*\/\([0-9A-Za-z_]*\)/\1/p');
-	script_name=track_all_"$variant".pss;
-	file_path=../../fpga_proxy/scripts/;
-	rm -f "$file_path"/"$script_name";
-for i in *; do
-	if [ -d $i ]; then
-		echo TRACK ../benchmarks/"$variant"/"$i"/program >>"$file_path"/"$script_name";
-	fi;
-done
+make_run_all_script () 
+{ 
+    variant=$(pwd |sed -n 's/.*\/\([0-9A-Za-z_]*\)/\1/p');
+    script_name=run_all_"$variant".pss;
+    file_path=../../fpga_proxy/scripts/;
+    rm -f "$file_path"/"$script_name";
+    for i in *;
+    do
+        if [[ "$variant" == "SHEL"* || "$variant" == "C-SHEL"* ]]; then
+            if [[ -d "$i" && "$i" != "atax" && "$i" != "bicg" && "$i" != "cholesky" && "$i" != "floyd-warshall" && "$i" != "gemm" && "$i" != "gesummv" \
+            	&& "$i" != "gramschmidt" && "$i" != "jacobi-1d" && "$i" != "nussinov" && "$i" != "seidel-2d" && "$i" != "symm" && "$i" != "syr2k" && "$i" != "syrk" && "$i" != "trisolv" && "$i" != "trmm" && "$i" != "doitgen" && "$i" != "durbin" || ("$i" == "deriche" && "$variant" != *"large" )  ]]; then
+                echo RUN ../benchmarks/"$variant"/"$i"/program >> "$file_path"/"$script_name";
+            fi;
+        else
+			if [[ "$i" != "deriche" || ("$i" == "deriche" && "$variant" != *"large") ]]; then
+            	echo RUN ../benchmarks/"$variant"/"$i"/program >> "$file_path"/"$script_name";
+            fi;
+        fi;
+    done
+
 }
 
+
+make_track_all_script () 
+{ 
+    variant=$(pwd |sed -n 's/.*\/\([0-9A-Za-z_]*\)/\1/p');
+    script_name=track_all_"$variant".pss;
+    file_path=../../fpga_proxy/scripts/;
+    rm -f "$file_path"/"$script_name";
+    for i in *;
+    do
+        if [[ "$variant" == "SHEL"* || "$variant" == "C-SHEL"* ]]; then
+            if [[ -d "$i" && "$i" != "atax" && "$i" != "bicg" && "$i" != "cholesky" && "$i" != "floyd-warshall" && "$i" != "gemm" && "$i" != "gesummv" \
+            	&& "$i" != "gramschmidt" && "$i" != "jacobi-1d" && "$i" != "nussinov" && "$i" != "seidel-2d" && "$i" != "symm" && "$i" != "syr2k" && "$i" != "syrk" && "$i" != "trisolv" && "$i" != "trmm" && "$i" != "doitgen" && "$i" != "durbin" || ("$i" == "deriche" && "$variant" != *"large" )  ]]; then
+                echo TRACK ../benchmarks/"$variant"/"$i"/program >> "$file_path"/"$script_name";
+            fi;
+        else
+			if [[ "$i" != "deriche" || ("$i" == "deriche" && "$variant" != *"large") ]]; then
+            	echo TRACK ../benchmarks/"$variant"/"$i"/program >> "$file_path"/"$script_name";
+            fi;
+        fi;
+    done
+}
+
+make_run_all_plru_script () 
+{ 
+    script_name=run_all_plru_"$1".pss;
+    file_path=../../fpga_proxy/scripts/;
+    rm -f "$file_path"/"$script_name";
+    for i in *;
+    do
+            echo RUN ../benchmarks/SHEL_"$1"/"$i"/program >> "$file_path"/"$script_name";
+    done
+}
+
+
+(cd ../../benchmarks/SHEL/ && make_run_all_plru_script)
+(cd ../../benchmarks/SHEL/ && make_run_all_plru_script medium)
+(cd ../../benchmarks/SHEL/ && make_run_all_plru_script large)
 (cd ../../benchmarks/CLAM/ && make_benchmarks  && make_run_all_script && make_track_all_script)
 (cd ../../benchmarks/SHEL/ && make_benchmarks && make_run_all_script && make_track_all_script)
 (cd ../../benchmarks/C-SHEL/ && make_benchmarks && make_run_all_script && make_track_all_script)
@@ -114,10 +154,10 @@ done
 (cd ../../benchmarks/SHEL_medium/ && make_benchmarks && make_run_all_script && make_track_all_script)
 (cd ../../benchmarks/C-SHEL_medium/ && make_benchmarks && make_run_all_script && make_track_all_script)
 (cd ../../benchmarks/PRL_medium/ && make_benchmarks && make_run_all_script && make_track_all_script)
-#(cd ../../benchmarks/CLAM_large/ && make_benchmarks  && make_run_all_script && make_track_all_script) 
-#(cd ../../benchmarks/SHEL_large/ && make_benchmarks && make_run_all_script && make_track_all_script) 
-#(cd ../../benchmarks/C-SHEL_large/ && make_benchmarks && make_run_all_script && make_track_all_script) 
-#(cd ../../benchmarks/PRL_large/ && make_benchmarks && make_run_all_script && make_track_all_script)
+(cd ../../benchmarks/CLAM_large/ && make_benchmarks  && make_run_all_script && make_track_all_script#) 
+(cd ../../benchmarks/SHEL_large/ && make_benchmarks && make_run_all_script && make_track_all_script) 
+(cd ../../benchmarks/C-SHEL_large/ && make_benchmarks && make_run_all_script && make_track_all_script) 
+(cd ../../benchmarks/PRL_large/ && make_benchmarks && make_run_all_script && make_track_all_script)
 #(cd ../../benchmarks/CLAM_extra_large/ && make_benchmarks  && make_run_all_script && make_track_all_script) 
 #(cd ../../benchmarks/SHEL_extra_large/ && make_benchmarks && make_run_all_script && make_track_all_script) 
 #(cd ../../benchmarks/C-SHEL_extra_large/ && make_benchmarks && make_run_all_script && make_track_all_script) 

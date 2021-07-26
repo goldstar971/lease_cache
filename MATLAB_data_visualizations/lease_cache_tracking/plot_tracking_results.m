@@ -7,28 +7,44 @@ base_path=[getenv('HOME'),'/Documents/Thesis_stuff/'];
 base_data_dir=[base_path,'software/fpga_proxy/results/track/'];
 base_save_dir=[base_path,'MATLAB_data_visualizations/lease_cache_tracking/'];
 
-benchmark_type=inputdlg("Give name of the benchmark type for which you'd like to plot tracker results: ",'s');
-cache_size=inputdlg("Give number of cache lines: ",'s');
-cache_size=str2num(cache_size{1});
-full_path=[base_data_dir,cell2mat(benchmark_type),'/'];
+
+multi_level_ans=questdlg("Plot tracking results for two-level cache?",'Yes','No');
+convertCharsToStrings(multi_level_ans);
+if(multi_level_ans=="No")
+	multi_level=0;
+else
+	multi_level=1;
+end
+if(multi_level)
+	cache_size=512; % number of lines in 2 level cache
+else
+    cache_size=128;
+end
+lease_algorithm=inputdlg("Give type of lease algorithm for which you'd like to plot tracker results: ",'s');
+if(multi_level)
+	lease_algorithm=[cell2mat(lease_algorithm),'_multi_level'];
+else
+	lease_algorithm=cell2mat(lease_algorithm);
+end
+full_path=[base_data_dir,lease_algorithm,'/'];
 
 file_list=dir([full_path,'*.txt']);
 
  % if directory for term doesn't exist, create it.
-    if(exist([base_save_dir,cell2mat(benchmark_type),'/'],'dir')~=7)
-        mkdir([base_save_dir,cell2mat(benchmark_type),'/']);
+    if(exist([base_save_dir,lease_algorithm,'/'],'dir')~=7)
+        mkdir([base_save_dir,lease_algorithm,'/']);
     end
-%set(0,'DefaultFigureVisible','off')
+set(0,'DefaultFigureVisible','off')
 for i=1:length(file_list)
 	display(i);
 % extract delimited fields
 benchmark=file_list(i).name(1:end-4);
 current_tracking_file=strcat(full_path,benchmark,'.txt');
-if(contains(benchmark,'floyd-warshall'))
-	[average,exp_mat,trace]=extract_tracking_data_all(current_tracking_file,cache_size,'large');
-else
+%if(contains(benchmark,'floyd-warshall'))
+%	[average,exp_mat,trace]=extract_tracking_data_all(current_tracking_file,cache_size,'large');
+%else
 	[average,exp_mat,trace]=extract_tracking_data_all(current_tracking_file,cache_size,'small');
-end
+%end
 trace_millions =trace/1000000;
 mean =movmean(average.exp,128);
 
@@ -64,7 +80,7 @@ set(gcf, 'Position',[100,100,1000,600]);     % [low left x, low left y, top righ
                  'FontSize',13,...
                  'Location','south');
         cb.Position = [.15 .035 .725 .0213];
-         saveas(gcf,strcat(base_save_dir,benchmark_type,"/",benchmark,".png"))
+         saveas(gcf,strcat(base_save_dir,lease_algorithm,"/",benchmark,".png"))
 close(gcf)
 end
 

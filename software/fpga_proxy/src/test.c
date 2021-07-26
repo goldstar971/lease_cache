@@ -99,7 +99,7 @@ uint32_t test_run(pHandle pInst, command *pCommand){
 				);
 	#else
 	char result_string[400];
-	sprintf(result_string, "%s,%lu,%lu,%lu,%lu,%u,%lu,%lu,%lu,%u,%lu.%lu,%lu,%lu,%lu,%lu,%u\n",
+	sprintf(result_string, "%s,%lu,%lu,%lu,%lu,%u,%lu,%lu,%lu,%u,%lu,%lu,%lu,%lu,%lu,%lu,%u\n",
 								pCommand->field[1], 							// path
 								*(uint64_t *)(report_buffer+0), 				// instruction cache hits
 								*(uint64_t *)(report_buffer+8),					// instruction cache misses

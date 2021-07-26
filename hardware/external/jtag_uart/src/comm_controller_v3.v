@@ -117,7 +117,7 @@ reg 	[31:0]	uart_tx_data;
 
 reg 	[26:0]	fusion_write_add, fusion_read_add;
 reg 	[15:0] 	fusion_base_add;
-reg 	[4:0]	fusion_cache_ptr;
+reg 	[5:0]	fusion_cache_ptr;
 //reg 	[15:0]	fusion_limit
 reg 			fusion_cache_flag;
 reg             tracking_flag;
