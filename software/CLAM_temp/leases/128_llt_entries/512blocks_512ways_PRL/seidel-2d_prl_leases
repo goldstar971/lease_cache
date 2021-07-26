@@ -1,0 +1,93 @@
+sample rate: 0.00390625
+1428,
+	[129,102]
+	[1680,1]
+	[1657,116]
+	[119,8]
+	[1667,7]
+	[133,2]
+	[1653,9]
+	[143,1]
+	[124,1]
+	[1664,1]
+	[1663,1]
+	[123,1]
+	[107,1]
+	[1786,1]
+
+1380,
+	[1651,2]
+	[1654,1]
+	[1660,2]
+
+1336,
+	[1657,7]
+	[1667,2]
+
+1332,
+	[129,2]
+	[119,1]
+
+len(carl_order):
+6
+Printing carl assignment order:
+1332,129,0.007957559681697613
+1428,133,0.0034900306515735485
+1428,143,0.00072992700729927
+1428,1786,0.0006598642426359635
+1380,1660,0.0006041565973900435
+1336,1667,0.0006026920243755441
+bin_width: 14267
+assigning lease 129 to address 1332
+Average Cache Occupancy Per Bin: [2.31,2.31,0.0,0.0,2.13]
+Total cost: 33024.0
+assigning lease 133 to address 1428
+Average Cache Occupancy Per Bin: [124.,112.,131.,119.,110.]
+Total cost: 1775872.0
+assigning lease 143 to address 1428
+Average Cache Occupancy Per Bin: [129.,117.,137.,123.,114.]
+Total cost: 1847552.0
+addr: 1428 ri: 1786
+bin target: 7304704
+	bin: 0.0 current capacity: 129.49828275040304  avg impact: 761.2532417466882
+	bin: 1.0 current capacity: 117.79911684306441  avg impact: 706.2922828905866
+	bin: 2.0 current capacity: 137.12427279736454  avg impact: 869.9550010513773
+	bin: 3.0 current capacity: 123.39749071283381  avg impact: 652.2105558281348
+	bin: 4.0 current capacity: 114.78460783626551  avg impact: 708.4993341277072
+num_full_bins: 0
+printing bin ranks sorted:
+	bin: 2.0 rank: 0.4309139285935276
+	selecting this^ bin
+	bin: 0.0 rank: 0.5024631703005303
+	bin: 1.0 rank: 0.5581271276866013
+	bin: 4.0 rank: 0.5606432822590858
+	bin: 3.0 rank: 0.595823704192803
+acceptable_ratio: 0.4309139285935276
+Assigning 1428 dual lease lease 1786 * 0.4309139285935276. Bin saturation: [457.,422.,512.,404.,420.]
+assigning lease 1660 to address 1380
+Average Cache Occupancy Per Bin: [487.,422.,512.,434.,509.]
+Total cost: 6950277.9956685845
+addr: 1336 ri: 1667
+bin target: 7304704
+	bin: 0.0 current capacity: 487.1576362002232  avg impact: 29.7323894301535
+	bin: 2.0 current capacity: 512.0  avg impact: 59.64421392023551
+	bin: 4.0 current capacity: 509.3378381195733  avg impact: 59.464778860307
+num_full_bins: 1
+printing bin ranks sorted:
+	bin: 2.0 rank: 0.0
+	bin: 4.0 rank: 0.044768717406325466
+	bin: 0.0 rank: 0.8355320334457405
+acceptable_ratio: 0
+Final saturation:
+	0.0,6950277.9956685845
+	1.0,6022818.318668399
+	2.0,7304704.0
+	3.0,6192860.025988491
+	4.0,7266722.936451952
+DUMP LEASES
+0, 594, 8f, 6fa, 0.5690860714064724 
+0, 564, 67c, 0, 1 
+0, 538, 0, 0, 1 
+0, 534, 81, 0, 1 
+Dump dual leases
+

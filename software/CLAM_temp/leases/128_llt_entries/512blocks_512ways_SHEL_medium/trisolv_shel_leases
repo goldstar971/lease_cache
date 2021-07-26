@@ -1,0 +1,58 @@
+Filename: ../fpga_proxy/results/sample/SHEL_medium/trisolv.txtFilename: ../fpga_proxy/results/sample/SHEL_medium/trisolv.txtFinished phase 0 with refT 240198 >>>>>>>>>>>
+Start to init hits and costs
+Finished to init hits and costs
+Dump RI
+Ref 00000588 Set 0 RI 3 CNT 5
+Ref 00000590 Set 0 RI 3 CNT 291
+Ref 00000594 Set 0 RI 1 CNT 12
+Ref 00000594 Set 0 RI 3 CNT 265
+Ref 00000594 Set 0 RI 280 CNT 1
+Ref 00000594 Set 0 RI 484 CNT 1
+Ref 00000594 Set 0 RI 523 CNT 1
+Ref 00000594 Set 0 RI 625 CNT 1
+Ref 00000594 Set 0 RI 793 CNT 1
+Ref 00000594 Set 0 RI 874 CNT 1
+Ref 00000594 Set 0 RI 946 CNT 1
+Ref 00000594 Set 0 RI 949 CNT 1
+Ref 00000594 Set 0 RI 979 CNT 1
+Ref 00000594 Set 0 RI 991 CNT 1
+Ref 00000594 Set 0 RI 1057 CNT 1
+Ref 00000594 Set 0 RI 1117 CNT 1
+Ref 00000594 Set 0 RI 1123 CNT 1
+Ref 00000594 Set 0 RI 1153 CNT 1
+Ref 000005a4 Set 0 RI 2 CNT 10
+Ref 000005a4 Set 0 RI 3 CNT 304
+Ref 000005c4 Set 0 RI 2 CNT 2
+
+here 240198
+refT 240198 cache size (per set) 128 sample distance 266 targetCost (single set) 115584
+Dump lease assignement procedure
+Assign lease 2 to ref 000005c4 avg cache size (max among all sets) 0.00442968 miss ratio 0.997785
+total cost (single set) 4 set ID 0 target cost (single set) 115584
+Assign lease 3 to ref 000005a4 avg cache size (max among all sets) 1.03654 miss ratio 0.650055
+total cost (single set) 936 set ID 0 target cost (single set) 115584
+Assign lease 3 to ref 00000588 avg cache size (max among all sets) 1.05316 miss ratio 0.644518
+total cost (single set) 951 set ID 0 target cost (single set) 115584
+Assign lease 3 to ref 00000590 avg cache size (max among all sets) 2.01993 miss ratio 0.322259
+total cost (single set) 1824 set ID 0 target cost (single set) 115584
+Assign lease 3 to ref 00000594 avg cache size (max among all sets) 2.96013 miss ratio 0.0155039
+total cost (single set) 2673 set ID 0 target cost (single set) 115584
+Assign lease 1153 to ref 00000594 avg cache size (max among all sets) 16.0853 miss ratio 0
+total cost (single set) 14525 set ID 0 target cost (single set) 115584
+finished dumping the assignment procedure
+the FINAL avg cache size 16.0853 miss ratio 0
+Dump single leases (last one may be dual)
+00000588 3
+00000590 3
+00000594 481 percentage 1
+00000594 0 percentage 0
+000005a4 3
+000005c4 2
+
+Dump formated leases 
+0, 588, 3, 0, 1
+0, 590, 3, 0, 1
+0, 594, 0, 481, 0
+0, 5a4, 3, 0, 1
+0, 5c4, 2, 0, 1
+

@@ -1,0 +1,103 @@
+sample rate: 0.00390625
+1532,
+	[1,147]
+	[731,1]
+	[747,1]
+	[771,1]
+	[811,1]
+	[491,1]
+	[427,1]
+	[539,1]
+	[419,1]
+	[779,1]
+	[467,1]
+
+1520,
+	[1,165]
+
+1556,
+	[4,41062]
+
+1564,
+	[1,41112]
+
+1584,
+	[3,38445]
+	[819,2379]
+	[867,88]
+	[851,107]
+	[835,75]
+
+1560,
+	[4,38466]
+	[211580,2588]
+
+len(carl_order):
+9
+Printing carl assignment order:
+1520,1,1.0
+1564,1,1.0
+1532,1,0.9363057324840764
+1584,3,0.31184601158319947
+1556,4,0.25
+1560,4,0.23424026891411312
+1532,811,0.0016202203499675956
+1584,867,0.0012204943531978886
+1560,211580,4.726434000075623e-06
+bin_width: 8465553
+assigning lease 1 to address 1520
+Average Cache Occupancy Per Bin: [0.00,0.00,0.00,0.00,0.00]
+Total cost: 7936.0
+assigning lease 1 to address 1564
+Average Cache Occupancy Per Bin: [0.24,0.24,0.24,0.24,0.24]
+Total cost: 2114304.0
+assigning lease 1 to address 1532
+Average Cache Occupancy Per Bin: [0.25,0.25,0.25,0.25,0.25]
+Total cost: 2122752.0
+assigning lease 3 to address 1584
+Average Cache Occupancy Per Bin: [0.99,0.99,0.99,0.99,0.99]
+Total cost: 8431104.0
+assigning lease 4 to address 1556
+Average Cache Occupancy Per Bin: [1.98,1.98,1.98,1.98,1.99]
+Total cost: 16845312.0
+assigning lease 4 to address 1560
+Average Cache Occupancy Per Bin: [2.98,2.98,2.98,2.98,2.98]
+Total cost: 25233920.0
+assigning lease 811 to address 1532
+Average Cache Occupancy Per Bin: [3.07,3.01,2.99,2.99,3.02]
+Total cost: 26016256.0
+assigning lease 867 to address 1584
+Average Cache Occupancy Per Bin: [15.8,16.3,16.5,15.4,16.6]
+Total cost: 133814784.0
+addr: 1560 ri: 211580
+bin target: 1083590784
+	bin: 0.0 current capacity: 15.80697492532384  avg impact: 3032.699475627877
+	bin: 1.0 current capacity: 16.337841603495956  avg impact: 3231.040580574004
+	bin: 2.0 current capacity: 16.57513643822205  avg impact: 3390.993084562816
+	bin: 3.0 current capacity: 15.414759555577763  avg impact: 3538.149388232523
+	bin: 4.0 current capacity: 16.6000846016793  avg impact: 3365.400683924606
+num_full_bins: 0
+printing bin ranks sorted:
+	bin: 3.0 rank: 0.03182037502963209
+	selecting this^ bin
+	bin: 2.0 rank: 0.032859065407425746
+	bin: 4.0 rank: 0.03310153109864179
+	bin: 1.0 rank: 0.03455919404660245
+	bin: 0.0 rank: 0.03699444207258558
+acceptable_ratio: 0.03182037502963209
+Assigning 1560 dual lease lease 211580 * 0.03182037502963209. Bin saturation: [112.,119.,124.,128.,123.]
+Final saturation:
+	0.0,950754486.8571429
+	1.0,1008677112.8245932
+	2.0,1053773481.8951176
+	3.0,1083590784.0
+	4.0,1047090675.9638337
+DUMP LEASES
+0, 5fc, 32b, 0, 1 
+0, 5f0, 1, 0, 1 
+0, 614, 4, 0, 1 
+0, 61c, 1, 0, 1 
+0, 630, 363, 0, 1 
+0, 618, 4, 33a7c, 0.9681796249703679 
+Dump dual leases
+

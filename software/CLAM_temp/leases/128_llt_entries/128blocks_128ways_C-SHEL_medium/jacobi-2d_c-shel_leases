@@ -1,0 +1,431 @@
+Reading input from: ../fpga_proxy/results/sample/SHEL_medium/jacobi-2d.txt
+---------Dump RI Hists------------
+(0,0x5a4):
+ | ri 0x580: count 69
+ | | phase 1 head_cost 0 tail_cost 4537
+ | | phase 0 head_cost 97152 tail_cost 8135
+ | ri 0x1: count 22489
+ | | phase 0 head_cost 22489 tail_cost 1478
+ | ri 0x57a: count 9
+ | | phase 1 head_cost 0 tail_cost 4483
+ | | phase 0 head_cost 12618 tail_cost 104873
+ | ri 0x5a125: count 9
+ | | phase 1 head_cost 3312262 tail_cost 0
+ | | phase 0 head_cost 8135 tail_cost 0
+ | ri 0x574: count 1391
+ | | phase 0 head_cost 1941836 tail_cost 117023
+ | | phase 1 head_cost 0 tail_cost 4429
+(0,0x5e0):
+ | ri 0x5a11d: count 5
+ | | phase 1 head_cost 3035 tail_cost 0
+ | | phase 0 head_cost 1841590 tail_cost 0
+ | ri 0x6: count 22432
+ | | phase 0 head_cost 134592 tail_cost 9054
+ | ri 0x59b5a: count 23
+ | | phase 1 head_cost 3819438 tail_cost 14573128
+ | | phase 0 head_cost 4631912 tail_cost 16660122
+ | ri 0x59b54: count 1401
+ | | phase 0 head_cost 258138368 tail_cost 21292004
+ | | phase 1 head_cost 256650676 tail_cost 18391948
+ | ri 0x59b60: count 80
+ | | phase 0 head_cost 14822872 tail_cost 1837280
+ | | phase 1 head_cost 14573608 tail_cost 0
+(1,0x61c):
+ | ri 0x6: count 22473
+ | | phase 1 head_cost 134838 tail_cost 8934
+ | ri 0x575: count 9
+ | | phase 1 head_cost 12573 tail_cost 126914
+ | | phase 0 head_cost 0 tail_cost 4404
+ | ri 0xb42f4: count 1
+ | | phase 0 head_cost 737887 tail_cost 0
+ | | phase 1 head_cost 149 tail_cost 0
+ | ri 0x56f: count 1386
+ | | phase 1 head_cost 1927926 tail_cost 138905
+ | | phase 0 head_cost 0 tail_cost 4368
+ | ri 0x57b: count 81
+ | | phase 0 head_cost 0 tail_cost 4440
+ | | phase 1 head_cost 113643 tail_cost 5381
+ | ri 0x579: count 6
+ | | phase 0 head_cost 0 tail_cost 4428
+ | | phase 1 head_cost 8406 tail_cost 118860
+ | ri 0xb42a6: count 6
+ | | phase 0 head_cost 4422266 tail_cost 737809
+ | | phase 1 head_cost 5482 tail_cost 149
+(1,0x608):
+ | ri 0x57a: count 10
+ | | phase 1 head_cost 14020 tail_cost 127301
+ | | phase 0 head_cost 0 tail_cost 281
+ | ri 0x580: count 89
+ | | phase 1 head_cost 125312 tail_cost 2523
+ | | phase 0 head_cost 0 tail_cost 293
+ | ri 0x574: count 1414
+ | | phase 0 head_cost 0 tail_cost 269
+ | | phase 1 head_cost 1973944 tail_cost 140727
+ | ri 0x5a125: count 2
+ | | phase 1 head_cost 2523 tail_cost 0
+ | | phase 0 head_cost 735343 tail_cost 0
+ | ri 0x1: count 22373
+ | | phase 1 head_cost 22373 tail_cost 1515
+(1,0x644):
+ | ri 0x5a11d: count 7
+ | | phase 1 head_cost 2579037 tail_cost 0
+ | | phase 0 head_cost 3438 tail_cost 0
+ | ri 0x59b5a: count 26
+ | | phase 0 head_cost 5035500 tail_cost 13814721
+ | | phase 1 head_cost 4518200 tail_cost 17418529
+ | ri 0x59b60: count 78
+ | | phase 0 head_cost 13815189 tail_cost 0
+ | | phase 1 head_cost 14846379 tail_cost 2572192
+ | ri 0x59b54: count 1384
+ | | phase 1 head_cost 252371247 tail_cost 21936687
+ | | phase 0 head_cost 256171249 tail_cost 18849597
+ | ri 0x6: count 22413
+ | | phase 1 head_cost 134478 tail_cost 8970
+(0,0x5c0):
+ | ri 0x59b99: count 1
+ | | phase 0 head_cost 367513 tail_cost 2205078
+ | ri 0x6: count 22435
+ | | phase 0 head_cost 134610 tail_cost 8970
+ | ri 0x59b63: count 69
+ | | phase 0 head_cost 12503994 tail_cost 2572213
+ | | phase 1 head_cost 12850677 tail_cost 0
+ | ri 0x59b5d: count 19
+ | | phase 0 head_cost 3717588 tail_cost 15076165
+ | | phase 1 head_cost 3264019 tail_cost 12850263
+ | ri 0x59b57: count 1400
+ | | phase 0 head_cost 254133392 tail_cost 18793711
+ | | phase 1 head_cost 260292408 tail_cost 16113754
+ | ri 0xb42a6: count 6
+ | | phase 1 head_cost 2218260 tail_cost 0
+ | | phase 0 head_cost 2209488 tail_cost 0
+(0,0x5a8):
+ | ri 0x1: count 22457
+ | | phase 0 head_cost 22457 tail_cost 1507
+ | ri 0x5: count 1507
+ | | phase 0 head_cost 7535 tail_cost 0
+(0,0x5ac):
+ | ri 0x4: count 22404
+ | | phase 0 head_cost 89616 tail_cost 5944
+ | ri 0x5: count 1474
+ | | phase 0 head_cost 7370 tail_cost 60
+ | ri 0x57e: count 12
+ | | phase 0 head_cost 16872 tail_cost 0
+(1,0x624):
+ | ri 0x59b5d: count 20
+ | | phase 0 head_cost 3954309 tail_cost 16524054
+ | | phase 1 head_cost 3394751 tail_cost 17649075
+ | ri 0x59b57: count 1376
+ | | phase 1 head_cost 251110973 tail_cost 21043766
+ | | phase 0 head_cost 254496099 tail_cost 20477745
+ | ri 0xb42a6: count 10
+ | | phase 1 head_cost 3683174 tail_cost 0
+ | | phase 0 head_cost 3696406 tail_cost 0
+ | ri 0x6: count 22435
+ | | phase 1 head_cost 134610 tail_cost 8934
+ | ri 0x59b63: count 83
+ | | phase 1 head_cost 13974545 tail_cost 3674590
+ | | phase 0 head_cost 16524552 tail_cost 0
+(0,0x5b8):
+ | ri 0x57b: count 78
+ | | phase 1 head_cost 0 tail_cost 5860
+ | | phase 0 head_cost 109434 tail_cost 8170
+ | ri 0xb42a6: count 10
+ | | phase 1 head_cost 7371240 tail_cost 0
+ | | phase 0 head_cost 8340 tail_cost 0
+ | ri 0x575: count 21
+ | | phase 0 head_cost 29337 tail_cost 138085
+ | | phase 1 head_cost 0 tail_cost 5806
+ | ri 0x6: count 22339
+ | | phase 0 head_cost 134034 tail_cost 9264
+ | ri 0x579: count 15
+ | | phase 0 head_cost 21015 tail_cost 117446
+ | | phase 1 head_cost 0 tail_cost 5842
+ | ri 0x56f: count 1420
+ | | phase 1 head_cost 0 tail_cost 5752
+ | | phase 0 head_cost 1975220 tail_cost 166732
+(1,0x610):
+ | ri 0x57e: count 12
+ | | phase 1 head_cost 16872 tail_cost 0
+ | ri 0x5: count 1514
+ | | phase 1 head_cost 7570 tail_cost 60
+ | ri 0x4: count 22426
+ | | phase 1 head_cost 89704 tail_cost 6104
+(1,0x60c):
+ | ri 0x1: count 22413
+ | | phase 1 head_cost 22413 tail_cost 1475
+ | ri 0x5: count 1475
+ | | phase 1 head_cost 7375 tail_cost 0
+---------Dump Samples Per Phase---
+{1: 143522, 0: 143575}
+
+            ---------------------
+            Initial budget per phase: 
+            {0: 4704665600, 1: 4702928896} 
+            ---------------------
+Debug: NEW_PHASE_REF_COST {0: 6135552, 1: 0}
+Assigned lease 1 to reference (0,5a4). Predicted miss count : 67739648
+Debug: phase: 1
+Debug:    cost_per_phase:   0
+Debug:    budget_per_phase: 4702928896
+Debug: phase: 0
+Debug:    cost_per_phase:   6135552
+Debug:    budget_per_phase: 4704665600
+=================OUTER LOOP ITER===============
+Debug: NEW_PHASE_REF_COST {1: 6115328, 0: 0}
+Assigned lease 1 to reference (1,60c). Predicted miss count : 62001920
+Debug: phase: 1
+Debug:    cost_per_phase:   6115328
+Debug:    budget_per_phase: 4702928896
+Debug: phase: 0
+Debug:    cost_per_phase:   6135552
+Debug:    budget_per_phase: 4704665600
+=================OUTER LOOP ITER===============
+Debug: NEW_PHASE_REF_COST {0: 6134784, 1: 0}
+Assigned lease 1 to reference (0,5a8). Predicted miss count : 56252928
+Debug: phase: 1
+Debug:    cost_per_phase:   6115328
+Debug:    budget_per_phase: 4702928896
+Debug: phase: 0
+Debug:    cost_per_phase:   12270336
+Debug:    budget_per_phase: 4704665600
+=================OUTER LOOP ITER===============
+Debug: NEW_PHASE_REF_COST {1: 6115328, 0: 0}
+Assigned lease 1 to reference (1,608). Predicted miss count : 50525440
+Debug: phase: 1
+Debug:    cost_per_phase:   12230656
+Debug:    budget_per_phase: 4702928896
+Debug: phase: 0
+Debug:    cost_per_phase:   12270336
+Debug:    budget_per_phase: 4704665600
+=================OUTER LOOP ITER===============
+Debug: NEW_PHASE_REF_COST {0: 0, 1: 1510400}
+Assigned lease 5 to reference (1,60c). Predicted miss count : 50147840
+Debug: phase: 1
+Debug:    cost_per_phase:   13741056
+Debug:    budget_per_phase: 4702928896
+Debug: phase: 0
+Debug:    cost_per_phase:   12270336
+Debug:    budget_per_phase: 4704665600
+=================OUTER LOOP ITER===============
+Debug: NEW_PHASE_REF_COST {0: 1543168, 1: 0}
+Assigned lease 5 to reference (0,5a8). Predicted miss count : 49762048
+Debug: phase: 1
+Debug:    cost_per_phase:   13741056
+Debug:    budget_per_phase: 4702928896
+Debug: phase: 0
+Debug:    cost_per_phase:   13813504
+Debug:    budget_per_phase: 4704665600
+=================OUTER LOOP ITER===============
+Debug: NEW_PHASE_REF_COST {0: 24843776, 1: 0}
+Assigned lease 5 to reference (0,5ac). Predicted miss count : 43649280
+Debug: phase: 1
+Debug:    cost_per_phase:   13741056
+Debug:    budget_per_phase: 4702928896
+Debug: phase: 0
+Debug:    cost_per_phase:   38657280
+Debug:    budget_per_phase: 4704665600
+=================OUTER LOOP ITER===============
+Debug: NEW_PHASE_REF_COST {1: 24917504, 0: 0}
+Assigned lease 5 to reference (1,610). Predicted miss count : 37520640
+Debug: phase: 1
+Debug:    cost_per_phase:   38658560
+Debug:    budget_per_phase: 4702928896
+Debug: phase: 0
+Debug:    cost_per_phase:   38657280
+Debug:    budget_per_phase: 4704665600
+=================OUTER LOOP ITER===============
+Debug: NEW_PHASE_REF_COST {1: 36805632, 0: 0}
+Assigned lease 6 to reference (1,61c). Predicted miss count : 31767552
+Debug: phase: 1
+Debug:    cost_per_phase:   75464192
+Debug:    budget_per_phase: 4702928896
+Debug: phase: 0
+Debug:    cost_per_phase:   38657280
+Debug:    budget_per_phase: 4704665600
+=================OUTER LOOP ITER===============
+Debug: NEW_PHASE_REF_COST {0: 0, 1: 36747264}
+Assigned lease 6 to reference (1,624). Predicted miss count : 26024192
+Debug: phase: 1
+Debug:    cost_per_phase:   112211456
+Debug:    budget_per_phase: 4702928896
+Debug: phase: 0
+Debug:    cost_per_phase:   38657280
+Debug:    budget_per_phase: 4704665600
+=================OUTER LOOP ITER===============
+Debug: NEW_PHASE_REF_COST {1: 0, 0: 36756480}
+Assigned lease 6 to reference (0,5c0). Predicted miss count : 20280832
+Debug: phase: 1
+Debug:    cost_per_phase:   112211456
+Debug:    budget_per_phase: 4702928896
+Debug: phase: 0
+Debug:    cost_per_phase:   75413760
+Debug:    budget_per_phase: 4704665600
+=================OUTER LOOP ITER===============
+Debug: NEW_PHASE_REF_COST {1: 36722688, 0: 0}
+Assigned lease 6 to reference (1,644). Predicted miss count : 14543104
+Debug: phase: 1
+Debug:    cost_per_phase:   148934144
+Debug:    budget_per_phase: 4702928896
+Debug: phase: 0
+Debug:    cost_per_phase:   75413760
+Debug:    budget_per_phase: 4704665600
+=================OUTER LOOP ITER===============
+Debug: NEW_PHASE_REF_COST {0: 36773376, 1: 0}
+Assigned lease 6 to reference (0,5e0). Predicted miss count : 8800512
+Debug: phase: 1
+Debug:    cost_per_phase:   148934144
+Debug:    budget_per_phase: 4702928896
+Debug: phase: 0
+Debug:    cost_per_phase:   112187136
+Debug:    budget_per_phase: 4704665600
+=================OUTER LOOP ITER===============
+Debug: NEW_PHASE_REF_COST {1: 0, 0: 36684288}
+Assigned lease 6 to reference (0,5b8). Predicted miss count : 3081728
+Debug: phase: 1
+Debug:    cost_per_phase:   148934144
+Debug:    budget_per_phase: 4702928896
+Debug: phase: 0
+Debug:    cost_per_phase:   148871424
+Debug:    budget_per_phase: 4704665600
+=================OUTER LOOP ITER===============
+Debug: NEW_PHASE_REF_COST {1: 527102720, 0: 1136640}
+Assigned lease 57b to reference (1,61c). Predicted miss count : 2702336
+Debug: phase: 1
+Debug:    cost_per_phase:   676036864
+Debug:    budget_per_phase: 4702928896
+Debug: phase: 0
+Debug:    cost_per_phase:   150008064
+Debug:    budget_per_phase: 4704665600
+=================OUTER LOOP ITER===============
+Debug: NEW_PHASE_REF_COST {1: 1500160, 0: 546281472}
+Assigned lease 57b to reference (0,5b8). Predicted miss count : 2309632
+Debug: phase: 1
+Debug:    cost_per_phase:   677537024
+Debug:    budget_per_phase: 4702928896
+Debug: phase: 0
+Debug:    cost_per_phase:   696289536
+Debug:    budget_per_phase: 4704665600
+=================OUTER LOOP ITER===============
+Debug: NEW_PHASE_REF_COST {0: 75008, 1: 541256704}
+Assigned lease 580 to reference (1,608). Predicted miss count : 1922304
+Debug: phase: 1
+Debug:    cost_per_phase:   1218793728
+Debug:    budget_per_phase: 4702928896
+Debug: phase: 0
+Debug:    cost_per_phase:   696364544
+Debug:    budget_per_phase: 4704665600
+=================OUTER LOOP ITER===============
+Debug: NEW_PHASE_REF_COST {0: 4303872, 1: 0}
+Assigned lease 57e to reference (0,5ac). Predicted miss count : 1919232
+Debug: phase: 1
+Debug:    cost_per_phase:   1218793728
+Debug:    budget_per_phase: 4702928896
+Debug: phase: 0
+Debug:    cost_per_phase:   700668416
+Debug:    budget_per_phase: 4704665600
+=================OUTER LOOP ITER===============
+Debug: NEW_PHASE_REF_COST {0: 0, 1: 4303872}
+Assigned lease 57e to reference (1,610). Predicted miss count : 1916160
+Debug: phase: 1
+Debug:    cost_per_phase:   1223097600
+Debug:    budget_per_phase: 4702928896
+Debug: phase: 0
+Debug:    cost_per_phase:   700668416
+Debug:    budget_per_phase: 4704665600
+=================OUTER LOOP ITER===============
+Debug: NEW_PHASE_REF_COST {1: 1161472, 0: 526915328}
+Assigned lease 580 to reference (0,5a4). Predicted miss count : 1540096
+Debug: phase: 1
+Debug:    cost_per_phase:   1224259072
+Debug:    budget_per_phase: 4702928896
+Debug: phase: 0
+Debug:    cost_per_phase:   1227583744
+Debug:    budget_per_phase: 4704665600
+=================OUTER LOOP ITER===============
+Debug: NEW_PHASE_REF_COST {1: 70411969792, 0: 71532976128}
+Assigned dual lease (5a11d,0.048608094) to reference (0,5e0). Predicted miss count: 1521318
+Debug: phase: 1
+Debug:    cost_per_phase:   4646850816
+Debug:    budget_per_phase: 4702928896
+Debug: phase: 0
+Debug:    cost_per_phase:   4704665600
+Debug:    budget_per_phase: 4704665600
+=================OUTER LOOP ITER===============
+Debug: NEW_PHASE_REF_COST {0: 70406496256, 1: 70222308608}
+Assigned dual lease (5a11d,0) to reference (1,644). Predicted miss count: 1521318
+Debug: phase: 1
+Debug:    cost_per_phase:   4646850816
+Debug:    budget_per_phase: 4702928896
+Debug: phase: 0
+Debug:    cost_per_phase:   4704665600
+Debug:    budget_per_phase: 4704665600
+=================OUTER LOOP ITER===============
+Debug: NEW_PHASE_REF_COST {0: 0, 1: 846777600}
+Assigned dual lease (5a125,0.066225275) to reference (0,5a4). Predicted miss count: 1521165
+Debug: phase: 1
+Debug:    cost_per_phase:   4702928896
+Debug:    budget_per_phase: 4702928896
+Debug: phase: 0
+Debug:    cost_per_phase:   4704665600
+Debug:    budget_per_phase: 4704665600
+=================OUTER LOOP ITER===============
+Debug: NEW_PHASE_REF_COST {0: 188172800, 1: 0}
+Assigned dual lease (5a125,0) to reference (1,608). Predicted miss count: 1521165
+Debug: phase: 1
+Debug:    cost_per_phase:   4702928896
+Debug:    budget_per_phase: 4702928896
+Debug: phase: 0
+Debug:    cost_per_phase:   4704665600
+Debug:    budget_per_phase: 4704665600
+=================OUTER LOOP ITER===============
+Debug: NEW_PHASE_REF_COST {0: 69867160320, 1: 70760218624}
+Assigned dual lease (59b99,0) to reference (0,5c0). Predicted miss count: 1521165
+Debug: phase: 1
+Debug:    cost_per_phase:   4702928896
+Debug:    budget_per_phase: 4702928896
+Debug: phase: 0
+Debug:    cost_per_phase:   4704665600
+Debug:    budget_per_phase: 4704665600
+=================OUTER LOOP ITER===============
+Debug: NEW_PHASE_REF_COST {1: 69669356800, 0: 70393589760}
+Assigned dual lease (59b63,0) to reference (1,624). Predicted miss count: 1521165
+Debug: phase: 1
+Debug:    cost_per_phase:   4702928896
+Debug:    budget_per_phase: 4702928896
+Debug: phase: 0
+Debug:    cost_per_phase:   4704665600
+Debug:    budget_per_phase: 4704665600
+=================OUTER LOOP ITER===============
+Debug: NEW_PHASE_REF_COST {1: 1885537280, 0: 43520}
+Assigned dual lease (b42a6,0) to reference (0,5b8). Predicted miss count: 1521165
+Debug: phase: 1
+Debug:    cost_per_phase:   4702928896
+Debug:    budget_per_phase: 4702928896
+Debug: phase: 0
+Debug:    cost_per_phase:   4704665600
+Debug:    budget_per_phase: 4704665600
+=================OUTER LOOP ITER===============
+Debug: NEW_PHASE_REF_COST {0: 1319862528, 1: 64000}
+Assigned dual lease (b42f4,0) to reference (1,61c). Predicted miss count: 1521165
+Debug: phase: 1
+Debug:    cost_per_phase:   4702928896
+Debug:    budget_per_phase: 4702928896
+Debug: phase: 0
+Debug:    cost_per_phase:   4704665600
+Debug:    budget_per_phase: 4704665600
+=================OUTER LOOP ITER===============
+Dump predicted miss count (no contention misses): 
+1521165
+Dump formated leases
+0, 5a4, 580, 5a125, 0.9337747
+0, 5a8, 5, 0, 1
+0, 5ac, 57e, 0, 1
+0, 5b8, 57b, b42a6, 1
+0, 5c0, 6, 59b99, 1
+0, 5e0, 6, 5a11d, 0.95139194
+1, 608, 580, 5a125, 1
+1, 60c, 5, 0, 1
+1, 610, 57e, 0, 1
+1, 61c, 57b, b42f4, 1
+1, 624, 6, 59b63, 1
+1, 644, 6, 5a11d, 1

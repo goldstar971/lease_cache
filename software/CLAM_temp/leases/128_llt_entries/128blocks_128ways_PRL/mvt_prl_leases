@@ -1,0 +1,103 @@
+sample rate: 0.00390625
+1504,
+	[3,51]
+	[340,1]
+	[316,2]
+
+1500,
+	[3,56]
+	[25733,1]
+	[29313,1]
+
+1520,
+	[3,56]
+	[1,2]
+
+1488,
+	[3,1]
+
+1580,
+	[361,56]
+
+1600,
+	[3,56]
+	[1,1]
+
+1584,
+	[3,45]
+	[316,4]
+
+len(carl_order):
+10
+Printing carl assignment order:
+1520,3,0.3411764705882353
+1600,3,0.33727810650887574
+1488,3,0.3333333333333333
+1500,3,0.3218390804597701
+1504,3,0.3148148148148148
+1584,3,0.30612244897959184
+1584,316,0.003194888178913738
+1504,340,0.003115264797507788
+1580,361,0.002770083102493075
+1500,29313,3.633720930232558e-05
+bin_width: 17305
+assigning lease 3 to address 1520
+Average Cache Occupancy Per Bin: [1.03,0.84,0.63,0.0,0.0]
+Total cost: 17920.0
+assigning lease 3 to address 1600
+Average Cache Occupancy Per Bin: [1.03,0.84,1.07,0.94,1.10]
+Total cost: 17920.0
+assigning lease 3 to address 1488
+Average Cache Occupancy Per Bin: [1.03,0.88,1.07,0.94,1.10]
+Total cost: 17920.0
+assigning lease 3 to address 1500
+Average Cache Occupancy Per Bin: [2.27,1.81,1.39,0.99,1.15]
+Total cost: 39424.0
+assigning lease 3 to address 1504
+Average Cache Occupancy Per Bin: [3.21,3.01,1.65,0.99,1.15]
+Total cost: 55552.0
+assigning lease 3 to address 1584
+Average Cache Occupancy Per Bin: [3.21,3.01,2.05,1.87,2.04]
+Total cost: 55552.0
+assigning lease 316 to address 1584
+Average Cache Occupancy Per Bin: [3.21,3.01,6.68,11.1,6.67]
+Total cost: 55552.0
+assigning lease 340 to address 1504
+Average Cache Occupancy Per Bin: [8.19,7.64,11.3,11.1,6.67]
+Total cost: 141824.0
+addr: 1580 ri: 361
+bin target: 2215040
+	bin: 3.0 current capacity: 11.139439468361745  avg impact: 128.17012424154868
+	bin: 4.0 current capacity: 6.671828951170182  avg impact: 128.17012424154868
+num_full_bins: 0
+printing bin ranks sorted:
+	bin: 3.0 rank: 0.9117613111726686
+	selecting this^ bin
+	bin: 4.0 rank: 0.946618190212373
+acceptable_ratio: 0.9117613111726686
+Assigning 1580 dual lease lease 361 * 0.9117613111726686. Bin saturation: [8.19,7.64,50.2,128.,123.]
+addr: 1500 ri: 29313
+bin target: 2215040
+	bin: 3.0 current capacity: 128.0  avg impact: 380.63449869979775
+	bin: 4.0 current capacity: 123.53238948280844  avg impact: 433.59491476451893
+num_full_bins: 1
+printing bin ranks sorted:
+	bin: 3.0 rank: 0.0
+	bin: 4.0 rank: 0.010303650631183896
+acceptable_ratio: 0
+Final saturation:
+	0.0,141824.0
+	1.0,132352.0
+	2.0,869930.6666666667
+	3.0,2215040.0
+	4.0,2137728.0
+DUMP LEASES
+0, 5e0, 154, 0, 1 
+0, 5dc, 3, 0, 1 
+0, 5f0, 3, 0, 1 
+0, 5d0, 3, 0, 1 
+0, 62c, 1, 169, 0.08823868882733144 
+0, 640, 3, 0, 1 
+0, 630, 13c, 0, 1 
+Dump dual leases
+

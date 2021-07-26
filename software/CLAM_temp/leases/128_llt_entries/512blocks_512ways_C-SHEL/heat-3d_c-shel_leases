@@ -1,0 +1,276 @@
+Reading input from: ../fpga_proxy/results/sample/SHEL/heat-3d.txt
+---------Dump RI Hists------------
+(0,0x614):
+ | ri 0x8: count 58
+ | | phase 0 head_cost 464 tail_cost 480
+ | ri 0x14: count 9
+ | | phase 0 head_cost 180 tail_cost 1020
+ | ri 0x9ce: count 6
+ | | phase 0 head_cost 15060 tail_cost 0
+ | ri 0x1c: count 45
+ | | phase 0 head_cost 1260 tail_cost 168
+ | ri 0x2: count 796
+ | | phase 0 head_cost 1592 tail_cost 236
+(0,0x640):
+ | ri 0xabb4: count 33
+ | | phase 0 head_cost 717340 tail_cost 239148
+ | | phase 1 head_cost 733208 tail_cost 156456
+ | ri 0xabcc: count 5
+ | | phase 1 head_cost 156576 tail_cost 0
+ | | phase 0 head_cost 63324 tail_cost 175920
+ | ri 0xb53a: count 1
+ | | phase 0 head_cost 44584 tail_cost 135796
+ | | phase 1 head_cost 1810 tail_cost 3386
+ | ri 0x8: count 848
+ | | phase 0 head_cost 6784 tail_cost 480
+ | ri 0xb542: count 3
+ | | phase 1 head_cost 3410 tail_cost 0
+ | | phase 0 head_cost 135796 tail_cost 0
+ | ri 0xabac: count 18
+ | | phase 0 head_cost 344661 tail_cost 956456
+ | | phase 1 head_cost 446403 tail_cost 889360
+(1,0x6c8):
+ | ri 0x3: count 101
+ | | phase 1 head_cost 303 tail_cost 0
+ | ri 0x1: count 814
+ | | phase 1 head_cost 814 tail_cost 101
+(0,0x604):
+ | ri 0xabd3: count 5
+ | | phase 1 head_cost 78343 tail_cost 0
+ | | phase 0 head_cost 141592 tail_cost 131961
+ | ri 0x16c10: count 2
+ | | phase 0 head_cost 90498 tail_cost 46606
+ | | phase 1 head_cost 95902 tail_cost 46594
+ | ri 0xabb3: count 20
+ | | phase 0 head_cost 419353 tail_cost 1106594
+ | | phase 1 head_cost 459747 tail_cost 959291
+ | ri 0x16c18: count 1
+ | | phase 1 head_cost 46602 tail_cost 0
+ | | phase 0 head_cost 46606 tail_cost 0
+ | ri 0x8: count 850
+ | | phase 0 head_cost 6800 tail_cost 536
+ | ri 0xabbb: count 39
+ | | phase 0 head_cost 833137 tail_cost 273481
+ | | phase 1 head_cost 881420 tail_cost 78223
+(0,0x5e8):
+ | ri 0x1f: count 8
+ | | phase 0 head_cost 248 tail_cost 1426
+ | ri 0x16c10: count 5
+ | | phase 0 head_cost 83584 tail_cost 0
+ | | phase 1 head_cost 382416 tail_cost 0
+ | ri 0x24: count 41
+ | | phase 0 head_cost 1476 tail_cost 180
+ | ri 0x1c: count 14
+ | | phase 0 head_cost 392 tail_cost 1512
+ | ri 0x8: count 834
+ | | phase 0 head_cost 6672 tail_cost 544
+(1,0x6f8):
+ | ri 0x8: count 822
+ | | phase 1 head_cost 6576 tail_cost 592
+ | ri 0xb57a: count 1
+ | | phase 1 head_cost 46458 tail_cost 46458
+ | ri 0xb5e9: count 1
+ | | phase 1 head_cost 46569 tail_cost 0
+ | ri 0xabcc: count 10
+ | | phase 1 head_cost 192949 tail_cost 87960
+ | | phase 0 head_cost 246851 tail_cost 0
+ | ri 0xabb4: count 42
+ | | phase 0 head_cost 958216 tail_cost 246611
+ | | phase 1 head_cost 887936 tail_cost 280861
+ | ri 0xabac: count 20
+ | | phase 1 head_cost 408031 tail_cost 1168781
+ | | phase 0 head_cost 470929 tail_cost 1204411
+(1,0x6b4):
+ | ri 0x926: count 28
+ | | phase 0 head_cost 0 tail_cost 5311
+ | | phase 1 head_cost 65576 tail_cost 22793
+ | ri 0x93e: count 4
+ | | phase 0 head_cost 0 tail_cost 5407
+ | | phase 1 head_cost 9464 tail_cost 13521
+ | ri 0x8: count 844
+ | | phase 1 head_cost 6752 tail_cost 488
+ | ri 0x95e: count 2
+ | | phase 1 head_cost 4796 tail_cost 8853
+ | | phase 0 head_cost 0 tail_cost 5535
+ | ri 0x16c30: count 1
+ | | phase 1 head_cost 2706 tail_cost 0
+ | | phase 0 head_cost 90526 tail_cost 0
+ | ri 0x16c18: count 3
+ | | phase 1 head_cost 1889 tail_cost 2706
+ | | phase 0 head_cost 277735 tail_cost 90502
+ | ri 0x16c10: count 1
+ | | phase 1 head_cost 2168 tail_cost 4595
+ | | phase 0 head_cost 91032 tail_cost 368205
+ | ri 0x91e: count 21
+ | | phase 0 head_cost 0 tail_cost 5279
+ | | phase 1 head_cost 49014 tail_cost 88081
+ | ri 0x9cd: count 1
+ | | phase 1 head_cost 2509 tail_cost 6566
+ | | phase 0 head_cost 0 tail_cost 5979
+(0,0x610):
+ | ri 0x1: count 802
+ | | phase 0 head_cost 802 tail_cost 106
+ | ri 0x3: count 106
+ | | phase 0 head_cost 318 tail_cost 0
+(1,0x6a0):
+ | ri 0x24: count 32
+ | | phase 1 head_cost 1152 tail_cost 180
+ | ri 0x8: count 835
+ | | phase 1 head_cost 6680 tail_cost 480
+ | ri 0x1f: count 10
+ | | phase 1 head_cost 310 tail_cost 1147
+ | ri 0x16c10: count 5
+ | | phase 1 head_cost 96331 tail_cost 0
+ | | phase 0 head_cost 369669 tail_cost 0
+ | ri 0x1c: count 13
+ | | phase 1 head_cost 364 tail_cost 1316
+(0,0x5e4):
+ | ri 0x5: count 851
+ | | phase 0 head_cost 4255 tail_cost 255
+ | ri 0x6: count 51
+ | | phase 0 head_cost 306 tail_cost 0
+(0,0x5f8):
+ | ri 0xb545: count 2
+ | | phase 0 head_cost 3393 tail_cost 142957
+ | | phase 1 head_cost 89417 tail_cost 135473
+ | ri 0x92a: count 25
+ | | phase 0 head_cost 58650 tail_cost 19815
+ | | phase 1 head_cost 0 tail_cost 1299
+ | ri 0x922: count 21
+ | | phase 1 head_cost 0 tail_cost 1283
+ | | phase 0 head_cost 49098 tail_cost 78209
+ | ri 0x8: count 846
+ | | phase 0 head_cost 6768 tail_cost 440
+ | ri 0x962: count 1
+ | | phase 0 head_cost 2402 tail_cost 17805
+ | | phase 1 head_cost 0 tail_cost 1411
+ | ri 0x16c10: count 6
+ | | phase 0 head_cost 142957 tail_cost 0
+ | | phase 1 head_cost 416243 tail_cost 0
+(1,0x6cc):
+ | ri 0x14: count 12
+ | | phase 1 head_cost 240 tail_cost 1040
+ | ri 0x8: count 48
+ | | phase 1 head_cost 384 tail_cost 512
+ | ri 0x9ce: count 1
+ | | phase 1 head_cost 2510 tail_cost 0
+ | ri 0x1c: count 51
+ | | phase 1 head_cost 1428 tail_cost 28
+ | ri 0x2: count 795
+ | | phase 1 head_cost 1590 tail_cost 224
+(0,0x5fc):
+ | ri 0x9cd: count 1
+ | | phase 1 head_cost 0 tail_cost 9632
+ | | phase 0 head_cost 2509 tail_cost 12949
+ | ri 0x93e: count 2
+ | | phase 0 head_cost 4732 tail_cost 24636
+ | | phase 1 head_cost 0 tail_cost 8488
+ | ri 0x16c18: count 6
+ | | phase 1 head_cost 548932 tail_cost 93002
+ | | phase 0 head_cost 10316 tail_cost 206
+ | ri 0x16c10: count 2
+ | | phase 1 head_cost 183850 tail_cost 641878
+ | | phase 0 head_cost 2550 tail_cost 10522
+ | ri 0x95e: count 4
+ | | phase 0 head_cost 9592 tail_cost 15236
+ | | phase 1 head_cost 0 tail_cost 8744
+ | ri 0x91e: count 26
+ | | phase 0 head_cost 60684 tail_cost 108468
+ | | phase 1 head_cost 0 tail_cost 8232
+ | ri 0x8: count 842
+ | | phase 0 head_cost 6736 tail_cost 608
+ | ri 0x926: count 34
+ | | phase 0 head_cost 79628 tail_cost 29176
+ | | phase 1 head_cost 0 tail_cost 8296
+ | ri 0x16c30: count 1
+ | | phase 0 head_cost 206 tail_cost 0
+ | | phase 1 head_cost 93026 tail_cost 0
+(1,0x6b0):
+ | ri 0x922: count 29
+ | | phase 0 head_cost 0 tail_cost 5911
+ | | phase 1 head_cost 67802 tail_cost 96961
+ | ri 0x92a: count 30
+ | | phase 0 head_cost 0 tail_cost 5935
+ | | phase 1 head_cost 70380 tail_cost 26909
+ | ri 0x962: count 6
+ | | phase 1 head_cost 14412 tail_cost 10711
+ | | phase 0 head_cost 0 tail_cost 6103
+ | ri 0xb585: count 1
+ | | phase 0 head_cost 46458 tail_cost 63898
+ | | phase 1 head_cost 11 tail_cost 121978
+ | ri 0x8: count 836
+ | | phase 1 head_cost 6688 tail_cost 584
+ | ri 0xb54d: count 2
+ | | phase 0 head_cost 91734 tail_cost 110076
+ | | phase 1 head_cost 1092 tail_cost 121989
+ | ri 0x16c10: count 4
+ | | phase 0 head_cost 250822 tail_cost 0
+ | | phase 1 head_cost 121978 tail_cost 0
+ | ri 0x942: count 1
+ | | phase 0 head_cost 0 tail_cost 6007
+ | | phase 1 head_cost 2370 tail_cost 24803
+(1,0x6bc):
+ | ri 0x8: count 840
+ | | phase 1 head_cost 6720 tail_cost 504
+ | ri 0xabd3: count 10
+ | | phase 0 head_cost 246774 tail_cost 0
+ | | phase 1 head_cost 193096 tail_cost 43987
+ | ri 0xabb3: count 18
+ | | phase 1 head_cost 419365 tail_cost 880163
+ | | phase 0 head_cost 371825 tail_cost 1097812
+ | ri 0x16c30: count 1
+ | | phase 0 head_cost 48748 tail_cost 0
+ | | phase 1 head_cost 44484 tail_cost 0
+ | ri 0xabbb: count 34
+ | | phase 0 head_cost 851630 tail_cost 246534
+ | | phase 1 head_cost 643112 tail_cost 237059
+(1,0x69c):
+ | ri 0x6: count 54
+ | | phase 1 head_cost 324 tail_cost 0
+ | ri 0x5: count 859
+ | | phase 1 head_cost 4295 tail_cost 270
+---------Dump Samples Per Phase---
+{0: 7270, 1: 7243}
+
+            ---------------------
+            Initial budget per phase: 
+            {0: 952893440, 1: 949354496} 
+            ---------------------
+Assigned lease 1 to reference (1,6c8)
+Assigned lease 1 to reference (0,610)
+Assigned lease 3 to reference (1,6c8)
+Assigned lease 3 to reference (0,610)
+Assigned lease 2 to reference (1,6cc)
+Assigned lease 2 to reference (0,614)
+Assigned lease 6 to reference (0,5e4)
+Assigned lease 6 to reference (1,69c)
+Assigned lease 8 to reference (0,5f8)
+Assigned lease 8 to reference (0,640)
+Assigned lease 8 to reference (1,6a0)
+Assigned lease 8 to reference (1,6b4)
+Assigned lease 8 to reference (1,6bc)
+Assigned lease 8 to reference (0,604)
+Assigned lease 8 to reference (0,5e8)
+Assigned lease 8 to reference (1,6b0)
+Assigned lease 8 to reference (1,6f8)
+Assigned lease 8 to reference (0,5fc)
+Assigned lease 8 to reference (0,614)
+Assigned lease 8 to reference (1,6cc)
+Assigned lease 1c to reference (1,6cc)
+Assigned lease 1c to reference (0,614)
+Assigned lease 24 to reference (1,6a0)
+Assigned lease 24 to reference (0,5e8)
+Assigned lease 9ce to reference (1,6cc)
+Assigned lease 9ce to reference (0,614)
+Assigned lease 9cd to reference (1,6b4)
+Assigned lease 962 to reference (1,6b0)
+Assigned lease 9cd to reference (0,5fc)
+Assigned lease 962 to reference (0,5f8)
+Assigned lease b5e9 to reference (1,6f8)
+Assigned lease b542 to reference (0,640)
+Assigned dual lease (abd3,0.25137514) to reference (1,6bc)
+
+                            ERROR: current cost exceeds budget
+                            *budget_per_phase.get(&phase).unwrap():  952893440
+                            currenc_cost:                            952893448
+                            

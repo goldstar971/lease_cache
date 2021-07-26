@@ -1,0 +1,133 @@
+Reading input from: ../fpga_proxy/results/sample/SHEL_medium/2mm.txt
+---------Dump RI Hists------------
+(0,0x68c):
+ | ri 0x277: count 26073
+ | | phase 0 head_cost 16452063 tail_cost 1181232
+ | ri 0x27a: count 129
+ | | phase 0 head_cost 81786 tail_cost 1105062
+ | ri 0x1af59: count 1622
+ | | phase 0 head_cost 179109350 tail_cost 0
+ | ri 0x1af56: count 121
+ | | phase 0 head_cost 13361062 tail_cost 179104484
+(1,0x724):
+ | ri 0x1: count 149
+ | | phase 1 head_cost 149 tail_cost 29116
+ | ri 0x3: count 29116
+ | | phase 1 head_cost 87348 tail_cost 0
+(1,0x6fc):
+ | ri 0x1: count 155
+ | | phase 1 head_cost 155 tail_cost 0
+(1,0x714):
+ | ri 0x23c: count 27313
+ | | phase 1 head_cost 15623036 tail_cost 1107392
+ | ri 0x1ca0c: count 1750
+ | | phase 1 head_cost 205205000 tail_cost 0
+ | ri 0x1ca09: count 103
+ | | phase 1 head_cost 12077471 tail_cost 205199750
+ | ri 0x23f: count 83
+ | | phase 1 head_cost 47725 tail_cost 1065475
+(0,0x6a0):
+ | ri 0x1: count 117
+ | | phase 0 head_cost 117 tail_cost 27823
+ | ri 0x14dc4ea: count 1
+ | | phase 0 head_cost 13190633 tail_cost 41904493
+ | | phase 1 head_cost 8683265 tail_cost 67464997
+ | ri 0x1527c38: count 1
+ | | phase 0 head_cost 6830153 tail_cost 13882418
+ | | phase 1 head_cost 15352815 tail_cost 30483518
+ | ri 0x14cd3f8: count 1
+ | | phase 0 head_cost 14513209 tail_cost 55095126
+ | | phase 1 head_cost 7299007 tail_cost 75778170
+ | ri 0x149ee82: count 1
+ | | phase 1 head_cost 1132361 tail_cost 81748479
+ | | phase 0 head_cost 20490041 tail_cost 69608335
+ | ri 0x14e647e: count 1
+ | | phase 1 head_cost 8431333 tail_cost 59237924
+ | | phase 0 head_cost 13483417 tail_cost 28421076
+ | ri 0x1532b8e: count 1
+ | | phase 1 head_cost 15478469 tail_cost 15094821
+ | | phase 0 head_cost 6749385 tail_cost 7133033
+ | ri 0x152719e: count 1
+ | | phase 0 head_cost 7708505 tail_cost 20712571
+ | | phase 1 head_cost 14471749 tail_cost 45828191
+ | ri 0x3: count 27815
+ | | phase 0 head_cost 83445 tail_cost 24
+ | ri 0x153430c: count 1
+ | | phase 0 head_cost 7133033 tail_cost 0
+ | | phase 1 head_cost 15100835 tail_cost 0
+(1,0x70c):
+ | ri 0x3: count 164
+ | | phase 1 head_cost 492 tail_cost 0
+(0,0x688):
+ | ri 0x262: count 37
+ | | phase 0 head_cost 22570 tail_cost 59170
+ | ri 0x26e: count 31
+ | | phase 0 head_cost 19282 tail_cost 21770
+ | ri 0x24a: count 1557
+ | | phase 0 head_cost 912402 tail_cost 127748
+ | ri 0x250: count 27
+ | | phase 0 head_cost 15984 tail_cost 113072
+ | ri 0x3: count 26166
+ | | phase 0 head_cost 78498 tail_cost 5325
+ | ri 0x256: count 22
+ | | phase 0 head_cost 13156 tail_cost 101062
+ | ri 0x268: count 31
+ | | phase 0 head_cost 19096 tail_cost 40656
+ | ri 0x25c: count 35
+ | | phase 0 head_cost 21140 tail_cost 80936
+ | ri 0x274: count 35
+ | | phase 0 head_cost 21980 tail_cost 0
+(1,0x710):
+ | ri 0x215: count 30
+ | | phase 1 head_cost 15990 tail_cost 131651
+ | ri 0x5: count 1
+ | | phase 1 head_cost 5 tail_cost 9810
+ | ri 0x233: count 44
+ | | phase 1 head_cost 24772 tail_cost 23646
+ | ri 0x20f: count 1685
+ | | phase 1 head_cost 887995 tail_cost 145979
+ | ri 0x21b: count 37
+ | | phase 1 head_cost 19943 tail_cost 113190
+ | ri 0x22d: count 57
+ | | phase 1 head_cost 31749 tail_cost 47902
+ | ri 0x227: count 37
+ | | phase 1 head_cost 20387 tail_cost 78793
+ | ri 0x239: count 42
+ | | phase 1 head_cost 23898 tail_cost 0
+ | ri 0x221: count 30
+ | | phase 1 head_cost 16350 tail_cost 98100
+ | ri 0x3: count 27290
+ | | phase 1 head_cost 81870 tail_cost 5889
+(0,0x684):
+ | ri 0x3: count 122
+ | | phase 0 head_cost 366 tail_cost 0
+---------Dump Samples Per Phase---
+{1: 88086, 0: 83948}
+
+            ---------------------
+            Initial budget per phase: 
+            {1: 11545608192, 0: 11003232256} 
+            ---------------------
+Assigned lease 1 to reference (1,6fc)
+Assigned lease 3 to reference (1,724)
+Assigned lease 3 to reference (0,6a0)
+Assigned lease 3 to reference (1,70c)
+Assigned lease 3 to reference (0,684)
+Assigned lease 3 to reference (0,688)
+Assigned lease 3 to reference (1,710)
+Assigned lease 239 to reference (1,710)
+Assigned lease 274 to reference (0,688)
+Assigned lease 23f to reference (1,714)
+Assigned lease 27a to reference (0,68c)
+Assigned dual lease (1af59,0.1261169) to reference (0,68c)
+Assigned dual lease (1ca0c,0.12558074) to reference (1,714)
+Assigned dual lease (153430c,0.000000011098982) to reference (0,6a0)
+1, 6fc, 1, 0, 1
+0, 684, 3, 0, 1
+0, 68c, 27a, 1af59, 0.8738831
+0, 688, 274, 0, 1
+1, 710, 239, 0, 1
+1, 714, 23f, 1ca0c, 0.8744193
+0, 6a0, 3, 153430c, 1
+1, 70c, 3, 0, 1
+1, 724, 3, 0, 1

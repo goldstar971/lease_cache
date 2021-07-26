@@ -1,0 +1,87 @@
+Finished phase 0 with refT 21950370 >>>>>>>>>>>
+Start to init hits and costs
+Finished to init hits and costs
+Dump RI
+Ref 00000208 Set 0 RI 3 CNT 461
+Ref 0000020c Set 0 RI 3 CNT 25898
+Ref 0000020c Set 0 RI 96 CNT 3
+Ref 0000020c Set 0 RI 100 CNT 5
+Ref 0000020c Set 0 RI 104 CNT 1
+Ref 0000020c Set 0 RI 108 CNT 5
+Ref 0000020c Set 0 RI 112 CNT 2
+Ref 0000020c Set 0 RI 116 CNT 5
+Ref 0000020c Set 0 RI 128 CNT 3
+Ref 0000020c Set 0 RI 132 CNT 1
+Ref 0000020c Set 0 RI 136 CNT 1381
+Ref 0000020c Set 0 RI 148 CNT 231
+Ref 0000020c Set 0 RI 160 CNT 233
+Ref 0000020c Set 0 RI 172 CNT 230
+Ref 00000210 Set 0 RI 181 CNT 25914
+Ref 00000210 Set 0 RI 304 CNT 361
+Ref 00000210 Set 0 RI 8142 CNT 338
+Ref 00000210 Set 0 RI 8265 CNT 1391
+Ref 00000220 Set 0 RI 1 CNT 441
+Ref 00000220 Set 0 RI 3 CNT 27568
+Ref 00000220 Set 0 RI 97 CNT 9
+Ref 00000220 Set 0 RI 2237 CNT 13
+Ref 00000220 Set 0 RI 5101 CNT 7
+Ref 00000220 Set 0 RI 7965 CNT 6
+Ref 00000240 Set 0 RI 2 CNT 428
+Ref 00000240 Set 0 RI 90 CNT 6
+Ref 00000240 Set 0 RI 2954 CNT 4
+Ref 00000240 Set 0 RI 5818 CNT 3
+Ref 00000240 Set 0 RI 8690 CNT 6
+Ref 0000024c Set 0 RI 2 CNT 456
+
+refT 21950370 cache size (per set) 128 sample distance 257 targetCost (single set) 10932480
+Dump lease assignement procedure
+Assign lease 2 to ref 0000024c avg cache size (max among all sets) 0.0106779 miss ratio 0.994661
+total cost (single set) 912 set ID 0 target cost (single set) 10932480
+Assign lease 2 to ref 00000240 avg cache size (max among all sets) 0.0211451 miss ratio 0.98965
+total cost (single set) 1806 set ID 0 target cost (single set) 10932480
+Assign lease 3 to ref 00000220 avg cache size (max among all sets) 0.995855 miss ratio 0.661714
+total cost (single set) 85056 set ID 0 target cost (single set) 10932480
+Assign lease 3 to ref 00000208 avg cache size (max among all sets) 1.01205 miss ratio 0.656317
+total cost (single set) 86439 set ID 0 target cost (single set) 10932480
+Assign lease 3 to ref 0000020c avg cache size (max among all sets) 1.99547 miss ratio 0.353097
+total cost (single set) 170433 set ID 0 target cost (single set) 10932480
+Assign lease 172 to ref 0000020c avg cache size (max among all sets) 5.45286 miss ratio 0.32851
+total cost (single set) 465729 set ID 0 target cost (single set) 10932480
+Assign lease 181 to ref 00000210 avg cache size (max among all sets) 64.7987 miss ratio 0.0251024
+total cost (single set) 5534453 set ID 0 target cost (single set) 10932480
+Assign lease 90 to ref 00000240 avg cache size (max among all sets) 64.8182 miss ratio 0.0250322
+total cost (single set) 5536125 set ID 0 target cost (single set) 10932480
+Assign lease 97 to ref 00000220 avg cache size (max among all sets) 64.8567 miss ratio 0.0249268
+total cost (single set) 5539415 set ID 0 target cost (single set) 10932480
+Assign lease 304 to ref 00000210 avg cache size (max among all sets) 67.8666 miss ratio 0.0207002
+total cost (single set) 5796485 set ID 0 target cost (single set) 10932480
+Assign lease 7965 to ref 00000220 avg cache size (max among all sets) 69.1551 miss ratio 0.0203957
+total cost (single set) 5906541 set ID 0 target cost (single set) 10932480
+Assign lease 8690 to ref 00000240 avg cache size (max among all sets) 70.0946 miss ratio 0.0202435
+total cost (single set) 5986781 set ID 0 target cost (single set) 10932480
+Assign lease 8265 to ref 00000210 with percentage 0.360395
+             130 to ref 00000210 with percentage 0.639605
+             max set ID 0
+total cost (single set) 10932480 set ID 0 target cost (single set) 10932480
+******Cache status (each X/- means 1% occupy/empty) ******
+Set     0: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+******Overall utilization 1***************
+finished dumping the assignment procedure
+the FINAL avg cache size 128 miss ratio 0.0129493
+Dump single leases (last one may be dual)
+00000208 3
+0000020c ac
+00000210 2049 percentage 0.360395
+00000210 130 percentage 0.639605
+00000220 1f1d
+00000240 21f2
+0000024c 2
+
+Dump formated leases 
+0, 208, 3, 0, 1
+0, 20c, ac, 0, 1
+0, 210, 130, 2049, 0.639605
+0, 220, 1f1d, 0, 1
+0, 240, 21f2, 0, 1
+0, 24c, 2, 0, 1
+

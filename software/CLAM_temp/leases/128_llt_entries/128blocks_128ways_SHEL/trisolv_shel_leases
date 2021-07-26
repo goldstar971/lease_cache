@@ -1,0 +1,31 @@
+Finished phase 0 with refT 1024 >>>>>>>>>>>
+Start to init hits and costs
+Finished to init hits and costs
+Dump RI
+Ref 00000590 Set 0 RI 1 CNT 1
+Ref 00000590 Set 0 RI 2 CNT 1
+Ref 00000590 Set 0 RI 3 CNT 1
+Ref 00000594 Set 0 RI 1308 CNT 1
+
+refT 1024 cache size (per set) 128 sample distance 256 targetCost (single set) 512
+Dump lease assignement procedure
+Assign lease 3 to ref 00000590 avg cache size (max among all sets) 1.5 miss ratio 0.25
+total cost (single set) 6 set ID 0 target cost (single set) 512
+Assign lease 1308 to ref 00000594 with percentage 0.38685
+             0 to ref 00000594 with percentage 0.61315
+             max set ID 0
+total cost (single set) 512 set ID 0 target cost (single set) 512
+******Cache status (each X/- means 1% occupy/empty) ******
+Set     0: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+******Overall utilization 1***************
+finished dumping the assignment procedure
+the FINAL avg cache size 128 miss ratio 0.25
+Dump single leases (last one may be dual)
+00000590 3
+00000594 51c percentage 0.38685
+00000594 0 percentage 0.61315
+
+Dump formated leases 
+0, 590, 3, 0, 1
+0, 594, 0, 51c, 0.61315
+

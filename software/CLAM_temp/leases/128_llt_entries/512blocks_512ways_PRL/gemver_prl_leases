@@ -1,0 +1,170 @@
+sample rate: 0.00390625
+1612,
+	[3,1]
+	[56,1]
+	[1,1]
+	[4429,1]
+	[8630,1]
+	[15007,1]
+
+1644,
+	[2,6]
+	[94,1]
+
+1608,
+	[13,1]
+	[245,1]
+	[243,2]
+	[2,1]
+	[67,1]
+
+1620,
+	[1,1]
+
+1604,
+	[3,1]
+
+1720,
+	[138,1]
+	[128,23]
+	[127,7]
+	[130,3]
+	[129,4]
+	[88,1]
+	[219,1]
+	[107,1]
+	[114,2]
+	[119,1]
+	[131,1]
+	[1,2]
+	[91,1]
+	[126,4]
+
+1616,
+	[4058,1]
+
+1724,
+	[91,1]
+	[129,1]
+	[13,1]
+
+1856,
+	[2,2]
+
+1836,
+	[2,1]
+
+1832,
+	[2,1]
+	[3,1]
+
+len(carl_order):
+19
+Printing carl assignment order:
+1620,1,1.0
+1856,2,0.5
+1836,2,0.5
+1644,2,0.42857142857142855
+1832,3,0.4
+1604,3,0.3333333333333333
+1612,1,0.16666666666666666
+1612,3,0.1
+1608,2,0.08333333333333333
+1720,1,0.038461538461538464
+1724,13,0.02564102564102564
+1608,13,0.01818181818181818
+1644,94,0.010869565217391304
+1724,129,0.010309278350515464
+1720,219,0.007918910357934749
+1608,245,0.005361930294906166
+1612,56,0.0047169811320754715
+1616,4058,0.0002464268112370626
+1612,15007,0.00010753459029321098
+bin_width: 4268
+assigning lease 1 to address 1620
+Average Cache Occupancy Per Bin: [0.05,0.0,0.0,0.0,0.0]
+Total cost: 256.0
+assigning lease 2 to address 1856
+Average Cache Occupancy Per Bin: [0.05,0.0,0.0,0.0,0.23]
+Total cost: 256.0
+assigning lease 2 to address 1836
+Average Cache Occupancy Per Bin: [0.05,0.0,0.0,0.0,0.35]
+Total cost: 256.0
+assigning lease 2 to address 1644
+Average Cache Occupancy Per Bin: [0.89,0.0,0.0,0.0,0.35]
+Total cost: 3840.0
+assigning lease 3 to address 1832
+Average Cache Occupancy Per Bin: [0.89,0.0,0.0,0.0,0.65]
+Total cost: 3840.0
+assigning lease 3 to address 1604
+Average Cache Occupancy Per Bin: [1.07,0.0,0.0,0.0,0.65]
+Total cost: 4608.0
+assigning lease 1 to address 1612
+Average Cache Occupancy Per Bin: [1.25,0.05,0.05,0.05,0.65]
+Total cost: 5376.0
+assigning lease 3 to address 1612
+Average Cache Occupancy Per Bin: [1.49,0.17,0.17,0.17,0.65]
+Total cost: 6400.0
+assigning lease 2 to address 1608
+Average Cache Occupancy Per Bin: [2.09,0.29,0.17,0.17,0.65]
+Total cost: 8960.0
+assigning lease 1 to address 1720
+Average Cache Occupancy Per Bin: [2.09,1.01,1.07,1.37,0.95]
+Total cost: 8960.0
+assigning lease 13 to address 1724
+Average Cache Occupancy Per Bin: [2.09,2.57,1.07,2.15,0.95]
+Total cost: 8960.0
+assigning lease 13 to address 1608
+Average Cache Occupancy Per Bin: [4.73,3.23,1.07,2.15,0.95]
+Total cost: 20224.0
+assigning lease 94 to address 1644
+Average Cache Occupancy Per Bin: [10.2,3.23,1.07,2.15,0.95]
+Total cost: 43776.0
+assigning lease 129 to address 1724
+Average Cache Occupancy Per Bin: [10.2,14.8,1.07,2.15,0.95]
+Total cost: 43776.0
+assigning lease 219 to address 1720
+Average Cache Occupancy Per Bin: [10.2,104.,118.,143.,31.0]
+Total cost: 43776.0
+assigning lease 245 to address 1608
+Average Cache Occupancy Per Bin: [51.7,107.,118.,143.,31.0]
+Total cost: 220928.0
+assigning lease 56 to address 1612
+Average Cache Occupancy Per Bin: [54.9,111.,121.,147.,31.0]
+Total cost: 234496.0
+assigning lease 4058 to address 1616
+Average Cache Occupancy Per Bin: [54.9,354.,121.,147.,31.0]
+Total cost: 234496.0
+addr: 1612 ri: 15007
+bin target: 2185216
+	bin: 1.0 current capacity: 354.4892221180881  avg impact: 262.29803186504216
+	bin: 2.0 current capacity: 121.34208059981256  avg impact: 514.2792877225867
+	bin: 3.0 current capacity: 147.07403936269915  avg impact: 896.7797563261481
+num_full_bins: 0
+printing bin ranks sorted:
+	bin: 3.0 rank: 0.4069293023878002
+	selecting this^ bin
+	bin: 1.0 rank: 0.6005030871255431
+	bin: 2.0 rank: 0.7596221133659902
+acceptable_ratio: 0.4069293023878002
+Assigning 1612 dual lease lease 15007 * 0.4069293023878002. Bin saturation: [54.9,461.,330.,512.,31.0]
+Final saturation:
+	0.0,234496.0
+	1.0,1968512.4708715137
+	2.0,1411075.0307002878
+	3.0,2185216.0
+	4.0,132608.0
+DUMP LEASES
+0, 64c, 38, 3a9f, 0.5930706976121998 
+0, 66c, 5e, 0, 1 
+0, 648, f5, 0, 1 
+0, 654, 1, 0, 1 
+0, 644, 3, 0, 1 
+0, 6b8, db, 0, 1 
+0, 650, fda, 0, 1 
+0, 6bc, 81, 0, 1 
+0, 740, 2, 0, 1 
+0, 72c, 2, 0, 1 
+0, 728, 3, 0, 1 
+Dump dual leases
+

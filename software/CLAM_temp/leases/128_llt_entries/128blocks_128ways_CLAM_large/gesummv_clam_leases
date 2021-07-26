@@ -1,0 +1,90 @@
+Finished phase 0 with refT 13504836 >>>>>>>>>>>
+Start to init hits and costs
+Finished to init hits and costs
+Dump RI
+Ref 000005d8 Set 0 RI 7 CNT 7
+Ref 000005e8 Set 0 RI 5 CNT 6591
+Ref 000005ec Set 0 RI 8 CNT 6145
+Ref 000005ec Set 0 RI 12 CNT 5
+Ref 000005ec Set 0 RI 4294962926 CNT 386
+Ref 000005f0 Set 0 RI 1 CNT 6594
+Ref 00000604 Set 0 RI 5 CNT 1
+Ref 00000604 Set 0 RI 7 CNT 6567
+Ref 00000608 Set 0 RI 8 CNT 6154
+Ref 00000608 Set 0 RI 12 CNT 5
+Ref 00000608 Set 0 RI 4294962926 CNT 376
+Ref 0000060c Set 0 RI 3 CNT 6162
+Ref 0000060c Set 0 RI 10279 CNT 409
+Ref 0000060c Set 0 RI 10375 CNT 5
+Ref 00000610 Set 0 RI 1 CNT 6558
+Ref 00000618 Set 0 RI 2 CNT 6
+Ref 00000618 Set 0 RI 7 CNT 6562
+Ref 00000624 Set 0 RI 2 CNT 8
+Ref 00000638 Set 0 RI 2 CNT 7
+
+refT 13504836 cache size (per set) 128 sample distance 257 targetCost (single set) 6726144
+Dump lease assignement procedure
+Assign lease 1 to ref 000005f0 avg cache size (max among all sets) 0.125485 miss ratio 0.874515
+total cost (single set) 6594 set ID 0 target cost (single set) 6726144
+Assign lease 1 to ref 00000610 avg cache size (max among all sets) 0.250285 miss ratio 0.749715
+total cost (single set) 13152 set ID 0 target cost (single set) 6726144
+Assign lease 2 to ref 00000624 avg cache size (max among all sets) 0.25059 miss ratio 0.749562
+total cost (single set) 13168 set ID 0 target cost (single set) 6726144
+Assign lease 2 to ref 00000638 avg cache size (max among all sets) 0.250856 miss ratio 0.749429
+total cost (single set) 13182 set ID 0 target cost (single set) 6726144
+Assign lease 3 to ref 0000060c avg cache size (max among all sets) 0.626285 miss ratio 0.632165
+total cost (single set) 32910 set ID 0 target cost (single set) 6726144
+Assign lease 5 to ref 000005e8 avg cache size (max among all sets) 1.25343 miss ratio 0.506737
+total cost (single set) 65865 set ID 0 target cost (single set) 6726144
+Assign lease 7 to ref 00000618 avg cache size (max among all sets) 2.12779 miss ratio 0.381746
+total cost (single set) 111811 set ID 0 target cost (single set) 6726144
+Assign lease 7 to ref 00000604 avg cache size (max among all sets) 3.00268 miss ratio 0.256756
+total cost (single set) 157785 set ID 0 target cost (single set) 6726144
+Assign lease 7 to ref 000005d8 avg cache size (max among all sets) 3.00362 miss ratio 0.256623
+total cost (single set) 157834 set ID 0 target cost (single set) 6726144
+Assign lease 8 to ref 00000608 avg cache size (max among all sets) 3.99852 miss ratio 0.139511
+total cost (single set) 210114 set ID 0 target cost (single set) 6726144
+Assign lease 8 to ref 000005ec avg cache size (max among all sets) 4.99357 miss ratio 0.0225698
+total cost (single set) 262402 set ID 0 target cost (single set) 6726144
+Assign lease 12 to ref 00000608 avg cache size (max among all sets) 5.02257 miss ratio 0.0224747
+total cost (single set) 263926 set ID 0 target cost (single set) 6726144
+Assign lease 12 to ref 000005ec avg cache size (max among all sets) 5.05233 miss ratio 0.0223795
+total cost (single set) 265490 set ID 0 target cost (single set) 6726144
+Assign lease 10375 to ref 0000060c avg cache size (max among all sets) 86.021 miss ratio 0.014501
+total cost (single set) 4520234 set ID 0 target cost (single set) 6726144
+Assign lease 4294962926 to ref 000005ec with percentage 1.33058e-06
+             c to ref 000005ec with percentage 0.999999
+             max set ID 0
+total cost (single set) 6726144 set ID 0 target cost (single set) 6726144
+******Cache status (each X/- means 1% occupy/empty) ******
+Set     0: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+******Overall utilization 1***************
+finished dumping the assignment procedure
+the FINAL avg cache size 128 miss ratio 0.014501
+Dump single leases (last one may be dual)
+000005d8 7
+000005e8 5
+000005ec ffffeeee percentage 1.33058e-06
+000005ec c percentage 0.999999
+000005f0 1
+00000604 7
+00000608 c
+0000060c 2887
+00000610 1
+00000618 7
+00000624 2
+00000638 2
+
+Dump formated leases 
+0, 5d8, 7, 0, 1
+0, 5e8, 5, 0, 1
+0, 5ec, c, ffffeeee, 0.999999
+0, 5f0, 1, 0, 1
+0, 604, 7, 0, 1
+0, 608, c, 0, 1
+0, 60c, 2887, 0, 1
+0, 610, 1, 0, 1
+0, 618, 7, 0, 1
+0, 624, 2, 0, 1
+0, 638, 2, 0, 1
+

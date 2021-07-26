@@ -1,0 +1,185 @@
+sample rate: 0.00390625
+540,
+	[3,2078339]
+	[1,12221]
+	[69265,93]
+	[7953,98]
+	[46273,68]
+	[38609,81]
+	[53937,70]
+	[15617,97]
+	[30945,77]
+	[61601,93]
+	[23281,82]
+	[289,70]
+
+524,
+	[481,1961025]
+	[70065,130671]
+
+520,
+	[3,1960972]
+	[436,129960]
+	[420,78]
+	[356,77]
+	[292,89]
+	[388,95]
+	[340,92]
+	[372,68]
+	[404,88]
+	[308,80]
+	[324,73]
+
+584,
+	[2,12236]
+	[-4370,796]
+
+516,
+	[3,13057]
+
+572,
+	[69266,93]
+	[2,12223]
+	[23282,98]
+	[30946,81]
+	[53938,68]
+	[7954,76]
+	[290,69]
+	[38610,76]
+	[15618,98]
+	[61602,74]
+	[46274,78]
+
+len(carl_order):
+12
+Printing carl assignment order:
+584,2,0.4694597912829957
+572,2,0.46888905938315173
+540,3,0.33450431819000037
+516,3,0.3333333333333333
+520,3,0.31250470118323204
+520,436,0.0023118872039608095
+524,481,0.0019491240849411444
+572,290,0.00029541718043567613
+540,289,0.0002952415497650721
+572,69266,2.6575976921450296e-05
+540,69265,2.6550790017182805e-05
+524,70065,1.4371119797654634e-05
+bin_width: 324575898
+assigning lease 2 to address 584
+Average Cache Occupancy Per Bin: [0.00,0.00,0.00,0.00,0.00]
+Total cost: 1319936.0
+assigning lease 2 to address 572
+Average Cache Occupancy Per Bin: [0.00,0.00,0.00,0.00,0.00]
+Total cost: 2640896.0
+assigning lease 3 to address 540
+Average Cache Occupancy Per Bin: [0.99,0.99,0.99,0.99,0.99]
+Total cost: 322432512.0
+assigning lease 3 to address 516
+Average Cache Occupancy Per Bin: [0.99,1.00,0.99,1.00,0.99]
+Total cost: 324431616.0
+assigning lease 3 to address 520
+Average Cache Occupancy Per Bin: [1.98,1.99,1.98,1.99,1.98]
+Total cost: 645838848.0
+assigning lease 436 to address 520
+Average Cache Occupancy Per Bin: [10.9,10.9,10.9,10.8,10.9]
+Total cost: 3539233280.0
+addr: 524 ri: 481
+bin target: 41545714944
+	bin: 0.0 current capacity: 10.904177734108895  avg impact: 158.75442472934327
+	bin: 1.0 current capacity: 10.911512055648691  avg impact: 158.6140559580305
+	bin: 2.0 current capacity: 10.927261247229145  avg impact: 158.74569910301844
+	bin: 3.0 current capacity: 10.89180900302092  avg impact: 158.6277134601042
+	bin: 4.0 current capacity: 10.905289831471096  avg impact: 158.7953972355643
+num_full_bins: 0
+printing bin ranks sorted:
+	bin: 4.0 rank: 0.737393603385275
+	selecting this^ bin
+	bin: 2.0 rank: 0.7374860510507198
+	bin: 0.0 rank: 0.7375909204768626
+	bin: 1.0 rank: 0.7381974266853947
+	bin: 3.0 rank: 0.7382580788850146
+acceptable_ratio: 0.737393603385275
+Assigning 524 dual lease lease 481 * 0.737393603385275. Bin saturation: [127.,127.,127.,127.,128.]
+addr: 572 ri: 290
+bin target: 41545714944
+	bin: 0.0 current capacity: 127.96867503863575  avg impact: 0.037252895469151566
+	bin: 2.0 current capacity: 127.98532433071854  avg impact: 0.03384561844453404
+	bin: 4.0 current capacity: 128.0  avg impact: 0.03657144006422806
+num_full_bins: 1
+printing bin ranks sorted:
+	bin: 4.0 rank: 0.0
+	bin: 2.0 rank: 0.4336061787588062
+	bin: 0.0 rank: 0.8408731984385973
+acceptable_ratio: 0
+addr: 540 ri: 289
+bin target: 41545714944
+	bin: 0.0 current capacity: 127.96867503863575  avg impact: 0.03654304608902292
+	bin: 2.0 current capacity: 127.98532433071854  avg impact: 0.03586632301330027
+	bin: 4.0 current capacity: 128.0  avg impact: 0.03812206659904242
+num_full_bins: 1
+printing bin ranks sorted:
+	bin: 4.0 rank: 0.0
+	bin: 2.0 rank: 0.40917685584945007
+	bin: 0.0 rank: 0.8572071766522453
+acceptable_ratio: 0
+addr: 572 ri: 69266
+bin target: 41545714944
+	bin: 0.0 current capacity: 127.96867503863575  avg impact: 4.582913793555922
+	bin: 1.0 current capacity: 127.87250232609446  avg impact: 4.123739046082837
+	bin: 2.0 current capacity: 127.98532433071854  avg impact: 4.386074137889314
+	bin: 3.0 current capacity: 127.86287022813403  avg impact: 4.868834814099475
+	bin: 4.0 current capacity: 128.0  avg impact: 4.243725675527515
+num_full_bins: 1
+printing bin ranks sorted:
+	bin: 4.0 rank: 0.0
+	bin: 2.0 rank: 0.0033459692700327373
+	bin: 0.0 rank: 0.006835162688045873
+	bin: 3.0 rank: 0.02816480268931286
+	bin: 1.0 rank: 0.030917978194243047
+acceptable_ratio: 0
+addr: 540 ri: 69265
+bin target: 41545714944
+	bin: 0.0 current capacity: 127.96867503863575  avg impact: 4.5096668021850475
+	bin: 1.0 current capacity: 127.87250232609446  avg impact: 3.8171803378943436
+	bin: 2.0 current capacity: 127.98532433071854  avg impact: 4.63593007759313
+	bin: 3.0 current capacity: 127.86287022813403  avg impact: 5.08464164520312
+	bin: 4.0 current capacity: 128.0  avg impact: 4.68654391583937
+num_full_bins: 1
+printing bin ranks sorted:
+	bin: 4.0 rank: 0.0
+	bin: 2.0 rank: 0.003165636460393348
+	bin: 0.0 rank: 0.006946180890585192
+	bin: 3.0 rank: 0.02696940737118376
+	bin: 1.0 rank: 0.03340100876026958
+acceptable_ratio: 0
+addr: 524 ri: 70065
+bin target: 41545714944
+	bin: 0.0 current capacity: 127.96867503863575  avg impact: 1586.4102747395002
+	bin: 1.0 current capacity: 127.87250232609446  avg impact: 1597.1915034060846
+	bin: 2.0 current capacity: 127.98532433071854  avg impact: 1596.060851369808
+	bin: 3.0 current capacity: 127.86287022813403  avg impact: 1591.6620385904316
+	bin: 4.0 current capacity: 128.0  avg impact: 1593.7506063373812
+num_full_bins: 1
+printing bin ranks sorted:
+	bin: 4.0 rank: 0.0
+	bin: 2.0 rank: 9.194930925639637e-06
+	bin: 0.0 rank: 1.9745813465175636e-05
+	bin: 1.0 rank: 7.982616588783692e-05
+	bin: 3.0 rank: 8.61550810041373e-05
+acceptable_ratio: 0
+Final saturation:
+	0.0,41535547616.535385
+	1.0,41504332271.9992
+	2.0,41540951575.46422
+	3.0,41501205925.15407
+	4.0,41545714944.0
+DUMP LEASES
+0, 21c, 3, 0, 1 
+0, 20c, 1, 1e1, 0.26260639661472496 
+0, 208, 1b4, 0, 1 
+0, 248, 2, 0, 1 
+0, 204, 3, 0, 1 
+0, 23c, 2, 0, 1 
+Dump dual leases
+
