@@ -33,7 +33,7 @@ uint32_t proxy_terminal_command(pHandle pInst){
 	if(parse_input(&command_inst, pBuffer)){
 		return 1;
 	}
-
+		
 	// execute the command on successfully parse command
 	return proxy_execute(pInst, &command_inst);
 

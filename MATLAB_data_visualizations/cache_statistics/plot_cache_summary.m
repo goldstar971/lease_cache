@@ -6,7 +6,7 @@ addpath("./src");
 dataset_size=inputdlg("Give dataset size for the benchmark results which you'd like to plot: ",'s');
 dataset_size=cell2mat(dataset_size);
 multi_level_ans=questdlg("Plot statistics for two-level cache?",'Yes','No');
-convertCharsToStrings(multi_level_ans)
+convertCharsToStrings(multi_level_ans);
 if(multi_level_ans=="No")
 	multi_level=0;
 else
@@ -84,7 +84,7 @@ data_bm_single_scope=data_bm(ismember(benchmark_names,single_scope_benchmarks));
 benchmark_names_single=benchmark_names(ismember(benchmark_names,single_scope_benchmarks));
 data_bm_single_scope=cellfun(@(x) x(x(:,16+offset)<4,:),data_bm_single_scope,'UniformOutput',false);
 data_bm_multi_scope=data_bm(~ismember(benchmark_names,single_scope_benchmarks));
-data_bm_multi_scope=cellfun(@(x) x(x(:,16+offset)>2,:),data_bm_multi_scope,'UniformOutput',false);
+data_bm_multi_scope=cellfun(@(x) x(x(:,16+offset)>1,:),data_bm_multi_scope,'UniformOutput',false);
 benchmark_names_multi=benchmark_names(~ismember(benchmark_names,single_scope_benchmarks));
 PLRU_single_scope=PLRU_data(ismember(benchmark_names,single_scope_benchmarks));
 PLRU_multi_scope=PLRU_data(~ismember(benchmark_names,single_scope_benchmarks));
@@ -161,7 +161,7 @@ for h=1:2
 			
 		
 		else
-			legend({'PRL','SHEL','C-SHEL',},'Orientation','horizontal','FontSize',14);
+			legend({'CLAM','PRL','SHEL','C-SHEL',},'Orientation','horizontal','FontSize',14);
 			
 		end 
 		
@@ -176,7 +176,11 @@ for h=1:2
 					raw_misses=text(0,0,strcat('(',num2str(misses(z)),')'),'Units','Pixels');
 					raw_misses.Rotation=45;
 					raw_misses.Position=[15+(z-1)*60,-55];
-					raw_misses.FontSize=12;
+					if strcmp(dataset_size,'large')
+						raw_cycles.FontSize=10;
+					else
+						raw_cycles.FontSize=12;
+					end
 					raw_misses.Color=[0 0 0];
 				end
 			else
@@ -189,7 +193,11 @@ for h=1:2
 					raw_misses=text(0,0,strcat('(',num2str(misses(z)),')'),'Units','Pixels');
 					raw_misses.Rotation=45;
 					raw_misses.Position=[15+(z-1)*60,-55];
-					raw_misses.FontSize=13;
+					if strcmp(dataset_size,'large')
+						raw_cycles.FontSize=10;
+					else
+						raw_cycles.FontSize=12;
+					end
 					raw_misses.Color=[0 0 0];
 				end
 			end
@@ -204,7 +212,11 @@ for h=1:2
 					raw_cycles=text(0,0,strcat('(',num2str(cycles(z)),')'),'Units','Pixels');
 					raw_cycles.Rotation=45;
 					raw_cycles.Position=[15+(z-1)*60,-55];
-					raw_cycles.FontSize=13;
+					if strcmp(dataset_size,'large')
+						raw_cycles.FontSize=10;
+					else
+						raw_cycles.FontSize=12;
+					end
 					raw_cycles.Color=[0 0 0];
 				end
 			else
@@ -217,7 +229,11 @@ for h=1:2
 					raw_cycles=text(0,0,strcat('(',num2str(cycles(z)),')'),'Units','Pixels');
 					raw_cycles.Rotation=45;
 					raw_cycles.Position=[15+(z-1)*60,-55];
-					raw_cycles.FontSize=12;
+					if strcmp(dataset_size,'large')
+						raw_cycles.FontSize=10;
+					else
+						raw_cycles.FontSize=12;
+					end
 					raw_cycles.Color=[0 0 0];
 				end
 			end

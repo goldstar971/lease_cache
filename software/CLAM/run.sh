@@ -1,4 +1,4 @@
-#rm -f leases/*_leases
+rm -f leases/*_leases
 if [[ "$1" == "multi-level" ]]; then
 	make run_all_small_multi_level CAPACITY=512 WAYS=512
 	mv leases/*_prl_leases  "./leases/128_llt_entries/512blocks_512ways_PRL/"
@@ -30,21 +30,21 @@ if [[ "$1" == "multi-level" ]]; then
 		 mv leases/*_c-shel_leases "./leases/128_llt_entries/512blocks_512ways_C-SHEL_medium/"
 		 mv leases/*_shel_leases "./leases/128_llt_entries/512blocks_512ways_SHEL_medium/"
 		 mv leases/*_clam_leases "./leases/128_llt_entries/512blocks_512ways_CLAM_medium/"
-	make run_all_large CAPACITY=512 WAYS=512
-	mv leases/*_prl_leases  "./leases/512_llt_entries/512blocks_512ways_PRL_large/"
-	for i in leases/*; do
-		if [[ "$i" == "atax"* || "$i" == "bicg"* || "$i" == "cholesky"* || "$i" == "floyd-warshall"* || "$i" == "gemm"* || "$i" == "gesummv"* ||
-			"$i" == "gramschmidt"* || "$i" == "jacobi-1d"* || "$i" == "nussinov"* || "$i" == "seidel-2d"* || "$i" == "symm"* || "$i" == "syr2k"* ||
-			"$i" == "syrk"* || "$i" == "trisolv" || "$i" == "trmm" || "$i" == "doitgen" || "$i" == "durbin" ]]; then
-				benchmark_name=$(sed 's/\([a-z\-]\)_.*/\1/' <<<"$i");
-			cp "$i ./leases/512_llt_entries/512blocks_512ways_CLAM_large/$benchmark_name_CLAM_leases" 
-			cp "$i ./leases/512_llt_entries/512blocks_512ways_CLAM_large/$benchmark_name_SHEL_leases" 
-			cp "$i ./leases/512_llt_entries/512blocks_512ways_CLAM_large/$benchmark_name_C-SHEL_leases"
-		fi
-	done
+	 make run_all_large CAPACITY=512 WAYS=512
+	 mv leases/*_prl_leases  "./leases/512_llt_entries/512blocks_512ways_PRL_large/"
+	 for i in leases/*; do
+	 	if [[ "$i" == "atax"* || "$i" == "bicg"* || "$i" == "cholesky"* || "$i" == "floyd-warshall"* || "$i" == "gemm"* || "$i" == "gesummv"* ||
+	 		"$i" == "gramschmidt"* || "$i" == "jacobi-1d"* || "$i" == "nussinov"* || "$i" == "seidel-2d"* || "$i" == "symm"* || "$i" == "syr2k"* ||
+	 		"$i" == "syrk"* || "$i" == "trisolv" || "$i" == "trmm" || "$i" == "doitgen" || "$i" == "durbin" ]]; then
+	 			benchmark_name=$(sed 's/\([a-z\-]\)_.*/\1/' <<<"$i");
+	 		cp "$i ./leases/512_llt_entries/512blocks_512ways_CLAM_large/$benchmark_name_CLAM_leases" 
+	 		cp "$i ./leases/512_llt_entries/512blocks_512ways_CLAM_large/$benchmark_name_SHEL_leases" 
+	 		cp "$i ./leases/512_llt_entries/512blocks_512ways_CLAM_large/$benchmark_name_C-SHEL_leases"
+	 	fi
+	 done
 		mv leases/*_c-shel_leases "./leases/512_llt_entries/512blocks_512ways_C-SHEL_large/"
-		mv leases/*_shel_leases "./leases/512_llt_entries/512blocks_512ways_SHEL_large/"
-		mv leases/*_clam_leases "./leases/512_llt_entries/512blocks_512ways_CLAM_large/"
+	 	mv leases/*_shel_leases "./leases/512_llt_entries/512blocks_512ways_SHEL_large/"
+	 	mv leases/*_clam_leases "./leases/512_llt_entries/512blocks_512ways_CLAM_large/"
 		
 #make run_all_extra_large_multi_level CAPACITY=512 WAYS=512
 #mv leases/*_c_shel_leases "./leases/128_llt_entries/512blocks_512ways_C-SHEL_extra_large/"
@@ -55,39 +55,39 @@ if [[ "$1" == "multi-level" ]]; then
 
 
  else 
-# make run_all_small CAPACITY=128 WAYS=128
-# 	mv leases/*_prl_leases  "./leases/128_llt_entries/128blocks_128ways_PRL/"
-# 	for i in leases/*; do
-# 		if [[ "$i" == "atax"* || "$i" == "bicg"* || "$i" == "cholesky"* || "$i" == "floyd-warshall"* || "$i" == "gemm"* || "$i" == "gesummv"* ||
-# 			"$i" == "gramschmidt"* || "$i" == "jacobi-1d"* || "$i" == "nussinov"* || "$i" == "seidel-2d"* || "$i" == "symm"* || "$i" == "syr2k"* ||
-# 			"$i" == "syrk"* || "$i" == "trisolv" || "$i" == "trmm" || "$i" == "doitgen" || "$i" == "durbin" ]]; then
-# 				benchmark_name=$(sed 's/\([a-z\-]\)_.*/\1/' <<<"$i");
-# 			cp "$i ./leases/128_llt_entries/128blocks_128ways_CLAM/$benchmark_name_CLAM_leases" 
-# 			cp "$i ./leases/128_llt_entries/128blocks_128ways_CLAM/$benchmark_name_SHEL_leases" 
-# 			cp "$i ./leases/128_llt_entries/128blocks_128ways_CLAM/$benchmark_name_C-SHEL_leases"
-# 		fi
-# 	done
-# 		mv leases/*_c-shel_leases "./leases/128_llt_entries/128blocks_128ways_C-SHEL/"
-# 		mv leases/*_shel_leases "./leases/128_llt_entries/128blocks_128ways_SHEL/"
-# 		mv leases/*_clam_leases "./leases/128_llt_entries/128blocks_128ways_CLAM/"
-# 	make run_all_medium CAPACITY=128 WAYS=128
-# 	mv leases/*_prl_leases  "./leases/128_llt_entries/128blocks_128ways_PRL_medium/"
-# 	for i in leases/*; do
-# 		if [[ "$i" == "atax"* || "$i" == "bicg"* || "$i" == "cholesky"* || "$i" == "floyd-warshall"* || "$i" == "gemm"* || "$i" == "gesummv"* ||
-# 			"$i" == "gramschmidt"* || "$i" == "jacobi-1d"* || "$i" == "nussinov"* || "$i" == "seidel-2d"* || "$i" == "symm"* || "$i" == "syr2k"* ||
-# 			"$i" == "syrk"* || "$i" == "trisolv" || "$i" == "trmm" || "$i" == "doitgen" || "$i" == "durbin" ]]; then
-# 				benchmark_name=$(sed 's/\([a-z\-]\)_.*/\1/' <<<"$i");
-# 			cp "$i ./leases/128_llt_entries/128blocks_128ways_CLAM_medium/$benchmark_name_CLAM_leases" 
-# 			cp "$i ./leases/128_llt_entries/128blocks_128ways_CLAM_medium/$benchmark_name_SHEL_leases" 
-# 			cp "$i ./leases/128_llt_entries/128blocks_128ways_CLAM_medium/$benchmark_name_C-SHEL_leases"
-# 		fi
-# # 	done
-# 		mv leases/*_c-shel_leases "./leases/128_llt_entries/128blocks_128ways_C-SHEL_medium/"
-# 		mv leases/*_shel_leases "./leases/128_llt_entries/128blocks_128ways_SHEL_medium/"
-# 		mv leases/*_clam_leases "./leases/128_llt_entries/128blocks_128ways_CLAM_medium/"
-	# make run_all_large CAPACITY=128 WAYS=128
-	 mv leases/*_prl_leases  "./leases/128_llt_entries/128blocks_128ways_PRL_large/"
-	 for i in leases/*; do
+make run_all_small CAPACITY=128 WAYS=128
+	mv leases/*_prl_leases  "./leases/128_llt_entries/128blocks_128ways_PRL/"
+	for i in leases/*; do
+		if [[ "$i" == "atax"* || "$i" == "bicg"* || "$i" == "cholesky"* || "$i" == "floyd-warshall"* || "$i" == "gemm"* || "$i" == "gesummv"* ||
+			"$i" == "gramschmidt"* || "$i" == "jacobi-1d"* || "$i" == "nussinov"* || "$i" == "seidel-2d"* || "$i" == "symm"* || "$i" == "syr2k"* ||
+			"$i" == "syrk"* || "$i" == "trisolv" || "$i" == "trmm" || "$i" == "doitgen" || "$i" == "durbin" ]]; then
+				benchmark_name=$(sed 's/\([a-z\-]\)_.*/\1/' <<<"$i");
+			cp "$i ./leases/128_llt_entries/128blocks_128ways_CLAM/$benchmark_name_CLAM_leases" 
+			cp "$i ./leases/128_llt_entries/128blocks_128ways_CLAM/$benchmark_name_SHEL_leases" 
+			cp "$i ./leases/128_llt_entries/128blocks_128ways_CLAM/$benchmark_name_C-SHEL_leases"
+		fi
+	done
+		mv leases/*_c-shel_leases "./leases/128_llt_entries/128blocks_128ways_C-SHEL/"
+		mv leases/*_shel_leases "./leases/128_llt_entries/128blocks_128ways_SHEL/"
+		mv leases/*_clam_leases "./leases/128_llt_entries/128blocks_128ways_CLAM/"
+	make run_all_medium CAPACITY=128 WAYS=128
+	mv leases/*_prl_leases  "./leases/128_llt_entries/128blocks_128ways_PRL_medium/"
+	for i in leases/*; do
+		if [[ "$i" == "atax"* || "$i" == "bicg"* || "$i" == "cholesky"* || "$i" == "floyd-warshall"* || "$i" == "gemm"* || "$i" == "gesummv"* ||
+			"$i" == "gramschmidt"* || "$i" == "jacobi-1d"* || "$i" == "nussinov"* || "$i" == "seidel-2d"* || "$i" == "symm"* || "$i" == "syr2k"* ||
+			"$i" == "syrk"* || "$i" == "trisolv" || "$i" == "trmm" || "$i" == "doitgen" || "$i" == "durbin" ]]; then
+				benchmark_name=$(sed 's/\([a-z\-]\)_.*/\1/' <<<"$i");
+			cp "$i ./leases/128_llt_entries/128blocks_128ways_CLAM_medium/$benchmark_name_CLAM_leases" 
+			cp "$i ./leases/128_llt_entries/128blocks_128ways_CLAM_medium/$benchmark_name_SHEL_leases" 
+			cp "$i ./leases/128_llt_entries/128blocks_128ways_CLAM_medium/$benchmark_name_C-SHEL_leases"
+		fi
+	done
+		mv leases/*_c-shel_leases "./leases/128_llt_entries/128blocks_128ways_C-SHEL_medium/"
+		mv leases/*_shel_leases "./leases/128_llt_entries/128blocks_128ways_SHEL_medium/"
+		mv leases/*_clam_leases "./leases/128_llt_entries/128blocks_128ways_CLAM_medium/"
+	make run_all_large CAPACITY=128 WAYS=128
+	mv leases/*_prl_leases  "./leases/128_llt_entries/128blocks_128ways_PRL_large/"
+	for i in leases/*; do
 	 	if [[ "$i" == "atax"* || "$i" == "bicg"* || "$i" == "cholesky"* || "$i" == "floyd-warshall"* || "$i" == "gemm"* || "$i" == "gesummv"* ||
 	 		"$i" == "gramschmidt"* || "$i" == "jacobi-1d"* || "$i" == "nussinov"* || "$i" == "seidel-2d"* || "$i" == "symm"* || "$i" == "syr2k"* ||
 	 		"$i" == "syrk"* || "$i" == "trisolv" || "$i" == "trmm" || "$i" == "doitgen" || "$i" == "durbin" ]]; then

@@ -4,6 +4,7 @@ import getopt;			# for command line parse getopt.getopt
 import os.path;
 import terminal;
 import math;
+import statistics;
 #import matplotlib.pyplot as plt
 
 class lease_item:
@@ -74,7 +75,7 @@ def generate(options):
 	# first seperate items into sub-groups by their phase
 	phase_list_arr = [];
 	phase_list_arr_id = [];
-
+	
 	for item in lease_item_list:
 		
 		if item.phase in phase_list_arr_id:
@@ -99,20 +100,19 @@ def generate(options):
 	# -----------------------------------------------------------------------------------
 
 	# make sure all the entries can fit in the table
-
+	phase_max_short_lease=[]
+	for phase in phase_list_arr:
+		max_lease=0
+		for lease in phase:
+			lease_value=int(lease.lease0,16)
+			if(lease_value>max_lease):
+				max_lease=lease_value
+		phase_max_short_lease.append(max_lease)
+	default_lease=round(statistics.mean(phase_max_short_lease))
 	for phase in phase_list_arr:
 	
 		if len(phase) > options.size:
 			print("Error: phase cannot fit in specified LLT size");
-#			print("reducing leases to fit LLT")
-#			#sort by lease length
-#			phase.sort(key=lambda x: int(x.lease0,16), reverse=True)
-			#delete items until leases fit into LLT
-#			while(len(phase)>options.size):
-#				del phase[0]
-			#resort array
-#			phase.sort(key=lambda x: (-x.dual, int(x.addr,16)), reverse=False)
-			exit(0)
 # then make sure all phases+config can fit in the memory
 	config_bytes = 4*16;
 	phase_bytes = 4*(4*options.size)*len(phase_list_arr)
@@ -140,7 +140,7 @@ def generate(options):
 	destHandle.write("// lease header\n");
 	for i in range(0,16):
 		if i == 0:
-			destHandle.write("\t0x"+format_extend("1", 8)+",");
+			destHandle.write("\t0x"+format_extend(str(hex(default_lease))[2:], 8)+",");
 			destHandle.write("\t// default lease\n");
 		elif i == 1:
 			destHandle.write("\t0x"+format_extend(hex(options.size).lstrip("0x"), 8)+",");
@@ -151,7 +151,6 @@ def generate(options):
 		else:
 			destHandle.write("\t0x"+format_extend("0", 8)+",");
 			destHandle.write("\t// unused\n");
-
 	# write phase data
 	# --------------------------------------------------------
 	field_list = "reference address","lease0 value","lease1 value","lease0 probability";

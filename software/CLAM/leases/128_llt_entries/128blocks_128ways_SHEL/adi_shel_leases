@@ -1,3 +1,4 @@
+sample_count: 5235
 Finished phase 0 with refT 1345395 >>>>>>>>>>>
 Start to init hits and costs
 Finished to init hits and costs
@@ -205,7 +206,8 @@ Dump single leases (last one may be dual)
 00000698 3
 000006ac 249
 
-Finished phase 1 with refT 14deca >>>>>>>>>>>
+sample_count: 5322
+Finished phase 1 with refT 1367754 >>>>>>>>>>>
 Start to init hits and costs
 Finished to init hits and costs
 Dump RI

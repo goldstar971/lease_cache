@@ -1,4 +1,7 @@
+/*
+!sample
 sample/*
-sample
+!sample/*.tar.xz
+!track
 track/*
-track
+track/*tar.xz

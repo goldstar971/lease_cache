@@ -7,16 +7,42 @@ uint32_t parse_input(command *pInputInst, char *pBuffer){
 
 	// extract delimited fields from string
 	uint32_t n = 0;
-	char *ptr = strtok(pBuffer, COMMAND_DELIMITERS);
+	char *start_pointer, *end_pointer;
+	int command_length;
+	char command_str[256];
+	int leading_whitespace;
+	start_pointer=&pBuffer[0];
 
-	while(ptr != NULL){
+	end_pointer=strpbrk(start_pointer,COMMAND_DELIMITERS);
+	memset(command_str,0,256);
+
+	//handle leading whitespace before command
+	if(start_pointer==end_pointer){
+		leading_whitespace=strspn(start_pointer,COMMAND_DELIMITERS);
+		start_pointer+=leading_whitespace;
+		end_pointer=strpbrk(start_pointer,COMMAND_DELIMITERS);
+	}
+	do{
+		end_pointer=strpbrk(start_pointer,COMMAND_DELIMITERS);
+		command_length=strcspn(start_pointer,COMMAND_DELIMITERS);
+		memcpy(command_str,start_pointer,command_length);
+		if(command_length==0){
+			break;
+		}
 		if (n > N_FIELDS){
+			printf("too many fields for command!\n");
 			return 1;
 		}
-		strcpy(pInputInst->field[n++],ptr);
-		ptr = strtok(NULL, COMMAND_DELIMITERS);
-	}
-
+		strcpy(pInputInst->field[n++],command_str);
+		memset(command_str,0,command_length); //clear buffer
+		//get whitespace between fields
+		leading_whitespace=strspn(start_pointer+command_length,COMMAND_DELIMITERS);
+		
+		//adjust start pointer to the beginning of the next field
+	
+		start_pointer=start_pointer+leading_whitespace+command_length;
+	}while(end_pointer != NULL);
+	
 	// find first field (code) in the lookup table
 	pInputInst->table_index = 100;
 	for (uint32_t i = 0; i < sizeof(pCodes)/sizeof(pCodes[0]); i++){

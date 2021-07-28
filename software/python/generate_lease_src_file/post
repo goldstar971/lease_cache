@@ -106,7 +106,6 @@ make_run_all_script ()
             fi;
         fi;
     done
-
 }
 
 
@@ -133,19 +132,31 @@ make_track_all_script ()
 
 make_run_all_plru_script () 
 { 
-    script_name=run_all_plru_"$1".pss;
+	variant=$(pwd |sed -n 's/.*\/\([0-9A-Za-z_]*\)/\1/p');
+	if [[ "$1" == "" ]]; then
+		script_name=run_all_plru.pss
+	else
+		script_name=run_all_plru_"$1".pss;
+	fi;
     file_path=../../fpga_proxy/scripts/;
     rm -f "$file_path"/"$script_name";
     for i in *;
     do
-            echo RUN ../benchmarks/SHEL_"$1"/"$i"/program >> "$file_path"/"$script_name";
+    	if [[ "$i" != "deriche" || ("$i" == "deriche" && "$variant" != *"large") ]]; then
+	    	if [[ "$1" != "" ]]; then
+	            echo RUN ../benchmarks/SHEL_"$1"/"$i"/program >> "$file_path"/"$script_name";
+	        else
+	        	echo RUN ../benchmarks/SHEL/"$i"/program >> "$file_path"/"$script_name";
+	        fi
+	   fi
     done
 }
 
 
+
 (cd ../../benchmarks/SHEL/ && make_run_all_plru_script)
-(cd ../../benchmarks/SHEL/ && make_run_all_plru_script medium)
-(cd ../../benchmarks/SHEL/ && make_run_all_plru_script large)
+(cd ../../benchmarks/SHEL_medium/ && make_run_all_plru_script medium)
+(cd ../../benchmarks/SHEL_large/ && make_run_all_plru_script large)
 (cd ../../benchmarks/CLAM/ && make_benchmarks  && make_run_all_script && make_track_all_script)
 (cd ../../benchmarks/SHEL/ && make_benchmarks && make_run_all_script && make_track_all_script)
 (cd ../../benchmarks/C-SHEL/ && make_benchmarks && make_run_all_script && make_track_all_script)
@@ -158,7 +169,7 @@ make_run_all_plru_script ()
 (cd ../../benchmarks/SHEL_large/ && make_benchmarks && make_run_all_script && make_track_all_script) 
 (cd ../../benchmarks/C-SHEL_large/ && make_benchmarks && make_run_all_script && make_track_all_script) 
 (cd ../../benchmarks/PRL_large/ && make_benchmarks && make_run_all_script && make_track_all_script)
-#(cd ../../benchmarks/CLAM_extra_large/ && make_benchmarks  && make_run_all_script && make_track_all_script) 
-#(cd ../../benchmarks/SHEL_extra_large/ && make_benchmarks && make_run_all_script && make_track_all_script) 
-#(cd ../../benchmarks/C-SHEL_extra_large/ && make_benchmarks && make_run_all_script && make_track_all_script) 
-#(cd ../../benchmarks/PRL_extra_large/ && make_benchmarks && make_run_all_script && make_track_all_script)
+# #(cd ../../benchmarks/CLAM_extra_large/ && make_benchmarks  && make_run_all_script && make_track_all_script) 
+# #(cd ../../benchmarks/SHEL_extra_large/ && make_benchmarks && make_run_all_script && make_track_all_script) 
+# #(cd ../../benchmarks/C-SHEL_extra_large/ && make_benchmarks && make_run_all_script && make_track_all_script) 
+# #(cd ../../benchmarks/PRL_extra_large/ && make_benchmarks && make_run_all_script && make_track_all_script)

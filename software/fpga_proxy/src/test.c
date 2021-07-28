@@ -39,6 +39,7 @@ uint32_t test_run(pHandle pInst, command *pCommand){
 		if(proxy_string_command(pInst, command_str)==2){
 			return 1;
 		}
+		
 		sleep(.1);
 	sprintf(command_str, "VERIFY %s\r",pCommand->field[1]);
 	tries++;
@@ -167,7 +168,6 @@ uint32_t test_run(pHandle pInst, command *pCommand){
 }
 
 uint32_t script_run(pHandle pInst, command *pCommand){
-
 	// open file
 	FILE *pFile = fopen(pCommand->field[1],"r");
 	if(!pFile){

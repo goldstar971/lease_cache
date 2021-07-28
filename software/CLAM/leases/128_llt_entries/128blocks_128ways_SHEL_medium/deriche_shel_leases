@@ -1,3 +1,4 @@
+sample_count: 4019
 Finished phase 0 with refT 1032883 >>>>>>>>>>>
 Start to init hits and costs
 Finished to init hits and costs
@@ -31,7 +32,8 @@ Dump single leases (last one may be dual)
 000005cc 3 percentage 0.999999
 000005d4 1
 
-Finished phase 1 with refT a9c92 >>>>>>>>>>>
+sample_count: 2706
+Finished phase 1 with refT 695442 >>>>>>>>>>>
 Start to init hits and costs
 Finished to init hits and costs
 Dump RI
@@ -60,7 +62,8 @@ Dump single leases (last one may be dual)
 0000064c 2 percentage 0.999999
 00000654 2
 
-Finished phase 2 with refT fd5c6 >>>>>>>>>>>
+sample_count: 4038
+Finished phase 2 with refT 1037766 >>>>>>>>>>>
 Start to init hits and costs
 Finished to init hits and costs
 Dump RI
@@ -105,7 +108,8 @@ Dump single leases (last one may be dual)
 0000069c 3 percentage 0.913361
 000006ac 3
 
-Finished phase 3 with refT fbfb0 >>>>>>>>>>>
+sample_count: 4016
+Finished phase 3 with refT 1032112 >>>>>>>>>>>
 Start to init hits and costs
 Finished to init hits and costs
 Dump RI
@@ -134,7 +138,8 @@ Dump single leases (last one may be dual)
 00000738 86e percentage 0.177095
 00000738 0 percentage 0.822905
 
-Finished phase 4 with refT a968c >>>>>>>>>>>
+sample_count: 2700
+Finished phase 4 with refT 693900 >>>>>>>>>>>
 Start to init hits and costs
 Finished to init hits and costs
 Dump RI
@@ -172,7 +177,8 @@ Dump single leases (last one may be dual)
 000007b0 0 percentage 0.821162
 000007b8 0
 
-Finished phase 5 with refT f9a8b >>>>>>>>>>>
+sample_count: 3979
+Finished phase 5 with refT 1022603 >>>>>>>>>>>
 Start to init hits and costs
 Finished to init hits and costs
 Dump RI

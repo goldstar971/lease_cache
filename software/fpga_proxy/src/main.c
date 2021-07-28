@@ -38,7 +38,7 @@ int main(int argc, char** argv)
     //if running in headless mode
     else{
     //check to see if command has been given
-        char command_str[250];
+        char command_str[1000];
         char *start_pointer,*end_pointer;
         char arg_len;
         char opt;
@@ -51,13 +51,14 @@ int main(int argc, char** argv)
                 //get total length of command arg
             //fuck strtok being non-rentrant safe
 
-                  memset(command_str,0,250); //clear buffer
+                  memset(command_str,0,1000); //clear buffer
                 start_pointer=&optarg[0];
                 end_pointer=strchr(start_pointer,':');
                     //iterate through list of commands
                  while(end_pointer!=NULL){
                     command_length=(end_pointer-start_pointer)/sizeof(char);
                     memcpy(command_str,start_pointer,command_length); //copy characters up to the delimiter
+                        
                         status=proxy_string_command(proxy_inst,command_str);
                           switch(status){
                             case 0: printf("Command Successful\n"); break;

@@ -1,3 +1,4 @@
+sample_count: 143575
 Finished phase 0 with refT 36898775 >>>>>>>>>>>
 Start to init hits and costs
 Finished to init hits and costs
@@ -70,7 +71,8 @@ Dump single leases (last one may be dual)
 000005e0 5a11d percentage 0.0244858
 000005e0 6 percentage 0.975514
 
-Finished phase 1 with refT 232d2a2 >>>>>>>>>>>
+sample_count: 143522
+Finished phase 1 with refT 36885154 >>>>>>>>>>>
 Start to init hits and costs
 Finished to init hits and costs
 Dump RI
