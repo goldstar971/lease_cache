@@ -146,7 +146,7 @@ uint32_t protocol_fpga_config(pHandle pInst, uint32_t addr, uint32_t data){
 	return *(uint32_t *)rx_buffer; 
 }
 
-uint32_t protocol_cache_fusion(pHandle pInst, char *pBuffer, uint32_t addr, uint32_t data){
+uint32_t protocol_cache_fusion(pHandle pInst, char *pBuffer, uint32_t addr, uint32_t data, uint32_t num_words){
 
 	// make the command packet
 	char tx_buffer[4*BYTES_PER_WORD];
@@ -154,14 +154,15 @@ uint32_t protocol_cache_fusion(pHandle pInst, char *pBuffer, uint32_t addr, uint
 	*(uint32_t *)(tx_buffer+1*BYTES_PER_WORD) = PROTOCOL_FLAG_CACHE_FUSION; 	// config flag
 	*(uint32_t *)(tx_buffer+2*BYTES_PER_WORD) = addr;
 	*(uint32_t *)(tx_buffer+3*BYTES_PER_WORD) = data;
+	*(uint32_t *)(tx_buffer+4*BYTES_PER_WORD) = num_words;
 
 	// send packet
-	if(jtag_write(pInst, tx_buffer, 4*BYTES_PER_WORD)){
+	if(jtag_write(pInst, tx_buffer, 5*BYTES_PER_WORD)){
 		return 1;
 	}
 
 	// get data
-	jtag_read(pInst, pBuffer, 18*BYTES_PER_WORD);
+	jtag_read(pInst, pBuffer, num_words*BYTES_PER_WORD);
 
 	return 0;
 }

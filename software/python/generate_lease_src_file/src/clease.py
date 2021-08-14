@@ -108,7 +108,7 @@ def generate(options):
 			if(lease_value>max_lease):
 				max_lease=lease_value
 		phase_max_short_lease.append(max_lease)
-	default_lease=round(statistics.mean(phase_max_short_lease))
+	default_lease=round(statistics.median(phase_max_short_lease))
 	for phase in phase_list_arr:
 	
 		if len(phase) > options.size:

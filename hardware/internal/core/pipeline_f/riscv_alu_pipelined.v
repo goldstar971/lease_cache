@@ -80,7 +80,7 @@ generate
 		
 	if(RV32F && RV32M) begin
 		assign stall_cycles =(encoding_i[15:11]) ? falu_stall_cycles : ((encoding_i ==`ENCODING_ARITH_REG) &(func7_i== `RV32M_FUNC7)) ?
-		malu_stall_cycles : 'b0;
+		malu_stall_cycles : 5'b0;
 		assign out_o = ( (encoding_i == `ENCODING_ARITH_REG) & (func7_i == `RV32M_FUNC7) ) ? alu_32m_result : (encoding_i[15:11]) ?
 		alu_32f_result : alu_32i_result;
 	end 

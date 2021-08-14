@@ -280,7 +280,7 @@
 		`include "../../../internal/cache/fully_associative/src/tag_memory_fa.v"
 	`else 
 		`include "../../../internal/cache_2level/cache_2way_controller_multi_level.v"
-		`include "../../../internal/cache_2level/cache_2way.v"
+		`include "../../../internal/cache_2level/cache_2way_multi_level.v"
 		`include "../../../internal/cache/lib/set_cache_plru_policy_controller.v"
 		`include "../../../internal/cache/two_way_set_associative/src/tag_memory_2way.v"
 	`endif

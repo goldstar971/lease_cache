@@ -124,7 +124,7 @@ run_all_medium_multi_level: bin/rl_set_c_shel bin/rl_set_shel bin/prl.py
 	done & \
 	for i in $(all_bench); do \
 		python3 $(BIN_DIR)/prl.py $(CAPACITY) 5 $(SAMPLE_ALL_MEDIUM)_multi_level/$${i}.txt  > $(RESULT_DIR)/$${i}_prl_leases ; \
-	done & \
+		done & \
 	wait;
 
 run_all_large_multi_level: bin/rl_set_c_shel bin/rl_set_shel bin/prl.py
@@ -134,14 +134,13 @@ run_all_large_multi_level: bin/rl_set_c_shel bin/rl_set_shel bin/prl.py
 	for i in $(multi_bench_large); do \
 		$(BIN_DIR)/rl_set_shel $(SAMPLE_ALL_PHASE_LARGE)_multi_level/$${i}.txt $(CAPACITY) $(WAYS)  > $(RESULT_DIR)/$${i}_shel_leases ; \
 	done & \
-	for i in $(multi_bench_large); do \
-		cargo run  $(SAMPLE_ALL_PHASE_LARGE)/$${i}.txt -s $(CAPACITY) >  $(RESULT_DIR)/$${i}_c-shel_leases ; \
-	done & \
 	for i in $(all_bench_large); do \
 		python3 $(BIN_DIR)/prl.py $(CAPACITY) 5 $(SAMPLE_ALL_LARGE)_multi_level/$${i}.txt  > $(RESULT_DIR)/$${i}_prl_leases ; \
 	done & \
-	wait;
-
+	wait; \
+	#for i in $(multi_bench_large); do \
+	#	cargo run  $(SAMPLE_ALL_PHASE_LARGE)/$${i}.txt -s $(CAPACITY) >  $(RESULT_DIR)/$${i}_c-shel_leases ; \
+	#done & 
 run_all_extra_large_multi_level: bin/rl_set_c_shel bin/rl_set_shel bin/prl.py
 	for i in $(all_bench); do \
 		$(BIN_DIR)/rl_set_shel $(SAMPLE_ALL_EXTRA_LARGE)_multi_level/$${i}.txt $(CAPACITY) $(WAYS)  > $(RESULT_DIR)/$${i}_clam_leases ; \

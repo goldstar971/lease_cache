@@ -109,7 +109,7 @@ uint32_t get_elf_sections(char *filepath, uint32_t *pAddr, uint32_t *pSize){
 
 
 uint32_t dma_elf_data(pHandle pInst, char *filename, uint32_t address, uint32_t size, uint32_t bytes_sent, uint32_t write_flag){
-
+	bool verbose=0;
 	// transfer temporaries
 	char pBuffer[MAX_WRITE_BYTES];
 	char pBufferVerify[MAX_WRITE_BYTES];
@@ -156,8 +156,10 @@ uint32_t dma_elf_data(pHandle pInst, char *filename, uint32_t address, uint32_t 
 					return 1;
 				}
 			}
-			printf("\rVerified: %u bytes - packet: %u",file_size,iteration++);
-			fflush(stdout);	
+			
+				printf("\rVerified: %u bytes - packet: %u",file_size,iteration++);
+				fflush(stdout);	
+			
 		}
 
 		// update the file address

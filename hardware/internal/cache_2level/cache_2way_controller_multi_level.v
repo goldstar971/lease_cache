@@ -45,6 +45,9 @@ module cache_2way_controller_multi_level #(
 	output 								mem_req_block_o,
 	output 								mem_rw_o,
 	output 	[`BW_WORD_ADDR-1:0]			mem_addr_o,
+	`ifdef L2_CACHE_POLICY_DLEASE
+	input                               swap_flag_i,
+	`endif
 
 	// performance ports
 	output 								flag_hit_o,

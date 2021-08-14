@@ -10,6 +10,7 @@ module peripheral_system_3(
 	input 		[26:0] 	add_core_i, 
 	input 		[31:0]	data_core_i,
 	output 	reg	[31:0]	data_core_o,
+	input           [191:0]        cycle_counts_i,
 
 	// external system
 	input 				req_cs_i, 
@@ -22,14 +23,14 @@ module peripheral_system_3(
 	input 		[31:0]	comm_cache0_i, 
 	input 		[31:0]	comm_cache1_i,
 	input       [31:0]  comm_cacheL2_i,
-	output   [1:0]    metric_sel_o,
-		output 		[31:0] 	phase_o,
-		output 		[31:0]	comm_o
+	output   	[1:0]    metric_sel_o,
+	output 		[31:0] 	phase_o,
+	output 		[31:0]	comm_o
 	
 );
 
 // write control
-reg [31:0]	comm_reg0, comm_reg1, comm_reg2;
+reg [31:0]	comm_reg0, comm_reg1;
 reg [7:0]	comm_pro_i_reg;
 reg [23:0]	comm_cs_i_reg;
 reg [1:0] metric_sel_reg;
@@ -43,7 +44,6 @@ always @(posedge clock_i) begin
 	if (!reset_i) begin
 		comm_reg0 		<= 32'h0; 
 		comm_reg1 		<= 32'h0; 
-		comm_reg2 		<= 32'h0;
 		comm_pro_i_reg 	<= 'b0; 
 		comm_cs_i_reg 	<= 'b0;
 		metric_sel_reg<='b0;
@@ -59,9 +59,7 @@ always @(posedge clock_i) begin
 		if (req_core_i & rw_core_i) begin
 			case(add_core_i)
 				`COMM_REGISTER0: comm_reg0 <= data_core_i;
-				`COMM_REGISTER1: comm_reg1 <= data_core_i;
-				`COMM_REGISTER2: comm_reg2 <= data_core_i;
-
+			
 				// communication stuff here
 				`COMM_CONTROL: 		comm_pro_i_reg <= data_core_i[7:0];
 					`PHASE_REG: 		core_phase_reg <= {1'b1,data_core_i[30:0]};
@@ -72,6 +70,17 @@ always @(posedge clock_i) begin
 			case(add_cs_i)
 				`COMM_CONTROL:  comm_cs_i_reg <= data_cs_i[23:0];
 				`CPC_METRIC_SWITCH:    metric_sel_reg<=data_cs_i[1:0];
+				`STATS_BASE: begin
+					case(data_cs_i[2:0])
+						3'b000: comm_reg1 <= cycle_counts_i[31:0];
+						3'b001: comm_reg1 <= cycle_counts_i[63:32];
+						3'b010: comm_reg1 <= cycle_counts_i[95:64];
+						3'b011: comm_reg1<= cycle_counts_i[127:96];
+						3'b100: comm_reg1 <= cycle_counts_i[159:128];
+						3'b101: comm_reg1 <= cycle_counts_i[191:160];
+						default: comm_reg1<=32'b0;
+					endcase
+				end
 			endcase
 		end
 	end
@@ -88,16 +97,15 @@ always @(posedge clock_i) begin
 		if (req_core_i & !rw_core_i) begin
 			case(add_core_i)
 				`COMM_REGISTER0: data_core_o <= comm_reg0;
-				`COMM_REGISTER1: data_core_o <= comm_reg1;
-				`COMM_REGISTER2: data_core_o <= comm_reg2;
+
 			endcase
 		end
 		// control system requests
 		if (req_cs_i & !rw_cs_i) begin
 			case(add_cs_i)
 				`COMM_REGISTER0: data_cs_o <= comm_reg0;
-				`COMM_REGISTER1: data_cs_o <= comm_reg1;
-				`COMM_REGISTER2: data_cs_o <= comm_reg2;
+				`STATS_BASE:     data_cs_o <= comm_reg1;
+			
 				
 				// cache comm stuff
 				`COMM_CACHE0: data_cs_o <= comm_cache0_i;

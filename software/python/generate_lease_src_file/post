@@ -96,17 +96,21 @@ make_run_all_script ()
     for i in *;
     do
         if [[ "$variant" == "SHEL"* || "$variant" == "C-SHEL"* ]]; then
-            if [[ -d "$i" && "$i" != "atax" && "$i" != "bicg" && "$i" != "cholesky" && "$i" != "floyd-warshall" && "$i" != "gemm" && "$i" != "gesummv" \
-            	&& "$i" != "gramschmidt" && "$i" != "jacobi-1d" && "$i" != "nussinov" && "$i" != "seidel-2d" && "$i" != "symm" && "$i" != "syr2k" && "$i" != "syrk" && "$i" != "trisolv" && "$i" != "trmm" && "$i" != "doitgen" && "$i" != "durbin" || ("$i" == "deriche" && "$variant" != *"large" )  ]]; then
+            if [[ -d "$i" && "$i" != "atax" && "$i" != "bicg" && "$i" != "cholesky" && "$i" != "floyd-warshall" && "$i" != "gemm" && "$i" != "gesummv" && "$i" != "gramschmidt" && "$i" != "jacobi-1d" && "$i" != "nussinov" && "$i" != "seidel-2d" && "$i" != "symm" && "$i" != "syr2k" && "$i" != "syrk" && "$i" != "trisolv" && "$i" != "trmm" && "$i" != "doitgen" && "$i" != "durbin" && "$i" != "deriche" ]]; then
                 echo RUN ../benchmarks/"$variant"/"$i"/program >> "$file_path"/"$script_name";
+            else
+                if [[ "$i" == "deriche" && "$variant" != *"large" ]]; then
+                    echo RUN ../benchmarks/"$variant"/"$i"/program >> "$file_path"/"$script_name";
+                fi;
             fi;
         else
-			if [[ "$i" != "deriche" || ("$i" == "deriche" && "$variant" != *"large") ]]; then
-            	echo RUN ../benchmarks/"$variant"/"$i"/program >> "$file_path"/"$script_name";
+            if [[ "$i" != "deriche" || ( "$i" == "deriche" && "$variant" != *"large" ) ]]; then
+                echo RUN ../benchmarks/"$variant"/"$i"/program >> "$file_path"/"$script_name";
             fi;
         fi;
     done
 }
+
 
 
 make_track_all_script () 
@@ -118,13 +122,16 @@ make_track_all_script ()
     for i in *;
     do
         if [[ "$variant" == "SHEL"* || "$variant" == "C-SHEL"* ]]; then
-            if [[ -d "$i" && "$i" != "atax" && "$i" != "bicg" && "$i" != "cholesky" && "$i" != "floyd-warshall" && "$i" != "gemm" && "$i" != "gesummv" \
-            	&& "$i" != "gramschmidt" && "$i" != "jacobi-1d" && "$i" != "nussinov" && "$i" != "seidel-2d" && "$i" != "symm" && "$i" != "syr2k" && "$i" != "syrk" && "$i" != "trisolv" && "$i" != "trmm" && "$i" != "doitgen" && "$i" != "durbin" || ("$i" == "deriche" && "$variant" != *"large" )  ]]; then
+            if [[ -d "$i" && "$i" != "atax" && "$i" != "bicg" && "$i" != "cholesky" && "$i" != "floyd-warshall" && "$i" != "gemm" && "$i" != "gesummv" && "$i" != "gramschmidt" && "$i" != "jacobi-1d" && "$i" != "nussinov" && "$i" != "seidel-2d" && "$i" != "symm" && "$i" != "syr2k" && "$i" != "syrk" && "$i" != "trisolv" && "$i" != "trmm" && "$i" != "doitgen" && "$i" != "durbin" && "$i" != "deriche" ]]; then
                 echo TRACK ../benchmarks/"$variant"/"$i"/program >> "$file_path"/"$script_name";
+            else
+                if [[ "$i" == "deriche" && "$variant" != *"large" ]]; then
+                    echo TRACK ../benchmarks/"$variant"/"$i"/program >> "$file_path"/"$script_name";
+                fi;
             fi;
         else
-			if [[ "$i" != "deriche" || ("$i" == "deriche" && "$variant" != *"large") ]]; then
-            	echo TRACK ../benchmarks/"$variant"/"$i"/program >> "$file_path"/"$script_name";
+            if [[ "$i" != "deriche" || ( "$i" == "deriche" && "$variant" != *"large" ) ]]; then
+                echo TRACK ../benchmarks/"$variant"/"$i"/program >> "$file_path"/"$script_name";
             fi;
         fi;
     done
@@ -159,15 +166,15 @@ make_run_all_plru_script ()
 (cd ../../benchmarks/SHEL_large/ && make_run_all_plru_script large)
 (cd ../../benchmarks/CLAM/ && make_benchmarks  && make_run_all_script && make_track_all_script)
 (cd ../../benchmarks/SHEL/ && make_benchmarks && make_run_all_script && make_track_all_script)
-(cd ../../benchmarks/C-SHEL/ && make_benchmarks && make_run_all_script && make_track_all_script)
+#(cd ../../benchmarks/C-SHEL/ && make_benchmarks && make_run_all_script && make_track_all_script)
 (cd ../../benchmarks/PRL/ && make_benchmarks && make_run_all_script && make_track_all_script)
 (cd ../../benchmarks/CLAM_medium/ && make_benchmarks  && make_run_all_script && make_track_all_script) 
 (cd ../../benchmarks/SHEL_medium/ && make_benchmarks && make_run_all_script && make_track_all_script)
-(cd ../../benchmarks/C-SHEL_medium/ && make_benchmarks && make_run_all_script && make_track_all_script)
+#(cd ../../benchmarks/C-SHEL_medium/ && make_benchmarks && make_run_all_script && make_track_all_script)
 (cd ../../benchmarks/PRL_medium/ && make_benchmarks && make_run_all_script && make_track_all_script)
 (cd ../../benchmarks/CLAM_large/ && make_benchmarks  && make_run_all_script && make_track_all_script#) 
 (cd ../../benchmarks/SHEL_large/ && make_benchmarks && make_run_all_script && make_track_all_script) 
-(cd ../../benchmarks/C-SHEL_large/ && make_benchmarks && make_run_all_script && make_track_all_script) 
+#(cd ../../benchmarks/C-SHEL_large/ && make_benchmarks && make_run_all_script && make_track_all_script) 
 (cd ../../benchmarks/PRL_large/ && make_benchmarks && make_run_all_script && make_track_all_script)
 # #(cd ../../benchmarks/CLAM_extra_large/ && make_benchmarks  && make_run_all_script && make_track_all_script) 
 # #(cd ../../benchmarks/SHEL_extra_large/ && make_benchmarks && make_run_all_script && make_track_all_script) 

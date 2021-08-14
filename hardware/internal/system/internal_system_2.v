@@ -30,7 +30,8 @@ module internal_system_2(
 	output 			per_rw_o,
 	output	[31:0]	per_add_o, 		// byte addressible
 	output 	[31:0]	per_data_o, 
-	input 	[31:0]	per_data_i		
+	input 	[31:0]	per_data_i,
+	output   [191:0]  cycle_counts_o		
 );
 
 
@@ -78,7 +79,8 @@ assign core_inst_addr_word = core_inst_addr[`BW_WORD_ADDR+1:2];
 	.per_rw_o 		(per_rw_o 				), 
 	.per_add_o 		(per_add_o 				), 
 	.per_data_o 	(per_data_o 			),
-	.per_data_i 	(per_data_i 			)
+	.per_data_i 	(per_data_i 			),
+	.cycle_counts_o(cycle_counts_o		)
 
 );
 

@@ -31,7 +31,8 @@ module internal_system_2_multi_level(
 	output 			per_rw_o,
 	output	[31:0]	per_add_o, 		// byte addressible
 	output 	[31:0]	per_data_o, 
-	input 	[31:0]	per_data_i		
+	input 	[31:0]	per_data_i,		
+	output   [191:0]  cycle_counts_o
 );
 
 
@@ -43,6 +44,7 @@ wire 		req1_core2mc, rw1_core2mc, done1_mc2core;
 wire [31:0]	add1_core2mc, data1_core2mc, data1_mc2core;
 wire [3:0]	core_exceptions;
 wire cache_contr_enable;
+
 
 
 wire [31:0]  				core_inst_addr; 	// core address assumes 2GB space, byte addressible
@@ -81,7 +83,8 @@ assign core_inst_addr_word = core_inst_addr[`BW_WORD_ADDR+1:2];
 	.per_rw_o 		(per_rw_o 				), 
 	.per_add_o 		(per_add_o 				), 
 	.per_data_o 	(per_data_o 			),
-	.per_data_i 	(per_data_i 			)
+	.per_data_i 	(per_data_i 			),
+	.cycle_counts_o(cycle_counts_o		)
 
 );
 
@@ -89,9 +92,10 @@ assign core_inst_addr_word = core_inst_addr[`BW_WORD_ADDR+1:2];
 // data cache
 // ---------------------------------------------------------------------------------------------------------------
 // L1 <-> L2
-wire 		L2_read_ack_i,L2_ready_read_o, L2_ready_write_o, L1_reqToCacheL2, L1_rwToCacheL2, L1_doneFromCacheL2,L1_validFromCacheL2, L1_reqBlockToCacheL2;
+wire 		swap_flag_o,L2_read_ack_i,L2_ready_read_o, L2_ready_write_o, L1_reqToCacheL2, L1_rwToCacheL2, L1_doneFromCacheL2,L1_validFromCacheL2, L1_reqBlockToCacheL2;
 wire 		[23:0]	L1_addToCacheL2;
-wire 		[31:0]	L1_dataToCacheL2, L1_dataFromCacheL2, swap_flag_o; 
+wire 		[31:0]	L1_dataToCacheL2, L1_dataFromCacheL2;
+
 
 // L2 <-> memory controller
 wire 				mci_enableToCacheL2, mci_readyToCacheL2, mci_writeReadyToCacheL2, mci_readReadyToCacheL2;
@@ -189,9 +193,9 @@ wire 				mci_hitFromCacheL1I, mci_reqFromCacheL1I, mci_reqBlockFromCacheL1I, mci
 	.core_data_i 			(core_dataToCacheL1I 			),
 	.core_done_o 			(core_doneFromCacheL1I 		), 
 	.core_data_o 			(core_dataFromCacheL1I 		),
-	//`ifdef L2_CACHE_POLICY_DLEASE
-	//.swap_flag_i(swap_flag_o),
-	//`endif
+	`ifdef L2_CACHE_POLICY_DLEASE
+	.swap_flag_i(swap_flag_o),
+	`endif
 
 	// memory controller	
 	.en_i 					(cache_contr_enable			), 
@@ -244,9 +248,9 @@ wire 				mci_hitFromCacheL1D, mci_reqFromCacheL1D, mci_reqBlockFromCacheL1D, mci
 	.core_done_o 			(core_doneFromCacheL1D 		), 
 	.core_data_o 			(core_dataFromCacheL1D 		),
 
-//	`ifdef L2_CACHE_POLICY_DLEASE
-//	.swap_flag_i(swap_flag_o),
-//	`endif
+	`ifdef L2_CACHE_POLICY_DLEASE
+	.swap_flag_i(swap_flag_o),
+	`endif
 	// memory controller	
 	.en_i 					(cache_contr_enable		), 
 	.ready_req_i 			(mci_readyToCacheL1D 			), 

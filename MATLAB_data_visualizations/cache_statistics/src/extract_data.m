@@ -8,8 +8,8 @@ data = table2array(results(:,2:end));
 filenames = table2array(results(:,1));
 
 % vacancy rate and multivacancy rate
-data(:,17+offset) = 100*(data(:,9+offset) ./ data(:,7+offset));
-data(:,18+offset) = 100*(data(:,10+offset) ./ data(:,7+offset));
+data(:,18+offset) = 100*(data(:,9+offset) ./ data(:,7+offset));
+data(:,19+offset) = 100*(data(:,10+offset) ./ data(:,7+offset));
 
 
 

@@ -18,6 +18,7 @@ module riscv_hart_6stage_pipeline(
 	output 	[31:0]		data_addr_o,
 	output 	[31:0]		data_data_o,
 	output 	[31:0]		data_ref_addr_o,
+	//benchmark statistics 
 	output  [63:0] stall_delay_counter_o,
 	output  [63:0] cycle_counter_o,
 	output  [63:0] mem_stall_counter_o

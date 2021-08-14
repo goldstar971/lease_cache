@@ -12,8 +12,10 @@
 #define CACHE_L1I_ADDR 		0x04000080
 #define CACHE_L1D_ADDR 		0x04000084
 #define CACHE_L2_ADDR       0x04000092
+#define CPU_STAT_ADDR       0x04000120
 
-#define CACHE_REPORT_BYTES 	204
+#define CACHE_REPORT_BYTES 	208
+#define CPU_STAT_REPORT_BYTES   24
 
 
 uint32_t test_run(pHandle, command *);
@@ -30,7 +32,7 @@ uint32_t script_run(pHandle, command *);
 // pHandle: 			proxy handle
 // command: 			command to execute
 
-uint32_t make_cache_report(pHandle, char *rx_buffer);
+uint32_t make_cache_report(pHandle, char *rx_buffer, char *stat_buffer);
 // description: 		- blocking
 //  					- reads all cache data
 // return: 				0: success, 1: fail

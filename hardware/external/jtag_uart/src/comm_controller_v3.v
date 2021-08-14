@@ -21,14 +21,12 @@ module comm_controller_v3(
 	output reg 			exception_o
 );
 
-localparam 	RESET_PURGE 			= 5'b10001;
+
 localparam 	IDLE					= 5'b00000;
 localparam 	SYNC 					= 5'b00001;
 localparam 	CONFIG		 			= 5'b00100;
-
 localparam 	GET_WORD 				= 5'b00010;
 localparam 	SEND_WORD 				= 5'b00011;
-
 localparam 	JTAG_READ 				= 5'b00101;
 localparam 	JTAG_WRITE 				= 5'b00110;
 localparam 	ACKNOWLEDGE 			= 5'b00111;
@@ -39,22 +37,21 @@ localparam 	WAIT_FOR_ACKNOWLEDGE 	= 5'b01011;
 localparam 	CHECK_TERM2 			= 5'b01100;
 localparam 	WAIT_READY_READ 		= 5'b01101;
 localparam 	WAIT_READY_WRITE 		= 5'b01110;
-
-localparam 	CONFIG2 				= 5'b10010;
-localparam 	MANAGE_BURST 			= 5'b10011;
-localparam 	BURST_RX 				= 5'b10100;
-localparam 	BURST_WAIT_DONE			= 5'b10101;
-localparam 	BURST_TX 				= 5'b10110;
-localparam 	BURST_TX_INIT 			= 5'b10111;
-localparam 	BURST_WAIT_DONE2		= 5'b11000;
-
-localparam 	FUSION_MANAGE0 			= 5'b11001;
-localparam 	FUSION_MANAGE1 			= 5'b11010;
+localparam 	RESET_PURGE 			= 5'b10000;
+localparam 	CONFIG2 				= 5'b10001;
+localparam 	MANAGE_BURST 			= 5'b10010;
+localparam 	BURST_RX 				= 5'b10011;
+localparam 	BURST_WAIT_DONE			= 5'b10100;
+localparam 	BURST_TX 				= 5'b10101;
+localparam 	BURST_TX_INIT 			= 5'b10110;
+localparam 	BURST_WAIT_DONE2		= 5'b10111;
+localparam 	FUSION_MANAGE0 			= 5'b11000;
+localparam 	FUSION_MANAGE1 			= 5'b11001;
+localparam  FUSION_MANAGE2          = 5'b10010;
 localparam 	FUSION_READ 			= 5'b11011;
 localparam 	FUSION_WRITE 			= 5'b11100;
-
 localparam 	FUSION_CACHE_READ 		= 5'b11101;
-localparam  	FUSION_CACHE_WRITE 		= 5'b11110;
+localparam  FUSION_CACHE_WRITE 		= 5'b11110;
 localparam 	FUSION_CACHE_MANAGE 	= 5'b11111;
 
 localparam 	KEY_SYNC 				= 32'h4A78B9F2;
@@ -106,7 +103,7 @@ reg 	[4:0]	state_current,
 				state_next0,
 				state_next1;
 reg 	[11:0]	word_reload,
-				word_counter;
+				word_counter,fusion_words_num;
 reg 	[15:0]	fusion_counter;
 reg 	[13:0]	packet_counter;
 
@@ -117,8 +114,12 @@ reg 	[31:0]	uart_tx_data;
 
 reg 	[26:0]	fusion_write_add, fusion_read_add;
 reg 	[15:0] 	fusion_base_add;
-reg 	[5:0]	fusion_cache_ptr;
-//reg 	[15:0]	fusion_limit
+`ifdef MULTI_LEVEL_CACHE
+	reg 	[5:0]	fusion_cache_ptr;
+`else 
+	reg 	[4:0]	fusion_cache_ptr;
+`endif
+
 reg 			fusion_cache_flag;
 reg             tracking_flag;
 
@@ -142,6 +143,7 @@ always @(posedge clock_i) begin
 		state_next1 = IDLE;
 		word_reload = 'b0;
 		word_counter = 'b0;
+
 		packet_counter = 'b0;
 		config_bits = 'b0;
 		iteration_counter = PURGE_ITERATIONS;
@@ -162,7 +164,7 @@ always @(posedge clock_i) begin
 		op_ptr = 'b0;
 
 		fusion_write_add = 'b0; fusion_read_add = 'b0; fusion_base_add = 'b0;
-		fusion_cache_ptr = 4'b0000;
+		fusion_cache_ptr = 'b0; fusion_words_num ='b0;
 		fusion_cache_flag = 1'b0;
 		tracking_flag =1'b0;
 	end
@@ -320,11 +322,17 @@ always @(posedge clock_i) begin
 			end
 			FUSION_MANAGE1: begin
 				fusion_read_add 	= rx_get_data_reg[26:0];
-				state_current 		= FUSION_WRITE;
+				state_current 		= GET_WORD;
+				state_next0         =FUSION_MANAGE2;
+			end
+			FUSION_MANAGE2: begin 
+				fusion_words_num =rx_get_data_reg[26:0];
+				state_current       =FUSION_WRITE;
 				word_counter 		= 'b0;
 			end
+
 			FUSION_WRITE: begin
-				if (word_counter != 5'b10010) begin
+				if (word_counter != fusion_words_num) begin
 					state_current 	= WAIT_READY_WRITE; 	// request a write
 					add_o 			= fusion_write_add;			// write address
 					rx_get_data_reg = word_counter; 		// value to write is incrementing count
@@ -364,14 +372,22 @@ always @(posedge clock_i) begin
 						if(tracking_flag) begin
 
 							// get new data
-							rx_get_data_reg 	= {{11'b0},(fusion_counter[14:0]+fusion_base_add[14:0]),fusion_cache_ptr};
-																								 	// fusion_cache_ptr switches between comm_o_reg cases
+							`ifdef MULTI_LEVEL_CACHE
+								rx_get_data_reg 	= {{11'b0},(fusion_counter[14:0]+fusion_base_add[14:0]),fusion_cache_ptr};
+							`else 
+								rx_get_data_reg 	= {{12'b0},(fusion_counter[14:0]+fusion_base_add[14:0]),fusion_cache_ptr};
+							`endif
+																							 	// fusion_cache_ptr switches between comm_o_reg cases
 																									// fusion_counter increments buffer address
 																									// base is for offsets
 							fusion_cache_ptr 	= fusion_cache_ptr + 1'b1;
 
 							// reset for next loop
-							if (fusion_cache_ptr == 6'b110100) begin
+							`ifdef MULTI_LEVEL_CACHE
+								if (fusion_cache_ptr == 6'b110100) begin
+							`else 
+								if (fusion_cache_ptr == 5'b10000) begin
+							`endif
 								fusion_cache_ptr 	= 'b0;
 								fusion_counter 		= fusion_counter + 1'b1;
 							end

@@ -27,7 +27,11 @@ module riscv_hart_top(
 	output 			per_rw_o,
 	output 	[31:0]	per_add_o, 
 	output 	[31:0]	per_data_o,
-	input 	[31:0]	per_data_i
+	input 	[31:0]	per_data_i,
+	
+		//benchmark statistics 
+	output  [191:0] cycle_counts_o
+	
 
 );
 
@@ -37,6 +41,13 @@ assign mem_rw0_o 		= 1'b0;
 //assign inst_addr_o 		= 'b0;
 assign inst_word_o 		= 'b0;
 assign exception_bus_o  = 'b0;
+
+
+
+wire [63:0] floating_delay_count_o,cycle_count_o,memory_stall_count_o;
+
+//group cpu stats together into one bus
+assign cycle_counts_o= {cycle_count_o,floating_delay_count_o,memory_stall_count_o};
 
 
 // internal port mapping signals
@@ -77,7 +88,12 @@ riscv_hart_6stage_pipeline hart_inst(
 	.data_wren_o 		(hart_data_rw 		),
 	.data_addr_o 		(hart_data_add 		), 
 	.data_data_o 		(hart_data_data_o 	),
-	.data_ref_addr_o 	(inst_addr_o 		)		// misleading name - need to clean it up
+	.data_ref_addr_o 	(inst_addr_o 		),		// misleading name - need to clean it up
+	
+		//benchmark statistics 
+	.stall_delay_counter_o(floating_delay_count_o),
+	.cycle_counter_o(cycle_count_o),
+	.mem_stall_counter_o(memory_stall_count_o)
 );
 
 port_switch peripheral_switch_inst(

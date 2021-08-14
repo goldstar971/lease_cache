@@ -1,32 +1,34 @@
-Finished phase 0 with refT 828 >>>>>>>>>>>
+sample_count: 5
+Finished phase 0 with refT 1085 >>>>>>>>>>>
 Start to init hits and costs
 Finished to init hits and costs
 Dump RI
+Ref 0000057c Set 0 RI 58 CNT 1
 Ref 00000590 Set 0 RI 1 CNT 1
-Ref 00000594 Set 0 RI 2 CNT 1
-Ref 00000594 Set 0 RI 1325 CNT 1
-Ref 000005a4 Set 0 RI 2 CNT 1
+Ref 00000590 Set 0 RI 1380 CNT 1
+Ref 000005b0 Set 0 RI 10 CNT 1
+Ref 000005b0 Set 0 RI 11 CNT 1
 
-refT 828 cache size (per set) 512 sample distance 207 targetCost (single set) 2048
+refT 1085 cache size (per set) 512 sample distance 217 targetCost (single set) 2560
 Dump lease assignement procedure
-Assign lease 1 to ref 00000590 avg cache size (max among all sets) 0.25 miss ratio 0.75
-total cost (single set) 1 set ID 0 target cost (single set) 2048
-Assign lease 2 to ref 000005a4 avg cache size (max among all sets) 0.75 miss ratio 0.5
-total cost (single set) 3 set ID 0 target cost (single set) 2048
-Assign lease 2 to ref 00000594 avg cache size (max among all sets) 1.75 miss ratio 0.25
-total cost (single set) 7 set ID 0 target cost (single set) 2048
-Assign lease 1325 to ref 00000594 avg cache size (max among all sets) 332.5 miss ratio 0
-total cost (single set) 1330 set ID 0 target cost (single set) 2048
+Assign lease 1 to ref 00000590 avg cache size (max among all sets) 0.4 miss ratio 0.8
+total cost (single set) 2 set ID 0 target cost (single set) 2560
+Assign lease 11 to ref 000005b0 avg cache size (max among all sets) 4.6 miss ratio 0.4
+total cost (single set) 23 set ID 0 target cost (single set) 2560
+Assign lease 58 to ref 0000057c avg cache size (max among all sets) 16.2 miss ratio 0.2
+total cost (single set) 81 set ID 0 target cost (single set) 2560
+Assign lease 1380 to ref 00000590 avg cache size (max among all sets) 292 miss ratio 0
+total cost (single set) 1460 set ID 0 target cost (single set) 2560
 finished dumping the assignment procedure
-the FINAL avg cache size 332.5 miss ratio 0
+the FINAL avg cache size 292 miss ratio 0
 Dump single leases (last one may be dual)
-00000590 1
-00000594 52d percentage 1
-00000594 0 percentage 0
-000005a4 2
+0000057c 3a
+00000590 564 percentage 1
+00000590 0 percentage 0
+000005b0 b
 
 Dump formated leases 
-0, 590, 1, 0, 1
-0, 594, 0, 52d, 0
-0, 5a4, 2, 0, 1
+0, 57c, 3a, 0, 1
+0, 590, 1, 564, 0
+0, 5b0, b, 0, 1
 

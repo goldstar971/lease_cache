@@ -16,6 +16,7 @@ module cache_performance_controller_all #(
 	input 			expired_i,			// logic high when lease cache replaces an expired block
 	input 			expired_multi_i, 	// logic high when multiple cache lines are expired
 	input 			defaulted_i, 		// logic high when lease cache renews using a default lease value
+	input           rand_evict_i,       // logic high when random eviction occurs in lease cache
 	input 	[31:0]	comm_i, 			// configuration signal	
 	output 	[31:0] 	comm_o, 	 		// return value of comm_i
 	output 			stall_o,
@@ -28,6 +29,7 @@ module cache_performance_controller_all #(
 );
 
 reg 	[31:0]	comm_o_reg0,comm_o_reg1,comm_o_reg2;
+reg swap_store;
 
 wire enable_tracker, enable_sampler, tracker_stall_o,sampler_stall_o, buffer_full_flag,table_full_flag;
 
@@ -49,7 +51,8 @@ reg 	[63:0]	counter_walltime_reg,	// when enabled counts "wall time" - actually 
 				counter_expired_reg, 	// counts times expired_i is logic high
 				counter_mexpired_reg, 	// counts times multi_expired_i is logic high
 				counter_swap_reg, //counts the number of times a zero lease was assigned
-				counter_defaulted_reg; 	// counts times defaulted_i is logic high
+				counter_defaulted_reg, 	// counts times defaulted_i is logic high
+				counter_rand_evic_reg;
 				
 wire 	[31:0]		rui_interval, rui_refpc, rui_used, rui_count, rui_remaining, rui_target;
 wire 	[63:0]		rui_trace;
@@ -85,8 +88,10 @@ always @(posedge clock_i[0]) begin
 		counter_walltime_reg 	<= 'b0;
 		counter_expired_reg 	<= 'b0;
 		counter_mexpired_reg 	<= 'b0;
+		counter_rand_evic_reg 	<= 'b0;
 		counter_defaulted_reg 	<= 'b0;
 		counter_swap_reg<='b0;
+		swap_store <=1'b0;
 	end
 
 	else begin
@@ -98,7 +103,10 @@ always @(posedge clock_i[0]) begin
 			if 		(expired_i) 		counter_expired_reg 	<= counter_expired_reg + 1'b1;
 			if 		(expired_multi_i) 	counter_mexpired_reg 	<= counter_mexpired_reg + 1'b1;
 			if 		(defaulted_i) 		counter_defaulted_reg 	<= counter_defaulted_reg + 1'b1;
-			if       (!swap_i&&defaulted_i)     counter_swap_reg <=counter_swap_reg+1'b1; //strobed so it only increments when there is actually a zero lease assigned
+			if      (rand_evict_i)      counter_rand_evic_reg   <= counter_rand_evic_reg + 1'b1;
+			swap_store<=swap_i;
+			//always strobed even if no lease cache
+			if       (!swap_i&&swap_store!=swap_i)     counter_swap_reg <=counter_swap_reg+1'b1; 
 			// always increment wall-timer
 			counter_walltime_reg <= counter_walltime_reg + 1'b1;
 		end
@@ -179,7 +187,8 @@ always @(posedge clock_i[0]) begin
 			5'b01101: comm_o_reg0 <= counter_mexpired_reg[63:32];
 			5'b10000: comm_o_reg0 <= counter_swap_reg[31:0];
 			5'b10001: comm_o_reg0 <= counter_swap_reg[63:32];
-			
+			5'b10010: comm_o_reg0 <= counter_rand_evic_reg[31:0];
+			5'b10011: comm_o_reg0 <= counter_rand_evic_reg[63:32]; 
 			// cache identification
 			5'b01111: comm_o_reg0 <= CACHE_STRUCTURE | CACHE_REPLACEMENT;
 		

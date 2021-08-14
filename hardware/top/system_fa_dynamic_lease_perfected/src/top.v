@@ -3,7 +3,7 @@
 module top(
 
 	// DDR3 pins
-	output	[13:0]		ddr3b_a,
+	output	[13:0]	ddr3b_a,
 	output	[2:0]		ddr3b_ba,
 	output 				ddr3b_casn,
 	output 				ddr3b_clk_n,
@@ -20,7 +20,7 @@ module top(
 	inout 	[7:0] 		ddr3b_dqs_p,
 
 	// operational and debugging pins
-	input 				user_pb, 			// pll reset
+	input 				user_pb, 				// pll reset
 	output 	[7:0] 		user_led, 			// status LEDs
 	input 				clkin_r_p,        	// base clock for DDR3 (100 Mhz)
 	input 				cpu_resetn,       	// top level reset (reset controller, jtag-uart, & ddr3)
@@ -64,7 +64,7 @@ wire 			req_core2per, rw_core2per;
 wire 	[31:0]	add_core2per;
 wire 	[31:0]	data_core2per, data_per2core;  	
 wire 	[31:0] 	phase_bus;
-
+wire  [191:0] cycle_counts_o;
 
 internal_system_2 riscv_sys (
 
@@ -95,7 +95,8 @@ internal_system_2 riscv_sys (
 	.per_rw_o 		(rw_core2per		), 
 	.per_add_o 		(add_core2per		), 
 	.per_data_o 	(data_core2per		), 
-	.per_data_i 	(data_per2core		)
+	.per_data_i 	(data_per2core		),
+	.cycle_counts_o (cycle_counts_o  )
 );
 
 
@@ -158,10 +159,12 @@ external_memory_system_2 system_ext_inst(
 
 // peripheral i/o's system
 // -------------------------------------------------------------------------------------------------------
-peripheral_system_2 per_sys_inst(
+
+
+peripheral_system_3 per_sys_inst(
 
 	// system ports
-	.clock_i 		(clock_gen_bus[4]	), 	// 20 Mhz, 180 deg phase
+	.clock_i 		(clock_gen_bus[0]	), 	// 40 Mhz, 180 deg phase
 	.reset_i 		(reset_bus[1] 		), 
 
 	
@@ -171,6 +174,7 @@ peripheral_system_2 per_sys_inst(
 	.add_core_i 	(add_core2per		), 	// [26:0]
 	.data_core_i 	(data_core2per		),
 	.data_core_o 	(data_per2core 		),
+	.cycle_counts_i (cycle_counts_o),
 
 	// external system
 	.req_cs_i 		(req_toPer1 		), 
@@ -180,12 +184,15 @@ peripheral_system_2 per_sys_inst(
 	.data_cs_o 		(data_fromPer1 		),
 
 	// periphery ports - used for communication/control of cache
-	.phase_o(phase_bus),
+		.phase_o(phase_bus),
 	.comm_cache0_i 	(comm_fromCache0	), 
 	.comm_cache1_i 	(comm_fromCache1	),
+	.comm_cacheL2_i (),
 	.metric_sel_o       (sel_cpc),
 
 	.comm_o 		(comm_toCore		) 
 
 );
+
+
 endmodule

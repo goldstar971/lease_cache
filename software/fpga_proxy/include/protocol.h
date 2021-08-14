@@ -78,7 +78,7 @@ uint32_t 	protocol_fpga_config 	(pHandle, uint32_t addr, uint32_t data);
 // data: 					configuration data
 // addr: 					configuration address
 
-uint32_t 	protocol_cache_fusion 	(pHandle, char *pBuffer, uint32_t addr, uint32_t data);
+uint32_t 	protocol_cache_fusion 	(pHandle, char *pBuffer, uint32_t addr, uint32_t data, uint32_t num_words);
 // description: 			- blocking
 //  						- legacy command
 // 							- executes a compound command

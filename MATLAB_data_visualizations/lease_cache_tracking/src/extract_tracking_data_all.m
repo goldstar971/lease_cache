@@ -10,7 +10,7 @@ else
 end
 	
 if(set_cache_size=="large")
-	interval=10;
+	interval=2;
 elseif(set_cache_size=="very_large")
 	interval=60;
 else
@@ -30,7 +30,7 @@ for i=1:width(results)-3
                     hex2dec(table2array(results(1:interval:end,i+1)));
     end
 end
-
+clear results;
 trace = data(:,end);
 
 % create matrix of the individual cache line bits of columns 1:4
@@ -63,7 +63,7 @@ for i=1:(cache_size/32)       % raw data iterator
     end  
 end
 
-clear results data
+clear data
 for i = 1: length(mat_fin(:,1))
     for j = 1: length(mat_fin(1,:))
         

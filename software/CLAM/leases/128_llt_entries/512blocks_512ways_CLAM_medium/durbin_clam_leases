@@ -1,3 +1,4 @@
+sample_count: 90
 Finished phase 0 with refT 22320 >>>>>>>>>>>
 Start to init hits and costs
 Finished to init hits and costs
@@ -113,7 +114,7 @@ Dump formated leases
 0, 224, 40, 0, 1
 0, 238, c, 0, 1
 0, 258, a, 0, 1
-0, 25c, 0, 55, 0
+0, 25c, 1, 55, 0
 0, 270, 28, 0, 1
 0, 294, 49, 0, 1
 0, 25d8, 2b, 0, 1

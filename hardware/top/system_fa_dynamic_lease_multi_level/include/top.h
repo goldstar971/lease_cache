@@ -280,13 +280,13 @@
 		`include "../../../internal/cache/fully_associative/src/tag_memory_fa.v"
 	`else 
 		`include "../../../internal/cache_2level/cache_2way_controller_multi_level.v"
-		`include "../../../internal/cache_2level/cache_2way.v"
+		`include "../../../internal/cache_2level/cache_2way_multi_level.v"
 		`include "../../../internal/cache/lib/set_cache_plru_policy_controller.v"
 		`include "../../../internal/cache/two_way_set_associative/src/tag_memory_2way.v"
 	`endif
 `else 
 	`include "../../../utilities/linear_feedback_shift_register/linear_shift_register_12b.v"
-	`include "../../../peripheral/src/peripheral_system_2.v"
+	`include "../../../peripheral/src/peripheral_system_3.v"
 	`include "../../../internal/system/internal_system_2.v"
 	`include "../../../internal/cache/fully_associative/src/cache_fa_all.v"
 	`include "../../../include/cpc_all.h"

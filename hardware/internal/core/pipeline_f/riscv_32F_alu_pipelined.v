@@ -142,7 +142,7 @@ stall_cycles_7,stall_cycles_8;
 //if we aren't a float operation than the result doesn't matter so just assume its a float operation
 //attempt at a balanced structural path
 
-assign stall_cycles_2=(func5_i==`RV32F_FUNC5_SQRT) ? `FSQRT_LATENCY : (func5_i==`RV32F_FUNC5_DIV) ?  `FDIV_LATENCY : 'b0;
+assign stall_cycles_2=(func5_i==`RV32F_FUNC5_SQRT) ? `FSQRT_LATENCY : (func5_i==`RV32F_FUNC5_DIV) ?  `FDIV_LATENCY : 4'b0;
 assign stall_cycles_1=(encoding_i[14:11]) ?`FMA_LATENCY : (func5_i<5'b00010) ? `FADD_SUB_LATENCY : 4'b0;
 assign stall_cycles_3=(func5_i==`RV32F_FUNC5_MUL) ? `FMUL_LATENCY : (func5_i==`RV32F_FUNC5_CLASS) ? `CLASS_LATENCY :4'b0;
 assign stall_cycles_4=(func5_i==`RV32F_FUNC5_FCVT_FTI) ? `FLOAT_TO_INT_LATENCY : (func5_i==`RV32F_FUNC5_FCVT_ITF) ? `INT_TO_FLOAT_LATENCY :4'b0;

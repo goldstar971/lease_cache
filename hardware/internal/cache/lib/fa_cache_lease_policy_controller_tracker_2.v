@@ -26,7 +26,7 @@ module fa_cache_lease_policy_controller_tracker_2 #(
 	output 							expired_o, 			// logic high if the replaced cache addr.'s lease expired
 	output 							expired_multi_o, 	// logic high if there are multiple cache lines expired at the time of a miss
 	output 							default_o, 			// logic high if upon a hit the line is renewed with the default lease value
-
+	output                          rand_evict_o,
 	// line tracking ports
 	output [CACHE_BLOCK_CAPACITY-1:0] expired_flags_0_o,
 	output [CACHE_BLOCK_CAPACITY-1:0] expired_flags_1_o,
@@ -112,7 +112,8 @@ reg 								done_reg,
 reg 	[BW_CACHE_CAPACITY-1:0] 	addr_reg;
 reg 								expired_reg,
 									default_reg,
-									expired_multi_reg;
+									expired_multi_reg,
+									random_eviction_reg;
 
 // generic port maps
 assign done_o 			= done_reg;
@@ -121,6 +122,7 @@ assign swap_o 			= swap_reg;
 assign expired_o 		= expired_reg;
 assign default_o 		= default_reg;
 assign expired_multi_o 	= expired_multi_reg;
+assign rand_evict_o  = random_eviction_reg;
 
 
 // set pointer logic - 1 priority encoder per set of lines
@@ -218,6 +220,7 @@ always @(posedge clock_i) begin
 		expired_reg 		<= 1'b0;
 		default_reg 		<= 1'b0;	
 		expired_multi_reg 	<= 1'b0;
+		random_eviction_reg <= 1'b0;
 
 		// replacement signals
 		for (j = 0; j < CACHE_BLOCK_CAPACITY; j = j + 1)	lease_registers[j] <= 'b0;
@@ -240,6 +243,8 @@ always @(posedge clock_i) begin
 		expired_reg 		<= 1'b0;
 		default_reg 		<= 1'b0;
 		expired_multi_reg 	<= 1'b0;
+		random_eviction_reg <= 1'b0;
+		swap_reg 			<= 1'b1; //assume we are bringing in a new block to the cache upon a miss
 
 
 		case(state_reg)
@@ -347,6 +352,7 @@ always @(posedge clock_i) begin
 				else if (!replacement_addr_valid) begin
 					addr_reg 				<= lfsr_set;
 					lfsr_en_reg 			<= 1'b1;
+					random_eviction_reg    <=1'b1;
 				end
 
 				// if the cache set is full (from cold start) and there is at least one expired line in the set then 

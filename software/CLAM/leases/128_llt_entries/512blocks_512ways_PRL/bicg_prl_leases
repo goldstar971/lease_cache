@@ -1,70 +1,109 @@
 sample rate: 0.00390625
-1520,
-	[1,2]
-	[2,3]
-	[3,1]
-
-448,
-	[371,1]
-
 1488,
-	[3,3]
-	[2,2]
-
-1524,
-	[2,3]
-	[23,1]
+	[5,1]
+	[4,1]
 
 1496,
-	[2,1]
+	[4,1]
+	[8,6]
+	[6,48]
+	[3,44]
+	[7,14]
+
+1524,
+	[8,2]
+	[2,50]
+	[6,33]
+	[7,12]
+	[3,2]
+	[697,1]
+	[630,1]
+	[616,1]
 
 1492,
-	[6,1]
+	[4,46]
+	[5,14]
+	[3,3]
+
+1528,
+	[3,41]
+	[2,9]
+	[4,1]
+
+1520,
+	[4,2]
+	[5,1]
+
+1516,
+	[2,4]
+
+452,
+	[84065,1]
 
 len(carl_order):
-7
+10
 Printing carl assignment order:
-1520,3,0.5454545454545454
-1496,2,0.5
-1488,3,0.38461538461538464
-1524,2,0.375
-1492,6,0.16666666666666666
-1524,23,0.047619047619047616
-448,371,0.0026954177897574125
-bin_width: 727
-assigning lease 3 to address 1520
-Average Cache Occupancy Per Bin: [1.05,0.70,1.05,0.0,1.05]
-Total cost: 768.0
-assigning lease 2 to address 1496
-Average Cache Occupancy Per Bin: [1.05,0.70,1.76,0.0,1.05]
-Total cost: 768.0
-assigning lease 3 to address 1488
-Average Cache Occupancy Per Bin: [2.11,0.70,4.22,1.05,1.05]
-Total cost: 1536.0
+1516,2,0.5
+1528,4,0.35172413793103446
+1524,2,0.24509803921568626
+1492,5,0.23954372623574144
+1520,5,0.23076923076923078
+1488,5,0.2222222222222222
+1524,8,0.21875
+1496,8,0.19824561403508772
+1524,697,0.001563314226159458
+452,84065,1.1895557009456968e-05
+bin_width: 17939
+assigning lease 2 to address 1516
+Average Cache Occupancy Per Bin: [0.0,0.0,0.0,0.02,0.08]
+Total cost: 0
+assigning lease 4 to address 1528
+Average Cache Occupancy Per Bin: [0.48,0.41,0.58,0.24,0.45]
+Total cost: 8704.0
 assigning lease 2 to address 1524
-Average Cache Occupancy Per Bin: [2.81,1.40,4.22,1.05,2.46]
-Total cost: 2048.0
-assigning lease 6 to address 1492
-Average Cache Occupancy Per Bin: [2.81,1.40,4.22,3.16,2.46]
-Total cost: 2048.0
-assigning lease 23 to address 1524
-Average Cache Occupancy Per Bin: [2.81,1.40,4.22,3.16,9.85]
-Total cost: 2048.0
-assigning lease 371 to address 448
-Average Cache Occupancy Per Bin: [133.,1.40,4.22,3.16,9.85]
-Total cost: 97024.0
+Average Cache Occupancy Per Bin: [1.19,0.98,1.15,0.78,0.97]
+Total cost: 21504.0
+assigning lease 5 to address 1492
+Average Cache Occupancy Per Bin: [1.92,1.79,1.71,1.51,1.89]
+Total cost: 34560.0
+assigning lease 5 to address 1520
+Average Cache Occupancy Per Bin: [1.92,1.79,1.82,1.51,1.96]
+Total cost: 34560.0
+assigning lease 5 to address 1488
+Average Cache Occupancy Per Bin: [1.99,1.79,1.82,1.56,1.96]
+Total cost: 35840.0
+assigning lease 8 to address 1524
+Average Cache Occupancy Per Bin: [2.88,2.39,2.55,2.19,2.32]
+Total cost: 51712.0
+assigning lease 8 to address 1496
+Average Cache Occupancy Per Bin: [4.40,4.50,3.69,3.99,3.88]
+Total cost: 79104.0
+assigning lease 697 to address 1524
+Average Cache Occupancy Per Bin: [4.40,14.3,12.5,12.6,3.88]
+Total cost: 79104.0
+addr: 452 ri: 84065
+bin target: 9184768
+	bin: 4.0 current capacity: 3.881598751323931  avg impact: 1199.6566140810526
+num_full_bins: 0
+printing bin ranks sorted:
+	bin: 4.0 rank: 0.4235532028787248
+	selecting this^ bin
+acceptable_ratio: 0.4235532028787248
+Assigning 452 dual lease lease 84065 * 0.4235532028787248. Bin saturation: [4.40,14.3,12.5,12.6,512.]
 Final saturation:
-	0.0,97024.0
-	1.0,1024.0
-	2.0,3072.0
-	3.0,2304.0
-	4.0,7168.0
+	0.0,79104.0
+	1.0,257280.0
+	2.0,225536.0
+	3.0,227328.0
+	4.0,9184768.0
 DUMP LEASES
-0, 5f0, 3, 0, 1 
-0, 1c0, 173, 0, 1 
-0, 5d0, 3, 0, 1 
-0, 5f4, 17, 0, 1 
-0, 5d8, 2, 0, 1 
-0, 5d4, 6, 0, 1 
+0, 5d0, 5, 0, 1 
+0, 5d8, 8, 0, 1 
+0, 5f4, 2b9, 0, 1 
+0, 5d4, 5, 0, 1 
+0, 5f8, 4, 0, 1 
+0, 5f0, 5, 0, 1 
+0, 5ec, 2, 0, 1 
+0, 1c4, 1, 14861, 0.5764467971212752 
 Dump dual leases
 

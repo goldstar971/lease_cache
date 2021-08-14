@@ -15,6 +15,7 @@
 `define COMM_REGISTER0 			27'h4000104
 `define COMM_REGISTER1 			27'h4000108
 `define COMM_REGISTER2 			27'h400010C
+`define STATS_BASE              27'h4000120
 
 `define COMM_CONTROL			27'h4000110 		// processor controls upper 2B, user lower 2B
 

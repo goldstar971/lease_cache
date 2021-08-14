@@ -10,14 +10,14 @@ module top(
 	output 				ddr3b_clk_p,
 	output 				ddr3b_cke,
 	output 				ddr3b_csn,
-	output	[7:0] 	ddr3b_dm,
+	output	[7:0] 		ddr3b_dm,
 	output 				ddr3b_odt,
 	output 				ddr3b_rasn,
 	output 				ddr3b_resetn,
 	output 				ddr3b_wen,
 	inout	[63:0] 		ddr3b_dq,
 	inout	[7:0] 		ddr3b_dqs_n,
-	inout [7:0] 	   ddr3b_dqs_p,
+	inout 	[7:0] 		ddr3b_dqs_p,
 
 	// operational and debugging pins
 	input 				user_pb, 			// pll reset
@@ -35,12 +35,12 @@ wire 		pll_locked;
 double_speed pll_reset(
 	.refclk			(clkin_r_p			), 
 	.rst 			(~user_pb 			), 
-	.outclk_0 		(clock_gen_bus[0] 	), 	// 20 Mhz
-	.outclk_1 		(clock_gen_bus[1]	), 	// 40 Mhz
-	.outclk_2 		(clock_gen_bus[2]	),  // 40 Mhz, 180deg phase
-	.outclk_3 		(clock_gen_bus[3]	),  // 20 Mhz, 90deg phase
-	.outclk_4 		(clock_gen_bus[4]	),  // 20 Mhz, 180deg phase
-	.outclk_5 		(clock_gen_bus[5]	),  // 20 Mhz, 270deg phase
+	.outclk_0 		(clock_gen_bus[0] 	), 	// 40 Mhz
+	.outclk_1 		(clock_gen_bus[1]	), 	// 80 Mhz
+	.outclk_2 		(clock_gen_bus[2]	),  // 80 Mhz, 180deg phase
+	.outclk_3 		(clock_gen_bus[3]	),  // 40 Mhz, 90deg phase
+	.outclk_4 		(clock_gen_bus[4]	),  // 40 Mhz, 180deg phase
+	.outclk_5 		(clock_gen_bus[5]	),  // 40 Mhz, 270deg phase
 	.locked 		(pll_locked 		)
 );
 
@@ -64,12 +64,13 @@ wire 			req_core2per, rw_core2per;
 wire 	[31:0]	add_core2per;
 wire 	[31:0]	data_core2per, data_per2core;  	
 wire 	[31:0] 	phase_bus;
+wire  [191:0] cycle_counts_o;
 
 
 internal_system_2_multi_level riscv_sys (
 
 	// general ports
-	.clock_bus_i 	({clock_gen_bus[5:3],clock_gen_bus[0]}	), // [20-270, 20-180, 20-90, 20]
+	.clock_bus_i 	({clock_gen_bus[5:3],clock_gen_bus[0]}	), // [40-270, 40-180, 40-90, 40]
 	.reset_i 		(reset_bus[0] 		),
 	.phase_i (phase_bus),
 	.exception_o 	(), 
@@ -96,7 +97,8 @@ internal_system_2_multi_level riscv_sys (
 	.per_rw_o 		(rw_core2per		), 
 	.per_add_o 		(add_core2per		), 
 	.per_data_o 	(data_core2per		), 
-	.per_data_i 	(data_per2core		)
+	.per_data_i 	(data_per2core		),
+	.cycle_counts_o (cycle_counts_o  )
 );
 
 
@@ -135,7 +137,7 @@ external_memory_system_2 system_ext_inst(
 	.cpu_resetn 	(cpu_resetn			),
 	.rzqin_1_5v 	(rzqin_1_5v			),
 	.reset_bus_o	(reset_bus 			), 		// [0] = internal sys reset, [1] = peripheral system reset
-	.clock_bus_i 	({clock_gen_bus[2:1],clock_gen_bus[4],clock_gen_bus[0]} ), 		// 20 Mhz, 20 Mhz 180deg phase, 40 Mhz, 40 Mhz 180deg phase
+	.clock_bus_i 	({clock_gen_bus[2:1],clock_gen_bus[4],clock_gen_bus[0]} ), 		// 80 Mhz 180deg phase, 80 MHZ, 40 Mhz 180deg, phase,40 MHZ
 
 	// internal system ports
 	.int_req_i 		(req_fromCore 		),
@@ -162,7 +164,7 @@ external_memory_system_2 system_ext_inst(
 peripheral_system_3 per_sys_inst(
 
 	// system ports
-	.clock_i 		(clock_gen_bus[0]	), 	// 20 Mhz, 180 deg phase
+	.clock_i 		(clock_gen_bus[0]	), 	// 40 Mhz
 	.reset_i 		(reset_bus[1] 		), 
 
 	
@@ -172,6 +174,7 @@ peripheral_system_3 per_sys_inst(
 	.add_core_i 	(add_core2per		), 	// [26:0]
 	.data_core_i 	(data_core2per		),
 	.data_core_o 	(data_per2core 		),
+	.cycle_counts_i (cycle_counts_o),
 
 	// external system
 	.req_cs_i 		(req_toPer1 		), 

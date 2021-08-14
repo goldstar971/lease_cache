@@ -165,7 +165,8 @@ wire 	hit_flag,  											// performance metric flags set by controller
 		wb_flag,
 		expired_flag,
 		defaulted_flag,
-		expired_multi_flag;
+		expired_multi_flag,
+		rand_evict_flag;
 		`ifdef L2_CACHE_POLICY_DLEASE	
 		wire [CACHE_BLOCK_CAPACITY-1:0] flag_expired_0_bus,
 								flag_expired_1_bus,
@@ -192,6 +193,7 @@ wire 							cpc_stall_flag;
 		.writeback_i 		(wb_flag 	 		), 				// logic high when the cache writes a block back to externa memory
 		.expired_i			(expired_flag 		), 				// logic high when lease cache replaces an expired block
 		.expired_multi_i 	(expired_multi_flag ), 
+		.rand_evict_i       (rand_evict_flag),
 		.defaulted_i 		(defaulted_flag 	), 				// logic high when lease cache renews using a default lease value
 		.swap_i(swap_flag),		
 		.comm_i 			(comm_i 			), 				// configuration signal
@@ -281,6 +283,7 @@ assign stall_o   =cache_contr_enable; //core can unstall if L1 is done, even if 
 
 	`ifdef L2_CACHE_POLICY_DLEASE	
 	//more performance ports
+		.flag_rand_evict_o      (rand_evict_flag),
 		.flag_expired_o 		(expired_flag 			),
 		.flag_expired_multi_o	(expired_multi_flag 	),
 		.flag_defaulted_o 		(defaulted_flag 		),

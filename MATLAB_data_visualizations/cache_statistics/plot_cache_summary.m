@@ -3,6 +3,7 @@ close all; clearvars; clc;
 addpath("./src");
 % user selections
 % -------------------------------------------------------------------------
+
 dataset_size=inputdlg("Give dataset size for the benchmark results which you'd like to plot: ",'s');
 dataset_size=cell2mat(dataset_size);
 multi_level_ans=questdlg("Plot statistics for two-level cache?",'Yes','No');
@@ -12,6 +13,10 @@ if(multi_level_ans=="No")
 else
 	multi_level=1;
 end
+%types of caches and benchmarks
+num_scope=["single_scope","multi_scope"];
+num_level=["single_level","multi_level"];
+
 %if multi-level then L2 results are 4 entries down from where L1 results
 %would be
 
@@ -21,7 +26,7 @@ else
 	offset=0;
 end
 
-
+%get results to plot
 base_path=[getenv('HOME'),'/Documents/Thesis_stuff/'];
 if(strcmp(dataset_size,'small'))
 	if(multi_level)
@@ -36,10 +41,21 @@ else
 		file_path=[base_path,'software/fpga_proxy/results/cache/results_',dataset_size,'.txt'];
 	end
 end
+
 base_save_path=[base_path,'/MATLAB_data_visualizations/'];
+
+%make needed output directories if they don't already exist
+if(exist([base_save_path,'cache_statistics/cache_statistics_graphs/'],'dir')~=7)
+	mkdir([base_save_path,'cache_statistics/cache_statistics_graphs/']);
+end
+if(exist([base_save_path,'cache_statistics/cache_statistics_graphs/',convertStringsToChars(num_level(multi_level+1)),'/'],'dir')~=7)
+	mkdir([base_save_path,'cache_statistics/cache_statistics_graphs/',convertStringsToChars(num_level(multi_level+1)),'/']);
+end
+
+
+%benchmarks to ignore for small dataset size
 small_benchmarks=["jacobi-1d","trisolv","gesummv",'durbin'];
-num_scope=["single_scope","multi_scope"];
-num_level=["single_level","multi_level"];
+
 single_scope_benchmarks=["atax" "bicg" "cholesky" "doitgen" "durbin" "floyd-warshall" "gemm" "gesummv" "gramschmidt" "jacobi-1d" "nussinov" "seidel-2d" "symm" "syr2k" "syrk" "trisolv" "trmm"];
 
 % extract data
@@ -57,9 +73,18 @@ end
 
 %rearrange benchmarks so cross scoped RIs are on right and non cross scoped
 %are on left
-re_index=[1,2,4:1:11,13:1:17,19,23:1:30,3,12,18,20,21,22];
+if(strcmp(dataset_size,'large'))
+	re_index=[1,2,4:1:10,12:1:16,18,22:1:29,3,11,17,19,20,21];
+else
+	re_index=[1,2,4:1:11,13:1:17,19,23:1:30,3,12,18,20,21,22];
+end
 data_bm=data_bm(re_index);
 benchmark_names=benchmark_names(re_index);
+
+%remove benchmarks too small to be meaningful
+data_bm(ismember(benchmark_names,small_benchmarks))=[];
+benchmark_names(ismember(benchmark_names,small_benchmarks))=[];
+
 
 %normalize by plru
 for i = 1:length(benchmark_names)
@@ -74,10 +99,7 @@ data_bm=cellfun(@(x) x(x(:,16+offset)>1,:),data_bm,'UniformOutput',false);
 
 
 
-%remove benchmarks we don't care about
-data_bm(ismember(benchmark_names,small_benchmarks))=[];
-PLRU_data(ismember(benchmark_names,small_benchmarks))=[];
-benchmark_names(ismember(benchmark_names,small_benchmarks))=[];
+
 
 %split remaining benchmarks into single and multi scope benchmarks
 data_bm_single_scope=data_bm(ismember(benchmark_names,single_scope_benchmarks));
@@ -89,34 +111,36 @@ benchmark_names_multi=benchmark_names(~ismember(benchmark_names,single_scope_ben
 PLRU_single_scope=PLRU_data(ismember(benchmark_names,single_scope_benchmarks));
 PLRU_multi_scope=PLRU_data(~ismember(benchmark_names,single_scope_benchmarks));
 set(0,'DefaultFigureVisible','on')
+%plot normalized misses or normalized clock cycles
 for h=1:2
+	%plot for single or multi scope benchmarks
 	for i=1:2
 		if(i==1)
 			if(h==1)
 				bar_ydata=[];
 				for j=1:length(data_bm_single_scope)
 					sorted_benchmark=sortrows(data_bm_single_scope{j},16+offset);
-					bar_ydata=[bar_ydata,sorted_benchmark(:,17+offset)];
+					bar_ydata=[bar_ydata,sorted_benchmark(:,20+offset)];
 				end
 			else
 				bar_ydata=[];
 				for j=1:length(data_bm_single_scope)
 					sorted_benchmark=sortrows(data_bm_single_scope{j},16+offset);
-					bar_ydata=[bar_ydata,sorted_benchmark(:,18+offset)];
+					bar_ydata=[bar_ydata,sorted_benchmark(:,21+offset)];
 				end
 			end
 		else
 			if(h==1)
 				bar_ydata=[];
-				for j=1:length(data_bm_single_scope)
+				for j=1:length(data_bm_multi_scope)
 					sorted_benchmark=sortrows(data_bm_multi_scope{j},16+offset);
-					bar_ydata=[bar_ydata,sorted_benchmark(:,17+offset)];
+					bar_ydata=[bar_ydata,sorted_benchmark(:,20+offset)];
 				end
 			else
 				bar_ydata=[];
-				for j=1:length(data_bm_single_scope)
+				for j=1:length(data_bm_multi_scope)
 					sorted_benchmark=sortrows(data_bm_multi_scope{j},16+offset);
-					bar_ydata=[bar_ydata,sorted_benchmark(:,18+offset)];
+					bar_ydata=[bar_ydata,sorted_benchmark(:,21+offset)];
 				end
 			end
 		end
@@ -135,7 +159,14 @@ for h=1:2
 		else
 			ylabel('Time of execution in Clock cycles normalized to PLRU clock cycles');
 		end
+		%if strcmp(dataset_size,'large')
+		%	set(gca,'xticks',[1:1:14]);
+		%else
+		%	set(gca,'xticks',[1:1:15]);
+% 		end
 		if(i==1)
+			
+
 			set(gca,'xticklabel',[benchmark_names_single,'GEOMEAN'],'FontSize',14);
 		else
 			set(gca,'xticklabel',[benchmark_names_multi,'GEOMEAN'],'FontSize',14);
@@ -164,7 +195,7 @@ for h=1:2
 			legend({'CLAM','PRL','SHEL','C-SHEL',},'Orientation','horizontal','FontSize',14);
 			
 		end 
-		
+		PLRU_array_data=[];
 		if(h==1)
 			if(i==1)
 				for z=1:length(benchmark_names_single)
@@ -175,11 +206,12 @@ for h=1:2
 				for z=1:length(misses)
 					raw_misses=text(0,0,strcat('(',num2str(misses(z)),')'),'Units','Pixels');
 					raw_misses.Rotation=45;
-					raw_misses.Position=[15+(z-1)*60,-55];
 					if strcmp(dataset_size,'large')
-						raw_cycles.FontSize=10;
+						raw_misses.FontSize=10;
+						raw_misses.Position=[15+(z-1)*60,-60];
 					else
-						raw_cycles.FontSize=12;
+						raw_misses.FontSize=12;
+						raw_misses.Position=[15+(z-1)*60,-55];
 					end
 					raw_misses.Color=[0 0 0];
 				end
@@ -192,11 +224,13 @@ for h=1:2
 				for z=1:length(misses)
 					raw_misses=text(0,0,strcat('(',num2str(misses(z)),')'),'Units','Pixels');
 					raw_misses.Rotation=45;
-					raw_misses.Position=[15+(z-1)*60,-55];
+
 					if strcmp(dataset_size,'large')
-						raw_cycles.FontSize=10;
+						raw_misses.FontSize=10;
+						raw_misses.Position=[15+(z-1)*65,-60];
 					else
-						raw_cycles.FontSize=12;
+						raw_misses.FontSize=12;
+						raw_misses.Position=[15+(z-1)*60,-55];
 					end
 					raw_misses.Color=[0 0 0];
 				end
@@ -211,11 +245,12 @@ for h=1:2
 				for z=1:length(cycles)
 					raw_cycles=text(0,0,strcat('(',num2str(cycles(z)),')'),'Units','Pixels');
 					raw_cycles.Rotation=45;
-					raw_cycles.Position=[15+(z-1)*60,-55];
 					if strcmp(dataset_size,'large')
 						raw_cycles.FontSize=10;
+						raw_cycles.Position=[15+(z-1)*60,-60];
 					else
 						raw_cycles.FontSize=12;
+						raw_cycles.Position=[15+(z-1)*60,-55];
 					end
 					raw_cycles.Color=[0 0 0];
 				end
@@ -228,11 +263,12 @@ for h=1:2
 				for z=1:length(cycles)
 					raw_cycles=text(0,0,strcat('(',num2str(cycles(z)),')'),'Units','Pixels');
 					raw_cycles.Rotation=45;
-					raw_cycles.Position=[15+(z-1)*60,-55];
 					if strcmp(dataset_size,'large')
 						raw_cycles.FontSize=10;
+						raw_cycles.Position=[15+(z-1)*65,-60];
 					else
 						raw_cycles.FontSize=12;
+						raw_cycles.Position=[15+(z-1)*60,-55];
 					end
 					raw_cycles.Color=[0 0 0];
 				end

@@ -57,7 +57,7 @@ module lease_cache_fa_controller_tracker_2 #(
 	output 								flag_expired_multi_o,
 	output 								flag_defaulted_o,
 	output 								flag_swap_o,
-	//output [CACHE_BLOCK_CAPACITY-1:0]	flags_expired_o
+	output                              flag_rand_evict_o,    
 
 	// line tracking ports
 	output [CACHE_BLOCK_CAPACITY-1:0]	flag_expired_0_o,
@@ -181,7 +181,7 @@ reg 							replacement_swap_reg; 	// saved version of above
 	.expired_o 				(flag_expired_o 		), 	// logic high if the replaced cache addr.'s lease expired
 	.expired_multi_o 		(flag_expired_multi_o 	),
 	.default_o 				(flag_defaulted_o 		), 	// logic high if upon a hit the line is renewed with the default lease value
-	//.eviction_bits_o 		(flags_expired_o 		)
+	.rand_evict_o           (flag_rand_evict_o		),
 	.expired_flags_0_o 		(flag_expired_0_o 		),
 	.expired_flags_1_o 		(flag_expired_1_o 		),
 	.expired_flags_2_o 		(flag_expired_2_o 		)

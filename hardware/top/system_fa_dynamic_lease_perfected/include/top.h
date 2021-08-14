@@ -46,12 +46,14 @@
 
 //`define MULTI_LEVEL_CACHE
 
+`define COMM_CONTROLLER comm_controller_v3
+
 `ifdef MULTI_LEVEL_CACHE
 	`define L2_CACHE_INST_FA
 	`define L2_CACHE_STRUCTURE  `ID_CACHE_FULLY_ASSOCIATIVE
 	//`define L2_CACHE_POLICY_PLRU
 	`define L2_CACHE_POLICY_DLEASE
-	`define COMM_CONTROLLER comm_controller_v3
+	
 	`ifdef L2_CACHE_POLICY_DLEASE
 		`define L2_CACHE_POLICY  `ID_CACHE_DLEASE
 		`define LEASE_POLICY_CONTROLLER_INST 	fa_cache_lease_policy_controller_tracker_2
@@ -65,8 +67,6 @@
 		`define L2_CACHE_CONTROLLER             cache_fa_controller_L2
 		`define L2_CACHE_INIT 1'b1
 	`endif
-`else 
-	`define COMM_CONTROLLER comm_controller_v2
 `endif
 
 
@@ -258,17 +258,17 @@
 	`include "../../../internal/sampler/tag_match_encoder_9b.v"
 	`include "../../../internal/cache/lib/plru_line_controller.v"
 	`include "../../../internal/cache_2level/cache_2way_controller_multi_level.v"
-	`include "../../../internal/cache_2level/cache_2way.v"
+	`include "../../../internal/cache_2level/cache_2way_multi_level.v"
 	`include "../../../internal/cache/lib/set_cache_plru_policy_controller.v"
 	`include "../../../internal/cache/two_way_set_associative/src/tag_memory_2way.v"
 `else 
 	`include "../../../utilities/linear_feedback_shift_register/linear_shift_register_12b.v"
-	`include "../../../peripheral/src/peripheral_system_2.v"
+	`include "../../../peripheral/src/peripheral_system_3.v"
 	`include "../../../internal/system/internal_system_2.v"
 	`include "../../../internal/cache/fully_associative/src/cache_fa_all.v"
 	`include "../../../internal/cache/lib/plru_line_controller.v"
 	`include "../../../include/cpc_all.h"
-	`include "../../../external/jtag_uart/src/comm_controller_v2.v"
+	`include "../../../external/jtag_uart/src/comm_controller_v3.v"
 	`include "../../../internal/cache/fully_associative/src/cache_fa_controller.v"
 	`include "../../../internal/cache/fully_associative/src/tag_memory_fa.v"
 	`include "../../../internal/cache/fully_associative/src/cache_fa.v"
