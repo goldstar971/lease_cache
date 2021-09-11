@@ -2,43 +2,43 @@ Reading input from: ../fpga_proxy/results/sample/SHEL/mvt.txt
 before first pass!
 before second pass!
 ---------Dump RI Hists------------
-(0,0x5e8):
- | ri 0x154: count 1
- | | phase 0 head_cost 340 tail_cost 0
- | ri 0x3: count 51
- | | phase 0 head_cost 153 tail_cost 9
- | ri 0x13c: count 2
- | | phase 0 head_cost 632 tail_cost 316
-(0,0x5e4):
- | ri 0x3: count 56
- | | phase 0 head_cost 168 tail_cost 6
- | ri 0x6485: count 1
- | | phase 0 head_cost 16907 tail_cost 3045
- | | phase 1 head_cost 8826 tail_cost 22688
- | ri 0x7281: count 1
- | | phase 1 head_cost 26268 tail_cost 0
- | | phase 0 head_cost 3045 tail_cost 0
-(0,0x5d8):
- | ri 0x3: count 1
- | | phase 0 head_cost 3 tail_cost 0
-(0,0x5f8):
- | ri 0x3: count 56
- | | phase 0 head_cost 168 tail_cost 0
- | ri 0x1: count 2
- | | phase 0 head_cost 2 tail_cost 56
-(1,0x63c):
- | ri 0x169: count 56
- | | phase 1 head_cost 20216 tail_cost 0
 (1,0x650):
  | ri 0x3: count 56
  | | phase 1 head_cost 168 tail_cost 0
  | ri 0x1: count 1
  | | phase 1 head_cost 1 tail_cost 56
 (1,0x640):
- | ri 0x3: count 45
- | | phase 1 head_cost 135 tail_cost 12
  | ri 0x13c: count 4
  | | phase 1 head_cost 1264 tail_cost 0
+ | ri 0x3: count 45
+ | | phase 1 head_cost 135 tail_cost 12
+(0,0x5f8):
+ | ri 0x1: count 2
+ | | phase 0 head_cost 2 tail_cost 56
+ | ri 0x3: count 56
+ | | phase 0 head_cost 168 tail_cost 0
+(0,0x5e8):
+ | ri 0x3: count 51
+ | | phase 0 head_cost 153 tail_cost 9
+ | ri 0x154: count 1
+ | | phase 0 head_cost 340 tail_cost 0
+ | ri 0x13c: count 2
+ | | phase 0 head_cost 632 tail_cost 316
+(0,0x5d8):
+ | ri 0x3: count 1
+ | | phase 0 head_cost 3 tail_cost 0
+(1,0x63c):
+ | ri 0x169: count 56
+ | | phase 1 head_cost 20216 tail_cost 0
+(0,0x5e4):
+ | ri 0x3: count 56
+ | | phase 0 head_cost 168 tail_cost 6
+ | ri 0x6485: count 1
+ | | phase 1 head_cost 8826 tail_cost 22688
+ | | phase 0 head_cost 16907 tail_cost 3045
+ | ri 0x7281: count 1
+ | | phase 1 head_cost 26268 tail_cost 0
+ | | phase 0 head_cost 3045 tail_cost 0
 ---------Dump Samples Per Phase---
 {0: 171, 1: 162}
 
@@ -64,7 +64,7 @@ Debug: phase: 1
 Debug:    cost_per_phase:   43264
 Debug:    budget_per_phase: 5308416
 =================OUTER LOOP ITER===============
-Debug: NEW_PHASE_REF_COST {1: 0, 0: 768}
+Debug: NEW_PHASE_REF_COST {0: 768, 1: 0}
 Assigned lease 3 to reference (0,5d8). Predicted miss count : 55552
 Debug: phase: 0
 Debug:    cost_per_phase:   44288
@@ -73,7 +73,7 @@ Debug: phase: 1
 Debug:    cost_per_phase:   43264
 Debug:    budget_per_phase: 5308416
 =================OUTER LOOP ITER===============
-Debug: NEW_PHASE_REF_COST {1: 0, 0: 44544}
+Debug: NEW_PHASE_REF_COST {0: 44544, 1: 0}
 Assigned lease 3 to reference (0,5e4). Predicted miss count : 41216
 Debug: phase: 0
 Debug:    cost_per_phase:   88832
@@ -82,7 +82,7 @@ Debug: phase: 1
 Debug:    cost_per_phase:   43264
 Debug:    budget_per_phase: 5308416
 =================OUTER LOOP ITER===============
-Debug: NEW_PHASE_REF_COST {0: 41472, 1: 0}
+Debug: NEW_PHASE_REF_COST {1: 0, 0: 41472}
 Assigned lease 3 to reference (0,5e8). Predicted miss count : 28160
 Debug: phase: 0
 Debug:    cost_per_phase:   130304
@@ -100,7 +100,7 @@ Debug: phase: 1
 Debug:    cost_per_phase:   80896
 Debug:    budget_per_phase: 5308416
 =================OUTER LOOP ITER===============
-Debug: NEW_PHASE_REF_COST {1: 320512, 0: 0}
+Debug: NEW_PHASE_REF_COST {0: 0, 1: 320512}
 Assigned lease 13c to reference (1,640). Predicted miss count : 15616
 Debug: phase: 0
 Debug:    cost_per_phase:   130304
@@ -127,7 +127,7 @@ Debug: phase: 1
 Debug:    cost_per_phase:   5308416
 Debug:    budget_per_phase: 5308416
 =================OUTER LOOP ITER===============
-Debug: NEW_PHASE_REF_COST {0: 5106176, 1: 8984064}
+Debug: NEW_PHASE_REF_COST {1: 8984064, 0: 5106176}
 Assigned dual lease (7281,0) to reference (0,5e4). Predicted miss count: 1255
 Debug: phase: 0
 Debug:    cost_per_phase:   376832

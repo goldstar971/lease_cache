@@ -15,6 +15,7 @@ module cache_2way_controller_multi_level #(
 	input 	[BW_GRP-1:0] 				core_grp_i,
 	input 	[`BW_BLOCK-1:0]	 			core_word_i,
 	input 	[31:0]						core_data_i,
+	output  [31:0]                      core_data_o,
 	output								core_done_o,
 	output 								core_hit_o,
 
@@ -42,7 +43,6 @@ module cache_2way_controller_multi_level #(
 	// command ports
 	input 								mem_ready_i,
 	output 								mem_req_o, 			// must be at least one item in the buffer before driving high
-	output 								mem_req_block_o,
 	output 								mem_rw_o,
 	output 	[`BW_WORD_ADDR-1:0]			mem_addr_o,
 	`ifdef L2_CACHE_POLICY_DLEASE
@@ -76,7 +76,9 @@ localparam BW_TAG 					= `BW_WORD_ADDR - BW_GRP - `BW_BLOCK;
 
 // core/hart
 reg core_done_o_reg;
+reg [31:0] core_data_reg;
 
+assign core_data_o= core_data_reg;
 assign core_done_o = core_done_o_reg;
 
 // tag memory
@@ -106,12 +108,10 @@ assign buffer_data_o 		= buffer_data_reg;
 
 // command out ports
 reg 					mem_req_reg, 			// must be at least one item in the buffer before driving high
-						mem_req_block_reg,
 						mem_rw_reg;
 reg [`BW_WORD_ADDR-1:0]	mem_addr_reg;
 
 assign mem_req_o 		= mem_req_reg;
-assign mem_req_block_o 	= mem_req_block_reg;
 assign mem_rw_o 		= mem_rw_reg;
 assign mem_addr_o 		= mem_addr_reg;
 
@@ -255,7 +255,6 @@ always @(posedge clock_i) begin
 
 		// command signals
 		mem_req_reg = 			1'b0;
-		mem_req_block_reg = 	1'b0;
 		mem_rw_reg =  			1'b0;
 		mem_addr_reg =  		'b0;
 
@@ -278,7 +277,6 @@ always @(posedge clock_i) begin
 		buffer_write_ack_reg 	= 1'b0;
 
 		mem_req_reg 			= 1'b0;
-		mem_req_block_reg 		= 1'b0;
 		mem_rw_reg 				= 1'b0;
 
 		flag_hit_reg 			= 1'b0;
@@ -345,7 +343,6 @@ always @(posedge clock_i) begin
 					// request the target block if L2 operations have finished
 					if(mem_ready_i)begin
 						mem_req_reg =1'b1;
-						mem_req_block_reg =1'b1;
 						mem_addr_reg={core_tag_i, core_grp_i, {`BW_BLOCK{1'b0}} };	
 						mem_rw_reg 			= 1'b0;
 						state_reg =ST_WAIT_REPLACEMENT_GEN_1;
@@ -378,6 +375,31 @@ always @(posedge clock_i) begin
 						end
 
 					end
+					//handle zero lease
+					`ifdef L2_CACHE_POLICY_DLEASE
+					else if (!swap_flag_i)begin 
+						if(rw_flag_reg) begin 
+							if (buffer_write_ready_i) begin 
+								buffer_write_ack_reg = 1'b1; //signal to buffer to read in data
+								buffer_data_reg = core_data_i; //write value from core to buffer
+								mem_rw_reg 			= 1'b1; //signal to L2 to read from L1 buffer
+								state_reg 		= ST_NORMAL;
+								core_done_o_reg= 1'b1; //unstall processor 
+							end
+						end
+						else begin
+							if(buffer_read_ready_i)begin
+								core_data_reg =buffer_data_i;// write data from buffer to core
+								buffer_read_ack_reg=1'b1; //signal buffer that value has been read
+								mem_rw_reg=1'b0; //signal to L2 to write from
+								state_reg 		= ST_NORMAL;
+								core_done_o_reg= 1'b1; //unstall processor 
+							end
+						end
+						
+					end
+				`endif
+
 				end
 
 
@@ -440,7 +462,6 @@ always @(posedge clock_i) begin
 			if (writeback_flag_reg & mem_ready_i) begin
 				writeback_flag_reg 	= 1'b0; 					// prevent followup request
 				mem_req_reg 		= 1'b1; 						// request a block write
-				mem_req_block_reg 	= 1'b1;
 				mem_rw_reg 			= 1'b1;
 				mem_addr_reg 		= add_writeback_reg;
 			end

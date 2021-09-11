@@ -34,7 +34,6 @@ module cache_2way #(
 	input 	[31:0]					data_i,  			// data being read in from buffer (interfaced to external system)
 	output 							hit_o, 
 	output 							req_o, 
-	output 							req_block_o, 
 	output 							rw_o, 
 	output 							write_o,  			// drive high when writing to buffer
 	output 							read_o, 			// drive high when reading from buffer
@@ -101,7 +100,17 @@ bram_32b_8kB cache_mem(
 	.q 				(data_fromCache 	)
 );
 
-assign core_data_o = data_fromCache;
+`ifdef L2_CACHE_POLICY_DLEASE
+		wire 	[31:0]						core_no_swap_data_bus; 	// data from the controller
+		wire 								swap_flag; 				// when 1: route data from controller, not cache
+		assign core_data_o = (!swap_flag_i) ? core_no_swap_data_bus : data_fromCache;
+`else 
+// if no_swap == 1 (do not allocate in cache) transaction is handled by controller (single word operation)
+// if no_swap == 0 then transaction is handled passively by logic (block operation)
+		assign core_data_o = data_fromCache;
+`endif    
+
+
 
 
 // performance controller
@@ -165,6 +174,7 @@ cache_2way_controller_multi_level #(
 	.core_grp_i 			(req_group 				),
 	.core_word_i 			(req_word 				),
 	.core_data_i 			(core_data_i 			),
+	.core_data_o            (core_no_swap_data_bus),
 	.core_done_o 			(core_done_o 			),
 	.core_hit_o 			(hit_o 					),
 
@@ -193,7 +203,6 @@ cache_2way_controller_multi_level #(
 	// command ports
 	.mem_ready_i 			(ready_req_i 			),
 	.mem_req_o 				(req_o 					),
-	.mem_req_block_o 		(req_block_o 			),
 	.mem_rw_o 				(rw_o 					),
 	.mem_addr_o 			(add_o 					),
 	`ifdef L2_CACHE_POLICY_DLEASE

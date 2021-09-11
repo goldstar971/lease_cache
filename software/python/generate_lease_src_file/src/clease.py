@@ -100,17 +100,19 @@ def generate(options):
 	# -----------------------------------------------------------------------------------
 
 	# make sure all the entries can fit in the table
-	phase_max_short_lease=[]
-	for phase in phase_list_arr:
-		max_lease=0
-		for lease in phase:
-			lease_value=int(lease.lease0,16)
-			if(lease_value>max_lease):
-				max_lease=lease_value
-		phase_max_short_lease.append(max_lease)
-	default_lease=round(statistics.median(phase_max_short_lease))
+	# phase_max_short_lease=[]
+	# for phase in phase_list_arr:
+	# 	max_lease=0
+	# 	for lease in phase:
+	# 		lease_value=int(lease.lease0,16)
+	# 		if(lease_value>max_lease):
+	# 			max_lease=lease_value
+	# 	phase_max_short_lease.append(max_lease)
+	# default_lease=round(statistics.median(phase_max_short_lease))
+	default_lease=1
 	for phase in phase_list_arr:
 	
+
 		if len(phase) > options.size:
 			print("Error: phase cannot fit in specified LLT size");
 # then make sure all phases+config can fit in the memory

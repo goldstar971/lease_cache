@@ -39,7 +39,7 @@ module memory_controller_internal_2level(
 // i/o to/from internal memory controller
 	output 				cacheL1I_uc_ready_o, cacheL1I_uc_write_ready_o, cacheL1I_uc_read_ready_o,
 	output 		[31:0]	cacheL1I_uc_data_o,
-	input 				cacheL1I_hit_i, cacheL1I_req_i, cacheL1I_reqBlock_i, cacheL1I_rw_i, cacheL1I_read_i, cacheL1I_write_i,
+	input 				cacheL1I_hit_i, cacheL1I_req_i, cacheL1I_rw_i, cacheL1I_read_i, cacheL1I_write_i,
 	input 		[23:0]	cacheL1I_add_i,
 	input 		[31:0]	cacheL1I_data_i,
 	// data cache
@@ -53,7 +53,7 @@ module memory_controller_internal_2level(
 	// i/o to/from internal memory controller
 	output 				cacheL1D_uc_ready_o, cacheL1D_uc_write_ready_o, cacheL1D_uc_read_ready_o,
 	output 		[31:0]	cacheL1D_uc_data_o,
-	input 				cacheL1D_hit_i, cacheL1D_req_i, cacheL1D_reqBlock_i, cacheL1D_rw_i, cacheL1D_read_i, cacheL1D_write_i,
+	input 				cacheL1D_hit_i, cacheL1D_req_i, cacheL1D_rw_i, cacheL1D_read_i, cacheL1D_write_i,
 	input 		[23:0]	cacheL1D_add_i,
 	input 		[31:0]	cacheL1D_data_i,
 	//L2 cache

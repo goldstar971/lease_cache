@@ -47,7 +47,7 @@ localparam 	BURST_TX_INIT 			= 5'b10110;
 localparam 	BURST_WAIT_DONE2		= 5'b10111;
 localparam 	FUSION_MANAGE0 			= 5'b11000;
 localparam 	FUSION_MANAGE1 			= 5'b11001;
-localparam  FUSION_MANAGE2          = 5'b10010;
+localparam  FUSION_MANAGE2          = 5'b01111;
 localparam 	FUSION_READ 			= 5'b11011;
 localparam 	FUSION_WRITE 			= 5'b11100;
 localparam 	FUSION_CACHE_READ 		= 5'b11101;
@@ -299,7 +299,11 @@ always @(posedge clock_i) begin
 
 					if (config_bits[5] == 1'b1||config_bits[6]==1'b1) begin
 						fusion_write_add 	= `COMM_CONTROL;
-						fusion_read_add     = `COMM_CACHE2;
+						`ifdef MULTI_LEVEL_CACHE
+							fusion_read_add     = `COMM_CACHE2;
+						`else
+							fusion_read_add     = `COMM_CACHE1;
+						`endif
 						fusion_counter 		= 'b0;
 
 						state_current 		= GET_WORD; 			// get number of words

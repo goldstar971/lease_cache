@@ -171,7 +171,7 @@ wire 		[31:0]	core_dataToCacheL1I, core_dataFromCacheL1I;
 wire 				mci_enableToCacheL1I, mci_readyToCacheL1I, mci_writeReadyToCacheL1I, mci_readReadyToCacheL1I;
 wire 		[31:0]	mci_dataToCacheL1I, mci_dataFromCacheL1I;
 wire 		[23:0]	mci_addFromCacheL1I;
-wire 				mci_hitFromCacheL1I, mci_reqFromCacheL1I, mci_reqBlockFromCacheL1I, mci_rwFromCacheL1I, mci_writeFromCacheL1I, mci_readFromCacheL1I;
+wire 				mci_hitFromCacheL1I, mci_reqFromCacheL1I,  mci_rwFromCacheL1I, mci_writeFromCacheL1I, mci_readFromCacheL1I;
 	
 `INSTRUCTION_CACHE_INST #( 
 	.POLICY 				(`INST_CACHE_POLICY 		), 
@@ -205,7 +205,6 @@ wire 				mci_hitFromCacheL1I, mci_reqFromCacheL1I, mci_reqBlockFromCacheL1I, mci
 	.data_i 				(mci_dataToCacheL1I 			), 
 	.hit_o 					(mci_hitFromCacheL1I 			), 
 	.req_o 					(mci_reqFromCacheL1I 			), 
-	.req_block_o			(mci_reqBlockFromCacheL1I 	), 
 	.rw_o 					(mci_rwFromCacheL1I 			), 
 	.write_o 				(mci_writeFromCacheL1I 		), 
 	.read_o 				(mci_readFromCacheL1I 		), 
@@ -224,7 +223,7 @@ wire 		[31:0]	core_dataToCacheL1D, core_dataFromCacheL1D;
 wire 				mci_enableToCacheL1D, mci_readyToCacheL1D, mci_writeReadyToCacheL1D, mci_readReadyToCacheL1D;
 wire 		[31:0]	mci_dataToCacheL1D, mci_dataFromCacheL1D;
 wire 		[23:0]	mci_addFromCacheL1D;
-wire 				mci_hitFromCacheL1D, mci_reqFromCacheL1D, mci_reqBlockFromCacheL1D, mci_rwFromCacheL1D, mci_writeFromCacheL1D, mci_readFromCacheL1D;
+wire 				mci_hitFromCacheL1D, mci_reqFromCacheL1D,  mci_rwFromCacheL1D, mci_writeFromCacheL1D, mci_readFromCacheL1D;
 
 
 `DATA_CACHE_INST #(
@@ -259,7 +258,6 @@ wire 				mci_hitFromCacheL1D, mci_reqFromCacheL1D, mci_reqBlockFromCacheL1D, mci
 	.data_i 				(mci_dataToCacheL1D 			), 
 	.hit_o 					(mci_hitFromCacheL1D 			), 
 	.req_o 					(mci_reqFromCacheL1D 			), 
-	.req_block_o			(mci_reqBlockFromCacheL1D 	), 
 	.rw_o 					(mci_rwFromCacheL1D 			), 
 	.write_o 				(mci_writeFromCacheL1D 		), 
 	.read_o 				(mci_readFromCacheL1D 		), 
@@ -294,7 +292,7 @@ memory_controller_internal_2level mem_cont_int(
 	.cacheL1I_core_done_i(core_doneFromCacheL1I), .cacheL1I_core_data_i(core_dataFromCacheL1I),				
 
 	.cacheL1I_uc_ready_o(mci_readyToCacheL1I), .cacheL1I_uc_write_ready_o(mci_writeReadyToCacheL1I), .cacheL1I_uc_read_ready_o(mci_readReadyToCacheL1I),.cacheL1I_uc_data_o(mci_dataToCacheL1I),
-	.cacheL1I_hit_i(mci_hitFromCacheL1I), .cacheL1I_req_i(mci_reqFromCacheL1I), .cacheL1I_reqBlock_i(mci_reqBlockFromCacheL1I), .cacheL1I_rw_i(mci_rwFromCacheL1I), .cacheL1I_write_i(mci_writeFromCacheL1I), .cacheL1I_read_i(mci_readFromCacheL1I),
+	.cacheL1I_hit_i(mci_hitFromCacheL1I), .cacheL1I_req_i(mci_reqFromCacheL1I),  .cacheL1I_rw_i(mci_rwFromCacheL1I), .cacheL1I_write_i(mci_writeFromCacheL1I), .cacheL1I_read_i(mci_readFromCacheL1I),
 	.cacheL1I_add_i(mci_addFromCacheL1I), .cacheL1I_data_i(mci_dataFromCacheL1I),
 
 	// i/o to L1 data cache
@@ -302,7 +300,7 @@ memory_controller_internal_2level mem_cont_int(
 	.cacheL1D_core_done_i(core_doneFromCacheL1D), .cacheL1D_core_data_i(core_dataFromCacheL1D),				
 
 	 .cacheL1D_uc_ready_o(mci_readyToCacheL1D), .cacheL1D_uc_write_ready_o(mci_writeReadyToCacheL1D), .cacheL1D_uc_read_ready_o(mci_readReadyToCacheL1D),.cacheL1D_uc_data_o(mci_dataToCacheL1D),
-	.cacheL1D_hit_i(mci_hitFromCacheL1D), .cacheL1D_req_i(mci_reqFromCacheL1D), .cacheL1D_reqBlock_i(mci_reqBlockFromCacheL1D), .cacheL1D_rw_i(mci_rwFromCacheL1D), .cacheL1D_write_i(mci_writeFromCacheL1D), .cacheL1D_read_i(mci_readFromCacheL1D),
+	.cacheL1D_hit_i(mci_hitFromCacheL1D), .cacheL1D_req_i(mci_reqFromCacheL1D),  .cacheL1D_rw_i(mci_rwFromCacheL1D), .cacheL1D_write_i(mci_writeFromCacheL1D), .cacheL1D_read_i(mci_readFromCacheL1D),
 	.cacheL1D_add_i(mci_addFromCacheL1D), .cacheL1D_data_i(mci_dataFromCacheL1D),
 
 	// i/o to L2 cache

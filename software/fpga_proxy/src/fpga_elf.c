@@ -7,11 +7,11 @@ uint32_t fpga_load_memory(pHandle pInst, command *pCommand){
 	// load section information
 	uint32_t buffer_addr[10] = {0}; 		// memory address of where the section begins (byte address)
 	uint32_t buffer_size[10] = {0}; 		// number of bytes to transfer per section
-
-	if(get_elf_sections(pCommand->field[1], buffer_addr, buffer_size)==2){
+	char return_val=get_elf_sections(pCommand->field[1], buffer_addr, buffer_size);
+	if(return_val==2){
 		return 2;
 	}
-	else if(get_elf_sections(pCommand->field[1], buffer_addr, buffer_size)){
+	else if(return_val){
 		return 1;
 	}
 
@@ -62,7 +62,6 @@ uint32_t fpga_verify_memory(pHandle pInst, command *pCommand){
 
 
 uint32_t get_elf_sections(char *filepath, uint32_t *pAddr, uint32_t *pSize){
-
 	// first check if the data and info files exist
 	char info_path_str[256];
 
@@ -92,7 +91,7 @@ uint32_t get_elf_sections(char *filepath, uint32_t *pAddr, uint32_t *pSize){
 		// copy fields into the new arrays and then convert to numbers
 		strncpy ( field0, line, index0);
 		strncpy ( field1, delimiter_index+1, 64);
-
+	
 		// add to array
 		pAddr[section_index] = (uint32_t)strtol(field0, NULL, 16);
 		pSize[section_index++] = (uint32_t)strtol(field1, NULL, 16);

@@ -89,6 +89,7 @@ localparam ST_UPDATE_SERVICE_LLT 	= 4'b1001;
 localparam ST_READ_FROM_L1_BUFFER =4'b1011;
 localparam ST_WRITE_TO_L1_BUFFER =4'b1100;
 localparam ST_TAG_WAIT        = 4'b1101;
+localparam ST_NO_SWAP = 4'b1110;
 
 localparam BW_CACHE_ADDR_PART 		= `CLOG2(CACHE_BLOCK_CAPACITY); 
 localparam BW_CACHE_ADDR_FULL 		= BW_CACHE_ADDR_PART + `BW_BLOCK; 				
@@ -600,8 +601,15 @@ always @(posedge clock_i) begin
 
 						// lease only condition - do not cache the item, just service the miss
 						else begin
+							//must stall one clock cycle to allow L1 to recognize that it is a no swap and set rw_flag accordingly
+							state_reg    = ST_NO_SWAP;
+						end
+					end
+				end
+				ST_NO_SWAP: begin  
 							//if reading from memory or if the L1 cache has written a value to the buffer upon reciept of no swap signal.
-							if((rw_flag_reg&&L2_ready_read_i)||!rw_flag_reg)begin
+							rw_flag_reg=L1_rw_i;
+							if(L2_ready_read_i||!rw_flag_reg)begin
 							// clear the L1 request flag so that upon returning without writing/reading entire cache 
 							// block the controller doesn't try to reservice the request
 								req_flag_reg 		= 1'b0;
@@ -622,8 +630,6 @@ always @(posedge clock_i) begin
 									cache_ready_reg 		= 1'b1;
 								end
 							end
-						end
-					end
 				end
 
 				ST_WAIT_REPLACEMENT_GEN: begin
@@ -737,7 +743,7 @@ always @(posedge clock_i) begin
 						// pull data from buffer and route to L2
 						buffer_read_ack_reg = 1'b1;
 						L1_data_reg 		= buffer_data_i;
-						data_valid_reg          = 1'b1;//signal that data is valid so rx buffer starts reading in values from L2 cache
+						data_valid_reg          = 1'b1;//signal that data is valid so L1 rx buffer reads in value from main memory buffer
 						// signal done and resume
 						cache_ready_reg	 	= 1'b1;
 						state_reg 			= ST_NORMAL;

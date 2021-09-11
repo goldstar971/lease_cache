@@ -4,7 +4,6 @@
 #include <stdlib.h>
 
 uint32_t parse_input(command *pInputInst, char *pBuffer){
-
 	// extract delimited fields from string
 	uint32_t n = 0;
 	char *start_pointer, *end_pointer;
