@@ -1,95 +1,10 @@
-sample rate: 0.00390625
-452,
-	[1,1]
-
-1480,
-	[3,65]
-
-1508,
-	[1,65]
-
-1500,
-	[4,59]
-
-1524,
-	[3,29]
-	[807,5]
-
-1464,
-	[3,47]
-	[823,4]
-	[835,2]
-
-1460,
-	[3,49]
-	[363,1]
-	[351,1]
-
-1504,
-	[4,50]
-
-len(carl_order):
-11
-Printing carl assignment order:
-452,1,1.0
-1508,1,1.0
-1480,3,0.3333333333333333
-1460,3,0.3202614379084967
-1464,3,0.29559748427672955
-1524,3,0.28431372549019607
-1500,4,0.25
-1504,4,0.25
-1460,363,0.002824858757062147
-1524,807,0.0012437810945273632
-1464,835,0.0012135922330097086
-bin_width: 20125
-assigning lease 1 to address 452
-Average Cache Occupancy Per Bin: [0.01,0.0,0.0,0.0,0.0]
-Total cost: 256.0
-assigning lease 1 to address 1508
-Average Cache Occupancy Per Bin: [0.21,0.17,0.15,0.15,0.13]
-Total cost: 4352.0
-assigning lease 3 to address 1480
-Average Cache Occupancy Per Bin: [0.71,0.78,0.45,0.72,0.63]
-Total cost: 14336.0
-assigning lease 3 to address 1460
-Average Cache Occupancy Per Bin: [1.09,1.20,0.83,1.03,1.09]
-Total cost: 22016.0
-assigning lease 3 to address 1464
-Average Cache Occupancy Per Bin: [1.47,1.62,1.22,1.48,1.47]
-Total cost: 29696.0
-assigning lease 3 to address 1524
-Average Cache Occupancy Per Bin: [1.70,1.85,1.56,1.79,1.66]
-Total cost: 34304.0
-assigning lease 4 to address 1500
-Average Cache Occupancy Per Bin: [2.31,2.51,2.07,2.35,2.32]
-Total cost: 46592.0
-assigning lease 4 to address 1504
-Average Cache Occupancy Per Bin: [2.87,2.97,2.63,2.76,2.88]
-Total cost: 57856.0
-assigning lease 363 to address 1460
-Average Cache Occupancy Per Bin: [11.8,2.97,2.63,2.76,2.88]
-Total cost: 239104.0
-assigning lease 807 to address 1524
-Average Cache Occupancy Per Bin: [22.1,13.2,12.8,2.76,23.3]
-Total cost: 444928.0
-assigning lease 835 to address 1464
-Average Cache Occupancy Per Bin: [32.5,34.2,23.2,13.3,33.7]
-Total cost: 654848.0
-Final saturation:
-	0.0,654848.0
-	1.0,688640.0
-	2.0,468736.0
-	3.0,268544.0
-	4.0,679680.0
-DUMP LEASES
-0, 1c4, 1, 0, 1 
-0, 5c8, 3, 0, 1 
-0, 5e4, 1, 0, 1 
-0, 5dc, 4, 0, 1 
-0, 5f4, 327, 0, 1 
-0, 5b8, 343, 0, 1 
-0, 5b4, 16b, 0, 1 
-0, 5e0, 4, 0, 1 
-Dump dual leases
-
+Dump predicted miss count (no contention misses): 256
+Dump formated leases
+0, 1c4, 1, 0, 1
+0, 5b4, 15f, 0, 1
+0, 5b8, 343, 0, 1
+0, 5c8, 3, 0, 1
+0, 5dc, 4, 0, 1
+0, 5e0, 4, 0, 1
+0, 5e4, 1, 0, 1
+0, 5f4, 327, 0, 1

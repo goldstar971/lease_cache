@@ -44,16 +44,14 @@ def generate(options):
 	# -----------------------------------------------------------------------------------
 	#keyword_begin = "Lease Dump";
 	keyword_begin = "Dump formated leases";
-	keyword_begin2 ="DUMP LEASES"
-	keyword_end = "End dump";
-	keyword_end2=""
-	keyword_end1="Dump dual leases"
+	keyword_end = "";
+
 	valid_flag = False;
 	lease_item_list = [];
 	
 	for line in srcHandle:
 		# check for termination
-		if line.strip() == keyword_end or line.strip() ==keyword_end2 or line.strip()==keyword_end1:
+		if line.strip() == keyword_end:
 			valid_flag = False;
 
 		# import to list
@@ -64,7 +62,7 @@ def generate(options):
 				lease_item_list.append(new_lease_item);
 		
 		# check for import
-		if line.strip() == keyword_begin or line.strip() == keyword_begin2:
+		if line.strip() == keyword_begin
 			valid_flag = True;
 	# close file
 	srcHandle.close();

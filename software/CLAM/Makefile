@@ -36,123 +36,75 @@ rl_set_shel: src/reference_lease_set_shel.h src/rl_set_main_shel.cpp
 	g++ -std=c++11 $(SRC_DIR)/rl_set_main_shel.cpp -O3 -o $(BIN_DIR)/rl_set_shel
 	
 
-run_all_small: bin/rl_set_c_shel bin/rl_set_shel bin/prl.py
+run_all_small: src/lib.rs src/main.rs Cargo.toml
 	for i in $(all_bench); do \
-		$(BIN_DIR)/rl_set_shel $(SAMPLE_ALL_SMALL)/$${i}.txt $(CAPACITY) $(WAYS)  > $(RESULT_DIR)/$${i}_clam_leases ; \
+		cargo run  $(SAMPLE_ALL_SMALL)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -p   > /dev/null ; \
 	done & \
 	for i in $(multi_bench); do \
-		$(BIN_DIR)/rl_set_shel $(SAMPLE_ALL_PHASE_SMALL)/$${i}.txt $(CAPACITY) $(WAYS)  > $(RESULT_DIR)/$${i}_shel_leases ; \
-	done & \
-	for i in $(multi_bench); do \
-		cargo run  $(SAMPLE_ALL_PHASE_SMALL)/$${i}.txt -s $(CAPACITY) >  $(RESULT_DIR)/$${i}_c-shel_leases ; \
-	done & \
-	for i in $(all_bench); do \
-		python3 $(BIN_DIR)/prl.py $(CAPACITY) 5 $(SAMPLE_ALL_SMALL)/$${i}.txt  > $(RESULT_DIR)/$${i}_prl_leases ; \
+		cargo run  $(SAMPLE_ALL_PHASE_SMALL)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -c   > /dev/null ; \
 	done & \
 	wait;
 
-run_all_medium: bin/rl_set_c_shel bin/rl_set_shel bin/prl.py
+run_all_medium: src/lib.rs src/main.rs Cargo.toml
 	for i in $(all_bench); do \
-		$(BIN_DIR)/rl_set_shel $(SAMPLE_ALL_MEDIUM)/$${i}.txt $(CAPACITY) $(WAYS)  > $(RESULT_DIR)/$${i}_clam_leases ; \
+		cargo run  $(SAMPLE_ALL_MEDIUM)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -p   > /dev/null ; \
 	done & \
 	for i in $(multi_bench); do \
-		$(BIN_DIR)/rl_set_shel $(SAMPLE_ALL_PHASE_MEDIUM)/$${i}.txt $(CAPACITY) $(WAYS)  > $(RESULT_DIR)/$${i}_shel_leases ; \
-	done & \
-	for i in $(multi_bench); do \
-		cargo run  $(SAMPLE_ALL_PHASE_MEDIUM)/$${i}.txt -s $(CAPACITY) >  $(RESULT_DIR)/$${i}_c-shel_leases ; \
-	done & \
-	for i in $(all_bench); do \
-		python3 $(BIN_DIR)/prl.py $(CAPACITY) 5 $(SAMPLE_ALL_MEDIUM)/$${i}.txt  > $(RESULT_DIR)/$${i}_prl_leases ; \
+		cargo run  $(SAMPLE_ALL_PHASE_MEDIUM)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -c   > /dev/null ; \
 	done & \
 	wait;
 
-run_all_large: bin/rl_set_c_shel bin/rl_set_shel bin/prl.py
-	for i in $(all_bench_large); do \
-		$(BIN_DIR)/rl_set_shel $(SAMPLE_ALL_LARGE)/$${i}.txt $(CAPACITY) $(WAYS)  > $(RESULT_DIR)/$${i}_clam_leases ; \
-	done & \
-	for i in $(all_bench_large); do \
-		python3 $(BIN_DIR)/prl.py $(CAPACITY) 5 $(SAMPLE_ALL_LARGE)/$${i}.txt  > $(RESULT_DIR)/$${i}_prl_leases ; \
-	done & \
-	for i in $(multi_bench_large); do \
-		$(BIN_DIR)/rl_set_shel $(SAMPLE_ALL_PHASE_LARGE)/$${i}.txt $(CAPACITY) $(WAYS)  > $(RESULT_DIR)/$${i}_shel_leases ; \
-	done & \
-	for i in $(multi_bench_large); do \
-		cargo run  $(SAMPLE_ALL_PHASE_LARGE)/$${i}.txt -s $(CAPACITY) >  $(RESULT_DIR)/$${i}_c-shel_leases ; \
-	done & \
-	wait;	
-
-
-run_all_extra_large: bin/rl_set_c_shel bin/rl_set_shel bin/prl.py
+run_all_large: src/lib.rs src/main.rs Cargo.toml
 	for i in $(all_bench); do \
-		$(BIN_DIR)/rl_set_shel $(SAMPLE_ALL_EXTRA_LARGE)/$${i}.txt $(CAPACITY) $(WAYS)  > $(RESULT_DIR)/$${i}_clam_leases ; \
+		cargo run  $(SAMPLE_ALL_LARGE)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -p   > /dev/null ; \
 	done & \
 	for i in $(multi_bench); do \
-		$(BIN_DIR)/rl_set_shel $(SAMPLE_ALL_PHASE_EXTRA_LARGE)/$${i}.txt $(CAPACITY) $(WAYS)  > $(RESULT_DIR)/$${i}_shel_leases ; \
-	done & \
-	for i in $(multi_bench); do \
-		cargo run  $(SAMPLE_ALL_PHASE_EXTRA_LARGE)/$${i}.txt -s $(CAPACITY) >  $(RESULT_DIR)/$${i}_c-shel_leases ; \
-	done & \
-	for i in $(all_bench); do \
-		python3 $(BIN_DIR)/prl.py $(CAPACITY) 5 $(SAMPLE_ALL_EXTRA_LARGE)/$${i}.txt  > $(RESULT_DIR)/$${i}_prl_leases ; \
+		cargo run  $(SAMPLE_ALL_PHASE_LARGE)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -c   > /dev/null ; \
 	done & \
 	wait;
 
-run_all_small_multi_level: bin/rl_set_c_shel bin/rl_set_shel bin/prl.py
+
+run_all_large: src/lib.rs src/main.rs Cargo.toml
+	for i in $(all_bench); do \
+		cargo run  $(SAMPLE_ALL_EXTRA_LARGE)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -p   > /dev/null ; \
+	done & \
+	for i in $(multi_bench); do \
+		cargo run  $(SAMPLE_ALL_PHASE_EXTRA_LARGE)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -c   > /dev/null ; \
+	done & \
+	wait;
+
+run_all_small_multi_level: src/lib.rs src/main.rs Cargo.toml
 	for i in $(all_bench_small_multi_level); do \
-		$(BIN_DIR)/rl_set_shel $(SAMPLE_ALL_SMALL)_multi_level/$${i}.txt $(CAPACITY) $(WAYS)  > $(RESULT_DIR)/$${i}_clam_leases ; \
+		cargo run  $(SAMPLE_ALL_SMALL)_multi_level/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -p   > /dev/null ; \
 	done & \
 	for i in $(multi_bench); do \
-		$(BIN_DIR)/rl_set_shel $(SAMPLE_ALL_PHASE_SMALL)_multi_level/$${i}.txt $(CAPACITY) $(WAYS)  > $(RESULT_DIR)/$${i}_shel_leases ; \
-	done & \
-	for i in $(multi_bench); do \
-		cargo run  $(SAMPLE_ALL_PHASE_SMALL)/$${i}.txt -s $(CAPACITY) >  $(RESULT_DIR)/$${i}_c-shel_leases ; \
-	done & \
-	for i in $(all_bench); do \
-		python3 $(BIN_DIR)/prl.py $(CAPACITY) 5 $(SAMPLE_ALL_SMALL)_multi_level/$${i}.txt  > $(RESULT_DIR)/$${i}_prl_leases ; \
+		cargo run  $(SAMPLE_ALL_PHASE_SMALL)_multi_level/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -c   > /dev/null ; \
 	done & \
 	wait;
 
-run_all_medium_multi_level: bin/rl_set_c_shel bin/rl_set_shel bin/prl.py
+run_all_medium_multi_level: src/lib.rs src/main.rs Cargo.toml
 	for i in $(all_bench); do \
-		$(BIN_DIR)/rl_set_shel $(SAMPLE_ALL_MEDIUM)_multi_level/$${i}.txt $(CAPACITY) $(WAYS)  > $(RESULT_DIR)/$${i}_clam_leases ; \
+		cargo run  $(SAMPLE_ALL_MEDIUM)_multi_level/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -p   > /dev/null ; \
 	done & \
 	for i in $(multi_bench); do \
-		$(BIN_DIR)/rl_set_shel $(SAMPLE_ALL_PHASE_MEDIUM)_multi_level/$${i}.txt $(CAPACITY) $(WAYS)  > $(RESULT_DIR)/$${i}_shel_leases ; \
+		cargo run  $(SAMPLE_ALL_PHASE_MEDIUM)_multi_level/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -c   > /dev/null ; \
 	done & \
-	for i in $(multi_bench); do \
-		cargo run  $(SAMPLE_ALL_PHASE_MEDIUM)/$${i}.txt -s $(CAPACITY) >  $(RESULT_DIR)/$${i}_c-shel_leases ; \
-	done & \
-	for i in $(all_bench); do \
-		python3 $(BIN_DIR)/prl.py $(CAPACITY) 5 $(SAMPLE_ALL_MEDIUM)_multi_level/$${i}.txt  > $(RESULT_DIR)/$${i}_prl_leases ; \
-		done & \
 	wait;
 
-run_all_large_multi_level: bin/rl_set_c_shel bin/rl_set_shel bin/prl.py
-	for i in $(all_bench_large); do \
-		$(BIN_DIR)/rl_set_shel $(SAMPLE_ALL_LARGE)_multi_level/$${i}.txt $(CAPACITY) $(WAYS)  > $(RESULT_DIR)/$${i}_clam_leases ; \
-	done & \
-	for i in $(multi_bench_large); do \
-		$(BIN_DIR)/rl_set_shel $(SAMPLE_ALL_PHASE_LARGE)_multi_level/$${i}.txt $(CAPACITY) $(WAYS)  > $(RESULT_DIR)/$${i}_shel_leases ; \
-	done & \
-	for i in $(all_bench_large); do \
-		python3 $(BIN_DIR)/prl.py $(CAPACITY) 5 $(SAMPLE_ALL_LARGE)_multi_level/$${i}.txt  > $(RESULT_DIR)/$${i}_prl_leases ; \
-	done & \
-	wait; \
-	#for i in $(multi_bench_large); do \
-	#	cargo run  $(SAMPLE_ALL_PHASE_LARGE)/$${i}.txt -s $(CAPACITY) >  $(RESULT_DIR)/$${i}_c-shel_leases ; \
-	#done & 
-run_all_extra_large_multi_level: bin/rl_set_c_shel bin/rl_set_shel bin/prl.py
+run_all_large_multi_level: src/lib.rs src/main.rs Cargo.toml
 	for i in $(all_bench); do \
-		$(BIN_DIR)/rl_set_shel $(SAMPLE_ALL_EXTRA_LARGE)_multi_level/$${i}.txt $(CAPACITY) $(WAYS)  > $(RESULT_DIR)/$${i}_clam_leases ; \
+		cargo run  $(SAMPLE_ALL_LARGE)_multi_level/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -p   > /dev/null ; \
 	done & \
 	for i in $(multi_bench); do \
-		$(BIN_DIR)/rl_set_shel $(SAMPLE_ALL_PHASE_EXTRA_LARGE)_multi_level/$${i}.txt $(CAPACITY) $(WAYS)  > $(RESULT_DIR)/$${i}_shel_leases ; \
+		cargo run  $(SAMPLE_ALL_PHASE_LARGE)_multi_level/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -c   > /dev/null ; \
+	done & \
+	wait;
+run_all_extra_large_multi_level: src/lib.rs src/main.rs Cargo.toml
+	for i in $(all_bench); do \
+		cargo run  $(SAMPLE_ALL_EXTRA_LARGE)_multi_level/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -p   > /dev/null ; \
 	done & \
 	for i in $(multi_bench); do \
-		cargo run  $(SAMPLE_ALL_PHASE_EXTRA_LARGE)/$${i}.txt -s $(CAPACITY) >  $(RESULT_DIR)/$${i}_c-shel_leases ; \
-	done & \
-	for i in $(all_bench); do \
-		python3 $(BIN_DIR)/prl.py $(CAPACITY) 5 $(SAMPLE_ALL_EXTRA_LARGE)_multi_level/$${i}.txt  > $(RESULT_DIR)/$${i}_prl_leases ; \
+		cargo run  $(SAMPLE_ALL_PHASE_EXTRA_LARGE)_multi_level/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -c   > /dev/null ; \
 	done & \
 	wait;
 
