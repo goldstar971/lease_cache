@@ -64,7 +64,7 @@ run_all_large: src/lib.rs src/main.rs Cargo.toml
 	wait;
 
 
-run_all_large: src/lib.rs src/main.rs Cargo.toml
+run_all_extra_large: src/lib.rs src/main.rs Cargo.toml
 	for i in $(all_bench); do \
 		cargo run  $(SAMPLE_ALL_EXTRA_LARGE)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -p   > /dev/null ; \
 	done & \

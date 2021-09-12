@@ -62,7 +62,7 @@ def generate(options):
 				lease_item_list.append(new_lease_item);
 		
 		# check for import
-		if line.strip() == keyword_begin
+		if line.strip() == keyword_begin:
 			valid_flag = True;
 	# close file
 	srcHandle.close();

@@ -1,12 +1,21 @@
 % initialize workspace
+
 close all; clearvars; clc;
-addpath("./src");
+t=which('plot_cache_summary');
+addpath([t(1:end-20),'src']);
+base_path=t(1:end-64);
+geomean_file_path=[t(1:end-20),'geomean.txt'];
+
+
+time=clock;
+
 % user selections
 % -------------------------------------------------------------------------
 
 dataset_size=inputdlg("Give dataset size for the benchmark results which you'd like to plot: ",'s');
-dataset_size=cell2mat(dataset_size);
+dataset_size=lower(cell2mat(dataset_size));
 multi_level_ans=questdlg("Plot statistics for two-level cache?",'Yes','No');
+lease_policies=["CLAM","PRL","SHEL","C-SHEL"];
 convertCharsToStrings(multi_level_ans);
 if(multi_level_ans=="No")
 	multi_level=0;
@@ -27,7 +36,6 @@ else
 end
 
 %get results to plot
-base_path=[getenv('HOME'),'/Documents/Thesis_stuff/'];
 if(strcmp(dataset_size,'small'))
 	if(multi_level)
 		file_path=[base_path,'software/fpga_proxy/results/cache/results_multi_level.txt'];
@@ -59,7 +67,17 @@ small_benchmarks=["jacobi-1d","trisolv","gesummv",'durbin'];
 single_scope_benchmarks=["atax" "bicg" "cholesky" "doitgen" "durbin" "floyd-warshall" "gemm" "gesummv" "gramschmidt" "jacobi-1d" "nussinov" "seidel-2d" "symm" "syr2k" "syrk" "trisolv" "trmm"];
 
 % extract data
-[data,filenames,policies] = extract_data(file_path,offset);
+try
+	[data,filenames,policies] = extract_data(file_path,offset);
+catch
+	display("Invalid dataset size specified: allowed values are 'small', 'medium', 'large', and 'extra_large' ");
+	if usejava('desktop')
+		return;
+	else
+		pause(5);
+		quit;
+	end
+end
 %get benchmark names
 for i=1:length(filenames)
 	benchmarks(i)=regexp(filenames{i},"/benchmarks/.*\/(.*)\/program",'tokens');
@@ -111,6 +129,11 @@ benchmark_names_multi=benchmark_names(~ismember(benchmark_names,single_scope_ben
 PLRU_single_scope=PLRU_data(ismember(benchmark_names,single_scope_benchmarks));
 PLRU_multi_scope=PLRU_data(~ismember(benchmark_names,single_scope_benchmarks));
 set(0,'DefaultFigureVisible','on')
+%open geomean file and output header describing the data being visualized 
+fileID=fopen(geomean_file_path,'a');
+fprintf(fileID,"Plotting done on %d/%d/%d at %d:%d:%d\n",time(1),time(2),time(3),time(4),time(5),fix(time(6)));
+fprintf(fileID,"%s cache data for %s dataset",num_level(multi_level+1),dataset_size);
+
 %plot normalized misses or normalized clock cycles
 for h=1:2
 	%plot for single or multi scope benchmarks
@@ -187,14 +210,7 @@ for h=1:2
 				end
 			end
 		end
-		if(i==1)
-			legend({'CLAM','PRL'},'Orientation','horizontal','FontSize',14);
-			
-		
-		else
-			legend({'CLAM','PRL','SHEL','C-SHEL',},'Orientation','horizontal','FontSize',14);
-			
-		end 
+		legend(convertStringsToChars(lease_policies(1:size(bar_ydata,1))),'Orientation','horizontal','FontSize',14);
 		PLRU_array_data=[];
 		if(h==1)
 			if(i==1)
@@ -274,11 +290,23 @@ for h=1:2
 				end
 			end
 		end
+		
 		if(h==1)
+			fprintf(fileID,"\nGeomean values for %s normalized misses: ",convertStringsToChars(num_scope(i)));
+			for j=1:size(bar_ydata,1)
+				fprintf(fileID,"%s: %.5f ",lease_policies(j),bar_ydata(j,end));
+			end
+
 			saveas(fig,[base_save_path,'cache_statistics/cache_statistics_graphs/',convertStringsToChars(num_level(multi_level+1)),'/misses_',convertStringsToChars(num_scope(i)),'_',dataset_size,'.png'])
 		elseif(h==2)
+			fprintf(fileID,"\nGeomean values for %s normalized clock cycles: ",convertStringsToChars(num_scope(i)));
+			for j=1:size(bar_ydata,1)
+				fprintf(fileID,"%s: %.5f ",lease_policies(j),bar_ydata(j,end));
+			end
 			saveas(fig,[base_save_path,'cache_statistics/cache_statistics_graphs/',convertStringsToChars(num_level(multi_level+1)),'/clock_cycles_',convertStringsToChars(num_scope(i)),'_',dataset_size,'.png'])
 		end
 		close(fig)
 	end
 end
+fprintf(fileID,"\n\n");
+fclose(fileID);

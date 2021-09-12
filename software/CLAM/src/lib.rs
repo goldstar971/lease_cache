@@ -607,7 +607,7 @@ pub mod lease_gen {
         return total;
 
      }
-    pub fn prl(bin_width : u64,
+ pub fn prl(bin_width : u64,
                 ri_hists : &RIHists,
                  binned_ris: &BinnedRIs,
                 binned_freqs: &BinFreqs,
@@ -636,13 +636,14 @@ pub mod lease_gen {
         let mut num_full_bins;
         let mut leases:HashMap<u64,u64>=addrs.iter().map(|&c| (c,0_u64)).collect::<HashMap<_,_>>();
         let mut bin_saturation:HashMap<u64,f64>=bin_endpoints.iter().map(|&c| (c,0_f64)).collect::<HashMap<_,_>>();
+       
         //make all references have lease of 1
         for addr in addrs{
             leases.insert(addr,1);
-            //update saturation to take into account each reference having a lease of 1
+           // update saturation to take into account each reference having a lease of 1
             for (bin,_sat) in &bin_saturation.clone(){
                 if  binned_ris.bin_ri_distribution.get(bin).unwrap().contains_key(&addr){
-                    let  old_avg_lease=get_avg_lease(binned_ris,&addr,*bin,*leases.get(&addr).unwrap());
+                    let  old_avg_lease=get_avg_lease(binned_ris,&addr,*bin,0);
                     let avg_lease =get_avg_lease(binned_ris,&addr,*bin,1);
                     let impact= (avg_lease as f64-old_avg_lease as f64)*&(sample_rate as f64);
                     bin_saturation.insert(*bin,impact);
@@ -668,6 +669,18 @@ pub mod lease_gen {
                 ppuc_tree.push(*ppuc);
             }
         }
+       // get lease hits assuming a base lease of 0
+        for _r in ppuc_tree.clone(){
+            let lease= ppuc_tree.pop().unwrap();
+            lease_hits.entry(lease.ref_id&0x00FFFFFF).or_insert(HashMap::new()).entry(lease.lease).or_insert(lease.new_hits);
+      }
+        //reinitallize ppuc tree, assuming a base lease of 1
+        for (&ref_id, ri_hist) in ri_hists.ri_hists.iter(){
+            let ppuc_vec = get_ppuc(ref_id,1,ri_hist);
+            for ppuc in ppuc_vec.iter(){
+                ppuc_tree.push(*ppuc);
+            }
+        }
         
     
         loop {
@@ -675,10 +688,13 @@ pub mod lease_gen {
                 Some(i) => i,
                 None => return Some((leases,dual_leases, lease_hits,trace_length)),
             };
-            lease_hits.entry(new_lease.ref_id).or_insert(HashMap::new()).entry(new_lease.lease).or_insert(new_lease.new_hits);
-            
-            //all references start with a lease of 1, so need to do this
-            if new_lease.lease==1{
+           
+             //continue to pop until we have a ppuc with the right base_lease
+            if new_lease.old_lease != *leases.get(&new_lease.ref_id).unwrap(){
+                continue;
+            }
+            //won't assign a reference to a reference that has recieved a dual lease
+            if dual_leases.contains_key(&new_lease.ref_id){
                 continue;
             }
             neg_impact=false;
@@ -707,6 +723,12 @@ pub mod lease_gen {
                     num_unsuitable+=1;
                 }
             }
+            for (bin,sat) in &bin_saturation.clone(){
+                if verbose {
+                    println!("bin: {} current capacity: {:.7} impact: {:.7}", bin/bin_width, sat/bin_width as f64,impact_dict.get(bin).unwrap()/bin_width as f64);
+                }
+             }
+             println!("addr:{} ri:{}",addr,new_lease.lease);
             //skip lease, if it makes it worse
            
             if neg_impact{
@@ -715,17 +737,25 @@ pub mod lease_gen {
             }
             if num_unsuitable<1{
                 leases.insert(addr,new_lease.lease);
+                 //push new ppucs
+                let ppuc_vec = get_ppuc(new_lease.ref_id,
+                                        new_lease.lease,
+                                        ri_hists.ri_hists.get(&new_lease.ref_id).unwrap());
+
+                for ppuc in ppuc_vec.iter(){
+                    ppuc_tree.push(*ppuc);
+                }
                  let mut print_string:String=String::new();
                 for (bin,_sat) in &bin_saturation.clone(){
                      if  binned_ris.bin_ri_distribution.get(bin).unwrap().contains_key(&addr){
                         bin_saturation.insert(*bin,bin_saturation.get(bin).unwrap()+impact_dict.get(bin).unwrap());
                     }
-                    print_string=format!("{:} {1:.5}",print_string,&(bin_saturation.get(bin).unwrap()/bin_width as f64));
+                    print_string=format!("{:} {1:.7}",print_string,&(bin_saturation.get(bin).unwrap()/bin_width as f64));
                    
                 }
                 if verbose{
-                 println!("assigning lease: {:x} to reference {:x}",new_lease.lease, addr);
-                 println!("Average cache occupancy per bin: [{:}]",print_string);
+                 println!("assigning lease: {} to reference {}",new_lease.lease, addr);
+                 println!("Average cache occupancy per bin: [{}]",print_string);
              }
             }
             else {
@@ -761,12 +791,12 @@ pub mod lease_gen {
                         if  binned_ris.bin_ri_distribution.get(bin).unwrap().contains_key(&addr){
                         bin_saturation.insert(*bin,bin_saturation.get(bin).unwrap()+impact_dict.get(bin).unwrap()*acceptable_ratio);
                         }
-                        print_string=format!("{:} {1:.5}",print_string,&(bin_saturation.get(bin).unwrap()/bin_width as f64));
+                        print_string=format!("{:} {1:.7}",print_string,&(bin_saturation.get(bin).unwrap()/bin_width as f64));
                    
                     }
                     if verbose{
-                    println!("Assigning dual lease {:x} to address {:x} with percentage: {}",new_lease.lease,addr,acceptable_ratio);
-                    println!("Average cache occupancy per bin: [{:}]",print_string);
+                    println!("Assigning dual lease {} to address {} with percentage: {}",new_lease.lease,addr,acceptable_ratio);
+                    println!("Average cache occupancy per bin: [{}]",print_string);
                 }
                 }
                 

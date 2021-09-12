@@ -1,119 +1,5 @@
-sample_count: 21457
-Finished phase 0 with refT 5514449 >>>>>>>>>>>
-Start to init hits and costs
-Finished to init hits and costs
-Dump RI
-Ref 000005a8 Set 0 RI 2 CNT 1340
-Ref 000005c4 Set 0 RI 3 CNT 1271
-Ref 000005c4 Set 0 RI 4294962926 CNT 80
-Ref 000005cc Set 0 RI 1 CNT 1248
-Ref 000005cc Set 0 RI 4294962926 CNT 80
-Ref 0000063c Set 0 RI 2 CNT 1287
-Ref 0000063c Set 0 RI 4294962926 CNT 78
-Ref 00000644 Set 0 RI 2 CNT 1263
-Ref 00000644 Set 0 RI 4294962926 CNT 78
-Ref 00000680 Set 0 RI 3 CNT 1244
-Ref 00000680 Set 0 RI 4294962926 CNT 87
-Ref 00000684 Set 0 RI 3 CNT 1267
-Ref 00000684 Set 0 RI 65371 CNT 1
-Ref 00000684 Set 0 RI 71119 CNT 1
-Ref 00000684 Set 0 RI 220639 CNT 1
-Ref 00000684 Set 0 RI 285352 CNT 1
-Ref 00000684 Set 0 RI 286837 CNT 1
-Ref 00000684 Set 0 RI 331336 CNT 1
-Ref 00000684 Set 0 RI 338569 CNT 1
-Ref 00000684 Set 0 RI 345778 CNT 1
-Ref 00000684 Set 0 RI 4294962926 CNT 74
-Ref 00000694 Set 0 RI 3 CNT 1276
-Ref 00000694 Set 0 RI 91235 CNT 1
-Ref 00000694 Set 0 RI 209045 CNT 1
-Ref 00000694 Set 0 RI 210530 CNT 1
-Ref 00000694 Set 0 RI 262262 CNT 1
-Ref 00000694 Set 0 RI 269471 CNT 1
-Ref 00000694 Set 0 RI 4294962926 CNT 77
-Ref 000006ec Set 0 RI 2 CNT 1327
-Ref 00000708 Set 0 RI 2160 CNT 1254
-Ref 00000708 Set 0 RI 4294962926 CNT 84
-Ref 00000710 Set 0 RI 2158 CNT 1265
-Ref 00000710 Set 0 RI 4294962926 CNT 86
-Ref 00000778 Set 0 RI 1440 CNT 1254
-Ref 00000778 Set 0 RI 80624 CNT 1
-Ref 00000778 Set 0 RI 173874 CNT 1
-Ref 00000778 Set 0 RI 206078 CNT 1
-Ref 00000778 Set 0 RI 210164 CNT 1
-Ref 00000778 Set 0 RI 231474 CNT 1
-Ref 00000778 Set 0 RI 272170 CNT 1
-Ref 00000778 Set 0 RI 4294962926 CNT 82
-Ref 00000780 Set 0 RI 1440 CNT 1262
-Ref 00000780 Set 0 RI 70611 CNT 1
-Ref 00000780 Set 0 RI 197347 CNT 1
-Ref 00000780 Set 0 RI 213369 CNT 1
-Ref 00000780 Set 0 RI 226107 CNT 1
-Ref 00000780 Set 0 RI 4294962926 CNT 92
-Ref 000007b8 Set 0 RI 3 CNT 1282
-Ref 000007b8 Set 0 RI 4294962926 CNT 58
-Ref 000007bc Set 0 RI 3 CNT 1255
-Ref 000007bc Set 0 RI 4294962926 CNT 59
-Ref 000007cc Set 0 RI 3 CNT 1270
-Ref 000007cc Set 0 RI 4294962926 CNT 54
-
-refT 5514449 cache size (per set) 128 sample distance 257 targetCost (single set) 2746496
-Dump lease assignement procedure
-Assign lease 1 to ref 000005cc avg cache size (max among all sets) 0.0618912 miss ratio 0.941837
-total cost (single set) 1328 set ID 0 target cost (single set) 2746496
-Assign lease 2 to ref 000005a8 avg cache size (max among all sets) 0.186792 miss ratio 0.879387
-total cost (single set) 4008 set ID 0 target cost (single set) 2746496
-Assign lease 2 to ref 000006ec avg cache size (max among all sets) 0.310481 miss ratio 0.817542
-total cost (single set) 6662 set ID 0 target cost (single set) 2746496
-Assign lease 2 to ref 0000063c avg cache size (max among all sets) 0.437713 miss ratio 0.757562
-total cost (single set) 9392 set ID 0 target cost (single set) 2746496
-Assign lease 2 to ref 00000644 avg cache size (max among all sets) 0.562707 miss ratio 0.6987
-total cost (single set) 12074 set ID 0 target cost (single set) 2746496
-Assign lease 3 to ref 000007cc avg cache size (max among all sets) 0.747821 miss ratio 0.639512
-total cost (single set) 16046 set ID 0 target cost (single set) 2746496
-Assign lease 3 to ref 000007b8 avg cache size (max among all sets) 0.935173 miss ratio 0.579764
-total cost (single set) 20066 set ID 0 target cost (single set) 2746496
-Assign lease 3 to ref 000007bc avg cache size (max among all sets) 1.11889 miss ratio 0.521275
-total cost (single set) 24008 set ID 0 target cost (single set) 2746496
-Assign lease 3 to ref 000005c4 avg cache size (max among all sets) 1.30778 miss ratio 0.46204
-total cost (single set) 28061 set ID 0 target cost (single set) 2746496
-Assign lease 3 to ref 00000694 avg cache size (max among all sets) 1.49765 miss ratio 0.402573
-total cost (single set) 32135 set ID 0 target cost (single set) 2746496
-Assign lease 3 to ref 00000684 avg cache size (max among all sets) 1.68626 miss ratio 0.343524
-total cost (single set) 36182 set ID 0 target cost (single set) 2746496
-Assign lease 3 to ref 00000680 avg cache size (max among all sets) 1.87235 miss ratio 0.285548
-total cost (single set) 40175 set ID 0 target cost (single set) 2746496
-Assign lease 1440 to ref 00000778 avg cache size (max among all sets) 91.9353 miss ratio 0.227105
-total cost (single set) 1972655 set ID 0 target cost (single set) 2746496
-Assign lease 1440 to ref 00000780 with percentage 0.395721
-             0 to ref 00000780 with percentage 0.604279
-             max set ID 0
-total cost (single set) 2746496 set ID 0 target cost (single set) 2746496
-******Cache status (each X/- means 1% occupy/empty) ******
-Set     0: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-******Overall utilization 1***************
-finished dumping the assignment procedure
-the FINAL avg cache size 128 miss ratio 0.20385
-Dump single leases (last one may be dual)
-000005a8 2
-000005c4 3
-000005cc 1
-0000063c 2
-00000644 2
-00000680 3
-00000684 3
-00000694 3
-000006ec 2
-00000708 0
-00000710 0
-00000778 5a0
-00000780 5a0 percentage 0.395721
-00000780 0 percentage 0.604279
-000007b8 3
-000007bc 3
-000007cc 3
-
-Dump formated leases 
+Dump predicted miss count (no contention misses): 839936
+Dump formated leases
 0, 5a8, 2, 0, 1
 0, 5c4, 3, 0, 1
 0, 5cc, 1, 0, 1
@@ -125,9 +11,8 @@ Dump formated leases
 0, 6ec, 2, 0, 1
 0, 708, 1, 0, 1
 0, 710, 1, 0, 1
-0, 778, 5a0, 0, 1
-0, 780, 1, 5a0, 0.604279
+0, 778, 1, 5a0, 0.58937037
+0, 780, 5a0, 0, 1
 0, 7b8, 3, 0, 1
 0, 7bc, 3, 0, 1
 0, 7cc, 3, 0, 1
-

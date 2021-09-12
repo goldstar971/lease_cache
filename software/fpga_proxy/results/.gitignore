@@ -1,7 +1,5 @@
-/*
-!sample
-sample/*
-!sample/*.tar.xz
-!track
-track/*
-track/*tar.xz
+!cache
+cache/*
+!cache/*.txt
+cache/benchmark_timing_data.txt
+
