@@ -1,15 +1,15 @@
-Dump predicted miss count (no contention misses): 10490368
+Dump predicted miss count (no contention misses): 11632169
 Dump formated leases
 0, 6f8, 301, 0, 1
 0, 708, 2fe, 0, 1
-0, 70c, 1, 30e, 0.9152574
+0, 70c, 1, 0, 1
 0, 720, 1, 0, 1
 0, 740, 2, 0, 1
 0, 744, 4, 0, 1
 0, 75c, 1, 0, 1
 0, 764, 2e1, 0, 1
 0, 770, 2f5, 0, 1
-0, 774, 313, 0, 1
+0, 774, 1, 313, 0.029529095
 0, 78c, 2de, 0, 1
 0, 7a0, 1c2, 0, 1
 0, 7e0, cc, 0, 1

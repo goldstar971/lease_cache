@@ -2,7 +2,7 @@
 
 
 # raw lease dump file directories
-
+echo "$1"
 if [[ "$1" == "" || "$2" == "" || "$3" == "" ]]; then
 	echo "must give lease lookup table size, cache size, and number of ways";
 	exit 1;

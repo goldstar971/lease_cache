@@ -8,22 +8,25 @@
 #include <errno.h>
 
 
-void get_file_name(command *pcommand,char * file_name, char* dir, char * benchmark_name ){
+
+void get_file_name(char* application, char* dir, char * benchmark_name ){
 	char unsplit[200];
 	char parts[5][50];
-	int counter=0;
-	strcpy(unsplit,pcommand->field[1]);
-	char *ptr =strtok(unsplit,"/");
+	int counter=-1; //loop will increment 1 passed where we want
 
-	while(ptr !=NULL){
+	strcpy(unsplit,application);
+	char *ptr =strtok(unsplit,"/");
+	do {
+	    counter++;
 	    strcpy(parts[counter],ptr);
 	     ptr = strtok(NULL,"/");
-	   counter=counter+1;
-	}
-	sprintf(benchmark_name,"%s",parts[counter-2]);
-	sprintf(file_name,"%s.txt",parts[counter-2]);
-
-	sprintf(dir,"%s",parts[counter-3]);
+	}while(ptr !=NULL);
+	//if absolute path provided
+    if(!strcmp(parts[counter],"program")){
+        counter--;
+    }
+	sprintf(benchmark_name,"%s",parts[counter]);
+		sprintf(dir,"%s",parts[counter-1]);
 }
 
 uint32_t sampler_read_buffer(pHandle pInst, uint32_t n_entries, FILE* file_handle){
@@ -232,19 +235,38 @@ uint32_t sampler_run(pHandle pInst, command *pCommand){
 
 	// temporaries
 	time_t time0, time1;
-	char command_str[200];
+	char command_str[300];
 
 	char file_path[200]; 
-	char file_name[50];
 	char benchmark_type[50];
 	char benchmark_name[50];
-	char full_output_path[250]; 
+	char full_output_path[256]; 
+	char application[256];
+
+	strcpy(application,pCommand->field[1]);
+	//get benchmark type and benchmark name
+	get_file_name(application,benchmark_type,benchmark_name);
 	
-	
+	//if we aren't given the relative or absolute path try an assemble using benchmark directory
+	if(access(application,F_OK)!=0){
+		sprintf(application,"%s/%s/%s/program.elf",BENCHMARK_DIR,benchmark_type,benchmark_name);
+		
+	}
+
+	if(access(application,F_OK)!=0){
+		printf("Could not find provided application file: %s. \
+			Attempt to find alternative %s failed.\n  \
+			Provide either the absolute or relative path or just policy and benchmark name: \
+			e.g CLAM_large/adi\n If following these instructions \
+			fails, check to see that BENCHMARK_DIRECTORY has been defined correctly in the\
+			proxy makefile",pCommand->field[1],application);
+		return 1;
+	}
+		//now that existence has been checked, remove the file extension, otherwise it will cause problems
+	application[strlen(application)-4]='\0';
 
 	
 //applications sometimes fail to load to the FPGA, loop until the program written has been sucessfully 
-	//
 	
 	int tries=0;
 	do {
@@ -265,25 +287,24 @@ uint32_t sampler_run(pHandle pInst, command *pCommand){
 	}
 		sleep(.1);
 		// load fpga memory with target application
-	sprintf(command_str, "LOAD %s\r",pCommand->field[1]);
+	sprintf(command_str, "LOAD %s\r",application);
 		if(proxy_string_command(pInst, command_str)==2){
 			return 1;
 		}
 		sleep(.1);
-	sprintf(command_str, "VERIFY %s\r",pCommand->field[1]);
+	sprintf(command_str, "VERIFY %s\r",application);
 	tries++;
 	}while(proxy_string_command(pInst, command_str));
 
 
-	//get file name
-	get_file_name(pCommand,file_name,benchmark_type,benchmark_name);
-	//combine into full path
+	
+	//create full path
 	#ifdef MULTI_LEVEL_CACHE
-		sprintf(file_path,"%s%s%s/",SAMPLER_OUTPUT_PATH,benchmark_type,"_multi_level");
+		sprintf(file_path,"%s/sample/%s_multi_level/",RESULT_DIR,benchmark_type);
 	#else
-		sprintf(file_path,"%s%s/",SAMPLER_OUTPUT_PATH,benchmark_type);
+		sprintf(file_path,"%s/sample/%s/",RESULT_DIR,benchmark_type);
 	#endif
-	sprintf(full_output_path,"%s%s",file_path,file_name);
+	sprintf(full_output_path,"%s%s.txt",file_path,benchmark_name);
 	//if directory doesn't exist, try to create it.
 	if(0!= access(file_path,F_OK)){
 		//make folder if error is that dir doesn't exist
@@ -421,13 +442,35 @@ uint32_t tracker_run(pHandle pInst, command *pCommand){
 
 	// temporaries
 	time_t time0, time1;
-	char command_str[200];
+	char command_str[300];
 	char file_path[200]; 
-	char file_name[50];
+	
 	char benchmark_type[50];
 	char benchmark_name[50];
-	char full_output_path[250]; 
+	char full_output_path[256]; 
+	char application[256];
 
+	
+	
+	strcpy(application,pCommand->field[1]);
+	//get benchmark type and benchmark name
+	get_file_name(application,benchmark_type,benchmark_name);
+
+	//if we aren't given the relative or absolute path try an assemble using benchmark directory
+	if(access(application,F_OK)!=0){
+		sprintf(application,"%s/%s/%s/program.elf",BENCHMARK_DIR,benchmark_type,benchmark_name);
+	}
+	if(access(application,F_OK)!=0){
+		printf("Could not find provided application file: %s. \
+			Attempt to find alternative %s failed.\n  \
+			Provide either the absolute or relative path or just policy and benchmark name: \
+			e.g CLAM_large/adi\n If following these instructions \
+			fails, check to see that BENCHMARK_DIRECTORY has been defined correctly in the\
+			proxy makefile",pCommand->field[1],application);
+		return 1;
+	}
+	//now that existence has been checked, remove the file extension, otherwise it will cause problems
+	application[strlen(application)-4]='\0';
 	int tries=0;
 	do {
 		//if more than ten tries, terminate.
@@ -447,24 +490,23 @@ uint32_t tracker_run(pHandle pInst, command *pCommand){
 	}
 		sleep(.1);
 		// load fpga memory with target application
-	sprintf(command_str, "LOAD %s\r",pCommand->field[1]);
+	sprintf(command_str, "LOAD %s\r",application);
 		if(proxy_string_command(pInst, command_str)==2){
 			return 1;
 		}
 		sleep(.1);
-	sprintf(command_str, "VERIFY %s\r",pCommand->field[1]);
+	sprintf(command_str, "VERIFY %s\r",application);
 	tries++;
 	}while(proxy_string_command(pInst, command_str));
 
-//get file name
-	get_file_name(pCommand,file_name,benchmark_type,benchmark_name);
-	//combine into full path
+
+	//create full path
 	#ifdef MULTI_LEVEL_CACHE
-		sprintf(file_path,"%s%s%s/",TRACKER_OUTPUT_PATH,benchmark_type,"_multi_level");
+		sprintf(file_path,"%s/track/%s_multi_level/",RESULT_DIR,benchmark_type);
 	#else
-		sprintf(file_path,"%s%s/",TRACKER_OUTPUT_PATH,benchmark_type);
+		sprintf(file_path,"%s/track/%s/",RESULT_DIR,benchmark_type);
 	#endif
-	sprintf(full_output_path,"%s%s",file_path,file_name);
+	sprintf(full_output_path,"%s%s.txt",file_path,benchmark_name);
 	//if directory doesn't exist, try to create it.
 	if(0!= access(file_path,F_OK)){
 		//make folder if error is that dir doesn't exist

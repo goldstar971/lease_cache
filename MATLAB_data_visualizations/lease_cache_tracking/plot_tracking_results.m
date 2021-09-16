@@ -1,23 +1,34 @@
+function [] =plot_tracking_results(varargin)
 % initialize workspace
-close all; clearvars; clc;
+	if usejava('desktop')
+			clc;
+			close all;
+	end
+
 
 % added dependency directories
-addpath("./src");
-base_path=[getenv('HOME'),'/Documents/Thesis_stuff/'];
+t=which('plot_tracking_results');
+tracking_dir=t(1:end-23);
+addpath([tracking_dir,'src']);
+base_path=t(1:end-71);
 base_data_dir=[base_path,'software/fpga_proxy/results/track/'];
-base_save_dir=[base_path,'MATLAB_data_visualizations/lease_cache_tracking/'];
+w
+if(nargin<1)
+multi_level_ans=questdlg("Plot tracking results for two-level cache?","cache level",'yes','no','no');
+else
+multi_level_ans=lower(varargin{1});
+end
 
-
-multi_level_ans=questdlg("Plot tracking results for two-level cache?",'Yes','No');
-if ~strcmp(multi_level_ans,'Yes')&& ~strcmp(multi_level_ans,'No')
+if ~strcmp(multi_level_ans,'yes')&& ~strcmp(multi_level_ans,'no')
 	if usejava('desktop')
 		return;
 	else
 		quit;
 	end
 end
-convertCharsToStrings(multi_level_ans);
-if(multi_level_ans=="No")
+
+%get number of levels in the cache structure
+if(strcmp(multi_level_ans,'mo'))
 	multi_level=0;
 else
 	multi_level=1;
@@ -27,7 +38,13 @@ if(multi_level)
 else
     cache_size=128;
 end
-lease_algorithm=upper(cell2mat(inputdlg("Give type of lease algorithm for which you'd like to plot tracker results: ",'s')));
+
+%get lease policy 
+if(nargin<2)
+	lease_algorithm=upper(cell2mat(inputdlg("Give type of lease algorithm for which you'd like to plot tracker results: ",'s')));
+else
+	lease_algorithm=upper(varargin{2});
+end
 if isempty(lease_algorithm)
 	if usejava('desktop')
 		return;
@@ -35,7 +52,13 @@ if isempty(lease_algorithm)
 		quit;
 	end
 end
-dataset_size=lower(cell2mat(inputdlg("Give dataset size, you'd like to plot: ")));
+
+%get data set size
+if(nargin<3)
+	dataset_size=lower(cell2mat(inputdlg("Give dataset size, you'd like to plot: ")));
+else
+	dataset_size=lower(varargin{3});
+end 
 if isempty(dataset_size)
 	if usejava('desktop')
 		return;
@@ -43,6 +66,7 @@ if isempty(dataset_size)
 		quit;
 	end
 end
+
 if contains(dataset_size,'small')
 	data_name=lease_algorithm;
 else
@@ -59,8 +83,8 @@ full_path=[base_data_dir,data_name,'/'];
 file_list=dir([full_path,'*.txt']);
 
  % if directory for term doesn't exist, create it.
-    if(exist([base_save_dir,data_name,'/'],'dir')~=7)
-        mkdir([base_save_dir,data_name,'/']);
+    if(exist([tracking_dir,data_name,'/'],'dir')~=7)
+        mkdir([tracking_dir,data_name,'/']);
     end
 set(0,'DefaultFigureVisible','off')
 for i=1:length(file_list)
@@ -111,7 +135,7 @@ set(gcf, 'Position',[100,100,1000,600]);     % [low left x, low left y, top righ
                  'FontSize',13,...
                  'Location','south');
         cb.Position = [.15 .035 .725 .0213];
-         saveas(gcf,strcat(base_save_dir,data_name,"/",benchmark,".png"))
+         saveas(gcf,strcat(tracking_dir,data_name,"/",benchmark,".png"))
 close(gcf)
 clear trace_millions average  exp_mat trace
 end

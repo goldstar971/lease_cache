@@ -8,13 +8,12 @@
 #include "test.h"
 #include <stdint.h>
 
-#define SAMPLER_OUTPUT_PATH 			"results/sample/"
 #define SAMPLER_WORDS_PER_SAMPLE 		5
 #define SAMPLER_BUFFER_CAPACITY 		0x1FFF 	// (256kB = 64kW; 64kW / max_log2(5words per pair) = 64kW / 8 =  8k entries)
 #define SAMPLER_BUFFER_PACKET_CAPACITY 	0x1F4 	// max number of entries that can be read at once
 												// legacy option, I believe there is no restriction with this version of the software
 
-#define TRACKER_OUTPUT_PATH 			"results/track/"
+
 #ifdef MULTI_LEVEL_CACHE
 	#define TRACKER_WORDS_PER_SAMPLE 		52
 	#define TRACKER_BUFFER_PACKET_CAPACITY  0x4C // line size is 1664 bits, which divided in 16kB and rounded down gives 76 
@@ -66,7 +65,7 @@ uint32_t tracker_run(pHandle, command *);
 // return: 				0: success, 1: fail
 // pHandle: 			proxy handle
 // command: 			command to execute
-void get_file_name(command *, char *, char*, char*);
+void get_file_name(char *, char*, char*);
 uint32_t sampler_read_buffer(pHandle, uint32_t n_entries,FILE *);
 uint32_t protocol_sampler_buffer_read(pHandle pInst, uint32_t buffer_start_address, uint32_t buffer_packet_size, FILE *);
 

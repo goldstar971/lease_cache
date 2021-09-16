@@ -8,6 +8,7 @@
 #include <sys/types.h>
 #include <errno.h>
 #include <stdio.h>
+#include <unistd.h>
 
 
 
@@ -16,8 +17,33 @@ uint32_t test_run(pHandle pInst, command *pCommand){
 	// temporaries
 	time_t time0, time1;
 	char stat_buffer[CPU_STAT_REPORT_BYTES];
-	char command_str[200];
+	char command_str[300];
+	char file_name[256];
+	char application[256];
+	char benchmark_type[50];
+	char benchmark_name[50];
 
+	strcpy(application,pCommand->field[1]);
+	//get benchmark type and benchmark name
+	get_file_name(application,benchmark_type,benchmark_name);
+
+	//if we aren't given the relative or absolute path try an assemble using benchmark directory
+	if(access(application,F_OK)!=0){
+		sprintf(application,"%s/%s/%s/program.elf",BENCHMARK_DIR,benchmark_type,benchmark_name);
+	}
+	if(access(application,F_OK)!=0){
+		printf("Could not find provided application file: %s. \
+			Attempt to find alternative %s failed.\n  \
+			Provide either the absolute or relative path or just policy and benchmark name: \
+			e.g CLAM_large/adi\n If following these instructions \
+			fails, check to see that BENCHMARK_DIRECTORY has been defined correctly in the\
+			proxy makefile",pCommand->field[1],application);
+		return 1;
+	}
+	//now that existence has been checked, remove the file extension, otherwise it will cause problems
+	application[strlen(application)-4]='\0';
+
+	//sometimes loading the application initially fails
 	int tries=0;
 	do {
 		//if more than ten tries, terminate.
@@ -37,13 +63,13 @@ uint32_t test_run(pHandle pInst, command *pCommand){
 	}
 		sleep(.1);
 		// load fpga memory with target application
-	sprintf(command_str, "LOAD %s\r",pCommand->field[1]);
+	sprintf(command_str, "LOAD %s\r",application);
 		if(proxy_string_command(pInst, command_str)==2){
 			return 1;
 		}
 		
 		sleep(.1);
-	sprintf(command_str, "VERIFY %s\r",pCommand->field[1]);
+	sprintf(command_str, "VERIFY %s\r",application);
 	tries++;
 	}while(proxy_string_command(pInst, command_str));
 
@@ -78,19 +104,19 @@ uint32_t test_run(pHandle pInst, command *pCommand){
 	FILE *pFile=NULL;
 	char result_string[400];
 	char report_buffer[CACHE_REPORT_BYTES];
-	char file_name[50];
-	char benchmark_type[50];
-	char benchmark_name[50];
-	get_file_name(pCommand,file_name,benchmark_type,benchmark_name);
 	
-	
-
 
 	printf("Benchmark_name:           %s\n", benchmark_name);
 	make_cache_report(pInst, report_buffer,stat_buffer);
 
 	//make file of timing results
-	pFile = fopen("./results/cache/benchmark_timing_data.txt","a+");
+	sprintf(file_name,"%s/cache/benchmark_timing_data.txt",RESULT_DIR);
+	pFile = fopen(file_name,"a+");
+	if (!pFile){
+			printf("Could not open or create file!\n");
+			return 1;
+	}
+
 	#ifndef MULTI_LEVEL_CACHE
 	sprintf(result_string,"Cache ID: %u %s_%s: Mem stall time: %lu ALU stall time: %lu Kernel time: %lu Total time: %lu\n",
 		*(uint32_t *)(report_buffer+124),
@@ -116,12 +142,13 @@ uint32_t test_run(pHandle pInst, command *pCommand){
 	memset(&result_string[0],0,sizeof(result_string));
 
 	printf("Approx. Time-to-Execute: %lu seconds\n\n", time1-time0);
+
 	
 	#ifndef MULTI_LEVEL_CACHE
 	// write report to file
 	
 	sprintf(result_string, "%s,%lu,%lu,%lu,%lu,%u,%lu,%lu,%lu,%lu,%lu,%lu,%u,%lu\n",
-								pCommand->field[1], 							// path
+								application, 							// path
 								*(uint64_t *)(report_buffer+0), 				// instruction cache hits
 								*(uint64_t *)(report_buffer+8),					// instruction cache misses
 								*(uint64_t *)(report_buffer+16),				// instruction cache writebacks
@@ -139,7 +166,7 @@ uint32_t test_run(pHandle pInst, command *pCommand){
 	#else
 
 	sprintf(result_string, "%s,%lu,%lu,%lu,%lu,%u,%lu,%lu,%lu,%u,%lu,%lu,%lu,%lu,%lu,%lu,%u,%lu\n",
-								pCommand->field[1], 							// path
+								application, 							// path
 								*(uint64_t *)(report_buffer+0), 				// instruction cache hits
 								*(uint64_t *)(report_buffer+8),					// instruction cache misses
 								*(uint64_t *)(report_buffer+16),				// instruction cache writebacks
@@ -161,44 +188,28 @@ uint32_t test_run(pHandle pInst, command *pCommand){
 	#endif
 
 	// write results to file
+
 	#ifdef MULTI_LEVEL_CACHE
-		if(strstr(benchmark_type,"medium")){
-			pFile = fopen("./results/cache/results_medium_multi_level.txt","a+");
+		if(strchr(benchmark_type,'_')==NULL){
+			sprintf(file_name,"%s/cache/results_multi_level.txt",RESULT_DIR);
 		}
-		else if(strstr(benchmark_type, "large")){
-			pFile = fopen("./results/cache/results_large_multi_level.txt","a+");
-		}
-		else if(strstr(benchmark_type, "extra_large")){
-			pFile = fopen("./results/cache/results_extra_large_multi_level.txt","a+");
-		}	
 		else{
-			pFile = fopen("./results/cache/results_multi_level.txt","a+");
+			sprintf(file_name,"%s/cache/results_%s_multi_level.txt",RESULT_DIR,strchr(benchmark_type,'_')+1);
+		}
+	#else
+		if(strchr(benchmark_type,'_')==NULL){
+			sprintf(file_name,"%s/cache/results.txt",RESULT_DIR);
+		}
+		else{
+			sprintf(file_name,"%s/cache/results_%s.txt",RESULT_DIR,strchr(benchmark_type,'_')+1);
 		}
 
+	#endif
+		pFile = fopen(file_name,"a+");
 		if (!pFile){
 			printf("Could not open or create file!\n");
 			return 1;
 		}
-	#else
-		if(strstr(benchmark_type,"medium")){
-			pFile = fopen("./results/cache/results_medium.txt","a+");
-		}
-		else if(strstr(benchmark_type, "large")){
-			pFile = fopen("./results/cache/results_large.txt","a+");
-		}
-		else if(strstr(benchmark_type, "extra_large")){
-			pFile = fopen("./results/cache/results_extra_large.txt","a+");
-		}	
-		else{
-			pFile = fopen("./results/cache/results.txt","a+");
-		}
-	#endif
-
-	if (!pFile){
-		printf("Could not open or create file!\n");
-		return 1;
-	}
-
 	// report and exit without error
 	fputs(result_string, pFile);
 	fclose(pFile);
@@ -206,10 +217,28 @@ uint32_t test_run(pHandle pInst, command *pCommand){
 }
 
 uint32_t script_run(pHandle pInst, command *pCommand){
+	//handles both absolute path to scripts and just providing script name i.e., run_all_PRL.pss
+	char script_file[256];
+	strcpy(script_file,pCommand->field[1]);
+	//if we don't the absolute path try an assemble using benchmark directory
+	if(access(script_file,F_OK)!=0){
+		sprintf(script_file,"%s/%s.pss",SCRIPT_DIR,pCommand->field[1]);
+	}
+	if(access(script_file,F_OK)!=0){
+		printf("Could not find provided application file: %s. \
+			Attempt to find alternative %s failed.\n  \
+			Provide either the absolute path from proxy dir or just script name: \
+			e.g CLAM_large/adi\n \
+			If just providing script name fails, check the proxy makefile to see \
+			if SCRIPT_DIRECTORY has been correctly defined\n",pCommand->field[1],script_file);
+		return 1;
+	}
+
 	// open file
-	FILE *pFile = fopen(pCommand->field[1],"r");
+
+	FILE *pFile = fopen(script_file,"r");
 	if(!pFile){
-		printf("Error, could not open %s\n", pCommand->field[1]);
+		printf("Error, could not open %s\n", script_file);
 
     	return 1;
     }

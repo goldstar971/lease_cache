@@ -35,12 +35,12 @@ wire 		pll_locked;
 double_speed pll_reset(
 	.refclk			(clkin_r_p			), 
 	.rst 			(~user_pb 			), 
-	.outclk_0 		(clock_gen_bus[0] 	), 	// 20 Mhz
-	.outclk_1 		(clock_gen_bus[1]	), 	// 40 Mhz
-	.outclk_2 		(clock_gen_bus[2]	),  // 40 Mhz, 180deg phase
-	.outclk_3 		(clock_gen_bus[3]	),  // 20 Mhz, 90deg phase
-	.outclk_4 		(clock_gen_bus[4]	),  // 20 Mhz, 180deg phase
-	.outclk_5 		(clock_gen_bus[5]	),  // 20 Mhz, 270deg phase
+	.outclk_0 		(clock_gen_bus[0] 	), 	// 40 Mhz
+	.outclk_1 		(clock_gen_bus[1]	), 	// 80 Mhz
+	.outclk_2 		(clock_gen_bus[2]	),  // 80 Mhz, 180deg phase
+	.outclk_3 		(clock_gen_bus[3]	),  // 40 Mhz, 90deg phase
+	.outclk_4 		(clock_gen_bus[4]	),  // 40 Mhz, 180deg phase
+	.outclk_5 		(clock_gen_bus[5]	),  // 40 Mhz, 270deg phase
 	.locked 		(pll_locked 		)
 );
 
@@ -69,7 +69,7 @@ wire  [191:0] cycle_counts_o;
 internal_system_2 riscv_sys (
 
 	// general ports
-	.clock_bus_i 	({clock_gen_bus[5:3],clock_gen_bus[0]}	), // [20-270, 20-180, 20-90, 20]
+	.clock_bus_i 	({clock_gen_bus[5:3],clock_gen_bus[0]}	), // [40-270, 40-180, 40-90, 40]
 	.reset_i 		(reset_bus[0] 		),
 	.phase_i (phase_bus),
 	.exception_o 	(), 
