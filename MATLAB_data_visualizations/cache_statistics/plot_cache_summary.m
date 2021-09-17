@@ -367,155 +367,94 @@ function [] =plot_cache_summary(varargin)
 	data_table1=data_table(data_table.Size==cache_sizes(multi_level+1),:);
 	%get the subset of the table with the correct data set size
 	data_table2=data_table1(strcmp(data_table1.Dataset_Size,dataset_size),:);
-	%iterate over single scope benchmarks
-	for i=1:length(benchmark_names_single)
-	%iterate over used policies
-	%sort rows into correct lease policy order
-	sorted_benches=sortrows(data_bm_single_scope{i},17+offset);
-		for j=1:size(data_bm_single_scope{1},1)
-	%iterate over table rows
-			 single_scope_projected_misses(i,j)=data_table2.predicted_misses(strcmp(data_table2.Policy(:),lease_policies(j))...
-				 &strcmp(data_table2.benchmark_name(:),benchmark_names_single(i)));
-			 
-			single_scope_actual_misses(i,j)=sorted_benches(j,7+offset);
-			single_scope_random_evictions(i,j)=sorted_benches(j,13+offset);
-		end
-	end
-	if(~any(any(single_scope_random_evictions./single_scope_actual_misses)))
-		return
-	end
 
-	figure('units','normalized','outerposition',[0 0 1 1]);
-	fig(1)=subplot(1,2,1);
-	pos=fig(1).Position;
-	fig(1).Position=[.05,pos(2),pos(3)+.075,pos(4)];
-	b=bar(single_scope_random_evictions./single_scope_actual_misses);
-	legend(convertStringsToChars(lease_policies(1:size(data_bm_single_scope{1},1))),'Orientation','vertical','FontSize',14,'Location','eastoutside');
-	t=colormap(parula(length(b)));
-			for v=1:length(b)
-			b(v).FaceColor=t(v,:);
-			end
-	set(gca,'xticklabel',[benchmark_names_single,'GEOMEAN'],'FontSize',14);
-	xtickangle(gca,45);
-	ylim([0, max(max(single_scope_random_evictions./single_scope_actual_misses))*1.2]);
-	xlim=get(gca,'xlim');
-	grid on
-	ylabel("Ratio of random evictions to misses")
-
-	for i=1:length(benchmark_names_multi)
-	%iterate over used policies
-	sorted_benches=sortrows(data_bm_multi_scope{i},17+offset);
-		for j=1:size(data_bm_multi_scope{1},1)
-	%iterate over table rows
-			 multi_scope_projected_misses(i,j)=data_table2.predicted_misses(strcmp(data_table2.Policy(:),lease_policies(j))...
-				 &strcmp(data_table2.benchmark_name(:),benchmark_names_multi(i)));
-			multi_scope_actual_misses(i,j)=sorted_benches(j,7+offset);
-			multi_scope_random_evictions(i,j)=sorted_benches(j,13+offset);
-		end
-	end
-
-	fig(2)=subplot(1,2,2);
-	fig_pos=fig(2).Position;
-	fig(2).Position=[fig_pos(1)-.05,fig_pos(2),fig_pos(3)+.05,fig_pos(4)];
-	 neg_array=zeros(size(single_scope_projected_misses,1),size(single_scope_projected_misses,2));
-	pos_array=zeros(size(single_scope_projected_misses,1),size(single_scope_projected_misses,2));
-	percent_error=(single_scope_projected_misses-single_scope_actual_misses)./single_scope_projected_misses;
-	for y=1:size(percent_error,1)
-	for r=1:size(percent_error,2)
-	if(percent_error(y,r)<0)
-	neg_array(y,r)=abs(percent_error(y,r));
-	else
-	pos_array(y,r)=percent_error(y,r);
-	end
-	end
-	end
-	b=[];
-	b=[b,bar(pos_array)];
-	hold on
-	b=[b,bar(neg_array)];
-	hold off
-	t=colormap(parula(length(b)));
-			for v=1:length(b)
-			b(v).FaceColor=t(v,:);
-			end
-
-	fig(2).YScale='log';
-	legend_names=[];
-	err_sign=["+error","-error"];
-
+%iterate over single scope and multi scope benchmarks
 	for i=1:2
-		for j=1:size(single_scope_projected_misses,2)
-			legend_names=[legend_names,strcat(err_sign{i}," ",lease_policies(j))];
-		end
-	end
-	leg=legend(convertStringsToChars(legend_names),'Location','eastoutside','Orientation','vertical','FontSize',14);
-	leg_pos=leg.Position;
-	leg.Position=[(leg_pos(1)*.5+.5) leg_pos(2), leg_pos(3), leg_pos(4)];
-	set(gca,'xticklabel',[benchmark_names_single,'GEOMEAN'],'FontSize',14);
-	xtickangle(gca,45);
-	xlim=get(gca,'xlim');
-	grid on
-	label_pos=ylabel("Percent error between projected and actual misses (log)");
-	saveas(gcf,[base_save_path,'cache_statistics/cache_statistics_graphs/',convertStringsToChars(num_level(multi_level+1)),'/contention_',convertStringsToChars(num_scope(i)),'_',dataset_size,'.png'])
-	close(gcf)
-	figure('units','normalized','outerposition',[0 0 1 1]);
-	set(gcf,'Position',[0,0,1080,1920]);
-	fig(1)=subplot(1,2,1);
-	pos=fig(1).Position;
-	fig(1).Position=[.05,pos(2),pos(3)+.075,pos(4)];
-	%plot ratio of random evictions to misses (measure of contention loss)
-	b=bar(multi_scope_random_evictions./multi_scope_actual_misses);
-	legend(convertStringsToChars(lease_policies(1:size(data_bm_multi_scope{1},1))),'Orientation','vertical','FontSize',14,'Location','eastoutside');	
-	set(gca,'xticklabel',[benchmark_names_multi,'GEOMEAN'],'FontSize',14);
-	xtickangle(gca,45);
-	ylim([0, max(max(multi_scope_random_evictions./multi_scope_actual_misses))*1.2]);
-	xlim=get(gca,'xlim');
-	grid on
-	ylabel("Ratio of random evictions to misses")
-	t=colormap(parula(length(b)));
-			for v=1:length(b)
-			b(v).FaceColor=t(v,:);
+		projected_misses=[]
+		actual_misses=[]
+		random_evictions=[]
+		if(i==1)
+			benchmark_names_to_plot=benchmark_names_single;
+			used_policies=size(data_bm_single_scope{1},1);
+		else
+			benchmark_names_to_plot=benchmark_names_multi;
+			used_policies=size(data_bm_multi_scope{1},1);
+		end	
+		for j=1:length(benchmark_names_to_plot)
+		%sort rows into correct lease policy order
+			sorted_benches=sortrows(data_bm_single_scope{i},17+offset);
+			%iterate over used policies
+			for k=1:length(used_policies)
+			    projected_misses(j,k)=data_table2.predicted_misses(strcmp(data_table2.Policy(:),lease_policies(k))...
+				 &strcmp(data_table2.benchmark_name(:),benchmark_names_to_plot(j))); 
+			actual_misses(j,k)=sorted_benches(k,7+offset);
+			random_evictions(j,k)=sorted_benches(k,13+offset);
 			end
-	fig(2)=subplot(1,2,2);
-	fig(2).Position=[fig_pos(1)-.05,fig_pos(2),fig_pos(3)+.05,fig_pos(4)];
-	 neg_array=zeros(size(multi_scope_projected_misses,1),size(multi_scope_projected_misses,2));
-	pos_array=zeros(size(multi_scope_projected_misses,1),size(multi_scope_projected_misses,2));
-	percent_error=(multi_scope_projected_misses-multi_scope_actual_misses)./multi_scope_projected_misses;
-	for y=1:size(percent_error,1)
-	for r=1:size(percent_error,2)
-	if(percent_error(y,r)<0)
-	neg_array(y,r)=abs(percent_error(y,r));
-	else
-	pos_array(y,r)=percent_error(y,r);
-	end
-	end
-	end
-	b=[];
-	b=[b,bar(pos_array)];
-	hold on
-	b=[b,bar(neg_array)];
-	hold off
-	t=colormap(parula(length(b)));
-			for v=1:length(b)
-			b(v).FaceColor=t(v,:);
-			end
-	fig(2).YScale='log';
-	legend_names=[];
-	err_sign=["+error","-error"];
-
-	for i=1:2
-		for j=1:size(multi_scope_projected_misses,2)
-			legend_names=[legend_names,strcat(err_sign{i}," ",lease_policies(j))];
 		end
-	end
-	leg=legend(convertStringsToChars(legend_names),'Location','eastoutside','Orientation','vertical','FontSize',14);
-	leg_pos=leg.Position;
-	leg.Position=[(leg_pos(1)*.5+.5) leg_pos(2), leg_pos(3), leg_pos(4)];
-	set(gca,'xticklabel',[benchmark_names_single,'GEOMEAN'],'FontSize',14);
-	xtickangle(gca,45);
-	grid on
-	ylabel("Percent error between projected and actual misses (log)")
-	saveas(gcf,[base_save_path,'cache_statistics/cache_statistics_graphs/',convertStringsToChars(num_level(multi_level+1)),'/contention_',convertStringsToChars(num_scope(i)),'_',dataset_size,'.png'])
-	close(gcf)
+		if(~any(any(random_evictions./actual_misses)))
+			return
+		end
 
+		fig(1)=subplot(1,2,1);
+		figure('units','normalized','outerposition',[0 0 1 1]);
+		pos=fig(1).Position;
+		fig(1).Position=[.05,pos(2),pos(3)+.075,pos(4)];
+		b=bar(random_evictions./actual_misses);
+		legend(convertStringsToChars(lease_policies(1:used_policies),'Orientation','vertical','FontSize',14,'Location','eastoutside');
+		t=colormap(parula(length(b)));
+				for v=1:length(b)
+				b(v).FaceColor=t(v,:);
+				end
+		set(gca,'xticklabel',[benchmark_names_to_plot],'FontSize',14);
+		xtickangle(gca,45);
+		ylim([0, max(max(random_evictions./actual_misses))*1.2]);
+		xlim=get(gca,'xlim');
+		grid on
+		ylabel("Ratio of random evictions to misses")
+
+		fig(2)=subplot(1,2,2);
+		fig_pos=fig(2).Position;
+		fig(2).Position=[fig_pos(1)-.05,fig_pos(2),fig_pos(3)+.05,fig_pos(4)];
+		 neg_array=zeros(size(projected_misses,1),size(projected_misses,2));
+		pos_array=zeros(size(projected_misses,1),size(projected_misses,2));
+		percent_error=(projected_misses-actual_misses)./projected_misses;
+		for y=1:size(percent_error,1)
+			for r=1:size(percent_error,2)
+				if(percent_error(y,r)<0)
+					neg_array(y,r)=abs(percent_error(y,r));
+				else
+					pos_array(y,r)=percent_error(y,r);
+				end
+			end
+		end
+		b=[];
+		b=[b,bar(pos_array)];
+		hold on
+		b=[b,bar(neg_array)];
+		hold off
+		t=colormap(parula(length(b)));
+				for v=1:length(b)
+				b(v).FaceColor=t(v,:);
+				end
+
+		fig(2).YScale='log';
+		legend_names=[];
+		err_sign=["+error","-error"];
+
+		for j=1:2
+			for k=1:size(projected_misses,2)
+				legend_names=[legend_names,strcat(err_sign{j}," ",lease_policies(k))];
+			end
+		end
+		leg=legend(convertStringsToChars(legend_names),'Location','eastoutside','Orientation','vertical','FontSize',14);
+		leg_pos=leg.Position;
+		leg.Position=[(leg_pos(1)*.5+.5) leg_pos(2), leg_pos(3), leg_pos(4)];
+		set(gca,'xticklabel',[benchmark_names_to_plot],'FontSize',14);
+		xtickangle(gca,45);
+		xlim=get(gca,'xlim');
+		grid on
+		label_pos=ylabel("Percent error between projected and actual misses (log)");
+		saveas(gcf,[base_save_path,'cache_statistics/cache_statistics_graphs/',convertStringsToChars(num_level(multi_level+1)),'/contention_',convertStringsToChars(num_scope(i)),'_',dataset_size,'.png'])
+		close(gcf)
+	end
 end
