@@ -370,9 +370,9 @@ function [] =plot_cache_summary(varargin)
 
 %iterate over single scope and multi scope benchmarks
 	for i=1:2
-		projected_misses=[]
-		actual_misses=[]
-		random_evictions=[]
+		projected_misses=[];
+		actual_misses=[];
+		random_evictions=[];
 		if(i==1)
 			benchmark_names_to_plot=benchmark_names_single;
 			used_policies=size(data_bm_single_scope{1},1);
@@ -382,7 +382,7 @@ function [] =plot_cache_summary(varargin)
 		end	
 		for j=1:length(benchmark_names_to_plot)
 		%sort rows into correct lease policy order
-			sorted_benches=sortrows(data_bm_single_scope{i},17+offset);
+			sorted_benches=sortrows(data_bm_single_scope{j},17+offset);
 			%iterate over used policies
 			for k=1:length(used_policies)
 			    projected_misses(j,k)=data_table2.predicted_misses(strcmp(data_table2.Policy(:),lease_policies(k))...
@@ -400,7 +400,7 @@ function [] =plot_cache_summary(varargin)
 		pos=fig(1).Position;
 		fig(1).Position=[.05,pos(2),pos(3)+.075,pos(4)];
 		b=bar(random_evictions./actual_misses);
-		legend(convertStringsToChars(lease_policies(1:used_policies),'Orientation','vertical','FontSize',14,'Location','eastoutside');
+		legend(convertStringsToChars(lease_policies(1:used_policies)),'Orientation','vertical','FontSize',14,'Location','eastoutside');
 		t=colormap(parula(length(b)));
 				for v=1:length(b)
 				b(v).FaceColor=t(v,:);
