@@ -96,7 +96,7 @@ localparam BW_CACHE_ADDR_FULL 		= BW_CACHE_ADDR_PART + `BW_BLOCK;
 localparam BW_TAG 					= `BW_WORD_ADDR - `BW_BLOCK; 
 
 localparam BW_ENTRIES 				= `CLOG2(`LEASE_LLT_ENTRIES); 	// entries per table
-localparam BW_ADDR_SPACE 			= BW_ENTRIES + 2; 				// four tables total (address, lease0, lease1, lease0_probability)
+localparam BW_ADDR_SPACE 			= BW_ENTRIES + 1; 				// four tables total (address, lease0, lease1, lease0_probability)
 
 
 // internal signals - registered ports
@@ -246,11 +246,14 @@ reg 	[BW_ENTRIES+1:0]	llt_counter_reg; 				// {2'bXY, BW_ENTRIES-1}
 															// XY = 10 : lease_secondary
 															// XY = 11 : lease_primary_percentage
 
+reg [BW_ENTRIES:0] refs_in_previous_phase, refs_in_phase;
+wire [BW_ENTRIES:0] refs_to_write;
 
 // phase_addr pointer circuit
 wire 	[`BW_WORD_ADDR-1:0] phase_addr_ptr_bus;
 
-assign phase_addr_ptr_bus = header_lease_base_addr_reg + ({phase_i[7:0],{(BW_ADDR_SPACE){1'b0}}});
+assign phase_addr_ptr_bus = `LEASE_REF_ADDR_BASE_W+{phase_i[7:0],{(BW_ADDR_SPACE){1'b0}}}+{phase_i[7:0],4'b0000};
+assign refs_to_write = refs_in_previous_phase>refs_in_phase? refs_in_previous_phase :refs_in_phase;
 
 
 // cache controller
@@ -270,7 +273,8 @@ always @(posedge clock_i) begin
 		rw_flag_reg =  			1'b0; 
 		writeback_flag_reg =  	1'b0;
 		replacement_ptr_reg = 	{BW_CACHE_ADDR_PART{1'b1}}; 	// start at max so first replacement rolls over into first cache line location 
-
+		refs_in_previous_phase ='b0;
+		refs_in_phase ='b0;
 		// L1/L2
 	
 		cache_ready_reg = 		INIT_DONE;
@@ -363,7 +367,7 @@ always @(posedge clock_i) begin
 						mem_req_reg 		= 1'b1;
 						mem_req_block_reg 	= 1'b1;
 						mem_rw_reg 			= 1'b0;
-						mem_addr_reg 		= 24'h7FC000;
+						mem_addr_reg 		= `LEASE_CONFIG_BASE_W+{phase_i[7:0],{(BW_ADDR_SPACE){1'b0}}}+{phase_i[7:0],4'b0000};
 						state_reg 			= ST_TRANSFER_LLT_DATA;
 
 					end
@@ -386,8 +390,7 @@ always @(posedge clock_i) begin
 
 						// populate config registers
 						case(n_transfer_reg)
-							4'b0001: header_table_size_reg 	 	<= buffer_data_i[BW_ENTRIES:0]; 		// table size
-							4'b0010: header_lease_base_addr_reg <= buffer_data_i[`BW_WORD_ADDR-1:0]; 	// phase0 ptr
+							4'b0011: refs_in_phase <=buffer_data_i[BW_ENTRIES:0];
 							default:;
 						endcase
 
@@ -436,30 +439,28 @@ always @(posedge clock_i) begin
 
 						// sequence control
 						// -----------------------------------------------------------------
-
-						// if done with importing 
-						
-						if (llt_counter_reg == llt_section_entries_bus) begin
-
-							n_transfer_reg 	<= 'b0;
-							state_reg 		= ST_NORMAL;
-							// if there was no buffered request unstall the L1
-							if (!req_flag_reg) cache_ready_reg = 1'b1;
+						//if written all references in phase, skip remaining values in table (must wait until current block has been entirely read from buffer)
+						if(refs_to_write<=(llt_counter_reg[BW_ENTRIES-1:0]+1)&&n_transfer_reg==4'b1111&&llt_counter_reg[BW_ENTRIES]!=1'b1)begin
+							llt_counter_reg <= {1'b1,{(BW_ENTRIES){1'b0}}};
 						end
-
+						else begin 
+							llt_counter_reg<=llt_counter_reg+1'b1;
+						end
+						//if writen all short leases in phase, we are done with importing (must wait until current block has been entirely read from buffer)
+						if(refs_to_write<=(llt_counter_reg[BW_ENTRIES-1:0]+1)&&n_transfer_reg==4'b1111&&llt_counter_reg[BW_ENTRIES]==1'b1)begin 
+							n_transfer_reg 	<= 'b0;
+							state_reg 		<= ST_NORMAL;
+							// if there was no buffered request unstall the core
+							if (!req_flag_reg) core_done_o_reg = 1'b1;
+							refs_in_previous_phase<=refs_in_phase;
+						end
+						// check for end of block
+						else if(n_transfer_reg != {1'b0,{`BW_BLOCK{1'b1}}})begin
+							n_transfer_reg 	= n_transfer_reg + 1'b1;
+						end
 						else begin
-
-							// increment counter
-							llt_counter_reg <= llt_counter_reg + 1'b1;
-
-							// check for end of block
-							if (n_transfer_reg != {1'b0,{`BW_BLOCK{1'b1}}}) begin
-								n_transfer_reg 	= n_transfer_reg + 1'b1;
-							end
-							else begin
-								n_transfer_reg 	= 'b0;
-								state_reg 		= ST_UPDATE_REQUEST_LLT;
-							end
+							n_transfer_reg 	= 'b0;
+							state_reg 		<= ST_UPDATE_REQUEST_LLT;
 						end
 					end
 				end
@@ -479,7 +480,7 @@ always @(posedge clock_i) begin
 						end
 
 						// switch to population sequence
-						state_reg  				=  ST_UPDATE_REQUEST_LLT;
+						state_reg  				=  ST_REQUEST_LLT_DATA;
 						llt_counter_reg 		<= 'b0;
 						phase_reg 				<= phase_i[7:0];
 

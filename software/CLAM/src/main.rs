@@ -93,7 +93,7 @@ fn main(){
      output_file_name=format!("{}/{}_{}_{}",matches.value_of("OUTPUT").unwrap(),&cap[2],"c-shel","leases");
       //output to file
     cshel::io::dump_leases(leases,dual_leases,lease_hits,trace_length,&output_file_name[..],misses_from_first_access);
-}
+    }
 
 }
 

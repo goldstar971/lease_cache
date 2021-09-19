@@ -1,7 +1,4 @@
 
-
-
-
 // Functions for parsing input files, debug prints, 
 // and lease output
 pub mod io {

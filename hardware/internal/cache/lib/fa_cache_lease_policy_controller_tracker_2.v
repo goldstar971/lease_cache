@@ -16,6 +16,7 @@ module fa_cache_lease_policy_controller_tracker_2 #(
 	input 	[31:0]					llt_data_i, 		// value to write to llt_addr_i
 	input 	[`BW_WORD_ADDR-1:0] 	llt_search_addr_i, 	// address from core to table search for
 
+
 	// controller - lease ports
 	input 	[BW_CACHE_CAPACITY-1:0] cache_addr_i, 		// translated cache address - so that lease controller can update lease value
 	input 							hit_i, 				// when high, adjust lease register values (strobe trigger)
@@ -38,20 +39,23 @@ module fa_cache_lease_policy_controller_tracker_2 #(
 // ------------------------------------------------------------------------------------------
 localparam BW_CACHE_CAPACITY 	= `CLOG2(CACHE_BLOCK_CAPACITY); 				// block addressible cache addresses
 localparam BW_ENTRIES 			= `CLOG2(`LEASE_LLT_ENTRIES); 	// entries per table
-localparam BW_ADDR_SPACE 		= BW_ENTRIES + 2; 				// four tables total (address, lease0, lease1, lease0_probability)
+localparam BW_ADDR_SPACE 		= BW_ENTRIES + 1; 				// two tables total (address, lease0)
 
 
 // lease lookup table
 // ------------------------------------------------------------------------------------------
-wire [`LEASE_VALUE_BW-1:0] 		llt_lease0, llt_lease1;
-wire [8:0]						llt_lease0_prob;
+wire [`LEASE_VALUE_BW-1:0] 		llt_lease0;
+reg  [`LEASE_VALUE_BW-1:0] llt_lease1, dual_lease_ref;
+reg [`BW_PERCENTAGE-1:0]	dual_lease_prob;
+wire [`BW_PERCENTAGE-1:0] llt_lease0_prob;
+
 wire 							llt_hit;
 
 lease_lookup_table #(
 	.N_ENTRIES 			(`LEASE_LLT_ENTRIES	),
 	.BW_LEASE_REGISTER 	(`LEASE_VALUE_BW 	),
-	.BW_REF_ADDR 		(`LEASE_REF_ADDR_BW ),
-	.BW_PERCENTAGE 		(9 					)
+	.BW_REF_ADDR 		(`LEASE_REF_ADDR_BW )
+	
 )lease_lookup_table_inst (
 	// system ports
 	.clock_i 			(clock_i 			),
@@ -60,15 +64,12 @@ lease_lookup_table #(
 	// table initialization ports (write/remove values to table)
 	.addr_i 			(llt_addr_i 		), 		// sized to total address space
 	.wren_i 			(llt_wren_i 		), 		// write data_i to addr_i
-	.rmen_i 			(1'b0 				), 		// evict from addr_i (not used currently)
 	.data_i 			(llt_data_i 		), 		// data as word in (table will handle bus size conversion)
 
 	// cache ports
 	.search_addr_i 		(llt_search_addr_i 	), 		// address of the ld/st making the memory request (for lease lookup) (address width is full system word-add width)
 	.hit_o 				(llt_hit 			), 	 	// logic high if the searched address is in the table
-	.lease0_o 			(llt_lease0 		), 		// resulting lease of match
-	.lease1_o 			(llt_lease1 		), 		// resulting lease of match
-	.lease0_prob_o 		(llt_lease0_prob 	) 		// resulting lease of match (9b LFSR used to eventally compare)
+	.lease0_o 			(llt_lease0 		) 		// resulting lease of match
 );
 
 
@@ -78,8 +79,7 @@ reg 							lease_prob_en_reg;
 wire [`LEASE_VALUE_BW-1:0] 		lease_result;
 
 lease_probability_controller #(
-	.BW_LEASE_VALUE		(`LEASE_VALUE_BW	),
-	.BW_PERCENTAGE 		(9					)
+	.BW_LEASE_VALUE		(`LEASE_VALUE_BW	)
 ) lease_prob_contrl_inst (
 	.clock_i 			(~clock_i 			),
 	.resetn_i 			(resetn_i 			),
@@ -98,9 +98,19 @@ reg 	[`LEASE_VALUE_BW-1:0] 	default_lease_reg;
 always @(posedge clock_i) begin
 	if (!resetn_i) 	default_lease_reg <= 'b0;			//default_lease_reg <= 'b0;
 	else begin
-		if ((con_wren_i) & (llt_addr_i == 'b0)) default_lease_reg <= llt_data_i[`LEASE_VALUE_BW-1:0];
+		if (con_wren_i) begin
+			case(llt_addr_i)
+				'b0: default_lease_reg<=llt_data_i[`LEASE_VALUE_BW-1:0];
+				'b01: llt_lease1 <=llt_data_i[`LEASE_VALUE_BW-1:0];
+				'b10: dual_lease_prob<=llt_data_i[`BW_PERCENTAGE-1:0];
+				'b100: dual_lease_ref<=llt_data_i[`LEASE_VALUE_BW-1:0]; 
+			 	default: ;
+			endcase
+		end
 	end
 end
+//select probability of short lease
+assign llt_lease0_prob=(dual_lease_ref==llt_search_addr_i) ? dual_lease_prob : {`BW_PERCENTAGE{1'b1}};
 
 
 // lease controller
@@ -123,6 +133,7 @@ assign expired_o 		= expired_reg;
 assign default_o 		= default_reg;
 assign expired_multi_o 	= expired_multi_reg;
 assign rand_evict_o  = random_eviction_reg;
+
 
 
 // set pointer logic - 1 priority encoder per set of lines

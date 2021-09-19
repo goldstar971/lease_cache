@@ -1,4 +1,6 @@
 function [] =plot_tracking_results(varargin)
+%takes arguments cache_level lease_policy dataset_size
+
 % initialize workspace
 	if usejava('desktop')
 			clc;
@@ -12,7 +14,7 @@ tracking_dir=t(1:end-23);
 addpath([tracking_dir,'src']);
 base_path=t(1:end-71);
 base_data_dir=[base_path,'software/fpga_proxy/results/track/'];
-w
+
 if(nargin<1)
 multi_level_ans=questdlg("Plot tracking results for two-level cache?","cache level",'yes','no','no');
 else
@@ -28,7 +30,7 @@ if ~strcmp(multi_level_ans,'yes')&& ~strcmp(multi_level_ans,'no')
 end
 
 %get number of levels in the cache structure
-if(strcmp(multi_level_ans,'mo'))
+if(strcmp(multi_level_ans,'no'))
 	multi_level=0;
 else
 	multi_level=1;

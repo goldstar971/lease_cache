@@ -1,6 +1,0 @@
-
-
-/home/matthew/Documents/Thesis_stuff/hardware/utilities/clock_generation/cyclonegt_ccd_pll/cyclonegt_ccd_pll.v
-
-Jan 09 10PM:46:10>: Megafunction PLL Intel FPGA IP v18.1 is not listed in any 
-wizard.lst file in the specified library path(s).Wizard launch aborted

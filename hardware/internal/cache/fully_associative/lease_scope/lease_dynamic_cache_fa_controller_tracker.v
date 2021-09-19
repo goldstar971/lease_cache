@@ -76,7 +76,7 @@ localparam ST_WAIT_REPLACEMENT_GEN 	= 4'b0100;
 localparam ST_REQUEST_LLT_DATA 		= 4'b0101; 		// lease cache specific states
 localparam ST_TRANSFER_LLT_DATA 	= 4'b0110;
 localparam ST_NO_SWAP_READ 			= 4'b0111;
-localparam ST_UPDATE_REQUEST_LLT 	= 4'b1000;
+localparam ST_UPDATE_FIRST_REQUEST_LLT 	= 4'b1000;
 localparam ST_UPDATE_SERVICE_LLT 	= 4'b1001;
 localparam ST_STALL 				= 4'b1010;
 
@@ -85,7 +85,7 @@ localparam BW_CACHE_ADDR_FULL 		= BW_CACHE_ADDR_PART + `BW_BLOCK;
 localparam BW_TAG 					= `BW_WORD_ADDR - `BW_BLOCK; 
 
 localparam BW_ENTRIES 				= `CLOG2(`LEASE_LLT_ENTRIES); 	// entries per table
-localparam BW_ADDR_SPACE 			= BW_ENTRIES + 2; 				// four tables total (address, lease0, lease1, lease0_probability)
+localparam BW_ADDR_SPACE 			= BW_ENTRIES + 1; 				// two tables total (address, lease0)
 
 
 // internal signals - registered ports
@@ -213,11 +213,6 @@ reg 							latch_swap_reg; 				// when high tells the controller to latch swap v
 // ----------------------------------------------------------------------------------------------------------
 
 // config registers
-reg 	[BW_ENTRIES:0]		header_table_size_reg; 	 		// max size is the hardware table size
-reg 	[`BW_WORD_ADDR-1:0] header_lease_base_addr_reg; 	// beginning of phase0 subsection
-
-wire 	[BW_ENTRIES+1:0] 	llt_section_entries_bus;
-assign 	llt_section_entries_bus = (header_table_size_reg << 2'b10) - 1'b1;
 
 // phase load interrupt
 reg 	[7:0]				phase_reg;
@@ -225,18 +220,19 @@ wire 						phase_interrupt;
 assign phase_interrupt 	= 	(phase_i[31] & (phase_reg != phase_i[7:0])) ? 1'b1 : 1'b0;
 
 // llt population
-reg 	[BW_ENTRIES+1:0]	llt_counter_reg; 				// {2'bXY, BW_ENTRIES-1}
+reg 	[BW_ADDR_SPACE-1:0]	llt_counter_reg; 				// {2'bXY, BW_ENTRIES-1}
 															// XY = 00 : ref_addr
 															// XY = 01 : lease_primary
-															// XY = 10 : lease_secondary
-															// XY = 11 : lease_primary_percentage
-
+															
+reg [BW_ENTRIES:0] refs_in_previous_phase, refs_in_phase;
+wire [BW_ENTRIES:0] refs_to_write;
 
 // phase_addr pointer circuit
 
 wire 	[`BW_WORD_ADDR-1:0] phase_addr_ptr_bus;
 
-assign phase_addr_ptr_bus = header_lease_base_addr_reg + ({phase_i[7:0],{(BW_ADDR_SPACE){1'b0}}});
+assign phase_addr_ptr_bus = `LEASE_REF_ADDR_BASE_W+{phase_i[7:0],{(BW_ADDR_SPACE){1'b0}}}+{phase_i[7:0],4'b0000};
+assign refs_to_write = refs_in_previous_phase>refs_in_phase? refs_in_previous_phase :refs_in_phase;
 
 // cache controller
 // ----------------------------------------------------------------------------------------------------------
@@ -255,10 +251,10 @@ always @(posedge clock_i) begin
 		rw_flag_reg =  			1'b0; 
 		writeback_flag_reg =  	1'b0;
 		replacement_ptr_reg = 	{BW_CACHE_ADDR_PART{1'b1}}; 	// start at max so first replacement rolls over into first cache line location 
-
+		refs_in_previous_phase ='b0;
+		refs_in_phase ='b0;
 		// core/hart
-		//core_done_o_reg = 		INIT_DONE;
-		core_done_o_reg = 		1'b0;
+		core_done_o_reg = 		INIT_DONE;
 		core_data_reg = 		'b0;
 
 		// tag memory
@@ -295,8 +291,6 @@ always @(posedge clock_i) begin
 		latch_swap_reg 			= 	1'b0;
 
 		// scope leasing
-		header_table_size_reg 		<= 'b0;
-		header_lease_base_addr_reg 	<= 'b0;
 		phase_reg 					<= 8'hFF;
 		llt_counter_reg 			<= 'b0;
 
@@ -342,7 +336,7 @@ always @(posedge clock_i) begin
 						mem_req_reg 		= 1'b1;
 						mem_req_block_reg 	= 1'b1;
 						mem_rw_reg 			= 1'b0;
-						mem_addr_reg 		= 24'h7FC000;
+						mem_addr_reg 		= `LEASE_CONFIG_BASE_W+{phase_i[7:0],{(BW_ADDR_SPACE){1'b0}}}+{phase_i[7:0],4'b0000};
 						state_reg 			= ST_TRANSFER_LLT_DATA;
 
 					end
@@ -365,8 +359,7 @@ always @(posedge clock_i) begin
 
 						// populate config registers
 						case(n_transfer_reg)
-							4'b0001: header_table_size_reg 	 	<= buffer_data_i[BW_ENTRIES:0]; 		// table size
-							4'b0010: header_lease_base_addr_reg <= buffer_data_i[`BW_WORD_ADDR-1:0]; 	// phase0 ptr
+							4'b0011: refs_in_phase <=buffer_data_i[BW_ENTRIES:0];
 							default:;
 						endcase
 
@@ -378,29 +371,23 @@ always @(posedge clock_i) begin
 						end
 						else begin
 							n_transfer_reg = 'b0;
-							state_reg 		= ST_UPDATE_REQUEST_LLT;
-							core_done_o_reg 	= 1'b0;
-							phase_reg 				<= phase_i[7:0];
+							state_reg 		= ST_UPDATE_FIRST_REQUEST_LLT;
+							//request first read
+
 						end	
 					end
 				end
-
-				// request updated llt information
-				ST_UPDATE_REQUEST_LLT: begin
+				ST_UPDATE_FIRST_REQUEST_LLT: begin
 					if (mem_ready_i) begin
-						// request data
-						mem_req_reg 		= 1'b1; 									// request flag
-						mem_req_block_reg 	= 1'b1; 									// request block
-						mem_rw_reg 			= 1'b0; 									// request a read
-						mem_addr_reg 		= phase_addr_ptr_bus + llt_counter_reg; 	// always points to first element of block
-						state_reg 			<= ST_UPDATE_SERVICE_LLT;
+								// request data
+								mem_req_reg 		= 1'b1; 									// request flag
+								mem_rw_reg 			= 1'b0; 									// request a read
+								mem_addr_reg 	= phase_addr_ptr_bus + llt_counter_reg;
+								llt_counter_reg=llt_counter_reg+1'b1;
+								state_reg<=ST_UPDATE_SERVICE_LLT;
 					end
 				end
-
-
-
 				ST_UPDATE_SERVICE_LLT: begin
-
 					// read out data from buffer and write it to the lease hardware
 					if (buffer_read_ready_i) begin
 
@@ -411,34 +398,37 @@ always @(posedge clock_i) begin
 						llt_wren_reg = 1'b1;
 						llt_addr_reg = llt_counter_reg;
 						llt_data_reg = buffer_data_i;
-
-
 						// sequence control
 						// -----------------------------------------------------------------
-
-						// if done with importing 
-						//if (llt_counter_reg == 4'b1111) begin
-						if (llt_counter_reg == llt_section_entries_bus) begin
-							n_transfer_reg 	<= 'b0;
+						//if written all references in phase, skip remaining values in table 
+						if(refs_to_write==(llt_counter_reg[BW_ENTRIES-1:0]+1)&&llt_counter_reg[BW_ENTRIES]!=1'b1)begin
+							if (mem_ready_i) begin
+								// request data
+								mem_req_reg 		= 1'b1; 									// request flag
+								mem_rw_reg 			= 1'b0; 									// request a read
+								llt_counter_reg = {1'b1,{(BW_ENTRIES){1'b0}}};
+								mem_addr_reg 		= phase_addr_ptr_bus + llt_counter_reg;
+								
+							end
+						end
+						//if writen all short leases in phase, we are done with importing
+						else if(refs_to_write==(llt_counter_reg[BW_ENTRIES-1:0]+1)&&llt_counter_reg[BW_ENTRIES]==1'b1)begin 
 							state_reg 		<= ST_NORMAL;
 							// if there was no buffered request unstall the core
 							if (!req_flag_reg) core_done_o_reg = 1'b1;
+							refs_in_previous_phase<=refs_in_phase;
 						end
 
-						else begin
-
-							// increment counter
-							llt_counter_reg <= llt_counter_reg + 1'b1;
-
-							// check for end of block
-							if (n_transfer_reg != {1'b0,{`BW_BLOCK{1'b1}}}) begin
-								n_transfer_reg 	= n_transfer_reg + 1'b1;
-							end
-							else begin
-								n_transfer_reg 	= 'b0;
-								state_reg 		<= ST_UPDATE_REQUEST_LLT;
+						else begin 
+							if (mem_ready_i) begin
+								// request data
+								mem_req_reg 		= 1'b1; 									// request flag
+								mem_rw_reg 			= 1'b0; 									// request a read
+								mem_addr_reg 	= phase_addr_ptr_bus + llt_counter_reg;
+								llt_counter_reg=llt_counter_reg+1'b1;
 							end
 						end
+						
 					end
 				end
 
@@ -460,7 +450,7 @@ always @(posedge clock_i) begin
 						end
 
 						// switch to population sequence
-						state_reg  				<=  ST_UPDATE_REQUEST_LLT;
+						state_reg  				<=  ST_REQUEST_LLT_DATA;
 						llt_counter_reg 		<= 'b0;
 						phase_reg 				<= phase_i[7:0];
 

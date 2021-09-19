@@ -226,7 +226,7 @@
 
 
 `ifdef MULTI_LEVEL_CACHE
-	`include "../../../internal/system/internal_system_2_multi_level.v"
+`define BW_PERCENTAGE                   9
 	`include "../../../internal/system_controller/src/memory_controller_internal_2level.v"
 	`include "../../../internal/cache_2level/L2_cache_fa_all.v"
 	`ifdef L2_CACHE_POLICY_DLEASE

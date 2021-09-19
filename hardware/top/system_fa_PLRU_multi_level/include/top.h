@@ -243,7 +243,7 @@
 `define LEASE_CONFIG_VAL_BW 			16
 `define LEASE_VALUE_BW 					24
 `define LEASE_REF_ADDR_BW 				16
-
+`define BW_PERCENTAGE                   9
 
 
 	
