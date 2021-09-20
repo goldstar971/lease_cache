@@ -63,6 +63,7 @@ uint32_t test_run(pHandle pInst, command *pCommand){
 	}
 		sleep(.1);
 		// load fpga memory with target application
+	
 	sprintf(command_str, "LOAD %s\r",application);
 		if(proxy_string_command(pInst, command_str)==2){
 			return 1;
@@ -147,7 +148,7 @@ uint32_t test_run(pHandle pInst, command *pCommand){
 	#ifndef MULTI_LEVEL_CACHE
 	// write report to file
 	
-	sprintf(result_string, "%s,%lu,%lu,%lu,%lu,%u,%lu,%lu,%lu,%lu,%lu,%lu,%u,%lu\n",
+	sprintf(result_string, "%s,%lu,%lu,%lu,%lu,%u,%lu,%lu,%lu,%lu,%lu,%lu,%lu,%lu,%u\n",
 								application, 							// path
 								*(uint64_t *)(report_buffer+0), 				// instruction cache hits
 								*(uint64_t *)(report_buffer+8),					// instruction cache misses
@@ -160,12 +161,13 @@ uint32_t test_run(pHandle pInst, command *pCommand){
 								*(uint64_t *)(report_buffer+96),				// data cache expired lease replacements (lease cache only
 								*(uint64_t *)(report_buffer+112),				// data cache multiple expired lines at miss
 								*(uint64_t *)(report_buffer+104),				// data cache defaulted lease renewals
-								*(uint32_t *)(report_buffer+124),				// data cache ID
-								*(uint64_t *)(report_buffer+136)				// data cache random evictions
+								*(uint64_t *)(report_buffer+128),				// data cache misses that result in default lease
+								*(uint64_t *)(report_buffer+136),				// data cache random evictions
+								*(uint32_t *)(report_buffer+124)				// data cache ID
 				);
 	#else
 
-	sprintf(result_string, "%s,%lu,%lu,%lu,%lu,%u,%lu,%lu,%lu,%u,%lu,%lu,%lu,%lu,%lu,%lu,%u,%lu\n",
+	sprintf(result_string, "%s,%lu,%lu,%lu,%lu,%u,%lu,%lu,%lu,%u,%lu,%lu,%lu,%lu,%lu,%lu,%lu,%lu,%u\n",
 								application, 							// path
 								*(uint64_t *)(report_buffer+0), 				// instruction cache hits
 								*(uint64_t *)(report_buffer+8),					// instruction cache misses
@@ -182,8 +184,9 @@ uint32_t test_run(pHandle pInst, command *pCommand){
 								*(uint64_t *)(report_buffer+160),				// L2 cache expired lease replacements (lease cache only
 								*(uint64_t *)(report_buffer+176),				// L2 cache multiple expired lines at miss
 								*(uint64_t *)(report_buffer+168),				// L2 cache defaulted lease renewals
-								*(uint32_t *)(report_buffer+188),				// L2 cache ID
-								*(uint64_t *)(report_buffer+200)               // L2 cache random evictions
+								*(uint32_t *)(report_buffer+192),				// L2 cache misses that result in default lease
+								*(uint64_t *)(report_buffer+200),               // L2 cache random evictions
+								*(uint32_t *)(report_buffer+188)				// L2 cache ID
 				);
 	#endif
 
@@ -286,7 +289,7 @@ uint32_t make_cache_report(pHandle pInst, char *rx_buffer, char *stat_buffer){
 			case 13: 	printf("L1-D Default Assignments: %" PRIu64 "\n", item); break;
 			case 14: 	printf("L1-D M-Expired Evictions: %" PRIu64 "\n", item); break;
 			case 15: 	printf("L1-D Cache ID:            %" PRIu32 "\n", *(uint32_t *)(rx_buffer+(8*i)+4)); break;
-			case 16:    printf("L1-D SWAPs:               %" PRIu64 "\n", item); break;
+			case 16:    printf("L1-D Default_misses:      %" PRIu64 "\n", item); break;
 			case 17:    printf("L1-D Random Evictions:    %" PRIu64 "\n", item); break;
 			default: 	break;
 		}	
@@ -312,7 +315,7 @@ uint32_t make_cache_report(pHandle pInst, char *rx_buffer, char *stat_buffer){
 			case 21: 	printf("L2 Default Assignments:   %" PRIu64 "\n", item); break;
 			case 22: 	printf("L2 M-Expired Evictions:   %" PRIu64 "\n", item); break;
 			case 23: 	printf("L2 Cache ID:              %" PRIu32 "\n", *(uint32_t *)(rx_buffer+(8*i)+4)); break;
-			case 24:    printf("L2 SWAPs:                 %" PRIu64 "\n", item); break;
+			case 24:    printf("L2 Default_misses:        %" PRIu64 "\n", item); break;
 			case 25:  	printf("L2 Random Evictions:      %" PRIu64 "\n", item); break;
 			default: 	break;
 		}	

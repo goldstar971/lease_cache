@@ -402,9 +402,7 @@ always @(posedge clock_i) begin
 						end
 						else begin
 							n_transfer_reg = 'b0;
-							cache_ready_reg = 1'b0;
 							state_reg 		= ST_UPDATE_REQUEST_LLT;
-							phase_reg 				<= phase_i[7:0];
 						end	
 					end
 				end

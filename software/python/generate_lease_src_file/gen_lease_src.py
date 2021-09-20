@@ -2,7 +2,7 @@
 import sys;
 sys.path.append("./src");
 import terminal;
-import clease;
+import clease_new;
 
 # main entry point
 # ---------------------------------------------------------------------------------------------
@@ -12,7 +12,7 @@ def main(argv):
 	options = terminal.parse(argv);
 
 	# create lease source file
-	clease.generate(options);
+	clease_new.generate(options);
 
 # entry definition for script
 if __name__ == "__main__":

@@ -76,7 +76,7 @@ localparam ST_WAIT_REPLACEMENT_GEN 	= 4'b0100;
 localparam ST_REQUEST_LLT_DATA 		= 4'b0101; 		// lease cache specific states
 localparam ST_TRANSFER_LLT_DATA 	= 4'b0110;
 localparam ST_NO_SWAP_READ 			= 4'b0111;
-localparam ST_UPDATE_FIRST_REQUEST_LLT 	= 4'b1000;
+localparam ST_UPDATE_REQUEST_LLT 	= 4'b1000;
 localparam ST_UPDATE_SERVICE_LLT 	= 4'b1001;
 localparam ST_STALL 				= 4'b1010;
 
@@ -371,23 +371,27 @@ always @(posedge clock_i) begin
 						end
 						else begin
 							n_transfer_reg = 'b0;
-							state_reg 		= ST_UPDATE_FIRST_REQUEST_LLT;
-							//request first read
-
+							state_reg 		= ST_UPDATE_REQUEST_LLT;
 						end	
 					end
 				end
-				ST_UPDATE_FIRST_REQUEST_LLT: begin
+
+				// request updated llt information
+				ST_UPDATE_REQUEST_LLT: begin
 					if (mem_ready_i) begin
-								// request data
-								mem_req_reg 		= 1'b1; 									// request flag
-								mem_rw_reg 			= 1'b0; 									// request a read
-								mem_addr_reg 	= phase_addr_ptr_bus + llt_counter_reg;
-								llt_counter_reg=llt_counter_reg+1'b1;
-								state_reg<=ST_UPDATE_SERVICE_LLT;
+						// request data
+						mem_req_reg 		= 1'b1; 									// request flag
+						mem_req_block_reg 	= 1'b1; 									// request block
+						mem_rw_reg 			= 1'b0; 									// request a read
+						mem_addr_reg 		= phase_addr_ptr_bus + llt_counter_reg; 	// always points to first element of block
+						state_reg 			<= ST_UPDATE_SERVICE_LLT;
 					end
 				end
+
+
+
 				ST_UPDATE_SERVICE_LLT: begin
+
 					// read out data from buffer and write it to the lease hardware
 					if (buffer_read_ready_i) begin
 
@@ -398,37 +402,34 @@ always @(posedge clock_i) begin
 						llt_wren_reg = 1'b1;
 						llt_addr_reg = llt_counter_reg;
 						llt_data_reg = buffer_data_i;
+
+
+
 						// sequence control
 						// -----------------------------------------------------------------
-						//if written all references in phase, skip remaining values in table 
-						if(refs_to_write==(llt_counter_reg[BW_ENTRIES-1:0]+1)&&llt_counter_reg[BW_ENTRIES]!=1'b1)begin
-							if (mem_ready_i) begin
-								// request data
-								mem_req_reg 		= 1'b1; 									// request flag
-								mem_rw_reg 			= 1'b0; 									// request a read
-								llt_counter_reg = {1'b1,{(BW_ENTRIES){1'b0}}};
-								mem_addr_reg 		= phase_addr_ptr_bus + llt_counter_reg;
-								
-							end
+						//if written all references in phase, skip remaining values in table (must wait until current block has been entirely read from buffer)
+						if(refs_to_write<=(llt_counter_reg[BW_ENTRIES-1:0]+1)&&n_transfer_reg==4'b1111&&llt_counter_reg[BW_ENTRIES]!=1'b1)begin
+							llt_counter_reg <= {1'b1,{(BW_ENTRIES){1'b0}}};
 						end
-						//if writen all short leases in phase, we are done with importing
-						else if(refs_to_write==(llt_counter_reg[BW_ENTRIES-1:0]+1)&&llt_counter_reg[BW_ENTRIES]==1'b1)begin 
+						else begin 
+							llt_counter_reg<=llt_counter_reg+1'b1;
+						end
+						//if writen all short leases in phase, we are done with importing (must wait until current block has been entirely read from buffer)
+						if(refs_to_write<=(llt_counter_reg[BW_ENTRIES-1:0]+1)&&n_transfer_reg==4'b1111&&llt_counter_reg[BW_ENTRIES]==1'b1)begin 
+							n_transfer_reg 	<= 'b0;
 							state_reg 		<= ST_NORMAL;
 							// if there was no buffered request unstall the core
 							if (!req_flag_reg) core_done_o_reg = 1'b1;
 							refs_in_previous_phase<=refs_in_phase;
 						end
-
-						else begin 
-							if (mem_ready_i) begin
-								// request data
-								mem_req_reg 		= 1'b1; 									// request flag
-								mem_rw_reg 			= 1'b0; 									// request a read
-								mem_addr_reg 	= phase_addr_ptr_bus + llt_counter_reg;
-								llt_counter_reg=llt_counter_reg+1'b1;
-							end
+						// check for end of block
+						else if(n_transfer_reg != {1'b0,{`BW_BLOCK{1'b1}}})begin
+							n_transfer_reg 	= n_transfer_reg + 1'b1;
 						end
-						
+						else begin
+							n_transfer_reg 	= 'b0;
+							state_reg 		<= ST_UPDATE_REQUEST_LLT;
+						end
 					end
 				end
 

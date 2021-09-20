@@ -384,7 +384,7 @@ function [] =plot_cache_summary(varargin)
 		%sort rows into correct lease policy order
 			sorted_benches=sortrows(data_bm_single_scope{j},17+offset);
 			%iterate over used policies
-			for k=1:length(used_policies)
+			for k=1:used_policies
 			    projected_misses(j,k)=data_table2.predicted_misses(strcmp(data_table2.Policy(:),lease_policies(k))...
 				 &strcmp(data_table2.benchmark_name(:),benchmark_names_to_plot(j))); 
 			actual_misses(j,k)=sorted_benches(k,7+offset);
@@ -396,7 +396,7 @@ function [] =plot_cache_summary(varargin)
 		end
 
 		fig(1)=subplot(1,2,1);
-		figure('units','normalized','outerposition',[0 0 1 1]);
+		set(gcf,'units','normalized','outerposition',[0 0 1 1]);
 		pos=fig(1).Position;
 		fig(1).Position=[.05,pos(2),pos(3)+.075,pos(4)];
 		b=bar(random_evictions./actual_misses);
