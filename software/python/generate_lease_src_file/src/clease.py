@@ -97,17 +97,17 @@ def generate(options):
 	# error check lists
 	# -----------------------------------------------------------------------------------
 
-	# make sure all the entries can fit in the table
-	# phase_max_short_lease=[]
-	# for phase in phase_list_arr:
-	# 	max_lease=0
-	# 	for lease in phase:
-	# 		lease_value=int(lease.lease0,16)
-	# 		if(lease_value>max_lease):
-	# 			max_lease=lease_value
-	# 	phase_max_short_lease.append(max_lease)
-	# default_lease=round(statistics.median(phase_max_short_lease))
+	#get the dual leases for each phase
+	phase_dual_leases=[]
+	for phase in phase_list_arr:
+		for lease in phase:
+			lease_value=int(lease.lease1,16)
+			#if there is a dual lease
+			if(lease_value>0):
+				phase_dual_leases.append(lease)
 	default_lease=1
+	
+	# make sure all the entries can fit in the table
 	for phase in phase_list_arr:
 	
 
@@ -134,31 +134,42 @@ def generate(options):
 	n_iterations = int(options.mem_size/4);
 	destHandle.write("#include \"stdint.h\"\n\n");
 	destHandle.write("static uint32_t lease["+str(n_iterations)+"] __attribute__ ((section (\".lease\"))) __attribute__ ((__used__)) = {\n");
-
-	# write configuration data
-	# --------------------------------------------------------
 	destHandle.write("// lease header\n");
-	for i in range(0,16):
-		if i == 0:
-			destHandle.write("\t0x"+format_extend(str(hex(default_lease))[2:], 8)+",");
-			destHandle.write("\t// default lease\n");
-		elif i == 1:
-			destHandle.write("\t0x"+format_extend(hex(options.size).lstrip("0x"), 8)+",");
-			destHandle.write("\t// table size (" + str(options.size) + ")\n");
-		elif i == 2:
-			destHandle.write("\t0x"+format_extend(hex(options.base_addr).lstrip("0x"), 8)+",");
-			destHandle.write("\t// phase 0 base addr pointer\n");
-		else:
-			destHandle.write("\t0x"+format_extend("0", 8)+",");
-			destHandle.write("\t// unused\n");
+	
 	# write phase data
 	# --------------------------------------------------------
-	field_list = "reference address","lease0 value","lease1 value","lease0 probability";
+	field_list = "reference address","lease0 value";
 	for i, phase in enumerate(phase_list_arr):
 		destHandle.write("// phase "+str(i)+"\n");
+		# write configuration data
+	# --------------------------------------------------------
+		for j in range(0,16):
+			if j == 0:
+				destHandle.write("\t0x"+format_extend(str(hex(default_lease))[2:], 8)+",");
+				destHandle.write("\t// default lease\n");
+			elif j == 1:
+				value_to_print=phase_dual_leases[i].lease1 if len(phase_dual_leases)>i else "0"
+				destHandle.write("\t0x"+format_extend(value_to_print, 8)+",");
+				destHandle.write("\t// long lease value\n");
+			elif j==2:
+				value_to_print=phase_dual_leases[i].prob if len(phase_dual_leases)>i else "1.00"
+				destHandle.write("\t0x"+format_extend(discretize(value_to_print,options.bit_disc), 8)+",");
+				destHandle.write("\t// short lease probability\n");
+			elif j==3:
+				destHandle.write("\t0x"+format_extend(hex(len(phase))[2:], 8)+",");
+				destHandle.write("\t// num of references in phase\n");
+			elif j==4:
+				value_to_print=phase_dual_leases[i].addr if len(phase_dual_leases)>i else "0"
+				#convert to word address
+				value_to_print=hex(int(value_to_print,16)>>2).lstrip("0x")
+				destHandle.write("\t0x"+format_extend(value_to_print, 8)+",");
+				destHandle.write("\t//dual lease ref (word address)\n");
+			else:
+				destHandle.write("\t0x"+format_extend("0", 8)+",");
+				destHandle.write("\t// unused\n");
 
 		# loop through class fields
-		for k in range(0,4):
+		for k in range(0,2):
 
 			destHandle.write("\t//"+field_list[k]+"\n\t");
 
@@ -173,20 +184,10 @@ def generate(options):
 					elif (k == 1):
 						#destHandle.write("0x"+phase[j].lease0);
 						destHandle.write("0x"+format_extend(phase[j].lease0, 8));
-					elif k == 2:
-						#destHandle.write("0x"+phase[j].lease1);
-						destHandle.write("0x"+format_extend(phase[j].lease1, 8));
-					else:
-						# need to discretize for probability assignment
-						destHandle.write("0x"+format_extend(discretize(phase[j].prob,options.bit_disc),8));
 				else:
-					if k != 3:
-						destHandle.write("0x"+format_extend("0", 8));
-					else:
-						destHandle.write("0x"+format_extend(discretize("1.00",options.bit_disc),8));
-
+					destHandle.write("0x"+format_extend("0", 8));
 				# print delimiter
-				if ((j+1) == options.size) & (k == 3) & ((i+1) == len(phase_list_arr)): 	# end of all phases
+				if ((j+1) == options.size) & (k == 1) & ((i+1) == len(phase_list_arr)): 	# end of all phases
 					destHandle.write("\n");
 				elif (j+1) == options.size:														# end of section
  					destHandle.write(",\n");

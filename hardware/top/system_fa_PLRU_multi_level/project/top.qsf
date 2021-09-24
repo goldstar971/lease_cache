@@ -509,14 +509,9 @@ set_global_assignment -name TIMING_ANALYZER_MULTICORNER_ANALYSIS ON
 set_global_assignment -name VERILOG_FILE ../src/top.v
 set_global_assignment -name QIP_FILE ../../../utilities/clock_generation/double_speed_pll/double_speed.qip
 set_global_assignment -name QIP_FILE ../../../internal/cache_2level/L2_cache.qip
-set_global_assignment -name VERILOG_FILE ../../../internal/cache/lib/cache_performance_controller.v
-set_global_assignment -name VERILOG_FILE ../../../external/uart_jtag/src/uart_jtag_driver.v
-set_global_assignment -name VERILOG_FILE ../../../external/jtag_uart/src/uart_system_2.v
 set_global_assignment -name VERILOG_FILE ../../../external/system/src/external_memory_system_2.v
 set_global_assignment -name VERILOG_FILE ../../../internal/cache/lib/bram_32b_8kB.v
-set_global_assignment -name VERILOG_FILE ../../../internal/system_controller/src/txrx_buffer.v
 set_global_assignment -name VERILOG_FILE ../../../external/reset_controller/src/reset_controller_v2.v
-set_global_assignment -name VERILOG_FILE ../../../external/jtag_uart/src/data_buffer_ccd.v
 set_global_assignment -name VERILOG_FILE ../../../external/system_controller/src/external_memory_controller.v
 set_global_assignment -name VERILOG_FILE ../../../external/ddr3/ip_files/sequencer_scc_reg_file.v
 set_global_assignment -name SYSTEMVERILOG_FILE ../../../external/ddr3/ip_files/sequencer_scc_mgr.sv

@@ -1,5 +1,6 @@
 function [] =plot_tracking_results(varargin)
-%takes arguments cache_level lease_policy dataset_size
+%takes arguments cache_level lease_policy dataset_size and optionally an array of numbers corresponding to the benchmarks we want to plot in alphanumerical order
+%e.g no clam small [2,5,8] which plots single level cache tracking data for CLAM for 3mm, bicg and floyd-warshall
 
 % initialize workspace
 	if usejava('desktop')
@@ -7,11 +8,13 @@ function [] =plot_tracking_results(varargin)
 			close all;
 	end
 
-
 % added dependency directories
+
+addpath([tracking_dir,'src']);
+
+%get paths
 t=which('plot_tracking_results');
 tracking_dir=t(1:end-23);
-addpath([tracking_dir,'src']);
 base_path=t(1:end-71);
 base_data_dir=[base_path,'software/fpga_proxy/results/track/'];
 
@@ -28,6 +31,7 @@ if ~strcmp(multi_level_ans,'yes')&& ~strcmp(multi_level_ans,'no')
 		quit;
 	end
 end
+
 
 %get number of levels in the cache structure
 if(strcmp(multi_level_ans,'no'))
@@ -55,6 +59,7 @@ if isempty(lease_algorithm)
 	end
 end
 
+
 %get data set size
 if(nargin<3)
 	dataset_size=lower(cell2mat(inputdlg("Give dataset size, you'd like to plot: ")));
@@ -68,7 +73,6 @@ if isempty(dataset_size)
 		quit;
 	end
 end
-
 if contains(dataset_size,'small')
 	data_name=lease_algorithm;
 else
@@ -89,8 +93,15 @@ file_list=dir([full_path,'*.txt']);
         mkdir([tracking_dir,data_name,'/']);
     end
 set(0,'DefaultFigureVisible','off')
-for i=1:length(file_list)
-	display(i);
+
+if(nargin<4)
+	benchmark_index_2_plot=[1:1:length(file_list)];
+else
+	benchmark_index_2_plot=varargin{4};
+end
+
+for i=benchmark_index_2_plot
+	display([num2str(i),':',file_list(i).name(1:end-4)]);
 % extract delimited fields
 benchmark=file_list(i).name(1:end-4);
 current_tracking_file=strcat(full_path,benchmark,'.txt');

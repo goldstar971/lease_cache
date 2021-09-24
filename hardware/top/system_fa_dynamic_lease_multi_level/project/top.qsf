@@ -507,19 +507,13 @@ set_global_assignment -name ENABLE_SIGNALTAP OFF
 set_global_assignment -name USE_SIGNALTAP_FILE output_files/stp1.stp
 set_global_assignment -name TIMING_ANALYZER_MULTICORNER_ANALYSIS ON
 set_global_assignment -name SEED 4
+set_global_assignment -name QIP_FILE ../../../internal/cache_2level/L2_cache.qip
 set_global_assignment -name VERILOG_FILE ../src/top.v
 set_global_assignment -name QIP_FILE ../../../utilities/clock_generation/double_speed_pll/double_speed.qip
 set_global_assignment -name SDC_FILE ../../system_fa_PLRU_multi_level/project/output_files/SDC1.sdc
-set_global_assignment -name QIP_FILE ../../../internal/cache_2level/L2_cache.qip
-set_global_assignment -name VERILOG_FILE ../../../internal/cache/lib/cache_performance_controller.v
-set_global_assignment -name VERILOG_FILE ../../../internal/cache/lib/fa_cache_lease_policy_controller.v
-set_global_assignment -name VERILOG_FILE ../../../external/uart_jtag/src/uart_jtag_driver.v
-set_global_assignment -name VERILOG_FILE ../../../external/jtag_uart/src/uart_system_2.v
 set_global_assignment -name VERILOG_FILE ../../../external/system/src/external_memory_system_2.v
 set_global_assignment -name VERILOG_FILE ../../../internal/cache/lib/bram_32b_8kB.v
-set_global_assignment -name VERILOG_FILE ../../../internal/system_controller/src/txrx_buffer.v
 set_global_assignment -name VERILOG_FILE ../../../external/reset_controller/src/reset_controller_v2.v
-set_global_assignment -name VERILOG_FILE ../../../external/jtag_uart/src/data_buffer_ccd.v
 set_global_assignment -name VERILOG_FILE ../../../external/system_controller/src/external_memory_controller.v
 set_global_assignment -name VERILOG_FILE ../../../external/ddr3/ip_files/sequencer_scc_reg_file.v
 set_global_assignment -name SYSTEMVERILOG_FILE ../../../external/ddr3/ip_files/sequencer_scc_mgr.sv
@@ -706,6 +700,4 @@ set_global_assignment -name SDC_FILE ../../../external/ddr3/ip_files/altera_rese
 set_global_assignment -name SDC_FILE ../../../external/ddr3/ip_files/altera_avalon_st_jtag_interface.sdc
 set_global_assignment -name SDC_FILE ../../../external/ddr3/ip_files/altera_avalon_dc_fifo.sdc
 set_global_assignment -name SDC_FILE ../../../external/ddr3/ip_files/timing_constraints.sdc
-set_global_assignment -name SIGNALTAP_FILE output_files/stp1.stp
-set_global_assignment -name QIP_FILE ../../../internal/core/pipeline_f/umultiplier32b_pipelined.qip
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

@@ -51,9 +51,10 @@ always @(posedge clock_i) begin
 	end
 	else begin
 
-		// pulsing reset - used for clearing the cache sampler buffer
+		// pulsing reset 
 		// -----------------------------------------------------------
-		if (comm_cs_i_reg[23]) comm_cs_i_reg[23] 	<= 1'b0;
+		if (comm_cs_i_reg[23]) comm_cs_i_reg[23] 	<= 1'b0; //clear sampler buffer
+		if (comm_cs_i_reg[22]) comm_cs_i_reg[22]    <= 1'b0; //write out sampling table to buffer
 			if (core_phase_reg[31])core_phase_reg[31] 	<= 1'b0; 				// phase interrupt bit
 		
 		if (req_core_i & rw_core_i) begin

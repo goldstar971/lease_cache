@@ -8,10 +8,11 @@ module lease_lookup_table #(
 	input							clock_i,
 	input 							resetn_i,
 
+
 	// table initialization ports (write/remove values to table)
 	input 	[BW_ADDR_SPACE-1:0]		addr_i, 		// sized to total address space
 	input 							wren_i, 		// write data_i to addr_i
-	
+	input   [BW_ENTRIES-1:0]        phase_refs_i,
 	input 	[31:0] 					data_i, 		// data as word in (table will handle bus size conversion)
 
 	// cache ports
@@ -57,7 +58,7 @@ always @(posedge clock_i) begin
 				if (wren_i) begin
 					//if reference is 0 that means it isn't actually a LLT entry since reference of 0 can't appear in code
 					
-						validbits[addr_table] 					<= 1'b1;
+						validbits[addr_table]<= (addr_table<phase_refs_i) ? 1'b1 :1'b0; //only mark as valid actual references in phase
 						ref_addr_mem[addr_table] 				<= data_i[BW_REF_ADDR+1:2]; 	// shifted two to convert to word address
 				end
 			end

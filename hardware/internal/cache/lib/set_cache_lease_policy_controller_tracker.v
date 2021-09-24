@@ -27,8 +27,10 @@ module set_cache_lease_policy_controller_tracker #(
 	output 	[BW_CACHE_CAPACITY-1:0]	addr_o,
 	output 							swap_o, 			// logic high if the missed block has non-zero lease (i.e. should be brought into cache)
 	output 							expired_o, 			// logic high if the replaced cache addr.'s lease expired
+	output 							expired_multi_o, 	// logic high if there are multiple cache lines expired at the time of a miss
 	output 							default_o, 			// logic high if upon a hit the line is renewed with the default lease value
-
+	output                          rand_evict_o,
+	
 // line tracking ports
 	output [CACHE_BLOCK_CAPACITY-1:0] expired_flags_0_o,
 	output [CACHE_BLOCK_CAPACITY-1:0] expired_flags_1_o,
@@ -52,8 +54,10 @@ localparam BW_ADDR_SPACE 		= BW_ENTRIES + 2; 				// four tables total (address, 
 
 // lease lookup table
 // ------------------------------------------------------------------------------------------
-wire [`LEASE_VALUE_BW-1:0] 		llt_lease0, llt_lease1;
+wire [`LEASE_VALUE_BW-1:0] 		llt_lease0, 
 wire [8:0]						llt_lease0_prob;
+reg  [`LEASE_VALUE_BW-1:0] llt_lease1, dual_lease_ref;
+reg [`BW_PERCENTAGE-1:0]	dual_lease_prob;
 wire 							llt_hit;
 
 lease_lookup_table #(
@@ -69,15 +73,13 @@ lease_lookup_table #(
 	// table initialization ports (write/remove values to table)
 	.addr_i 			(llt_addr_i 		), 		// sized to total address space
 	.wren_i 			(llt_wren_i 		), 		// write data_i to addr_i
-	.rmen_i 			(1'b0 				), 		// evict from addr_i (not used currently)
 	.data_i 			(llt_data_i 		), 		// data as word in (table will handle bus size conversion)
+	.phase_refs_i       (refs_per_phase     ), 		//number of references in the current phase
 
 	// cache ports
 	.search_addr_i 		(llt_search_addr_i 	), 		// address of the ld/st making the memory request (for lease lookup) (address width is full system word-add width)
 	.hit_o 				(llt_hit 			), 	 	// logic high if the searched address is in the table
 	.lease0_o 			(llt_lease0 		), 		// resulting lease of match
-	.lease1_o 			(llt_lease1 		), 		// resulting lease of match
-	.lease0_prob_o 		(llt_lease0_prob 	) 		// resulting lease of match (9b LFSR used to eventally compare)
 );
 
 
@@ -88,7 +90,6 @@ wire [`LEASE_VALUE_BW-1:0] 		lease_result;
 
 lease_probability_controller #(
 	.BW_LEASE_VALUE		(`LEASE_VALUE_BW	),
-	.BW_PERCENTAGE 		(9					)
 ) lease_prob_contrl_inst (
 	.clock_i 			(~clock_i 			),
 	.resetn_i 			(resetn_i 			),
@@ -103,13 +104,25 @@ lease_probability_controller #(
 // lease controller configuration control
 // ------------------------------------------------------------------------------------------
 reg 	[`LEASE_VALUE_BW-1:0] 	default_lease_reg;
+reg     [BW_ENTRIES-1:0] refs_per_phase;
 
 always @(posedge clock_i) begin
-	if (!resetn_i) 								default_lease_reg <= 'b0;
+	if (!resetn_i) 	default_lease_reg <= 'b0;			//default_lease_reg <= 'b0;
 	else begin
-		if ((con_wren_i) & (llt_addr_i == 'b0)) default_lease_reg <= llt_data_i[`LEASE_VALUE_BW-1:0];
+		if (con_wren_i) begin
+			case(llt_addr_i)
+				'b0: default_lease_reg<=llt_data_i[`LEASE_VALUE_BW-1:0];
+				'b01: llt_lease1 <=llt_data_i[`LEASE_VALUE_BW-1:0];
+				'b10: dual_lease_prob<=llt_data_i[`BW_PERCENTAGE-1:0];
+				'b100: dual_lease_ref<=llt_data_i[`LEASE_VALUE_BW-1:0]; 
+				'b11:  refs_per_phase<=llt_data_i[BW_ENTRIES-1:0]; 
+			 	default: ;
+			endcase
+		end
 	end
 end
+//select probability of short lease
+assign llt_lease0_prob=(dual_lease_ref==llt_search_addr_i) ? dual_lease_prob : {`BW_PERCENTAGE{1'b1}};
 
 
 // lease controller
@@ -120,15 +133,19 @@ reg 								done_reg,
 									swap_reg;
 reg 	[BW_CACHE_CAPACITY-1:0] 	addr_reg;
 reg 								expired_reg,
-									default_reg;
+									default_reg,
+									expired_multi_reg,
+									random_eviction_reg,
+
 
 // generic port maps
-assign done_o 		= done_reg;
-assign addr_o 		= addr_reg;
-assign swap_o 		= swap_reg;
-assign expired_o 	= expired_reg;
-assign default_o 	= default_reg;
-
+assign done_o 			= done_reg;
+assign addr_o 			= addr_reg;
+assign swap_o 			= swap_reg;
+assign expired_o 		= expired_reg;
+assign default_o 		= default_reg;
+assign expired_multi_o 	= expired_multi_reg;
+assign rand_evict_o  = random_eviction_reg;
 
 // set pointer logic - 1 priority encoder per set of lines
 // 1 expired bit per line (expired bits used to decode to an address)
@@ -154,6 +171,7 @@ generate
 
 		wire [N_SET-1:0] 	set_expired_flags;
 		wire [BW_SET-1:0]	set_replacement_addr;
+		wire [BW_SET-1:0]   set_replacement_addr2;
 
 		assign replacement_addr_valid[g] 	= |set_expired_flags; 			// valid if at least 1 line in the set is expired
 		assign replacement_addr_arr[g] 		= set_replacement_addr; 		// map to an array so it can be conveniently called by controller
@@ -184,11 +202,19 @@ generate
 		else 					 assign set_expired_flags = 'b0;
 		
 		priority_encoder #(
+			.DIRECTION      (1                      ),
 			.INPUT_SIZE		(N_SET 					)
 		) lease_rep_encoder (
 			.encoding_i		(set_expired_flags		),
 			.binary_o		(set_replacement_addr	)
 		);
+		priority_encoder #(
+			.DIRECTION 		(1 						),
+			.INPUT_SIZE		(N_SET 	)
+		) lease_rep_encoder_2 (
+			.encoding_i		(set_expired_flags			),
+			.binary_o		(replacement_addr_2		)
+);
 	end
 endgenerate
 // line tracking hardware
@@ -248,6 +274,9 @@ always @(posedge clock_i) begin
 		swap_reg 			<= 1'b0;
 		expired_reg 		<= 1'b0;
 		default_reg 		<= 1'b0;	
+		expired_multi_reg 	<= 1'b0;
+		random_eviction_reg <= 1'b0;
+
 
 		// replacement signals
 		for (j = 0; j < CACHE_BLOCK_CAPACITY; j = j + 1)	lease_registers[j] <= 'b0;
@@ -269,6 +298,10 @@ always @(posedge clock_i) begin
 		lfsr_en_reg 		<= 1'b0;
 		expired_reg 		<= 1'b0;
 		default_reg 		<= 1'b0;
+		expired_multi_reg 	<= 1'b0;
+		random_eviction_reg <= 1'b0;
+		swap_reg 			<= 1'b1; //assume we are bringing in a new block to the cache upon a miss
+
 
 
 		case(state_reg)
@@ -348,19 +381,6 @@ always @(posedge clock_i) begin
 														// raise flag to record the occurrence
 						end
 					end		
-					/*if (llt_hit) begin
-						state_reg 			<= ST_GENERATE_REPLACEMENT_ADDR;
-						miss_followup_reg 	<= 1'b1;
-						swap_reg 			<= 1'b1;
-						lease_saved_reg 	<= lease_result;
-					end
-					else begin
-						state_reg 			<= ST_GENERATE_REPLACEMENT_ADDR;
-						miss_followup_reg 	<= 1'b1;
-						swap_reg 			<= 1'b1;
-						lease_saved_reg 	<= default_lease_reg;
-						default_reg 		<= 1'b1;
-					end*/
 				end
 			end
 
@@ -388,6 +408,7 @@ always @(posedge clock_i) begin
 				else if (!replacement_addr_valid[cache_addr_i[BW_GRP-1:0]]) begin
 					addr_reg 				<= {lfsr_set, cache_addr_i[BW_GRP-1:0]};
 					lfsr_en_reg 			<= 1'b1;
+					random_eviction_reg    <=1'b1;
 				end
 
 				// if the cache set is full (from cold start) and there is at least one expired line in the set then 
@@ -395,6 +416,9 @@ always @(posedge clock_i) begin
 				else begin
 					expired_reg 			<= 1'b1;
 					addr_reg				<= {replacement_addr_arr[cache_addr_i[BW_GRP-1:0]], cache_addr_i[BW_GRP-1:0]};
+					// track multiple expired lines
+					if (replacement_addr != replacement_addr_2) expired_multi_reg <= 1'b1;
+
 				end
 
 			end

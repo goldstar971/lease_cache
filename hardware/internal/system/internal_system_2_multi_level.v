@@ -93,7 +93,7 @@ assign core_inst_addr_word = core_inst_addr[`BW_WORD_ADDR+1:2];
 // ---------------------------------------------------------------------------------------------------------------
 // L1 <-> L2
 wire 		swap_flag_o,L2_read_ack_i,L2_ready_read_o, L2_ready_write_o, L1_reqToCacheL2, L1_rwToCacheL2, L1_doneFromCacheL2,L1_validFromCacheL2, L1_reqBlockToCacheL2;
-wire 		[23:0]	L1_addToCacheL2;
+wire 		[23:0]	L1_addToCacheL2,L1_ref_add_i;
 wire 		[31:0]	L1_dataToCacheL2, L1_dataFromCacheL2;
 
 
@@ -120,7 +120,7 @@ wire 				mci_hitFromCacheL2, mci_reqFromCacheL2, mci_reqBlockFromCacheL2, mci_rw
 	
 	// L1					
 	.L1_req_i 			(L1_reqToCacheL2 			), 
-	.core_ref_add_i(core_inst_addr_word), //if we miss in L1 (and therefore have to get block from l2) cpu will stall which means this won't change
+	.core_ref_add_i(L1_ref_add_i), 
 	.L1_rw_i 				(L1_rwToCacheL2 			), 
 	.L1_add_i 			(L1_addToCacheL2 			), 
 	.L1_data_i 			(L1_dataToCacheL2 			),
@@ -306,12 +306,12 @@ memory_controller_internal_2level mem_cont_int(
 	// i/o to L2 cache
 	.cacheL2_L1_req_o(L1_reqToCacheL2), .cacheL2_L1_rw_o(L1_rwToCacheL2), .cacheL2_L1_add_o(L1_addToCacheL2), .cacheL2_L1_data_o(L1_dataToCacheL2),
 	.cacheL2_L1_ready_i(L1_doneFromCacheL2), .cacheL2_L1_data_i(L1_dataFromCacheL2), 
-	.cacheL2_L1_valid_i(L1_validFromCacheL2),
+	.cacheL2_L1_valid_i(L1_validFromCacheL2), .llt_ref_address_o(L1_ref_add_i),
 
 	 .cacheL2_uc_ready_o(mci_readyToCacheL2), .cacheL2_uc_write_ready_o(mci_writeReadyToCacheL2), .cacheL2_uc_read_ready_o(mci_readReadyToCacheL2),.cacheL2_uc_data_o(mci_dataToCacheL2),
 	.cacheL2_hit_i(mci_hitFromCacheL2), .cacheL2_req_i(mci_reqFromCacheL2), .cacheL2_reqBlock_i(mci_reqBlockFromCacheL2), .cacheL2_rw_i(mci_rwFromCacheL2), .cacheL2_write_i(mci_writeFromCacheL2), .cacheL2_read_i(mci_readFromCacheL2),
 	.cacheL2_add_i(mci_addFromCacheL2), .cacheL2_data_i(mci_dataFromCacheL2), .L2_ready_read_o(L2_ready_read_o), .L2_read_ack_i(L2_read_ack_i),
-	.L2_ready_write_o(L2_ready_write_o)
+	.L2_ready_write_o(L2_ready_write_o) 
 );
 
 

@@ -33,11 +33,11 @@ uint32_t test_run(pHandle pInst, command *pCommand){
 	}
 	if(access(application,F_OK)!=0){
 		printf("Could not find provided application file: %s. \
-			Attempt to find alternative %s failed.\n  \
-			Provide either the absolute or relative path or just policy and benchmark name: \
-			e.g CLAM_large/adi\n If following these instructions \
-			fails, check to see that BENCHMARK_DIRECTORY has been defined correctly in the\
-			proxy makefile",pCommand->field[1],application);
+Attempt to find alternative %s failed.\n  \
+Provide either the absolute or relative path or just policy and benchmark name: \
+e.g CLAM_large/adi\n If following these instructions \
+fails, check to see that BENCHMARK_DIRECTORY has been defined correctly in the \
+proxy makefile\n",pCommand->field[1],application);
 		return 1;
 	}
 	//now that existence has been checked, remove the file extension, otherwise it will cause problems
@@ -63,7 +63,6 @@ uint32_t test_run(pHandle pInst, command *pCommand){
 	}
 		sleep(.1);
 		// load fpga memory with target application
-	
 	sprintf(command_str, "LOAD %s\r",application);
 		if(proxy_string_command(pInst, command_str)==2){
 			return 1;
@@ -184,7 +183,7 @@ uint32_t test_run(pHandle pInst, command *pCommand){
 								*(uint64_t *)(report_buffer+160),				// L2 cache expired lease replacements (lease cache only
 								*(uint64_t *)(report_buffer+176),				// L2 cache multiple expired lines at miss
 								*(uint64_t *)(report_buffer+168),				// L2 cache defaulted lease renewals
-								*(uint32_t *)(report_buffer+192),				// L2 cache misses that result in default lease
+								*(uint64_t *)(report_buffer+192),				// L2 cache misses that result in default lease
 								*(uint64_t *)(report_buffer+200),               // L2 cache random evictions
 								*(uint32_t *)(report_buffer+188)				// L2 cache ID
 				);

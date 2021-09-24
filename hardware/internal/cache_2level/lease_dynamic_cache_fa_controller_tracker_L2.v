@@ -227,12 +227,7 @@ reg 							latch_swap_reg; 				// when high tells the controller to latch swap v
 // scope lease subsystem
 // ----------------------------------------------------------------------------------------------------------
 
-// config registers
-reg 	[BW_ENTRIES:0]		header_table_size_reg; 	 		// max size is the hardware table size
-reg 	[`BW_WORD_ADDR-1:0] header_lease_base_addr_reg; 	// beginning of phase0 subsection
 
-wire 	[BW_ENTRIES+1:0] 	llt_section_entries_bus;
-assign 	llt_section_entries_bus = (header_table_size_reg << 2'b10) - 1'b1;
 
 // phase load interrupt
 reg 	[7:0]				phase_reg;
@@ -240,7 +235,7 @@ wire 						phase_interrupt;
 assign phase_interrupt 	= 	(phase_i[31] & (phase_reg != phase_i[7:0])) ? 1'b1 : 1'b0;
 
 // llt population
-reg 	[BW_ENTRIES+1:0]	llt_counter_reg; 				// {2'bXY, BW_ENTRIES-1}
+reg 	[BW_ADDR_SPACE-1:0]	llt_counter_reg; 				// {2'bXY, BW_ENTRIES-1}
 															// XY = 00 : ref_addr
 															// XY = 01 : lease_primary
 															// XY = 10 : lease_secondary
@@ -316,8 +311,6 @@ always @(posedge clock_i) begin
 		latch_swap_reg 			= 	1'b0;
 
 		// scope leasing
-		header_table_size_reg 		<= 'b0;
-		header_lease_base_addr_reg 	<= 'b0;
 		phase_reg 					<= 8'hFF;
 		llt_counter_reg 			<= 'b0;
 
@@ -445,11 +438,12 @@ always @(posedge clock_i) begin
 							llt_counter_reg<=llt_counter_reg+1'b1;
 						end
 						//if writen all short leases in phase, we are done with importing (must wait until current block has been entirely read from buffer)
-						if(refs_to_write<=(llt_counter_reg[BW_ENTRIES-1:0]+1)&&n_transfer_reg==4'b1111&&llt_counter_reg[BW_ENTRIES]==1'b1)begin 
+						//only need to load the leases from the current phase so use refs_in_phase
+						if(refs_in_phase<=(llt_counter_reg[BW_ENTRIES-1:0]+1)&&n_transfer_reg==4'b1111&&llt_counter_reg[BW_ENTRIES]==1'b1)begin 
 							n_transfer_reg 	<= 'b0;
 							state_reg 		<= ST_NORMAL;
 							// if there was no buffered request unstall the core
-							if (!req_flag_reg) core_done_o_reg = 1'b1;
+							if (!req_flag_reg) cache_ready_reg = 1'b1;
 							refs_in_previous_phase<=refs_in_phase;
 						end
 						// check for end of block
@@ -609,8 +603,8 @@ always @(posedge clock_i) begin
 							//if reading from memory or if the L1 cache has written a value to the buffer upon reciept of no swap signal.
 							rw_flag_reg=L1_rw_i;
 							if(L2_ready_read_i||!rw_flag_reg)begin
-							// clear the L1 request flag so that upon returning without writing/reading entire cache 
-							// block the controller doesn't try to reservice the request
+							// clear the L1 request flag so that upon returning without writing/reading entire cache block 
+							//the controller doesn't try to reservice the request
 								req_flag_reg 		= 1'b0;
 
 								// request the item

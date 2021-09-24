@@ -14,16 +14,16 @@ data(:,20+offset) = 100*(data(:,10+offset) ./ data(:,7+offset));
 
 
 % add in columns for cache structure and replacement policy
-data(:,14+offset) = bitand(data(:,11+offset),hex2dec('F0000000'),'uint32');
-data(:,14+offset) = bitshift(data(:,12+offset),-28);
-data(:,15+offset) = bitand(data(:,11+offset),hex2dec('0000000F'),'uint32');
+data(:,15+offset) = bitand(data(:,11+offset),hex2dec('F0000000'),'uint32');
+data(:,15+offset) = bitshift(data(:,12+offset),-28);
+data(:,16+offset) = bitand(data(:,11+offset),hex2dec('0000000F'),'uint32');
 
 % convert id to policy string
 policy_names = {};
 for i = 1:length(data(:,1))
     % assign numerics per policy
     
-   if (data(i,12+offset) == 4)
+   if (data(i,14+offset) == 4)
         data(i,17+offset) = 1;
         policy_names{i} = "pLRU";
 	elseif (contains(filenames{i},"C-SHEL"))

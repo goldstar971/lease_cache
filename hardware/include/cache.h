@@ -49,4 +49,7 @@
 `define ID_CACHE_4WAY_SET_ASSOCIATIVE 		32'h40000000
 `define ID_CACHE_8WAY_SET_ASSOCIATIVE 		32'h80000000
 
+
+`include "../../../internal/cache/lib/cache_performance_controller.v"
+
 `endif // _CACHE_H_

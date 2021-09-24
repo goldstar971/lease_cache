@@ -103,7 +103,6 @@ reg 	[`BW_SAMPLER-1:0]		add_stack[0:`N_SAMPLER-1]; 	// open address stack for ca
 reg 	[`N_SAMPLER-1:0]		valid_bits;
 wire 	[`N_SAMPLER-1:0] 		match_bits;
 wire 							hit_flag, full_flag, actual_match;
-//reg	[`BW_SAMPLER-1:0] 		match_index;
 wire 	[`BW_SAMPLER-1:0] 		match_index;
 reg 	[`BW_SAMPLER-1:0] 		add_stack_ptr;
 
@@ -120,14 +119,7 @@ tag_match_encoder_6b tag_match((match_bits&valid_bits),match_index);
 //match_index==0 both when no bit in match_bits is set i.e., no match and when the match is the bottom entry i.e., match_bits[0]=1
 assign actual_match=|({match_index,match_bits[0]});
 assign hit_flag = (actual_match)? valid_bits[match_index] : 1'b0;
-// always @(*) begin
-//	match_index = 'b0;
-//	for (i = 0; i < `N_SAMPLER; i = i + 1'b1) begin
-//		if (match_bits[i] & valid_bits[i]) match_index = i[`BW_SAMPLER-1:0];
-//	end
-//end
 
-//assign hit_flag = |(match_bits & valid_bits); 
 
 
 // full flag dependent on table entries
@@ -159,7 +151,7 @@ localparam ST_NORMAL 		=	1'b0;
 localparam ST_FIND_OLDEST	= 	1'b1;
 
 assign count_o 		= n_rui_total_reg;
-assign used_o 		= (no_entries) ? 'b0 : add_sampler_reg + 1'b1;	// indexed from zero so add one
+assign used_o 		= (~|(valid_bits) && add_sampler_reg=='b0) ? 'b0 : add_sampler_reg + 1'b1;	// indexed from zero so add one
 assign remaining_o 	= n_remaining_reg;
 
 // full flag out dependent on add_sampler_reg
@@ -204,7 +196,6 @@ always @(posedge clock_bus_i[0]) begin
 		rui_oldest_index_reg = 'b0;
 		state_reg 			 = ST_NORMAL;
 		table_writeout_flag <= 1'b0;
-		no_entries<=1'b0;
 	end
 
 	// active state
@@ -376,9 +367,6 @@ always @(posedge clock_bus_i[0]) begin
 			else begin
 
 				if (table_writeout_flag) begin
-					if(!valid_bits) begin
-						no_entries<=1'b1;
-					end
 					// only store table entry if valid
 					if (valid_bits[rui_oldest_index_reg]) begin
 
@@ -392,7 +380,6 @@ always @(posedge clock_bus_i[0]) begin
 						rw_reg 				= 1'b1;
 						data_address_reg 	= pc_mem[rui_oldest_index_reg];
 						data_interval_reg 	= ~counters[rui_oldest_index_reg]+1'b1; 	// 2's complement
-						//data_interval_reg 	= 32'hFFFFFFFF;
 						data_trace_reg 		= data_trace_running_reg;
 						target_address_reg  = tag_mem[rui_oldest_index_reg];
 

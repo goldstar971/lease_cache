@@ -237,7 +237,7 @@ always @(posedge clock_i) begin
 		replacement_ptr_reg = 	{BW_CACHE_ADDR_PART{1'b1}}; 	// start at max so first replacement rolls over into first cache line location 
 
 		// core/hart
-		core_done_o_reg = 		INIT_DONE;
+		core_done_o_reg = 		1'b1;
 
 		// tag memory
 		cam_wren_reg = 			1'b0;
@@ -356,7 +356,11 @@ always @(posedge clock_i) begin
 				ST_WAIT_REPLACEMENT_GEN_2: begin
 					// check if the ssrip controller generated an address
 					//and that all L2 operations have completed
-					if (replacement_done & mem_ready_i) begin
+					`ifdef L2_CACHE_POLICY_DLEASE
+					if (replacement_done & mem_ready_i & swap_flag_i ) begin
+					`else 
+					if (replacement_done & mem_ready_i ) begin
+					`endif
 
 						replacement_ptr_reg  	= replacement_addr;
 
@@ -377,13 +381,16 @@ always @(posedge clock_i) begin
 					end
 					//handle zero lease
 					`ifdef L2_CACHE_POLICY_DLEASE
-					else if (!swap_flag_i)begin 
+					else if (!swap_flag_i &replacement_done & mem_ready_i)begin 
+
 						if(rw_flag_reg) begin 
 							if (buffer_write_ready_i) begin 
 								buffer_write_ack_reg = 1'b1; //signal to buffer to read in data
 								buffer_data_reg = core_data_i; //write value from core to buffer
 								mem_rw_reg 			= 1'b1; //signal to L2 to read from L1 buffer
 								state_reg 		= ST_NORMAL;
+								req_flag_reg 		= 1'b0;	// clear the L1 request flag so that upon returning without writing/reading entire cache block 
+							//the controller doesn't try to reservice the request
 								core_done_o_reg= 1'b1; //unstall processor 
 							end
 						end
@@ -394,6 +401,8 @@ always @(posedge clock_i) begin
 								mem_rw_reg=1'b0; //signal to L2 to write from
 								state_reg 		= ST_NORMAL;
 								core_done_o_reg= 1'b1; //unstall processor 
+								req_flag_reg 		= 1'b0;	// clear the L1 request flag so that upon returning without writing/reading entire cache block 
+							//the controller doesn't try to reservice the request
 							end
 						end
 						

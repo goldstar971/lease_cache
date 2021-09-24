@@ -23,7 +23,7 @@
 `define 	BW_SAMPLER 			6
 
 
-
+`include "../../../internal/sampler/lease_sampler_all.v"
 `include "../../../internal/sampler/bram_64kB_32b.v"
 `include "../../../internal/sampler/bram_128kB_64b.v"
 `include "../../../internal/sampler/comparator_identity_20b.v"

@@ -330,7 +330,7 @@ always @(posedge clock_i) begin
 				state_next0         =FUSION_MANAGE2;
 			end
 			FUSION_MANAGE2: begin 
-				fusion_words_num =rx_get_data_reg[26:0];
+				fusion_words_num =rx_get_data_reg[11:0];
 				state_current       =FUSION_WRITE;
 				word_counter 		= 'b0;
 			end

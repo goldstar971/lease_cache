@@ -65,6 +65,7 @@ lease_lookup_table #(
 	.addr_i 			(llt_addr_i 		), 		// sized to total address space
 	.wren_i 			(llt_wren_i 		), 		// write data_i to addr_i
 	.data_i 			(llt_data_i 		), 		// data as word in (table will handle bus size conversion)
+	.phase_refs_i       (refs_per_phase     ), 		//number of references in the current phase
 
 	// cache ports
 	.search_addr_i 		(llt_search_addr_i 	), 		// address of the ld/st making the memory request (for lease lookup) (address width is full system word-add width)
@@ -80,6 +81,7 @@ wire [`LEASE_VALUE_BW-1:0] 		lease_result;
 
 lease_probability_controller #(
 	.BW_LEASE_VALUE		(`LEASE_VALUE_BW	)
+	
 ) lease_prob_contrl_inst (
 	.clock_i 			(~clock_i 			),
 	.resetn_i 			(resetn_i 			),
@@ -94,7 +96,7 @@ lease_probability_controller #(
 // lease controller configuration control
 // ------------------------------------------------------------------------------------------
 reg 	[`LEASE_VALUE_BW-1:0] 	default_lease_reg;
-
+reg     [BW_ENTRIES-1:0] refs_per_phase;
 always @(posedge clock_i) begin
 	if (!resetn_i) 	default_lease_reg <= 'b0;			//default_lease_reg <= 'b0;
 	else begin
@@ -104,6 +106,7 @@ always @(posedge clock_i) begin
 				'b01: llt_lease1 <=llt_data_i[`LEASE_VALUE_BW-1:0];
 				'b10: dual_lease_prob<=llt_data_i[`BW_PERCENTAGE-1:0];
 				'b100: dual_lease_ref<=llt_data_i[`LEASE_VALUE_BW-1:0]; 
+				'b11:  refs_per_phase<=llt_data_i[BW_ENTRIES-1:0]; 
 			 	default: ;
 			endcase
 		end
