@@ -245,7 +245,8 @@ pub mod io {
                 }
 
                 let phase_id_ref = u64::from_str_radix(&sample.phase_id_ref,16).unwrap();
-                let next_phase_tuple = match super::helpers::binary_search(&phase_transitions,reuse_time-ri){
+               
+                let next_phase_tuple = match super::helpers::binary_search(&phase_transitions,use_time){
                     Some(v) => v,
                     None => (reuse_time+1,0),
                 };
@@ -278,14 +279,14 @@ pub mod io {
         (super::lease_gen::RIHists::new(ri_hists),samples_per_phase,first_misses)
     }
     pub fn dump_leases(leases: HashMap<u64,u64>, 
-        dual_leases: HashMap<u64,(f32,u64)>,
+        dual_leases: HashMap<u64,(f64,u64)>,
         lease_hits:HashMap<u64,HashMap<u64,u64>>,
         trace_length:u64,
         output_file:&str,
         first_misses:usize){
         let mut num_hits=0;
         //create lease output vector
-        let mut lease_vector: Vec<(u64,u64,u64,u64,f32)> = Vec::new();
+        let mut lease_vector: Vec<(u64,u64,u64,u64,f64)> = Vec::new();
         for (&phase_address,&lease) in leases.iter() {
             let lease = if lease >0 {lease} else {1}; 
             let phase   = (phase_address & 0xFF000000)>>24;
@@ -305,10 +306,10 @@ pub mod io {
             //thus if an RI for a reference didn't occur during runtime (i.e., the base lease of 1 that all references get) 
             //we can assume the number of hits it gets is zero, and moreover, even if that reuse interval does happen, we have no way
             if lease_hits.get(address).unwrap().get(lease_short)!=None{
-                num_hits+=(*lease_hits.get(address).unwrap().get(lease_short).unwrap() as f32 *(percentage)).round() as u64;
+                num_hits+=(*lease_hits.get(address).unwrap().get(lease_short).unwrap() as f64 *(percentage)).round() as u64;
             }
             if lease_hits.get(address).unwrap().get(lease_long)!=None{
-                num_hits+=(*lease_hits.get(address).unwrap().get(lease_long).unwrap() as f32 *(1.0-percentage)).round() as u64;
+                num_hits+=(*lease_hits.get(address).unwrap().get(lease_long).unwrap() as f64 *(1.0-percentage)).round() as u64;
             }
          }
          println!("Writing output to: {}",output_file);
@@ -353,7 +354,7 @@ pub mod io {
 
 //Small miscellaneous functions used 
 mod helpers {
-    pub fn float_min(a: f32, b:f32) -> f32{
+    pub fn float_min(a: f64, b:f64) -> f64{
         if a.lt(&b){ 
             return a;
         }
@@ -460,7 +461,7 @@ pub mod lease_gen {
 
     #[derive(Debug,Copy,Clone)]
     pub struct PPUC {
-        ppuc: f32,
+        ppuc: f64,
         lease: u64,
         old_lease: u64,
         ref_id: u64,
@@ -564,22 +565,21 @@ pub mod lease_gen {
                 Some((a,b)) => (*a,*b),
                 None        => (0,0), 
             };
-
-            if ri <= old_lease {
+              if ri <= old_lease {
                 old_cost += phase_head_cost;
             }
-            if ri == old_lease {
+            if ri ==old_lease {
                 old_cost += phase_tail_cost;
             }
 
             if ri <= new_lease {
                 new_cost += phase_head_cost;
             }
-            if ri == new_lease {
+            if ri ==new_lease {
                 new_cost += phase_tail_cost;
             }
         }
-       
+      
         (new_cost - old_cost) * sample_rate   
     }
 
@@ -645,8 +645,8 @@ pub mod lease_gen {
 
         ri_hist_clone.iter().map(|(k,_v)| k).filter(|k| **k > base_lease).map(
             |k| PPUC {
-                ppuc:((*lease_hit_table.get(k).unwrap() -*lease_hit_table.get(&base_lease).unwrap()) as f32/
-                      (*lease_cost_table.get(k).unwrap()-*lease_cost_table.get(&base_lease).unwrap())as f32),
+                ppuc:((*lease_hit_table.get(k).unwrap() -*lease_hit_table.get(&base_lease).unwrap()) as f64/
+                      (*lease_cost_table.get(k).unwrap()-*lease_cost_table.get(&base_lease).unwrap())as f64),
                 lease: *k,
                 old_lease: base_lease,
                 ref_id: ref_id, 
@@ -676,9 +676,9 @@ pub mod lease_gen {
                 sample_rate : u64,
                 cache_size : u64,
                 samples_per_phase : &HashMap<u64,u64>,
-                verbose: bool,)-> Option<(HashMap<u64,u64>,HashMap<u64,(f32,u64)>,HashMap<u64,HashMap<u64,u64>>,u64)>{
+                verbose: bool,)-> Option<(HashMap<u64,u64>,HashMap<u64,(f64,u64)>,HashMap<u64,HashMap<u64,u64>>,u64)>{
         let mut new_lease: PPUC;
-        let mut dual_leases : HashMap<u64,(f32,u64)>= HashMap::new(); //{ref_id, (alpha, long_lease)}
+        let mut dual_leases : HashMap<u64,(f64,u64)>= HashMap::new(); //{ref_id, (alpha, long_lease)}
         let mut trace_length : u64=0;
         let bin_target:u64=bin_width*cache_size;
         let mut bin_endpoints:Vec<u64>=Vec::new();
@@ -846,7 +846,7 @@ pub mod lease_gen {
                 acceptable_ratio= if num_full_bins==0 {sorted_bins[0].1} else {0.0};
                
                 if acceptable_ratio>0.0{
-                    dual_leases.insert(addr,(acceptable_ratio as f32,new_lease.lease));
+                    dual_leases.insert(addr,(acceptable_ratio as f64,new_lease.lease));
                         let mut print_string:String=String::new();
                     for (bin,_sat) in &bin_saturation.clone(){
 
@@ -873,16 +873,18 @@ pub mod lease_gen {
                   sample_rate : u64, 
                   samples_per_phase : &HashMap<u64,u64>,
                   verbose: bool,
-                  debug: bool) -> Option<(HashMap<u64,u64>,HashMap<u64,(f32,u64)>,HashMap<u64,HashMap<u64,u64>>,u64)> {
+                  debug: bool) -> Option<(HashMap<u64,u64>,HashMap<u64,(f64,u64)>,HashMap<u64,HashMap<u64,u64>>,u64)> {
 
         let mut new_lease: PPUC;
         let mut cost_per_phase = HashMap::new();
         let mut budget_per_phase = HashMap::new();
         let mut leases = HashMap::new(); //{ri, lease}
-        let mut dual_leases : HashMap<u64,(f32,u64)>= HashMap::new(); //{ref_id, (alpha, long_lease)}
+        let mut dual_leases : HashMap<u64,(f64,u64)>= HashMap::new(); //{ref_id, (alpha, long_lease)}
         let mut trace_length : u64 = 0;
         let mut lease_hits=HashMap::new();
-        let mut dual_lease_phases: Vec<u64>=Vec::new();
+        let mut dual_lease_phases :Vec<u64>=Vec::new();
+        //{phase,(cost with alpha, cost if alpha was 1, ref ID)}
+        let mut last_lease_cost: HashMap<u64,(u64,u64,u64)>=HashMap::new();
         
         let phase_ids: Vec<&u64> = samples_per_phase.keys().collect();
 
@@ -897,6 +899,7 @@ pub mod lease_gen {
         let mut ppuc_tree = BinaryHeap::new();
 
         for (&ref_id, ri_hist) in ri_hists.ri_hists.iter(){
+           
             let ppuc_vec = get_ppuc(ref_id,0,ri_hist);
             for ppuc in ppuc_vec.iter(){
                 ppuc_tree.push(*ppuc);
@@ -905,6 +908,7 @@ pub mod lease_gen {
        // get lease hits assuming a base lease of 0
         for _r in ppuc_tree.clone(){
             let lease= ppuc_tree.pop().unwrap();
+            
             lease_hits.entry(lease.ref_id&0x00FFFFFF).or_insert(HashMap::new()).entry(lease.lease).or_insert(lease.new_hits);
       }
         //reinitallize ppuc tree, assuming a base lease of 1
@@ -967,12 +971,15 @@ pub mod lease_gen {
             if new_lease.old_lease != *leases.get(&new_lease.ref_id).unwrap(){
                 continue;
             }
-            //phase lease assignment ends with dual lease, so skip references from phases that already have dual leases
-
-             if   dual_lease_phases.contains(&((new_lease.ref_id & 0xFF000000)>>24)){
+            //if phase is full, skip
+            // if   dual_lease_phases.contains(&(new_lease.ref_id>>24)){  
+                if cost_per_phase.get(&(new_lease.ref_id>>24)).unwrap()==budget_per_phase.get(&(new_lease.ref_id>>24)).unwrap(){
+                    continue;
+                }
+            //if we've already assigned a dual lease for the phase
+            if dual_lease_phases.contains(&(new_lease.ref_id>>24)){
                 continue;
-             }
-           
+            }
 
             let old_lease = *leases.get(&new_lease.ref_id).unwrap();
             //check for capacity
@@ -993,18 +1000,22 @@ pub mod lease_gen {
                                                       new_lease.lease,
                                                       &ri_hists),
                 };
-
-                new_phase_ref_cost.insert(phase,new_cost);
+              
+                 new_phase_ref_cost.insert(phase,new_cost); 
                 if (new_cost + current_cost) > *budget_per_phase.get(&phase).unwrap() {
                     acceptable_lease = false;
                 }
             }
             if verbose & debug {
+                 println!("\nDebug: budgets per phase {:?}",&budget_per_phase);
+                println!("Debug: Current cost budgets {:?}",&cost_per_phase);
                 println!("Debug: NEW_PHASE_REF_COST {:?}",&new_phase_ref_cost);
-            }
+               
+        }
 
             if acceptable_lease {
-                
+           
+           
                 //update cache use
                 for phase in &phase_ids {
                     cost_per_phase.insert(**phase, 
@@ -1020,7 +1031,6 @@ pub mod lease_gen {
                 for ppuc in ppuc_vec.iter(){
                     ppuc_tree.push(*ppuc);
                 }
-
                 if verbose {
                     println!("Assigned lease {:x} to reference ({},{:x}).", 
                              new_lease.lease, (new_lease.ref_id & 0xFF000000) >> 24, 
@@ -1031,13 +1041,14 @@ pub mod lease_gen {
             else {
                 //unacceptable lease, must assign a dual lease
                 let mut alpha = 1.0;
+                let mut current_phase_alpha = 1.0;
                 for (&phase,&current_cost) in cost_per_phase.iter(){
                     let &phase_ref_cost   = new_phase_ref_cost.get(&phase).unwrap(); 
                     if phase_ref_cost > 0 {
                         if *budget_per_phase.get(&phase).unwrap() < current_cost{
                             println!("
                             ERROR: current cost exceeds budget
-                            *budget_per_phase.get(&phase).unwrap():  {}
+                            *budget_per_phase.get(&phase)=.unwrap():  {}
                             currenc_cost:                            {}
                             ",
                             *budget_per_phase.get(&phase).unwrap(),
@@ -1047,46 +1058,169 @@ pub mod lease_gen {
                         }
 
                         let remaining_budget = *budget_per_phase.get(&phase).unwrap() - current_cost; 
+                        //get the best alpha (ignoring other phases) that we want for the current reference
+                        if phase==(new_lease.ref_id&0xFF000000)>>24 {
+                            current_phase_alpha=super::helpers::float_min(current_phase_alpha,remaining_budget as f64/ 
+                                                                                                phase_ref_cost as f64);
+                        }
                         alpha = super::helpers::float_min(alpha, 
-                                                          remaining_budget as f32 / 
-                                                            phase_ref_cost as f32);
+                                                          remaining_budget as f64 / 
+                                                            phase_ref_cost as f64);
                     }
-                }
 
+                }
+           
                 if alpha > 0.0{
                     
                     //update cache use
                     for phase in &phase_ids{
                         cost_per_phase.insert(**phase, 
                                           cost_per_phase.get(*phase).unwrap() + 
-                                            (*new_phase_ref_cost.get(&phase).unwrap() as f32 * alpha).round()
+                                            (*new_phase_ref_cost.get(&phase).unwrap() as f64 * alpha).round()
                                               as u64);
-                        //fix floating point precision error leading to "overallocation"
+
+                        //fix floating point precision error leading to "overallocation" or underallocation
                         if cost_per_phase.get(*phase).unwrap()>budget_per_phase.get(*phase).unwrap(){
                             cost_per_phase.insert(**phase,*budget_per_phase.get(*phase).unwrap());
                         }
+                        
                     }
                 }
+                
+              if cshel{
+                    //if there's no alpha for this dual lease that wouldn't put other phases over budget
+                    if alpha ==0.0{
+                        let mut new_costs=HashMap::new();
+                        let mut new_alpha=HashMap::new();
+                        let mut adjust_lease=true;
+                        for phase in &phase_ids{
+                             let &phase_ref_cost   = new_phase_ref_cost.get(&phase).unwrap(); 
+                             //if the phase would be effected by the lease assignment
+                                if phase_ref_cost > 0 {
+                                     //get phases that would be over budgeted by assigning the current lease.
+                                     //then subtract the cost of their prior dual lease (which may be, due to the default, a non-dual lease)
+                                    //and then add the spillover cost from the new leases
+                                    let past_cost_actual=if last_lease_cost.get(phase)==None {0 } else {last_lease_cost.get(phase).unwrap().0};
+                                new_costs.insert(phase,cost_per_phase.get(&phase).unwrap()-past_cost_actual+(phase_ref_cost as f64 * current_phase_alpha).round() as u64); 
+                                  //if no lease adjustment can be made to keep the phase from being over budget
+                                    if new_costs.get(phase).unwrap()>budget_per_phase.get(&phase).unwrap(){
+                                        adjust_lease=false;
+                                        break;
+                                    }
+                                     let remaining_budget = *budget_per_phase.get(&phase).unwrap()  - new_costs.get(phase).unwrap(); 
+                                    
+                                    
+                                           //if cost of last lease was zero i.e., no prior dual, then alpha will be 1 and will not be adjusted
+                                    let past_cost_max=if last_lease_cost.get(phase)==None {0 } else {last_lease_cost.get(phase).unwrap().1};
+                                     if past_cost_max!=0{
+                                         //if previous long lease didn't fill phase, could be greater than one
+                                        let phase_alpha=super::helpers::float_min(1.0,remaining_budget as f64/past_cost_max as f64);
+                                        new_alpha.insert(phase,phase_alpha);
+                                    }
+                                     
+                                    
+                                }
+                                //new costs is equal to old cost
+                                else{
+                               new_costs.insert(phase,*cost_per_phase.get(&phase).unwrap());
+                                }
+                        }
+                        if adjust_lease==true {
+                            for phase in &phase_ids{
+                                //if adjusting lease
+                                if new_alpha.get(&phase)!=None{
+                                    let old_phase_cost_max=last_lease_cost.get(phase).unwrap().1;
+                                    let old_phase_ref=last_lease_cost.get(phase).unwrap().2;
+                                    let new_phase_cost=(old_phase_cost_max as f64*new_alpha.get(phase).unwrap()) as u64;
+                                    dual_leases.insert(old_phase_ref,(*new_alpha.get(&phase).unwrap(),dual_leases.get(&old_phase_ref).unwrap().1));
+                                    last_lease_cost.insert(**phase,(new_phase_cost,old_phase_cost_max,old_phase_ref));
+                                    //update phase costs
+                                    cost_per_phase.insert(**phase,*new_costs.get(phase).unwrap()+new_phase_cost);
+                                }
+                                //if not adjusting the lease
+                                else {
+                                    //update phase costs
+                                    cost_per_phase.insert(**phase,*new_costs.get(phase).unwrap());
+                                }
+                               //fix floating point precision error leading to "overallocation"
+                                if cost_per_phase.get(*phase).unwrap()>budget_per_phase.get(*phase).unwrap(){
+                                    cost_per_phase.insert(**phase,*budget_per_phase.get(*phase).unwrap());
+                                }
 
-                //update dual lease HashMap
-                //inserting with alpha=0 is still valuable, since it tells us to 
-                //ignore further lease increases of that reference. 
-                dual_leases.insert(new_lease.ref_id,(alpha,new_lease.lease));
-                dual_lease_phases.push((new_lease.ref_id & 0xFF000000) >> 24);
+                            }
+                            alpha=current_phase_alpha;
+                        }
+                        else {
+                            //if we can't assign a dual lease without overflowing a phase
+                            //without adjustment of past dual leases, with adjustment of past dual leases 
+                            //or in the the unlikely case a phase is full with no dual lease
+                           
+                              println!("Unable to assign lease {:x} with percentage {} to reference ({},{:x})", 
+                                 new_lease.lease,current_phase_alpha,(new_lease.ref_id & 0xFF000000) >> 24, 
+                                 new_lease.ref_id & 0x00FFFFFF);
+                               continue; 
+                        }
 
-                if verbose {
-                    println!("Assigned dual lease ({:x},{}) to reference ({},{:x}).", 
-                              new_lease.lease, 
-                              alpha, 
-                              (new_lease.ref_id & 0xFF000000) >> 24,
-                              new_lease.ref_id & 0x00FFFFFF);
+                    }
                 }
-            }
+              
+
+                
+            
+                let phase=(new_lease.ref_id & 0xFF000000)>>24;
+
+                //if last lease was a dual lease with alpha of 1 that didn't fill the budget, then it is actually a short lease and adjustments can be made to ensure 
+                //there is only 1 dual lease per phase.
+                if alpha==1.0 && cost_per_phase.get(&phase).unwrap()!=budget_per_phase.get(&phase).unwrap(){
+                    //update leases
+                    leases.insert(new_lease.ref_id,new_lease.lease);
+
+                   
+                    //push new ppucs
+                    let ppuc_vec = get_ppuc(new_lease.ref_id,
+                                            new_lease.lease,
+                                            ri_hists.ri_hists.get(&new_lease.ref_id).unwrap());
+
+                    for ppuc in ppuc_vec.iter(){
+                        ppuc_tree.push(*ppuc);
+                    }
+                    if verbose {
+                        println!("Assigned lease {:x} to reference ({},{:x}).", 
+                                 new_lease.lease, (new_lease.ref_id & 0xFF000000) >> 24, 
+                                 new_lease.ref_id & 0x00FFFFFF);
+                    }
+
+                }
+                //add dual lease
+                else{
+
+                    //store cost of dual lease and store cost of lease with no dual lease and the reference for that lease
+                    last_lease_cost.insert(phase,((*new_phase_ref_cost.get(&phase).unwrap() as f64 * alpha).round()as u64,*new_phase_ref_cost.get(&phase).unwrap(),new_lease.ref_id));
+                   dual_lease_phases.push(phase);
+                   //update dual lease HashMap
+                    dual_leases.insert(new_lease.ref_id,(alpha,new_lease.lease));
+                    
+
+                    //if we didn't assign a dual lease don't terminate phase
+                    if verbose {
+                        println!("Assigned dual lease ({:x},{}) to reference ({},{:x}).", 
+                                  new_lease.lease, 
+                                  alpha, 
+                                  (new_lease.ref_id & 0xFF000000) >> 24,
+                                  new_lease.ref_id & 0x00FFFFFF);
+                    }
+                   
+                }
+              
+            }//unacceptable lease
+            for (ref_id,(alpha,long_lease)) in dual_leases.iter(){
+                        println!("phase:{} ref_id: {:x} alpha:{} long_lease:{:x}",ref_id>>24,ref_id&0x00FFFFFF,alpha,long_lease);
+                    }
             if verbose & debug { 
                 
-                for phase in &phase_ids{
+                for (phase,num) in samples_per_phase.iter(){
                     println!("Debug: phase: {}. Allocation: {}",phase,
-                        cost_per_phase.get(&phase).unwrap() / trace_length);
+                        cost_per_phase.get(&phase).unwrap() / (num*sample_rate));
                 }
                 /*
                     println!("Debug: phase: {}",phase);

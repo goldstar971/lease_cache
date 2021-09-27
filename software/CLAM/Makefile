@@ -59,7 +59,7 @@ run_all_large: src/lib.rs src/main.rs Cargo.toml
 		cargo run --release  $(SAMPLE_ALL_LARGE)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -p   > /dev/null ; \
 	done & \
 	for i in $(multi_bench_large); do \
-		cargo run --release  $(SAMPLE_ALL_PHASE_LARGE)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY)   > /dev/null ; \
+		cargo run --release  $(SAMPLE_ALL_PHASE_LARGE)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -c   > /dev/null ; \
 	done & \
 	wait;
 
@@ -96,7 +96,7 @@ run_all_large_multi_level: src/lib.rs src/main.rs Cargo.toml
 		cargo run --release  $(SAMPLE_ALL_LARGE)_multi_level/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -p   > /dev/null ; \
 	done & \
 	for i in $(multi_bench_large); do \
-		cargo run --release  $(SAMPLE_ALL_PHASE_LARGE)_multi_level/$${i}.txt $(RESULT_DIR) -s $(CAPACITY)    > /dev/null ; \
+		cargo run --release  $(SAMPLE_ALL_PHASE_LARGE)_multi_level/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -c   > /dev/null ; \
 	done & \
 	wait;
 run_all_extra_large_multi_level: src/lib.rs src/main.rs Cargo.toml

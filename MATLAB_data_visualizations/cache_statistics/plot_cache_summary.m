@@ -157,11 +157,7 @@ function [] =plot_cache_summary(varargin)
 	PLRU_multi_scope=PLRU_data(~ismember(benchmark_names,single_scope_benchmarks));
 	% don't display figures if we are running from command line
 
-	%if usejava('desktop')
-		set(0,'DefaultFigureVisible','on')
-	%else
-	%	set(0,'DefaultFigureVisible','off')
-	%end
+	
 	
 	
 	%open geomean file and output header describing the data being visualized 

@@ -63,7 +63,7 @@ module memory_controller_internal_2level(
 	output 		[31:0]	cacheL2_L1_data_o,
 	input 		[31:0]	cacheL2_L1_data_i,
 	input 				cacheL2_L1_ready_i,cacheL2_L1_valid_i,
-	output      [23:0] llt_ref_address_o,
+
 	
 	// i/o to/from internal memory controller
 	output 				cacheL2_uc_ready_o, cacheL2_uc_write_ready_o, cacheL2_uc_read_ready_o,
@@ -143,7 +143,6 @@ assign cacheL1D_core_data_o = core_data1_i;
 assign core_data1_o = cacheL1D_core_data_i;
 assign core_done1_o = cacheL1D_core_done_i ;
 
-assign llt_ref_address_o=(mem_access==`MEM_ACCESS_cacheL1I) ? core_add0_i[25:2] : core_add1_i[25:2]; //for lease cache lookup
 
 // memory controller ports
 // ----------------------------

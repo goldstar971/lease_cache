@@ -10,11 +10,12 @@ function [] =plot_tracking_results(varargin)
 
 % added dependency directories
 
-addpath([tracking_dir,'src']);
 
 %get paths
 t=which('plot_tracking_results');
 tracking_dir=t(1:end-23);
+addpath([tracking_dir,'src']);
+
 base_path=t(1:end-71);
 base_data_dir=[base_path,'software/fpga_proxy/results/track/'];
 
