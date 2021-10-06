@@ -255,11 +255,11 @@ uint32_t sampler_run(pHandle pInst, command *pCommand){
 
 	if(access(application,F_OK)!=0){
 		printf("Could not find provided application file: %s. \
-			Attempt to find alternative %s failed.\n  \
-			Provide either the absolute or relative path or just policy and benchmark name: \
-			e.g CLAM_large/adi\n If following these instructions \
-			fails, check to see that BENCHMARK_DIRECTORY has been defined correctly in the\
-			proxy makefile",pCommand->field[1],application);
+Attempt to find alternative %s failed.\n  \
+Provide either the absolute or relative path or just policy and benchmark name: \
+e.g CLAM_large/adi\n If following these instructions \
+fails, check to see that BENCHMARK_DIRECTORY has been defined correctly in the\
+proxy makefile",pCommand->field[1],application);
 		return 1;
 	}
 		//now that existence has been checked, remove the file extension, otherwise it will cause problems
@@ -462,11 +462,11 @@ uint32_t tracker_run(pHandle pInst, command *pCommand){
 	}
 	if(access(application,F_OK)!=0){
 		printf("Could not find provided application file: %s. \
-			Attempt to find alternative %s failed.\n  \
-			Provide either the absolute or relative path or just policy and benchmark name: \
-			e.g CLAM_large/adi\n If following these instructions \
-			fails, check to see that BENCHMARK_DIRECTORY has been defined correctly in the\
-			proxy makefile",pCommand->field[1],application);
+Attempt to find alternative %s failed.\n  \
+Provide either the absolute or relative path or just policy and benchmark name: \
+e.g CLAM_large/adi\n If following these instructions \
+fails, check to see that BENCHMARK_DIRECTORY has been defined correctly in the\
+proxy makefile",pCommand->field[1],application);
 		return 1;
 	}
 	//now that existence has been checked, remove the file extension, otherwise it will cause problems

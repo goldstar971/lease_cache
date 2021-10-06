@@ -1,8 +1,0 @@
-internal_system_0:
-	- core:		sequential
-	- inst cache:	8kB 2-way fifo
-	- data cache:	8kB 2-way fifo
-
-internal_system_0w_1:
-	- core:		sequential
-	- inst cache:	8kB fa fifo

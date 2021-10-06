@@ -22,7 +22,7 @@ all_bench =  deriche lu ludcmp cholesky adi 2mm 3mm atax bicg correlation covari
 multi_bench = mvt covariance correlation heat-3d jacobi-2d gemver 2mm fdtd-2d 3mm adi lu ludcmp  deriche
 all_bench_small_multi_level=  adi 2mm 3mm atax bicg cholesky correlation covariance deriche doitgen fdtd-2d gemm gemver gesummv gramschmidt heat-3d jacobi-1d jacobi-2d lu ludcmp mvt nussinov seidel-2d symm syr2k syrk trisolv trmm floyd-warshall
 all_bench_large = adi 2mm 3mm atax bicg correlation covariance durbin doitgen fdtd-2d gemm gemver gesummv gramschmidt heat-3d jacobi-1d jacobi-2d mvt nussinov seidel-2d symm syr2k syrk trisolv trmm lu ludcmp cholesky floyd-warshall  #deriche
-multi_bench_large = lu ludcmp correlation covariance mvt heat-3d jacobi-2d gemver 2mm fdtd-2d 3mm adi    #deriche
+multi_bench_large = lu ludcmp correlation covariance mvt heat-3d jacobi-2d gemver fdtd-2d adi 2mm 3mm    #deriche
 clean: 
 	rm -rf $(BIN_DIR)/*
 

@@ -29,7 +29,7 @@ module cache_performance_controller_all #(
 );
 
 reg 	[31:0]	comm_o_reg0,comm_o_reg1,comm_o_reg2;
-reg swap_store, miss_store;
+reg swap_store;
 
 wire enable_tracker, enable_sampler, tracker_stall_o,sampler_stall_o, buffer_full_flag,table_full_flag;
 
@@ -95,7 +95,6 @@ always @(posedge clock_i[0]) begin
 		counter_default_misses  <= 'b0;
 		counter_swap_reg<='b0;
 		swap_store <=1'b0;
-		miss_store<=1'b0;
 	end
 
 	else begin
@@ -108,9 +107,8 @@ always @(posedge clock_i[0]) begin
 			if 		(expired_multi_i) 	counter_mexpired_reg 	<= counter_mexpired_reg + 1'b1;
 			if 		(defaulted_i) 		counter_defaulted_reg 	<= counter_defaulted_reg + 1'b1;
 			if      (rand_evict_i)      counter_rand_evic_reg   <= counter_rand_evic_reg + 1'b1;
-			if      (miss_store&defaulted_i) counter_default_misses <=counter_default_misses+1'b1;
+			if      (miss_i&defaulted_i) counter_default_misses <=counter_default_misses+1'b1;
 			swap_store<=swap_i;
-			miss_store<=miss_i;
 			//always strobed even if no lease cache
 			if       (!swap_i&&swap_store!=swap_i)     counter_swap_reg <=counter_swap_reg+1'b1;  //increments when there is a zero lease assigned (swaps is equal to the number of misses minus the number of zero leases)
 			// always increment wall-timer

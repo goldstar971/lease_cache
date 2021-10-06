@@ -36,9 +36,8 @@ reg 	[12:0]	add_sampler;
 reg 	[12:0]	add_sampler_reg;
 reg 			rw_sampler;
 
-reg no_entries; //handles false buffer value caused by the indexing of add_sampler_reg
 
-reg 			table_writeout_flag;
+reg 			table_writeout_flag, table_writeout_flag_delay;
 
 // input control
 always @(*) begin
@@ -57,7 +56,8 @@ always @(*) begin
 	end
 	// when logging not enabled by core, user has full permission if writeout flag not set
 	else begin
-		if (!table_writeout_flag) begin
+		//delay by one cycle to prevent premature switching of buffer resulting in the last table entry being dropped
+		if (!table_writeout_flag_delay) begin 
 			add_sampler = comm_i[16:4];
 			rw_sampler = 1'b0;
 		end
@@ -178,13 +178,11 @@ always @(posedge clock_bus_i[0]) begin
 		target_address_reg 	= 'b0;
 		add_sampler_reg = 'b0;
 		add_stack_ptr = 'b0;
-		//rand_rep_ptr = 'b0;
-		//add_ptr = 'b0;
+		
 
 		fs_counter_reg = 'b0;
 		n_rui_total_reg = 'b0;
 		n_rui_buffer_reg = 'b0;
-		//offset_counter_reg = 'b0;
 		n_remaining_reg = 'b0;
 
 		data_trace_reg = 'b0;
@@ -196,6 +194,8 @@ always @(posedge clock_bus_i[0]) begin
 		rui_oldest_index_reg = 'b0;
 		state_reg 			 = ST_NORMAL;
 		table_writeout_flag <= 1'b0;
+		table_writeout_flag_delay<=1'b0;
+
 	end
 
 	// active state
@@ -210,6 +210,7 @@ always @(posedge clock_bus_i[0]) begin
 		if (comm_i[22]) begin
 			//state_reg = ST_DUMP_TABLE;
 			table_writeout_flag <= 1'b1;
+			table_writeout_flag_delay<=1'b1;
 			rui_oldest_index_reg <= 'b0; 	// use this to writeout the entire table to buffer
 		end
 
@@ -365,8 +366,9 @@ always @(posedge clock_bus_i[0]) begin
 			// table writout
 			// ----------------------------------------------------------------------------------------------------------------
 			else begin
-
+				table_writeout_flag_delay<=table_writeout_flag; //allows table dump to pick up last entry
 				if (table_writeout_flag) begin
+
 					// only store table entry if valid
 					if (valid_bits[rui_oldest_index_reg]) begin
 

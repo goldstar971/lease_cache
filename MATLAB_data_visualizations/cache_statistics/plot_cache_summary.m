@@ -236,10 +236,10 @@ function [] =plot_cache_summary(varargin)
 			%display normalized values that exceed 1.2 as text on the inside of the top of each bar
 			for j=1:used_policies
 				if check_if_light_or_dark(t(j,:).*255); txtcolor=[0 0 0]; else; txtcolor=[.85,.85,.85]; end
-				for k=num_benchmarks
+				for k=1:num_benchmarks
 					if(bar_ydata(j,k)>max(ylim))
 						max_val=max(ylim);
-						text(xCnt(j,k),max_val*.2+(max_val*.6)*j/used_policies,strip(num2str(round(bar_ydata(k,j),3)),'left','0'),'HorizontalAlignment',...
+						text(xCnt(j,k),max_val*.2+(max_val*.6)*j/used_policies,strip(num2str(round(bar_ydata(j,k),3)),'left','0'),'HorizontalAlignment',...
 						'right','VerticalAlignment','middle','FontSize',11,'Rotation',90,'Color',txtcolor);
 					end
 				end
@@ -387,7 +387,7 @@ function [] =plot_cache_summary(varargin)
 			benchmark_names_to_plot=benchmark_names_multi;
 			used_policies=size(data_bm_multi_scope{1},1);
 			data_to_plot=data_bm_multi_scope;
-			num_benchmarks=length(data_bm_single_scope);
+			num_benchmarks=length(data_bm_multi_scope);
 		end	
 		for j=1:num_benchmarks
 		%sort rows into correct lease policy order

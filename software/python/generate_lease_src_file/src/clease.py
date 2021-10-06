@@ -224,7 +224,7 @@ def discretize(percentage, discretization):
 
 	# conversion
 	percentage = float(percentage);
-	percentage_binary = hex(int(math.floor(percentage * (2**discretization-1)))); 	# as a hex string
+	percentage_binary = hex(int(round(percentage * (2**discretization-1)))); 	# as a hex string
 	percentage_binary = percentage_binary.lstrip("0x").rstrip("L"); 				# remove leading and trailing
 
 	# return 
