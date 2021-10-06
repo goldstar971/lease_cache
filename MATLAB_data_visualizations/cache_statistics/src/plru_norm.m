@@ -20,7 +20,7 @@ end
 for i = 1:size(data_set)
     data_set(i,21+offset) = data_set(i,7+offset) / plru_misses;
 	data_set(i,22+offset) = data_set(i,4) / plru_cycles;
-	data_set(i,23+offset) = data_set(i,11+offset)/plru_hits
+	data_set(i,23+offset) = data_set(i,11+offset)/plru_hits;
 end
 
 % return
