@@ -122,11 +122,12 @@ assign mem_rw_o 		= mem_rw_reg;
 assign mem_addr_o 		= mem_addr_reg;
 
 // performance controller
-reg 					flag_hit_reg,
+reg 					init_hit_reg,
+						strobe_hit_reg,
 						flag_miss_reg,
 						flag_writeback_reg;
 
-assign flag_hit_o		= flag_hit_reg;
+assign flag_hit_o		= init_hit_reg;
 assign flag_miss_o 		= flag_miss_reg;
 assign flag_writeback_o = flag_writeback_reg;
 
@@ -166,7 +167,7 @@ lru_line_controller #(
 	.resetn_i 				(resetn_i 				),
 	.enable_i 				(1'b1 					),
 	.addr_i	 				(cam_addr_i 			), 		// no cycle latency, signal to port does not need to be register
-	.hit_i 	 				(flag_hit_reg 			), 		// no cycle latency, signal to port does not need to be register
+	.hit_i 	 				(strobe_hit_reg 		), 		// no cycle latency, signal to port does not need to be register
 	.miss_i  				(flag_miss_reg 			), 		// no cycle latency, signal to port does not need to be register
 	.done_o  				(replacement_done 		),
 	.addr_o  				(replacement_addr 		)
@@ -184,7 +185,7 @@ mru_line_controller #(
 	.resetn_i 				(resetn_i 				),
 	.enable_i 				(1'b1 					),
 	.addr_i	 				(cam_addr_i 			), 		// no cycle latency, signal to port does not need to be register
-	.hit_i 	 				(flag_hit_reg 			), 		// no cycle latency, signal to port does not need to be register
+	.hit_i 	 				(strobe_hit_reg 		), 		// no cycle latency, signal to port does not need to be register
 	.miss_i  				(flag_miss_reg 			), 		// no cycle latency, signal to port does not need to be register
 	.done_o  				(replacement_done 		),
 	.addr_o  				(replacement_addr 		)
@@ -201,7 +202,7 @@ plru_line_controller #(
 	.clock_i 				(!clock_i 				),
 	.resetn_i 				(resetn_i 				),
 	.miss_i 				(flag_miss_reg 			),
-	.enable_i 				(flag_hit_reg 			),
+	.enable_i 				(strobe_hit_reg 		),
 	.addr_i 				(cam_addr_i 			),
 	.addr_o 				(replacement_addr 		)
 );
@@ -222,7 +223,7 @@ srrip_line_controller #(
 	.clock_i 				(!clock_i 				),
 	.resetn_i 				(resetn_i 				),
 	.enable_i 				(1'b1 					),
-	.hit_i 					(flag_hit_reg 			),
+	.hit_i 					(strobe_hit_reg 		),
 	.miss_i 				(flag_miss_reg			), 		// pulse trigger to generate a replacement address
 	.addr_i 				(cam_addr_i				), 		// on hit update based on set and group, on miss this will provide the group
 	.done_o 				(replacement_done 		), 		// logic high when replacement address generated
@@ -289,7 +290,8 @@ always @(posedge clock_i) begin
 		mem_addr_reg =  		'b0;
 
 		// performance flags
-		flag_hit_reg = 			1'b0;
+		init_hit_reg = 			1'b0;
+		strobe_hit_reg=         1'b0;
 		flag_miss_reg = 		1'b0;
 		flag_writeback_reg = 	1'b0;
 
@@ -310,7 +312,8 @@ always @(posedge clock_i) begin
 		mem_req_block_reg 		= 1'b0;
 		mem_rw_reg 				= 1'b0;
 
-		flag_hit_reg 			= 1'b0;
+		init_hit_reg 			= 1'b0;
+		strobe_hit_reg          = 1'b0;
 		flag_miss_reg 			= 1'b0;
 		flag_writeback_reg 		= 1'b0;
 
@@ -334,11 +337,13 @@ always @(posedge clock_i) begin
 						if (cam_hit_i) begin
 							
 							// mux in reference information based on previous actions
-							if (!req_flag_reg) begin 									// return from miss hit
+							if (!req_flag_reg) begin 									// initial reference hit
 								 rw_flag_reg=L1_rw_i;
+								 init_hit_reg 			= 1'b1;								//signal there was a hit
 							end
-							else begin 													// initial reference hit
+							else begin 													// return from miss hit
 								req_flag_reg 		= 1'b0;
+
 							end
 						
 							if(rw_flag_reg)begin
@@ -348,9 +353,9 @@ always @(posedge clock_i) begin
 							else begin
 								state_reg = ST_WRITE_TO_L1_BUFFER;
 							end
-
+							strobe_hit_reg          =1'b1;
 							n_transfer_reg          ='b0;                  
-							flag_hit_reg 			= 1'b1;								//signal there was a hit
+							
 							
 						
 						end

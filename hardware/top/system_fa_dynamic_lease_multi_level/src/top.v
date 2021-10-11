@@ -3,14 +3,14 @@
 module top(
 
 	// DDR3 pins
-	output	[13:0]		ddr3b_a,
+	output  [13:0]		ddr3b_a,
 	output	[2:0]		ddr3b_ba,
 	output 				ddr3b_casn,
 	output 				ddr3b_clk_n,
 	output 				ddr3b_clk_p,
 	output 				ddr3b_cke,
 	output 				ddr3b_csn,
-	output	[7:0] 		ddr3b_dm,
+	output	[7:0] 	ddr3b_dm,
 	output 				ddr3b_odt,
 	output 				ddr3b_rasn,
 	output 				ddr3b_resetn,

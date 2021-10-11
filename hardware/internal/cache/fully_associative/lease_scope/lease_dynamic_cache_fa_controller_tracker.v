@@ -136,11 +136,12 @@ assign mem_rw_o 		= mem_rw_reg;
 assign mem_addr_o 		= mem_addr_reg;
 
 // performance controller
-reg 					flag_hit_reg,
+reg 					init_hit_reg,
 						flag_miss_reg,
+					    strobe_hit_reg,
 						flag_writeback_reg;
 
-assign flag_hit_o		= flag_hit_reg;
+assign flag_hit_o		= init_hit_reg;
 assign flag_miss_o 		= flag_miss_reg;
 assign flag_writeback_o = flag_writeback_reg;
 assign flag_swap_o 		= replacement_swap_reg;
@@ -175,7 +176,7 @@ reg 							replacement_swap_reg; 	// saved version of above
 
 	// controller - lease ports
 	.cache_addr_i 			(cam_addr_i 			), 	// translated cache address - so that lease controller can update lease value
-	.hit_i 					(flag_hit_reg 			), 	// when high, adjust lease register values (strobe trigger)
+	.hit_i 					(strobe_hit_reg 	 	), 	// when high, adjust lease register values (strobe trigger)
 	.miss_i 				(flag_miss_reg 			), 	// when high, generate a replacement address (strobe trigger)
 	.done_o 				(replacement_done 		), 	// logic high when controller generates replacement addr
 	.addr_o 				(replacement_addr 		),
@@ -278,9 +279,10 @@ always @(posedge clock_i) begin
 		mem_addr_reg =  		'b0;
 
 		// performance flags
-		flag_hit_reg = 			1'b0;
+		init_hit_reg = 			1'b0;
 		flag_miss_reg = 		1'b0;
 		flag_writeback_reg = 	1'b0;
+		strobe_hit_reg 			= 1'b0;
 
 		// lease cache signals
 		con_wren_reg 			= 	1'b0;
@@ -311,9 +313,10 @@ always @(posedge clock_i) begin
 		mem_req_block_reg 		= 1'b0;
 		mem_rw_reg 				= 1'b0;
 
-		flag_hit_reg 			= 1'b0;
+		init_hit_reg 			= 1'b0;
 		flag_miss_reg 			= 1'b0;
 		flag_writeback_reg 		= 1'b0;
+		strobe_hit_reg 			= 1'b0;
 
 		// lease cache defaults
 		llt_wren_reg 			= 1'b0;
@@ -471,10 +474,11 @@ always @(posedge clock_i) begin
 							end
 							else begin 													// initial reference hit
 								cache_mem_rw_reg 	= core_rw_i;
+								init_hit_reg 			= 1'b1;
 							end
-
+							strobe_hit_reg = 		1'b1;
 							replacement_swap_reg 	= 1'b1; 							// swap indicate item is in cache/cacheable
-							flag_hit_reg 			= 1'b1;
+							
 							cache_mem_add_reg 		= {cam_addr_i, core_word_i};		// set cache address
 							cache_mem_data_reg 		= core_data_i;						// redundant if cache read
 							core_done_o_reg 		= 1'b1; 							// unstall processor core

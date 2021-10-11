@@ -166,6 +166,8 @@ function [] =plot_cache_summary(varargin)
 	fprintf(fileID,"%s cache data for %s dataset",num_level(multi_level+1),dataset_size);
 
 	%plot normalized misses or normalized clock cycles
+	plru_normed_data=cell(4,1);
+	miss_ratios=cell(2,1);
 	for h=1:2
 		%plot for single or multi scope benchmarks
 		for i=1:2
@@ -173,40 +175,37 @@ function [] =plot_cache_summary(varargin)
 				num_benchmarks=length(data_bm_single_scope);
 				used_policies=size(data_bm_single_scope{1},1);
 				if(h==1)
-					bar_ydata=[];
 					for j=1:num_benchmarks
 						sorted_benchmark=sortrows(data_bm_single_scope{j},17+offset);
-						bar_ydata=[bar_ydata,sorted_benchmark(:,21+offset)];
+						plru_normed_data{i+(h-1)*2}=[plru_normed_data{i+(h-1)*2},sorted_benchmark(:,21+offset)];
+						miss_ratios{i}=[miss_ratios{i},sorted_benchmark(:,7+offset)./(sorted_benchmark(:,7+offset)+sorted_benchmark(:,6+offset))];
 					end
 				else
-					bar_ydata=[];
 					for j=1:num_benchmarks
 						sorted_benchmark=sortrows(data_bm_single_scope{j},17+offset);
-						bar_ydata=[bar_ydata,sorted_benchmark(:,22+offset)];
+						plru_normed_data{i+(h-1)*2}=[plru_normed_data{i+(h-1)*2},sorted_benchmark(:,22+offset)];
 					end
 				end
 			else
 				num_benchmarks=length(data_bm_multi_scope);
 				used_policies=size(data_bm_multi_scope{1},1);
 				if(h==1)
-					bar_ydata=[];
 					for j=1:num_benchmarks
 						sorted_benchmark=sortrows(data_bm_multi_scope{j},17+offset);
-						bar_ydata=[bar_ydata,sorted_benchmark(:,21+offset)];
+						plru_normed_data{i+(h-1)*2}=[plru_normed_data{i+(h-1)*2},sorted_benchmark(:,21+offset)];
+						miss_ratios{i}=[miss_ratios{i},sorted_benchmark(:,7+offset)./(sorted_benchmark(:,7+offset)+sorted_benchmark(:,6+offset))];
 					end
 				else
-					bar_ydata=[];
 					for j=1:num_benchmarks
 						sorted_benchmark=sortrows(data_bm_multi_scope{j},17+offset);
-						bar_ydata=[bar_ydata,sorted_benchmark(:,22+offset)];
+						plru_normed_data{i+(h-1)*2}=[plru_normed_data{i+(h-1)*2},sorted_benchmark(:,22+offset)];
 					end
 				end
 			end
 		% graphic
 			fig((h-1)*2+i)=figure();
 			set(fig((h-1)*2+i), 'Position',[0,0,1080,1920]);
-			bar_ydata=[bar_ydata,transpose(geomean(transpose(bar_ydata)))];
-			b=bar(transpose(bar_ydata));
+			b=bar(transpose([plru_normed_data{i+(h-1)*2},transpose(geomean(transpose(plru_normed_data{i+(h-1)*2})))]));
 			t=colormap(parula(length(b)));
 			for v=1:length(b)
 			b(v).FaceColor=t(v,:);
@@ -219,8 +218,6 @@ function [] =plot_cache_summary(varargin)
 			end
 
 			if(i==1)
-				
-
 				set(gca,'xticklabel',[benchmark_names_single,'GEOMEAN'],'FontSize',14);
 			else
 				set(gca,'xticklabel',[benchmark_names_multi,'GEOMEAN'],'FontSize',14);
@@ -233,24 +230,26 @@ function [] =plot_cache_summary(varargin)
 			yline(1,'k-');
 			grid on
 			xCnt = cell2mat(get(b,'XData')) + cell2mat(get(b,'XOffset'));
+			if used_policies+1>3
+				txt_size=8;
+			else
+				txt_size=11;
+			end
 			%display normalized values that exceed 1.2 as text on the inside of the top of each bar
 			for j=1:used_policies
 				if check_if_light_or_dark(t(j,:).*255); txtcolor=[0 0 0]; else; txtcolor=[.85,.85,.85]; end
 				for k=1:num_benchmarks
-					if(bar_ydata(j,k)>max(ylim))
+					if(plru_normed_data{i+(h-1)*2}(j,k)>max(ylim))
 						max_val=max(ylim);
-						text(xCnt(j,k),max_val*.2+(max_val*.6)*j/used_policies,strip(num2str(round(bar_ydata(j,k),3)),'left','0'),'HorizontalAlignment',...
-						'right','VerticalAlignment','middle','FontSize',11,'Rotation',90,'Color',txtcolor);
+						text(xCnt(j,k),max_val*.2+(max_val*.6)*j/used_policies,strip(num2str(round(plru_normed_data{i+(h-1)*2}(j,k),3)),'left','0'),'HorizontalAlignment',...
+						'right','VerticalAlignment','middle','FontSize',txt_size,'Rotation',90,'Color',txtcolor);
 					end
 				end
 			end
-			legend(convertStringsToChars(lease_policies(1:size(bar_ydata,1))),'Orientation','vertical','FontSize',14,'Location','northeastoutside');
+			legend(convertStringsToChars(lease_policies(1:size(plru_normed_data{i+(h-1)*2},1))),'Orientation','vertical','FontSize',14,'Location','northeastoutside');
 			PLRU_array_data=[];
 			%put absolute plru numbers for clock cycles or misses under
 			%benchmark name.
-
-			
-		
 			if(h==1)
 				if(i==1)
 					for z=1:num_benchmarks
@@ -333,20 +332,22 @@ function [] =plot_cache_summary(varargin)
 					end
 				end
 			end
-			
+			geomean_values=transpose(geomean(transpose(plru_normed_data{i+(h-1)*2})));
 			if(h==1)
 				fprintf(fileID,"\nGeomean values for %s normalized misses: ",convertStringsToChars(num_scope(i)));
-				for j=1:size(bar_ydata,1)
-					fprintf(fileID,"%s: %.5f ",lease_policies(j),bar_ydata(j,end));
+				for j=1:size(plru_normed_data{i+(h-1)*2},1)
+					fprintf(fileID,"%s: %.5f ",lease_policies(j),geomean_values(j));
 				end
 
 				saveas(fig((h-1)*2+i),[base_save_path,'cache_statistics/cache_statistics_graphs/',convertStringsToChars(num_level(multi_level+1)),'/misses_',convertStringsToChars(num_scope(i)),'_',dataset_size,'.png'])
+				close(fig((h-1)*2+i));
 			elseif(h==2)
 				fprintf(fileID,"\nGeomean values for %s normalized clock cycles: ",convertStringsToChars(num_scope(i)));
-				for j=1:size(bar_ydata,1)
-					fprintf(fileID,"%s: %.5f ",lease_policies(j),bar_ydata(j,end));
+				for j=1:size(plru_normed_data{i+(h-1)*2},1)
+					fprintf(fileID,"%s: %.5f ",lease_policies(j),geomean_values(j));
 				end
 				saveas(fig((h-1)*2+i),[base_save_path,'cache_statistics/cache_statistics_graphs/',convertStringsToChars(num_level(multi_level+1)),'/clock_cycles_',convertStringsToChars(num_scope(i)),'_',dataset_size,'.png'])
+				close(fig((h-1)*2+i));
 			end
 		end
 	end
@@ -383,11 +384,13 @@ function [] =plot_cache_summary(varargin)
 			used_policies=size(data_bm_single_scope{1},1);
 			data_to_plot=data_bm_single_scope;
 			num_benchmarks=length(data_bm_single_scope);
+			plru_data=PLRU_single_scope;
 		else
 			benchmark_names_to_plot=benchmark_names_multi;
 			used_policies=size(data_bm_multi_scope{1},1);
 			data_to_plot=data_bm_multi_scope;
 			num_benchmarks=length(data_bm_multi_scope);
+			plru_data=PLRU_multi_scope;
 		end	
 		for j=1:num_benchmarks
 		%sort rows into correct lease policy order
@@ -403,9 +406,9 @@ function [] =plot_cache_summary(varargin)
 		if(~any(any(random_evictions./actual_misses)))
 			return
 		end
-		fig(4+i)=figure();
+		fig(i)=figure();
 		ax1=subplot(2,2,1);
-		set(fig(4+i),'units','normalized','outerposition',[0 0 1 1]);
+		set(fig(i),'units','normalized','outerposition',[0 0 1 1]);
 		pos=ax1.Position;
 		ax1.Position=[.05,pos(2)+.04,pos(3)+.075,pos(4)];
 		b=bar(random_evictions./actual_misses);
@@ -413,7 +416,7 @@ function [] =plot_cache_summary(varargin)
 				for v=1:length(b)
 				b(v).FaceColor=t(v,:);
 				end
-		set(ax1,'xticklabel',[benchmark_names_to_plot],'FontSize',14);
+		set(ax1,'xticklabel',benchmark_names_to_plot,'FontSize',14);
 		xtickangle(gca,45);
 		ylim([0, max(max(random_evictions./actual_misses))*1.2]);
 		grid on
@@ -448,33 +451,93 @@ function [] =plot_cache_summary(varargin)
 				end
 			end
 		
-		leg=legend(convertStringsToChars(lease_policies(1:used_policies)),'Location','eastoutside','Orientation','vertical','FontSize',14);
-		leg_pos=leg.Position;
-		leg.Position=[(leg_pos(1)*.5+.5) leg_pos(2), leg_pos(3), leg_pos(4)];
+		
 		set(ax3,'xticklabel',[benchmark_names_to_plot],'FontSize',14);
 		xtickangle(ax3,45);
 		grid on
 		label_pos=ylabel("Percent error between projected and actual misses");
-		%add normalized misses subplot to contention plot
-		fig1=figure(i);
-		objs=fig1.Children;
-		delete(objs(1)) %delete legend
-		ax2=subplot(2,2,3,'parent',figure(5));
+		%add normalized misses subplot to contention plot with added normalized
+		%bar for projected CLAM misses.
+		plru_miss_ratios=[];
+		%normalize projected misses by PLRU misses and get PLRU miss ratios
+		for j=1:num_benchmarks
+			normed_CLAM_projected_misses(j)=projected_misses(j,1)/plru_data{j}(7+offset);
+			%if hits are actually total references (old way)
+			plru_miss_ratios(j)=plru_data{j}(7+offset)/(plru_data{j}(7+offset)+plru_data{j}(6+offset));
+		end
+		ax2=subplot(2,2,3);
 		fig_pos=ax2.Position;
 		ax2.Position=[.05,fig_pos(2)+.04,fig_pos(3)+.075,fig_pos(4)];
-		axcp=copyobj(objs(2),fig(4+i));
-		set(axcp,'Position',get(ax2,'position'));
-		delete(ax2);
-		%get text objects to adjust
-		textobjs=findobj(axcp,'Type','Text');
-		for j=1:length(textobjs)
-			pos=textobjs(j).Position;
-			textobjs(j).Position=[pos(1)+.15,pos(2)*2,0];
+		bar_data=[plru_normed_data{i};normed_CLAM_projected_misses];
+		b=bar(transpose(bar_data));
+		
+		ylabel('Policy Miss Count Normalized to PLRU Misses');
+		set(gca,'xticklabel',benchmark_names_to_plot,'FontSize',14);
+		t=colormap(parula(length(b)-1));
+		for v=1:length(b)-1
+			b(v).FaceColor=t(v,:);
 		end
-		saveas(figure(4+i),[base_save_path,'cache_statistics/cache_statistics_graphs/',convertStringsToChars(num_level(multi_level+1)),'/contention_',convertStringsToChars(num_scope(i)),'_',dataset_size,'.png'])
+		b(end).FaceColor=[0,0,0];
+		t=[t;b(end).FaceColor];
+		xtickangle(gca,45);
+		ylim([0,1.2]);
+		xlim=get(gca,'xlim');
+		hold on
+		legend('AutoUpdate', 'Off')
+		yline(1,'k-');
+		grid on
+		xCnt = cell2mat(get(b,'XData')) + cell2mat(get(b,'XOffset'));
+		if used_policies+1>3
+			txt_size=8;
+		else
+			txt_size=11;
+		end
+		%display normalized values that exceed 1.2 as text on the inside of the top of each bar
+		for j=1:used_policies+1
+			if check_if_light_or_dark(t(j,:).*255); txtcolor=[0 0 0]; else; txtcolor=[.85,.85,.85]; end
+			for k=1:num_benchmarks
+				if(bar_data(j,k)>max(ylim))
+					max_val=max(ylim);
+					text(xCnt(j,k),max_val*.2+(max_val*.6)*j/(used_policies+1),strip(num2str(round(bar_data(j,k),3)),'left','0'),'HorizontalAlignment',...
+					'right','VerticalAlignment','middle','FontSize',txt_size,'Rotation',90,'Color',txtcolor);
+				end
+			end
+		end
+	legend_cell_ar=convertStringsToChars(lease_policies(1:used_policies));
+	legend_cell_ar{length(legend_cell_ar)+1}='Proj\_CLAM';
+	leg=legend(legend_cell_ar,'Location','southeastoutside','Orientation','vertical','FontSize',14);
+	leg_pos=leg.Position;
+	leg.Position=[(leg_pos(1)*.5+.72) leg_pos(2)+.4, leg_pos(3), leg_pos(4)];
+	saveas(fig(i),[base_save_path,'cache_statistics/cache_statistics_graphs/',convertStringsToChars(num_level(multi_level+1)),'/contention_',convertStringsToChars(num_scope(i)),'_',dataset_size,'.png'])
+	close(fig(i));
+
+	% plot miss ratios
+
+	fig(2+i)=figure();
+	set(fig(2+i), 'Position',[0,0,1080,1920]);
+	b=bar(transpose([miss_ratios{i};plru_miss_ratios]));
+	t=colormap(parula(length(b)-1));
+		for v=1:length(b)-1
+			b(v).FaceColor=t(v,:);
+		end
+		b(end).FaceColor=[0,0,0];
+		t=[t;b(end).FaceColor];
+	ylabel('Policy Miss ratios');
+	set(gca,'xticklabel',benchmark_names_to_plot,'FontSize',14);
+	xtickangle(gca,45);
+	ylim([0:1]);
+	legend('AutoUpdate', 'Off')
+	yticks([0:.05:1]);
+	yline(.05,'k-');
+	grid on;
+	legend_cell_ar=convertStringsToChars(lease_policies(1:used_policies));
+	legend_cell_ar{length(legend_cell_ar)+1}='PLRU';
+	legend(legend_cell_ar,'Location','northeastoutside','Orientation','vertical','FontSize',14);
+	saveas(fig(2+i),[base_save_path,'cache_statistics/cache_statistics_graphs/',convertStringsToChars(num_level(multi_level+1)),'/miss_ratios_',convertStringsToChars(num_scope(i)),'_',dataset_size,'.png'])
+	close(fig(2+i));
 	end
-	close all
 end
+
 
 function[answer]=check_if_light_or_dark(rgb)
 

@@ -116,11 +116,12 @@ assign mem_rw_o 		= mem_rw_reg;
 assign mem_addr_o 		= mem_addr_reg;
 
 // performance controller
-reg 					flag_hit_reg,
+reg 					init_hit_reg,
+						strobe_hit_reg,
 						flag_miss_reg,
 						flag_writeback_reg;
 
-assign flag_hit_o		= flag_hit_reg;
+assign flag_hit_o		= init_hit_reg;
 assign flag_miss_o 		= flag_miss_reg;
 assign flag_writeback_o = flag_writeback_reg;
 
@@ -159,7 +160,7 @@ set_cache_lru_policy_controller #(
 ) srrip_contr_inst (
 	.clock_i 				(!clock_i 				),
 	.resetn_i 				(resetn_i 				),
-	.hit_i 					(flag_hit_reg 			),
+	.hit_i 					(strobe_hit_reg 		),
 	.miss_i 				(flag_miss_reg			), 		// pulse trigger to generate a replacement address
 	.addr_i 				(cam_addr_i				), 		// on hit update based on set and group, on miss this will provide the group
 	.done_o 				(replacement_done 		), 		// logic high when replacement address generated
@@ -177,7 +178,7 @@ set_cache_plru_policy_controller #(
 ) srrip_contr_inst (
 	.clock_i 				(!clock_i 				),
 	.resetn_i 				(resetn_i 				),
-	.hit_i 					(flag_hit_reg 			),
+	.hit_i 					(strobe_hit_reg			),
 	.miss_i 				(flag_miss_reg			), 		// pulse trigger to generate a replacement address
 	.addr_i 				(cam_addr_i				), 		// on hit update based on set and group, on miss this will provide the group
 	.done_o 				(replacement_done 		), 		// logic high when replacement address generated
@@ -195,7 +196,7 @@ set_cache_srrip_policy_controller #(
 ) srrip_contr_inst (
 	.clock_i 				(!clock_i 				),
 	.resetn_i 				(resetn_i 				),
-	.hit_i 					(flag_hit_reg 			),
+	.hit_i 					(strobe_hit_reg 		),
 	.miss_i 				(flag_miss_reg			), 		// pulse trigger to generate a replacement address
 	.addr_i 				(cam_addr_i				), 		// on hit update based on set and group, on miss this will provide the group
 	.done_o 				(replacement_done 		), 		// logic high when replacement address generated
@@ -257,9 +258,10 @@ always @(posedge clock_i) begin
 		mem_req_reg = 			1'b0;
 		mem_rw_reg =  			1'b0;
 		mem_addr_reg =  		'b0;
+		strobe_hit_reg			= 1'b0;
 
 		// performance flags
-		flag_hit_reg = 			1'b0;
+		init_hit_reg = 			1'b0;
 		flag_miss_reg = 		1'b0;
 		flag_writeback_reg = 	1'b0;
 
@@ -278,8 +280,8 @@ always @(posedge clock_i) begin
 
 		mem_req_reg 			= 1'b0;
 		mem_rw_reg 				= 1'b0;
-
-		flag_hit_reg 			= 1'b0;
+		strobe_hit_reg			= 1'b0;
+		init_hit_reg 			= 1'b0;
 		flag_miss_reg 			= 1'b0;
 		flag_writeback_reg 		= 1'b0;
 
@@ -304,10 +306,11 @@ always @(posedge clock_i) begin
 								req_flag_reg 		= 1'b0;
 							end
 							else begin 													// initial reference hit
+								init_hit_reg 			= 1'b1;                        //signal that there was a hit not on follow up from a miss.
 								cache_mem_rw_reg 	= core_rw_i;
 							end
-
-							flag_hit_reg 			= 1'b1;
+							strobe_hit_reg=1'b1;
+							
 							cache_mem_add_reg 		= {cam_addr_i, core_word_i};		// set cache address
 							cache_mem_data_reg 		= core_data_i;						// redundant if cache read
 							core_done_o_reg 		= 1'b1; 							// unstall processor core

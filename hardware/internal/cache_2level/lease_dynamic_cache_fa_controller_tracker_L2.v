@@ -106,7 +106,7 @@ localparam BW_ADDR_SPACE 			= BW_ENTRIES + 1; 				// four tables total (address,
 reg 		cache_ready_reg;
 reg [31:0]	L1_data_reg;
 
-assign L1_done_o = cache_ready_reg;
+assign L1_done_o = phase_interrupt ? 1'b0 : cache_ready_reg;
 assign L1_data_o = L1_data_reg;
 
 // tag memory
@@ -150,11 +150,11 @@ assign mem_rw_o 		= mem_rw_reg;
 assign mem_addr_o 		= mem_addr_reg;
 
 // performance controller
-reg 					flag_hit_reg,
+reg 					init_hit_reg,strobe_hit_reg,
 						flag_miss_reg,
 						flag_writeback_reg;
 
-assign flag_hit_o		= flag_hit_reg;
+assign flag_hit_o		= init_hit_reg;
 assign flag_miss_o 		= flag_miss_reg;
 assign flag_writeback_o = flag_writeback_reg;
 assign flag_swap_o 		= replacement_swap_reg;
@@ -189,7 +189,7 @@ reg 							replacement_swap_reg; 	// saved version of above
 
 	// controller - lease ports
 	.cache_addr_i 			(cam_addr_i 			), 	// translated cache address - so that lease controller can update lease value
-	.hit_i 					(flag_hit_reg 			), 	// when high, adjust lease register values (strobe trigger)
+	.hit_i 					(strobe_hit_reg 			), 	// when high, adjust lease register values (strobe trigger)
 	.miss_i 				(flag_miss_reg 			), 	// when high, generate a replacement address (strobe trigger)
 	.done_o 				(replacement_done 		), 	// logic high when controller generates replacement addr
 	.addr_o 				(replacement_addr 		),
@@ -232,7 +232,8 @@ reg 							latch_swap_reg; 				// when high tells the controller to latch swap v
 // phase load interrupt
 reg 	[7:0]				phase_reg;
 wire 						phase_interrupt;
-assign phase_interrupt 	= 	(phase_i[31] & (phase_reg != phase_i[7:0])) ? 1'b1 : 1'b0;
+//make it trigger at beginning of benchmark
+assign phase_interrupt 	= 	phase_reg != phase_i[7:0];
 
 // llt population
 reg 	[BW_ADDR_SPACE-1:0]	llt_counter_reg; 				// {2'bXY, BW_ENTRIES-1}
@@ -298,9 +299,10 @@ always @(posedge clock_i) begin
 		mem_addr_reg =  		'b0;
 
 		// performance flags
-		flag_hit_reg = 			1'b0;
+		init_hit_reg = 			1'b0;
 		flag_miss_reg = 		1'b0;
 		flag_writeback_reg = 	1'b0;
+		strobe_hit_reg= 1'b0;
 
 		// lease cache signals
 		con_wren_reg 			= 	1'b0;
@@ -311,7 +313,7 @@ always @(posedge clock_i) begin
 		latch_swap_reg 			= 	1'b0;
 
 		// scope leasing
-		phase_reg 					<= 8'hFF;
+		phase_reg 					<= 8'h00;
 		llt_counter_reg 			<= 'b0;
 
 	end
@@ -330,8 +332,8 @@ always @(posedge clock_i) begin
 		mem_req_reg 			= 1'b0;
 		mem_req_block_reg 		= 1'b0;
 		mem_rw_reg 				= 1'b0;
-
-		flag_hit_reg 			= 1'b0;
+		strobe_hit_reg          =1'b0;
+		init_hit_reg 			= 1'b0;
 		flag_miss_reg 			= 1'b0;
 		flag_writeback_reg 		= 1'b0;
 
@@ -488,6 +490,7 @@ always @(posedge clock_i) begin
 							// mux in reference information based on previous actions
 							if (!req_flag_reg) begin 									// return from miss hit
 								 rw_flag_reg=L1_rw_i;                             //if it is an initial hit, then this needs to be stored
+								 init_hit_reg 			= 1'b1;								//signal there was a hit not on follow up from a miss
 							end
 							else begin 													// initial reference hit
 								req_flag_reg 		= 1'b0;
@@ -500,10 +503,9 @@ always @(posedge clock_i) begin
 							else begin
 								state_reg = ST_WRITE_TO_L1_BUFFER;
 							end
-
+							strobe_hit_reg =1'b1;
 							n_transfer_reg          ='b0;                  
 							replacement_swap_reg 	= 1'b1; 							// swap indicate item is in cache/cacheable
-							flag_hit_reg 			= 1'b1;								//signal there was a hit
 							
 						end
 
@@ -687,7 +689,6 @@ always @(posedge clock_i) begin
 						// write the word to cache memory at the replacement position
 							cache_mem_rw_reg 	= 1'b1;
 							cache_mem_add_reg 	= {replacement_ptr_reg, n_transfer_reg[`BW_BLOCK-1:0]};
-						//if write back from L1, just read from L1 transmit buffer, don't bring in block from memory
 							cache_mem_data_reg 	= buffer_data_i;
 						
 						// if last word then write block to cam and return to "normal condition"
@@ -702,7 +703,7 @@ always @(posedge clock_i) begin
 							end
 						end
 					end
-					//if writeback from L1, grab block from trans memory
+					//if write back from L1, just read from L1 transmit buffer, don't bring in block from memory
 					else begin
 						if (L2_ready_read_i) begin
 							L2_read_ack_reg = 1'b1;	
@@ -721,6 +722,8 @@ always @(posedge clock_i) begin
 								cache_ready_reg=1'b1; //unstall CPU
 								//if writeback no need to serve a hit
 								req_flag_reg=1'b0;
+							
+
 							end
 							else begin
 								n_transfer_reg 	= n_transfer_reg + 1'b1;

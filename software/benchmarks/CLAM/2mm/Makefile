@@ -31,7 +31,7 @@ no_scope:
 	python2 ../../../python/elf_compress/main.py
 
 # clean up
-	rm program.txt
+	rm -f program.txt
 
 
 scope:
@@ -40,7 +40,7 @@ scope:
 	readelf program.elf -l > program_info.txt
 	python2 ../../../python/elf_compress/main.py
 	$(RISCV_GCC_PATH)/riscv-none-embed-objdump -D program.elf > disassembly.txt
-	rm program.txt
+	rm -f program.txt
 
 dis:
 	$(RISCV_GCC_PATH)/riscv-none-embed-objdump -D program.elf > disassembly.txt
