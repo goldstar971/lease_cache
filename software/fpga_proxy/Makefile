@@ -11,7 +11,7 @@ SCRIPT_DIRECTORY=\"./scripts\"
 RESULT_DIRECTORY=\"./results\"
 
 # options
-INCFLAGS=-I$(INC_DIR)
+INCFLAGS=-I$(INC_DIR) 
 LDFLAGS=-L$(SHARED_LIB_DIR) -Wl,-rpath=$(SHARED_LIB_DIR)
 LDLIBS=-ljtag_atlantic -ljtag_client
 

@@ -8,7 +8,7 @@ module branch_predictor_2b(
 	input [`BW_WORD_ADDR-1:0] stage_3_instruct_addr_i,
 	input [15:0] stage_3_encoding_i,
 	input mispredict_i,
-	output [`BW_BTYE_ADDR-1:0] PC_o);
+	output [`BW_BYTE_ADDR-1:0] PC_o);
 
 wire [`BW_WORD_ADDR-1:0] prediction;
 wire match;
@@ -50,7 +50,7 @@ reg update_table,was_match,match1,match2, match3;
 
 reg[`BW_WORD_ADDR-1:0] last_pc,last_update_pc;
 
-//trigger at 180 degrees
+//trigger at 270 degrees
 always@(posedge clock_bus_i[1])begin
 	if(!resetn_i)begin
 		for(k=0;k<`BRANCH_TABLE_BUFFER_SIZE;k=k+1)begin
@@ -141,7 +141,7 @@ always@(posedge clock_bus_i[1])begin
 	end
 end
 
-//trigger at 0 degrees
+//trigger at 90 degrees
 always@(posedge clock_bus_i[0] )begin
 	if(!resetn_i) begin
 		last_match_index<='b0;

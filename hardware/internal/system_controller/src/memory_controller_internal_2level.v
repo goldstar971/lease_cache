@@ -22,7 +22,7 @@ module memory_controller_internal_2level(
 
 	// i/o - external controller - handled by comm buffer
 	output 				mem_req_o, mem_reqBlock_o, mem_clear_o, mem_rw_o, 
-	output 	 	[23:0]	mem_add_o, 
+	output 	 	[`BW_WORD_ADDR-1:0]	mem_add_o, 
 	output 	 	[31:0]	mem_data_o,
 	input 				mem_done_i, mem_ready_i, mem_valid_i,
 	input 		[31:0]	mem_data_i,
@@ -31,7 +31,7 @@ module memory_controller_internal_2level(
 	//instruction cache
 	// i/o to/from processor
 	output 				cacheL1I_core_req_o, cacheL1I_core_rw_o, 	// to cache
-	output 		[23:0]	cacheL1I_core_add_o, 
+	output 		[`BW_WORD_ADDR-1:0]	cacheL1I_core_add_o, 
 	output 		[31:0]	cacheL1I_core_data_o,
 	input 				cacheL1I_core_done_i, 					// from cache
 	input 		[31:0]	cacheL1I_core_data_i,				
@@ -40,12 +40,12 @@ module memory_controller_internal_2level(
 	output 				cacheL1I_uc_ready_o, cacheL1I_uc_write_ready_o, cacheL1I_uc_read_ready_o,
 	output 		[31:0]	cacheL1I_uc_data_o,
 	input 				cacheL1I_hit_i, cacheL1I_req_i, cacheL1I_rw_i, cacheL1I_read_i, cacheL1I_write_i,
-	input 		[23:0]	cacheL1I_add_i,
+	input 		[`BW_WORD_ADDR-1:0]	cacheL1I_add_i,
 	input 		[31:0]	cacheL1I_data_i,
 	// data cache
 	// i/o to/from processor
 	output 				cacheL1D_core_req_o, cacheL1D_core_rw_o, 	// to cache
-	output 		[23:0]	cacheL1D_core_add_o, 
+	output 		[`BW_WORD_ADDR-1:0]	cacheL1D_core_add_o, 
 	output 		[31:0]	cacheL1D_core_data_o,
 	input 				cacheL1D_core_done_i, 					// from cache
 	input 		[31:0]	cacheL1D_core_data_i,				
@@ -54,12 +54,12 @@ module memory_controller_internal_2level(
 	output 				cacheL1D_uc_ready_o, cacheL1D_uc_write_ready_o, cacheL1D_uc_read_ready_o,
 	output 		[31:0]	cacheL1D_uc_data_o,
 	input 				cacheL1D_hit_i, cacheL1D_req_i, cacheL1D_rw_i, cacheL1D_read_i, cacheL1D_write_i,
-	input 		[23:0]	cacheL1D_add_i,
+	input 		[`BW_WORD_ADDR-1:0]	cacheL1D_add_i,
 	input 		[31:0]	cacheL1D_data_i,
 	//L2 cache
 	// i/o to/from L1
 	output 				cacheL2_L1_req_o, cacheL2_L1_rw_o, 
-	output 		[23:0]	cacheL2_L1_add_o, 
+	output 		[`BW_WORD_ADDR-1:0]	cacheL2_L1_add_o, 
 	output 		[31:0]	cacheL2_L1_data_o,
 	input 		[31:0]	cacheL2_L1_data_i,
 	input 				cacheL2_L1_ready_i,cacheL2_L1_valid_i,
@@ -69,7 +69,7 @@ module memory_controller_internal_2level(
 	output 				cacheL2_uc_ready_o, cacheL2_uc_write_ready_o, cacheL2_uc_read_ready_o,
 	output 		[31:0]	cacheL2_uc_data_o,
 	input 				cacheL2_hit_i, cacheL2_req_i, cacheL2_reqBlock_i, cacheL2_rw_i, cacheL2_read_i, cacheL2_write_i,
-	input 		[23:0]	cacheL2_add_i,
+	input 		[`BW_WORD_ADDR-1:0]	cacheL2_add_i,
 	input 		[31:0]	cacheL2_data_i,
 	input   L2_read_ack_i,
 	output  L2_ready_read_o,
@@ -89,7 +89,7 @@ assign exceptions_o[3] = (core_add1_i[1:0] != 2'b00) ? 1'b1 : 1'b0;		// hword al
 // -----------------------------------------------------------------------
 wire 			req_toMem, reqBlock_toMem, rw_toMem, write_en_L1, read_ack_L1, ready_write, ready_read,L1_ready_read, L1_ready_write;
 wire 			req_toL2,  rw_toL2, write_en_Mem, read_ack_Mem, Mem_ready_write, Mem_ready_read;		 
-wire 	[23:0] 	add_toL2, add_toMem;
+wire 	[`BW_WORD_ADDR-1:0] 	add_toL2, add_toMem;
 wire 	[31:0]	data_fromMem, data_toMem, data_fromL2, data_toL2;
 //buffer between main memory and l2
 txrx_buffer buf0(
@@ -131,14 +131,14 @@ txrx_buffer_L2_L1 buf1(
 // -------------------------
 assign cacheL1I_core_req_o = core_req0_i;
 assign cacheL1I_core_rw_o = core_rw0_i;
-assign cacheL1I_core_add_o = core_add0_i[25:2];		// convert byte address to word address
+assign cacheL1I_core_add_o = core_add0_i[`BW_BYTE_ADDR-1:2];		// convert byte address to word address
 assign cacheL1I_core_data_o = core_data0_i;
 assign core_data0_o = cacheL1I_core_data_i;
 assign core_done0_o = cacheL1I_core_done_i ;
 
 assign cacheL1D_core_req_o = core_req1_i;
 assign cacheL1D_core_rw_o = core_rw1_i;
-assign cacheL1D_core_add_o = core_add1_i[25:2];		// convert byte address to word address
+assign cacheL1D_core_add_o = core_add1_i[`BW_BYTE_ADDR-1:2];		// convert byte address to word address
 assign cacheL1D_core_data_o = core_data1_i;
 assign core_data1_o = cacheL1D_core_data_i;
 assign core_done1_o = cacheL1D_core_done_i ;

@@ -95,7 +95,7 @@ function [] =plot_cache_summary(varargin)
 
 
 	%benchmarks to ignore for small dataset size
-	small_benchmarks=["jacobi-1d","trisolv","gesummv",'durbin'];
+	small_benchmarks=[''];%["jacobi-1d","trisolv","gesummv",'durbin'];
 
 	single_scope_benchmarks=["atax" "bicg" "cholesky" "doitgen" "durbin" "floyd-warshall" "gemm" "gesummv" "gramschmidt" "jacobi-1d" "nussinov" "seidel-2d" "symm" "syr2k" "syrk" "trisolv" "trmm"];
 
@@ -158,6 +158,9 @@ function [] =plot_cache_summary(varargin)
 	% don't display figures if we are running from command line
 
 	
+		if ~usejava('desktop')
+	%		set(0,'DefaultFigureVisible','off');	
+		end
 	
 	
 	%open geomean file and output header describing the data being visualized 
@@ -204,6 +207,7 @@ function [] =plot_cache_summary(varargin)
 			end
 		% graphic
 			fig((h-1)*2+i)=figure();
+			set(0,'currentfigure',fig((h-1)*2+i));
 			set(fig((h-1)*2+i), 'Position',[0,0,1080,1920]);
 			b=bar(transpose([plru_normed_data{i+(h-1)*2},transpose(geomean(transpose(plru_normed_data{i+(h-1)*2})))]));
 			t=colormap(parula(length(b)));
@@ -216,7 +220,7 @@ function [] =plot_cache_summary(varargin)
 			else
 				ylabel('Time of execution in Clock cycles normalized to PLRU clock cycles');
 			end
-
+			set(gca,'xtick',[1:1:num_benchmarks+1]);
 			if(i==1)
 				set(gca,'xticklabel',[benchmark_names_single,'GEOMEAN'],'FontSize',14);
 			else
@@ -263,10 +267,12 @@ function [] =plot_cache_summary(varargin)
 						raw_misses.Rotation=45;
 						if strcmp(dataset_size,'large')
 							raw_misses.FontSize=10;
-							raw_misses.Position=[z-.3,-.14];
+						%equation for positioning found using linear regression on emperically generated results
+							raw_misses.Position=[(z-1)-0.01789*num_benchmarks+.82316,-.14];
 						else
 							raw_misses.FontSize=12;
-							raw_misses.Position=[z-.3,-.14];
+						%equation for positioning found using linear regression on emperically generated results
+							raw_misses.Position=[(z-1)-0.025*num_benchmarks + 0.985,-.14];
 						end
 						raw_misses.Color=[0 0 0];
 					end
@@ -282,11 +288,13 @@ function [] =plot_cache_summary(varargin)
 						,'VerticalAlignment','bottom');
 						raw_misses.Rotation=45;
 						if strcmp(dataset_size,'large')
+
+
 							raw_misses.FontSize=10;
-							raw_misses.Position=[z-.3,-.14];
+							raw_misses.Position=[(z-1)-0.01789*num_benchmarks+.82316,-.14];
 						else
 							raw_misses.FontSize=12;
-							raw_misses.Position=[z-.3,-.14];
+							raw_misses.Position=[(z-1)-0.025*num_benchmarks + 0.985,-.14];
 						end
 						raw_misses.Color=[0 0 0];
 					end
@@ -304,10 +312,10 @@ function [] =plot_cache_summary(varargin)
 						raw_cycles.Rotation=45;
 						if strcmp(dataset_size,'large')
 							raw_cycles.FontSize=10;
-							raw_cycles.Position=[z-.3,-.14];
+							raw_cycles.Position=[(z-1)-0.01789*num_benchmarks+.82316,-.14];
 						else
 							raw_cycles.FontSize=12;
-							raw_cycles.Position=[z-.3,-.14];
+							raw_cycles.Position=[(z-1)-0.025*num_benchmarks + 0.985,-.14];
 						end
 						raw_cycles.Color=[0 0 0];
 					end
@@ -323,10 +331,10 @@ function [] =plot_cache_summary(varargin)
 						raw_cycles.Rotation=45;
 						if strcmp(dataset_size,'large')
 							raw_cycles.FontSize=10;
-							raw_cycles.Position=[z-.3,-.14];
+							raw_cycles.Position=[(z-1)-0.01789*num_benchmarks+.82316,-.14];
 						else
 							raw_cycles.FontSize=12;
-							raw_cycles.Position=[z-.3,-.14];
+							raw_cycles.Position=[(z-1)-0.025*num_benchmarks + 0.985,-.14];
 						end
 						raw_cycles.Color=[0 0 0];
 					end
@@ -407,6 +415,8 @@ function [] =plot_cache_summary(varargin)
 			return
 		end
 		fig(i)=figure();
+
+			set(0,'currentfigure',fig(i));
 		ax1=subplot(2,2,1);
 		set(fig(i),'units','normalized','outerposition',[0 0 1 1]);
 		pos=ax1.Position;
@@ -416,6 +426,7 @@ function [] =plot_cache_summary(varargin)
 				for v=1:length(b)
 				b(v).FaceColor=t(v,:);
 				end
+		set(gca,'xtick',[1:1:num_benchmarks+1]);
 		set(ax1,'xticklabel',benchmark_names_to_plot,'FontSize',14);
 		xtickangle(gca,45);
 		ylim([0, max(max(random_evictions./actual_misses))*1.2]);
@@ -451,7 +462,7 @@ function [] =plot_cache_summary(varargin)
 				end
 			end
 		
-		
+		set(gca,'xtick',[1:1:num_benchmarks+1]);
 		set(ax3,'xticklabel',[benchmark_names_to_plot],'FontSize',14);
 		xtickangle(ax3,45);
 		grid on
@@ -459,6 +470,7 @@ function [] =plot_cache_summary(varargin)
 		%add normalized misses subplot to contention plot with added normalized
 		%bar for projected CLAM misses.
 		plru_miss_ratios=[];
+		normed_CLAM_projected_misses=[];
 		%normalize projected misses by PLRU misses and get PLRU miss ratios
 		for j=1:num_benchmarks
 			normed_CLAM_projected_misses(j)=projected_misses(j,1)/plru_data{j}(7+offset);
@@ -472,6 +484,7 @@ function [] =plot_cache_summary(varargin)
 		b=bar(transpose(bar_data));
 		
 		ylabel('Policy Miss Count Normalized to PLRU Misses');
+		set(gca,'xtick',[1:1:num_benchmarks+1]);
 		set(gca,'xticklabel',benchmark_names_to_plot,'FontSize',14);
 		t=colormap(parula(length(b)-1));
 		for v=1:length(b)-1
@@ -514,6 +527,7 @@ function [] =plot_cache_summary(varargin)
 	% plot miss ratios
 
 	fig(2+i)=figure();
+	set(0,'currentfigure',fig(2+i));
 	set(fig(2+i), 'Position',[0,0,1080,1920]);
 	b=bar(transpose([miss_ratios{i};plru_miss_ratios]));
 	t=colormap(parula(length(b)-1));
@@ -523,6 +537,7 @@ function [] =plot_cache_summary(varargin)
 		b(end).FaceColor=[0,0,0];
 		t=[t;b(end).FaceColor];
 	ylabel('Policy Miss ratios');
+	set(gca,'xtick',[1:1:num_benchmarks+1]);
 	set(gca,'xticklabel',benchmark_names_to_plot,'FontSize',14);
 	xtickangle(gca,45);
 	ylim([0:1]);

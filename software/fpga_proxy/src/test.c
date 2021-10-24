@@ -8,7 +8,7 @@
 #include <sys/types.h>
 #include <errno.h>
 #include <stdio.h>
-#include <unistd.h>
+
 
 
 
@@ -228,11 +228,11 @@ uint32_t script_run(pHandle pInst, command *pCommand){
 	}
 	if(access(script_file,F_OK)!=0){
 		printf("Could not find provided application file: %s. \
-			Attempt to find alternative %s failed.\n  \
-			Provide either the absolute path from proxy dir or just script name: \
-			e.g CLAM_large/adi\n \
-			If just providing script name fails, check the proxy makefile to see \
-			if SCRIPT_DIRECTORY has been correctly defined\n",pCommand->field[1],script_file);
+Attempt to find alternative %s failed.\n  \
+Provide either the absolute path from proxy dir or just script name: \
+e.g CLAM_large/adi\n \
+If just providing script name fails, check the proxy makefile to see \
+if SCRIPT_DIRECTORY has been correctly defined\n",pCommand->field[1],script_file);
 		return 1;
 	}
 
@@ -249,6 +249,7 @@ uint32_t script_run(pHandle pInst, command *pCommand){
     char line[256];
     while(fgets(line, sizeof(line)/sizeof(line[0]), pFile)){
     	if (proxy_string_command(pInst, line)){
+    		fclose(pFile);
     		return 1;
     	}
     }

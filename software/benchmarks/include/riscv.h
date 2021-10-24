@@ -5,9 +5,9 @@
 
 // memory bases
 // -------------------------------------------------------------------
-#define BASE_RW_PERIPHERALS			((uint32_t) 0x04000100)
-#define BASE_R_PERIPHERALS 			((uint32_t) 0x04000000)
-#define BASE_STACK					((uint32_t) 0x03FFFFFC)
+#define BASE_RW_PERIPHERALS			((uint32_t) 0x20000100)
+#define BASE_R_PERIPHERALS 			((uint32_t) 0x20000000)
+#define BASE_STACK					((uint32_t) 0x1FFFFFFC)
 
 // memory mapped peripherals
 // -------------------------------------------------------------------

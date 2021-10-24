@@ -506,7 +506,7 @@ proxy makefile",pCommand->field[1],application);
 	#else
 		sprintf(file_path,"%s/track/%s/",RESULT_DIR,benchmark_type);
 	#endif
-	sprintf(full_output_path,"%s%s.txt",file_path,benchmark_name);
+	sprintf(full_output_path,"%s%s.csv",file_path,benchmark_name);
 	//if directory doesn't exist, try to create it.
 	if(0!= access(file_path,F_OK)){
 		//make folder if error is that dir doesn't exist

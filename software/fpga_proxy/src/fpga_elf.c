@@ -192,6 +192,7 @@ uint32_t get_elf_data(char *filepath, char *pBuffer, uint32_t buffer_size, uint3
 	FILE *pFile = fopen(data_path_str,"r");
 	if(!pFile){
 		printf("Error, could not open %s\n", data_path_str);
+		fclose(pFile);
     	return 1;
     }
 
@@ -207,6 +208,7 @@ uint32_t get_elf_data(char *filepath, char *pBuffer, uint32_t buffer_size, uint3
 
     		if (n_current_section_entry >= buffer_size){
     			printf("Error: buffer overflow\n");
+    			fclose(pFile);
     			return 1;
     		}
     		else{

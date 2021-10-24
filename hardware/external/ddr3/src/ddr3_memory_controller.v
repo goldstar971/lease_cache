@@ -11,10 +11,10 @@
 // Also uncomment the two lines below them                                   //
 // This should be around line 131 of this file                               //
 ///////////////////////////////////////////////////////////////////////////////
-
+`include "../../../include/mem.h"
 module ddr3_memory_controller #(
     parameter TEST_MODE = 1,
-    parameter AWIDTH    = 25,
+    parameter AWIDTH    = 28,
     parameter DWIDTH    = 32    
     )(
     
@@ -46,7 +46,7 @@ module ddr3_memory_controller #(
     input                   req_i,
     input                   reqBlock_i,
     input                   rw_i,
-    input       [26:0]      add_i,
+    input       [`BW_BYTE_ADDR:0]      add_i,
     input       [31:0]      data_i,
     input                   clear_i,
     output                  ready_o,
@@ -203,7 +203,7 @@ clkctrl clkctrl_0(
 );
 
 // convert from non-standard comm protocol to Intel Avalon protocol
-io_conversion_buffer_v2 #( .AWIDTH(24), .DWIDTH(DWIDTH) ) io_buf (
+io_conversion_buffer_v2 #( .AWIDTH(`BW_WORD_ADDR), .DWIDTH(DWIDTH) ) io_buf (
     
     // Interface to external ports
     .sys_clock_i    (clock_ext_i    ), 
@@ -212,7 +212,7 @@ io_conversion_buffer_v2 #( .AWIDTH(24), .DWIDTH(DWIDTH) ) io_buf (
     .sys_reqBlock_i (reqBlock_i     ), 
     .sys_rw_i       (rw_i           ), 
     .sys_clear_i    (clear_i        ), 
-    .sys_addr_i     (add_i[25:2]    ), 
+    .sys_addr_i     (add_i[`BW_WORD_ADDR-1:2]), 
     .sys_data_i     (data_i         ), 
     .sys_ready_o    (ready_o        ), 
     .sys_valid_o    (valid_o        ), 

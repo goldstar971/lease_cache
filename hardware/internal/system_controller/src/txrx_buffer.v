@@ -8,7 +8,7 @@ module txrx_buffer(
 
 	// controller side
 	input 				req_i, reqBlock_i, rw_i,
-	input 		[23:0]	add_i, 
+	input 		[`BW_WORD_ADDR-1:0]	add_i, 
 	input 				write_en, read_ack, 
 	input 		[31:0]	data_i,
 	//output 								ready_request_o,
@@ -17,7 +17,7 @@ module txrx_buffer(
 
 	// sdram side
 	output 	reg			mem_req_o, mem_reqBlock_o, mem_clear_o, mem_rw_o, 
-	output 	reg [23:0]	mem_add_o, 
+	output 	reg [`BW_WORD_ADDR-1:0]	mem_add_o, 
 	output 	reg [31:0]	mem_data_o,
 	input 				mem_done_i, mem_ready_i, mem_valid_i,
 	input 		[31:0]	mem_data_i

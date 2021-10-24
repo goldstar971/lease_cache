@@ -22,7 +22,7 @@ module memory_controller_internal(
 
 	// i/o - external controller - handled by comm buffer
 	output 				mem_req_o, mem_reqBlock_o, mem_clear_o, mem_rw_o, 
-	output 	 	[23:0]	mem_add_o, 
+	output 	 	[`BW_WORD_ADDR-1:0]	mem_add_o, 
 	output 	 	[31:0]	mem_data_o,
 	input 				mem_done_i, mem_ready_i, mem_valid_i,
 	input 		[31:0]	mem_data_i,
@@ -30,7 +30,7 @@ module memory_controller_internal(
 	// single cache
 	// i/o to/from processor
 	output 				cache0_core_req_o, cache0_core_rw_o, 	// to cache
-	output 		[23:0]	cache0_core_add_o, 
+	output 		[`BW_WORD_ADDR-1:0]	cache0_core_add_o, 
 	output 		[31:0]	cache0_core_data_o,
 	input 				cache0_core_done_i, 					// from cache
 	input 		[31:0]	cache0_core_data_i,				
@@ -39,12 +39,12 @@ module memory_controller_internal(
 	output 				cache0_uc_en_o, cache0_uc_ready_o, cache0_uc_write_ready_o, cache0_uc_read_ready_o,
 	output 		[31:0]	cache0_uc_data_o,
 	input 				cache0_hit_i, cache0_req_i, cache0_reqBlock_i, cache0_rw_i, cache0_read_i, cache0_write_i,
-	input 		[23:0]	cache0_add_i,
+	input 		[`BW_WORD_ADDR-1:0]	cache0_add_i,
 	input 		[31:0]	cache0_data_i,
 
 	// i/o to/from processor
 	output 				cache1_core_req_o, cache1_core_rw_o, 	// to cache
-	output 		[23:0]	cache1_core_add_o, 
+	output 		[`BW_WORD_ADDR-1:0]	cache1_core_add_o, 
 	output 		[31:0]	cache1_core_data_o,
 	input 				cache1_core_done_i, 					// from cache
 	input 		[31:0]	cache1_core_data_i,				
@@ -53,7 +53,7 @@ module memory_controller_internal(
 	output 				cache1_uc_en_o, cache1_uc_ready_o, cache1_uc_write_ready_o, cache1_uc_read_ready_o,
 	output 		[31:0]	cache1_uc_data_o,
 	input 				cache1_hit_i, cache1_req_i, cache1_reqBlock_i, cache1_rw_i, cache1_read_i, cache1_write_i,
-	input 		[23:0]	cache1_add_i,
+	input 		[`BW_WORD_ADDR-1:0]	cache1_add_i,
 	input 		[31:0]	cache1_data_i
 
 );
@@ -69,7 +69,7 @@ assign exceptions_o[3] = (core_add1_i[1:0] != 2'b00) ? 1'b1 : 1'b0;		// hword al
 // memory controller comm buffer
 // -----------------------------------------------------------------------
 wire 			req_toMem, reqBlock_toMem, rw_toMem, write_en, read_ack, ready_write, ready_read;		 
-wire 	[23:0] 	add_toMem;
+wire 	[`BW_WORD_ADDR-1:0] 	add_toMem;
 wire 	[31:0]	data_fromMem, data_toMem;
 
 txrx_buffer buf0(
@@ -95,14 +95,14 @@ txrx_buffer buf0(
 assign cache0_core_req_o = core_req0_i;
 assign cache0_core_rw_o = core_rw0_i;
 //assign cache0_core_rw_o = 1'b0;
-assign cache0_core_add_o = core_add0_i[25:2];		// convert byte address to word address
+assign cache0_core_add_o = core_add0_i[`BW_BYTE_ADDR-1:2];		// convert byte address to word address
 assign cache0_core_data_o = core_data0_i;
 assign core_data0_o = cache0_core_data_i;
 assign core_done0_o = cache0_core_done_i & cache1_core_done_i;
 
 assign cache1_core_req_o = core_req1_i;
 assign cache1_core_rw_o = core_rw1_i;
-assign cache1_core_add_o = core_add1_i[25:2];		// convert byte address to word address
+assign cache1_core_add_o = core_add1_i[`BW_BYTE_ADDR-1:2];		// convert byte address to word address
 assign cache1_core_data_o = core_data1_i;
 assign core_data1_o = cache1_core_data_i;
 assign core_done1_o = cache0_core_done_i & cache1_core_done_i;

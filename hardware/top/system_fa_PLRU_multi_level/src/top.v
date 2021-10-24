@@ -45,7 +45,9 @@ double_speed pll_reset(
 );
 
 assign user_led[7] = !pll_locked;
-assign user_led[6:4] = 3'b111;
+assign user_led[6:5] = 3'b11;
+assign user_led[4] = !comm_toCore[24];
+
 
 // internal hardware system (core, cache)
 // -------------------------------------------------------------------------------------------------------
@@ -56,7 +58,7 @@ wire 	[31:0]	comm_toCore, comm_fromCache0, comm_fromCache1,comm_fromCacheL2;
 
 // internal system <-> external system buses
 wire 			req_fromCore, reqBlock_fromCore, clear_fromCore, rw_fromCore, ready_toCore, done_toCore, valid_toCore;
-wire 	[23:0] 	add_fromCore;
+wire 	[`BW_WORD_ADDR-1:0] 	add_fromCore;
 wire 	[31:0]	data_toCore, data_fromCore;
 
 // internal system <-> peripheral system buses
@@ -108,7 +110,7 @@ internal_system_2_multi_level riscv_sys (
 
 // external system <-> peripheral system buses
 wire 			req_toPer1, rw_toPer1;
-wire 	[26:0]	add_toPer1;
+wire 	[`BW_BYTE_ADDR:0]
 wire 	[31:0]	data_toPer1, data_fromPer1;
 wire [1:0] sel_cpc;
 

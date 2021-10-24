@@ -1,5 +1,3 @@
-// include
-
 module uart_system_2(
 	input 		[2:0]	clock_bus_i,
 	input 				resetn_i,
@@ -9,7 +7,7 @@ module uart_system_2(
 	output  			req_o,
 	output  			req_block_o,
 	output  			rw_o,
-	output  	[26:0]	add_o,					// addresses are byte addressible (64MB mem, above that are peripherals)
+	output  	[`BW_BYTE_ADDR:0]	add_o,					// addresses are byte addressible (64MB mem, above that are peripherals)
 	output  	[31:0]	data_o,
 	output  			clear_o,
 	output  			exception_o

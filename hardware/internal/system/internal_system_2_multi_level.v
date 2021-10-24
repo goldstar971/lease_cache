@@ -4,7 +4,7 @@
 module internal_system_2_multi_level(
 
 	// general ports
-	input 	[3:0]	clock_bus_i, // [3,2,1,0] = [20/270,20/180,20/90,20/0]
+	input 	[3:0]	clock_bus_i, // [3,2,1,0] = [40/270,40/180,40/90,40/0]
 	input 			reset_i,
 	output 	[11:0]	exception_o,
 	input 	[31:0]	comm_i, 
@@ -19,7 +19,7 @@ module internal_system_2_multi_level(
 	output 			mem_reqBlock_o, 
 	output 			mem_clear_o, 
 	output 			mem_rw_o,
-	output 	[23:0]	mem_add_o, 		// word addressible
+	output 	[`BW_WORD_ADDR-1:0]	mem_add_o, 		// word addressible
 	output 	[31:0]	mem_data_o,
 	input 	[31:0]	mem_data_i,
 	input 			mem_done_i, 
@@ -50,7 +50,7 @@ wire cache_contr_enable;
 wire [31:0]  				core_inst_addr; 	// core address assumes 2GB space, byte addressible
 wire [`BW_WORD_ADDR-1:0] 	core_inst_addr_word;// word addressible, limited to max address space width
 
-assign core_inst_addr_word = core_inst_addr[`BW_WORD_ADDR+1:2];
+assign core_inst_addr_word = core_inst_addr[`BW_BYTE_ADDR-1:2];
 
 
 `RISCV_HART_INST core0(
@@ -93,14 +93,14 @@ assign core_inst_addr_word = core_inst_addr[`BW_WORD_ADDR+1:2];
 // ---------------------------------------------------------------------------------------------------------------
 // L1 <-> L2
 wire 		swap_flag_o,L2_read_ack_i,L2_ready_read_o, L2_ready_write_o, L1_reqToCacheL2, L1_rwToCacheL2, L1_doneFromCacheL2,L1_validFromCacheL2, L1_reqBlockToCacheL2;
-wire 		[23:0]	L1_addToCacheL2;
+wire 		[`BW_WORD_ADDR-1:0]	L1_addToCacheL2;
 wire 		[31:0]	L1_dataToCacheL2, L1_dataFromCacheL2;
 
 
 // L2 <-> memory controller
 wire 				mci_enableToCacheL2, mci_readyToCacheL2, mci_writeReadyToCacheL2, mci_readReadyToCacheL2;
 wire 		[31:0]	mci_dataToCacheL2, mci_dataFromCacheL2;
-wire 		[23:0]	mci_addFromCacheL2;
+wire 		[`BW_WORD_ADDR-1:0]	mci_addFromCacheL2;
 wire 				mci_hitFromCacheL2, mci_reqFromCacheL2, mci_reqBlockFromCacheL2, mci_rwFromCacheL2, mci_writeFromCacheL2, mci_readFromCacheL2;
 
 
@@ -134,10 +134,8 @@ wire 				mci_hitFromCacheL2, mci_reqFromCacheL2, mci_reqBlockFromCacheL2, mci_rw
 	.swap_flag_o(swap_flag_o),
 	`endif
 
-	// for sampler (want to sample for all references, not just l1 misses, no specific leases for instructions, just rely on default lease)
-	//hence, just get data reqs.
+	
 	.PC_i                   (core_inst_addr),
-	.core_req_i             (core_reqToCacheL1D),
 
 
 	//for sampler or tracker
@@ -164,13 +162,13 @@ wire 				mci_hitFromCacheL2, mci_reqFromCacheL2, mci_reqBlockFromCacheL2, mci_rw
 // ---------------------------------------------------------------------------------------------------------------
 // core <-> cache
 wire 				core_reqToCacheL1I, core_rwToCacheL1I, core_doneFromCacheL1I;
-wire 		[23:0]	core_addToCacheL1I;
+wire 		[`BW_WORD_ADDR-1:0]	core_addToCacheL1I;
 wire 		[31:0]	core_dataToCacheL1I, core_dataFromCacheL1I; 
 
 // cache <-> memory controller
 wire 				mci_enableToCacheL1I, mci_readyToCacheL1I, mci_writeReadyToCacheL1I, mci_readReadyToCacheL1I;
 wire 		[31:0]	mci_dataToCacheL1I, mci_dataFromCacheL1I;
-wire 		[23:0]	mci_addFromCacheL1I;
+wire 		[`BW_WORD_ADDR-1:0]	mci_addFromCacheL1I;
 wire 				mci_hitFromCacheL1I, mci_reqFromCacheL1I,  mci_rwFromCacheL1I, mci_writeFromCacheL1I, mci_readFromCacheL1I;
 	
 `INSTRUCTION_CACHE_INST #( 
@@ -216,13 +214,13 @@ wire 				mci_hitFromCacheL1I, mci_reqFromCacheL1I,  mci_rwFromCacheL1I, mci_writ
 // ---------------------------------------------------------------------------------------------------------------
 // core <-> cache
 wire 				core_reqToCacheL1D, core_rwToCacheL1D, core_doneFromCacheL1D;
-wire 		[23:0]	core_addToCacheL1D;
+wire 		[`BW_WORD_ADDR-1:0]	core_addToCacheL1D;
 wire 		[31:0]	core_dataToCacheL1D, core_dataFromCacheL1D; 
 
 // cache <-> memory controller
 wire 				mci_enableToCacheL1D, mci_readyToCacheL1D, mci_writeReadyToCacheL1D, mci_readReadyToCacheL1D;
 wire 		[31:0]	mci_dataToCacheL1D, mci_dataFromCacheL1D;
-wire 		[23:0]	mci_addFromCacheL1D;
+wire 		[`BW_WORD_ADDR-1:0]	mci_addFromCacheL1D;
 wire 				mci_hitFromCacheL1D, mci_reqFromCacheL1D,  mci_rwFromCacheL1D, mci_writeFromCacheL1D, mci_readFromCacheL1D;
 
 

@@ -1,1 +1,0 @@
-../../CLAM/covariance/covariance.c

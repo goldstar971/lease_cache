@@ -1,3 +1,4 @@
+`include "../../../include/mem.h"
 module port_switch(
 
 	// core/hart ports
@@ -26,18 +27,18 @@ module port_switch(
 
 );
 
-assign core_done_o 		= (!core_addr_i[26]) ? memory_done_i : 1'b1;
-assign core_data_o 		= (!core_addr_i[26]) ? memory_data_i : peripheral_data_i;
+assign core_done_o 		= (!core_addr_i[`BW_BYTE_ADDR]) ? memory_done_i : 1'b1;
+assign core_data_o 		= (!core_addr_i[`BW_BYTE_ADDR]) ? memory_data_i : peripheral_data_i;
 
-assign memory_req_o 	= (!core_addr_i[26]) ? core_req_i : 1'b0;
-assign memory_wren_o 	= (!core_addr_i[26]) ? core_wren_i : 1'b0;
-assign memory_addr_o 	= (!core_addr_i[26]) ? core_addr_i : 'b0;
-assign memory_data_o 	= (!core_addr_i[26]) ? core_data_i : 'b0;
+assign memory_req_o 	= (!core_addr_i[`BW_BYTE_ADDR]) ? core_req_i : 1'b0;
+assign memory_wren_o 	= (!core_addr_i[`BW_BYTE_ADDR]) ? core_wren_i : 1'b0;
+assign memory_addr_o 	= (!core_addr_i[`BW_BYTE_ADDR]) ? core_addr_i : 'b0;
+assign memory_data_o 	= (!core_addr_i[`BW_BYTE_ADDR]) ? core_data_i : 'b0;
 
-assign peripheral_req_o 	= (core_addr_i[26]) ? core_req_i : 1'b0;
-assign peripheral_wren_o 	= (core_addr_i[26]) ? core_wren_i : 1'b0;
-assign peripheral_addr_o 	= (core_addr_i[26]) ? core_addr_i : 'b0;
-assign peripheral_data_o 	= (core_addr_i[26]) ? core_data_i : 'b0;
+assign peripheral_req_o 	= (core_addr_i[`BW_BYTE_ADDR]) ? core_req_i : 1'b0;
+assign peripheral_wren_o 	= (core_addr_i[`BW_BYTE_ADDR]) ? core_wren_i : 1'b0;
+assign peripheral_addr_o 	= (core_addr_i[`BW_BYTE_ADDR]) ? core_addr_i : 'b0;
+assign peripheral_data_o 	= (core_addr_i[`BW_BYTE_ADDR]) ? core_data_i : 'b0;
 
 
 endmodule

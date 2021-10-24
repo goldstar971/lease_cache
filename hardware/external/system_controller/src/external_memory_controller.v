@@ -2,6 +2,7 @@
 `define 	ACCESS_PROCESSOR 		1'b1
 `define 	ST_MEMuC_EXT_NOMINAL 	1'b0
 `define 	ST_MEMuC_EXT_SWITCH 	1'b1
+`include "../../../include/mem.h"
 
 
 module external_memory_controller(
@@ -15,7 +16,7 @@ module external_memory_controller(
 	input 				rw_int_i, 
 	input 				clear_int_i,
 	input 	[31:0]		data_int_i, 
-	input 	[23:0]		add_int_i, 			// word addressible
+	input 	[`BW_WORD_ADDR-1:0]		add_int_i, 			// word addressible
 	output 	[31:0]		data_int_o,
 	output				ready_int_o, 
 	output 				done_int_o, 
@@ -28,7 +29,7 @@ module external_memory_controller(
 	input 				clear0_i,
 	input 	[2:0]		dev0_i,
 	input 	[31:0]		data0_i, 
-	input 	[26:0]		add0_i, 			// byte addressible
+	input 	[`BW_BYTE_ADDR:0]		add0_i, 			// byte addressible
 	output 	[31:0]		data0_o,
 	output				ready0_o, 
 	output 				done0_o, 
@@ -41,7 +42,7 @@ module external_memory_controller(
 	// peripherals
 	output 				req2_o, 
 	output 				rw2_o,
-	output 	[26:0] 		add2_o,
+	output 	[`BW_BYTE_ADDR:0] 		add2_o,
 	output 	[31:0]		data2_o,
 	input 	[31:0] 		data2_i,
 
@@ -51,7 +52,7 @@ module external_memory_controller(
 	output 				rw3_o, 
 	output 				clear3_o, 
 	output 	[31:0]		data3_o, 
-	output 	[26:0]		add3_o, 
+	output 	[`BW_BYTE_ADDR:0]		add3_o, 
 	input 	[31:0]		data3_i,
 	input 				ready3_i, 
 	input 				done3_i, 
@@ -128,12 +129,12 @@ always @(posedge clock_i) begin
 				// ---------------------------------------------------------
 
 				// if you get a request from the comm manager for peripheral set comm_req high, else set low
-				else if (req0_i & (dev0_i == 3'b000) & (add0_i[26] == 1'b1)) begin
+				else if (req0_i & (dev0_i == 3'b000) & (add0_i[`BW_BYTE_ADDR] == 1'b1)) begin
 					comm_req_type <= 1'b1;
 					per_read_flag <= 1'b1;
 				end
 
-				else if (req0_i & (dev0_i == 3'b000) & (add0_i[26] == 1'b0) & (mem_access == `ACCESS_COMM)) begin
+				else if (req0_i & (dev0_i == 3'b000) & (add0_i[`BW_BYTE_ADDR] == 1'b0) & (mem_access == `ACCESS_COMM)) begin
 					comm_req_type <= 1'b0;
 				end
 			end

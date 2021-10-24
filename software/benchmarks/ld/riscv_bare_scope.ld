@@ -7,7 +7,7 @@
 MEMORY
 {
     rom :   ORIGIN = 0x00000000, LENGTH = 31M
-    ram :   ORIGIN = 0x02000000, LENGTH = 32M
+    ram :   ORIGIN = 0x02000000, LENGTH = 480M
 }
 
 
@@ -16,14 +16,6 @@ MEMORY
 _lease_start = 0x01FF0000;  
 _lease_end = _lease_start + 0xFFFF;
 
-
-/*_lease_config_start = 0x01FFFDC0;
-_lease_pc_start = 0x01FFFE00;
-_lease_val_start = 0x01FFFF00;*/
-
-/*_stack_ptr_end      = 0x03FFFFFC;*/
-
-/*__global_pointer = 2000;*/
 
 /*_start = 10;*/
 /*_fini = 10;*/
@@ -108,30 +100,9 @@ SECTIONS
   .rodata         : { *(.rodata .rodata.* .gnu.linkonce.r.*) } > rom
   .rodata1        : { *(.rodata1) } > rom
 
-
-  /*.lease_config _lease_config_start : { KEEP(*(.lease_config)); }
-  .lease_pc     _lease_pc_start :     { KEEP(*(.lease_pc)); }
-  .lease_val    _lease_val_start :    { KEEP(*(.lease_val)); }*/
-
-	/*.lease_config 	_lease_config_start :	{ KEEP(*(.lease_config)); }
-	.ref_addr 	_ref_addr_start : 	{ KEEP(*(.ref_addr)); }
-	.ref_lease0 	_ref_lease0_start : 	{ KEEP(*(.ref_lease0)); }
-	.ref_lease1 	_ref_lease1_start : 	{ KEEP(*(.ref_lease1)); }
-	.lease0_prob 	_lease0_prob_start : 	{ KEEP(*(.lease0_prob)); } */
-
-  /*.lease _lease_start : {
-    KEEP(*(.lease));
-    .end   = _lease_end;
-  }*/
-
-
   lease _lease_start : { KEEP(*(.lease)); }
 
-  /*.lease : {
-    KEEP(*(.lease));
-    .start = _lease_start;
-    .end   = _lease_end;
-  }*/
+
 
 
   /*.sdata2         :

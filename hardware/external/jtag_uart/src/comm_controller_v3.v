@@ -1,5 +1,3 @@
-
-
 module comm_controller_v3(
 	input 				clock_i,
 	input 				resetn_i,
@@ -15,7 +13,7 @@ module comm_controller_v3(
 	output reg 			req_o,
 	output reg 			req_block_o,
 	output reg 			rw_o,
-	output reg 	[26:0]	add_o,					// addresses are byte addressible (64MB mem, above that are peripherals)
+	output reg 	[`BW_BYTE_ADDR:0]	add_o,					// addresses are byte addressible (512MB mem, above that are peripherals)
 	output reg 	[31:0]	data_o,
 	output reg 			clear_o,
 	output reg 			exception_o
@@ -112,7 +110,7 @@ reg 	[11:0]	config_bits; 			// [31:26]
 reg 	[31:0]	iteration_counter;
 reg 	[31:0]	uart_tx_data;
 
-reg 	[26:0]	fusion_write_add, fusion_read_add;
+reg 	[`BW_BYTE_ADDR:0]	fusion_write_add, fusion_read_add;
 reg 	[15:0] 	fusion_base_add;
 `ifdef MULTI_LEVEL_CACHE
 	reg 	[5:0]	fusion_cache_ptr;
@@ -320,12 +318,12 @@ always @(posedge clock_i) begin
 			// special fusion states - check for errors - modified with buffer arch (05/01/2020)
 			// -------------------------------------------------------------------------------------------------------
 			FUSION_MANAGE0: begin
-				fusion_write_add 	= rx_get_data_reg[26:0];
+				fusion_write_add 	= rx_get_data_reg[`BW_BYTE_ADDR:0];
 				state_current 		= GET_WORD;	// first get the address to continuously read from 
 				state_next0 		= FUSION_MANAGE1;
 			end
 			FUSION_MANAGE1: begin
-				fusion_read_add 	= rx_get_data_reg[26:0];
+				fusion_read_add 	= rx_get_data_reg[`BW_BYTE_ADDR:0];
 				state_current 		= GET_WORD;
 				state_next0         =FUSION_MANAGE2;
 			end
@@ -446,7 +444,7 @@ always @(posedge clock_i) begin
 
 
 			CONFIG2: begin
-				add_o 			= rx_get_data_reg[26:0] - 3'b100;
+				add_o 			= rx_get_data_reg[`BW_BYTE_ADDR:0] - 3'b100;
 				state_current 	= state_next1;
 			end
 

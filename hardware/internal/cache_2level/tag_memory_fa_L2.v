@@ -58,9 +58,6 @@ generate
 	end
 endgenerate
 
-
-
-
 tag_match_encoder_9b tag_match(.match_bits(matchbits&validbits_reg),.match_index_reg(match_index),.actual_match(match));
 
 

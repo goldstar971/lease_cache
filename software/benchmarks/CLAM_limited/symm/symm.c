@@ -1,1 +1,0 @@
-../../CLAM/symm/symm.c

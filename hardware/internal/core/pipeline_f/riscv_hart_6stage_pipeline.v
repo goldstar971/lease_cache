@@ -234,7 +234,7 @@ dependency_handler dependency_handler_inst(
 );
 
 wire [`BW_WORD_ADDR-1:0] jump_destination_o;
-wire [`BW_BTYE_ADDR-1:0] prediction;
+wire [`BW_BYTE_ADDR-1:0] prediction;
 branch_predictor_2b branch_predictor(
 	.clock_bus_i(clock_bus_i[2:1]),
 	.resetn_i(reset_i),
@@ -437,7 +437,6 @@ always @(posedge clock_bus_i[0]) begin
 					end
 				end
 
-
 				else if (flag_pipeline_dependency_stall) begin
 					if (!flag_dependency_2) begin
 						flag_pipeline_dependency_stall 	= 1'b0;
@@ -485,8 +484,8 @@ always @(posedge clock_bus_i[0]) begin
 					end
 					else begin
 						inst_addr_reg 		= PC; 		// if blocking will not be overwritten by combinational logic above
-						PC = {5'b0,prediction}; 	
-					//	PC=PC+4;
+						//PC = {5'b0,prediction}; 	
+						PC=PC+4;
 					end
 				end
 

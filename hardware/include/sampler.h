@@ -3,31 +3,40 @@
 
 
 
-`define 	BW_CACHE_TAG 		20 		// word address = [23:0] -> thus remove lower nibble to isolate block [23:4]
+`define 	BW_CACHE_TAG 		23 		// word address = [26:0] -> thus remove lower nibble to isolate block [26:4]
 
 `define 	BW_CACHE_DATA 		32
 
 `define 	BW_LEASE_REGISTER 	9
 
-//`define 	LEASE_VALUE_BASE_B 	26'h01FFFF00
-//`define 	LEASE_VALUE_BASE_W 	24'h007FFFC0
-
-`define 	LEASE_SAMPLER_FS_WADDR 	24'h007FFF79 	// last word in .lease_config section
 
 
-//`define 	N_BUFFER_SAMPLER 	14'h3FFF 	// max number of pairs buffer can hold (256kB = 64kW, 64kW / 4words per pair )
 `define 	N_BUFFER_SAMPLER 	13'h1FFF 	// buffer size
 
 
-`define 	N_SAMPLER			64 			// table entries
-`define 	BW_SAMPLER 			6
+
+
+`ifdef MULTI_LEVEL_CACHE
+	`define SAMPLE_RATE_BW `CLOG2(256)
+	`define 	N_SAMPLER			256 			// table entries
+`define 	BW_SAMPLER 			8
+`define TAG_MATCH_ENCODER_INST tag_match_encoder_8b
+`else 
+	`define SAMPLE_RATE_BW `CLOG2(256)
+	`define 	N_SAMPLER			256 			// table entries
+`define 	BW_SAMPLER 			8
+`define TAG_MATCH_ENCODER_INST tag_match_encoder_8b
+`endif
 
 
 `include "../../../internal/sampler/lease_sampler_all.v"
 `include "../../../internal/sampler/bram_64kB_32b.v"
 `include "../../../internal/sampler/bram_128kB_64b.v"
-`include "../../../internal/sampler/comparator_identity_20b.v"
 `include "../../../internal/sampler/tag_match_encoder_6b.v"
 `include "../../../internal/sampler/tag_match_encoder_7b.v"
+`include "../../../internal/sampler/tag_match_encoder_8b.v"
+`include "../../../internal/sampler/tag_match_encoder_9b.v"
+`include "../../../internal/sampler/pe_valid_match.v"
+`include "../../../utilities/linear_feedback_shift_register/linear_shift_register_12b.v"
 
 `endif // _CACHE_H_

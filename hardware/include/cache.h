@@ -1,34 +1,19 @@
 `ifndef _CACHE_H_
 `define _CACHE_H_
 
-// system wide general memory parameters
-// ---------------------------------------------------------------------
-`define BW_BTYE_ADDR 						26 					// 64MB
-`define BW_WORD_ADDR 						24 					// 16MW (W = 32b)
+
 
 `define CACHE_WORDS_PER_BLOCK 				16					// 16 words/block
 `define BW_BLOCK 							4
 `define	N_CACHE_BLOCKS 	 	2**7
 
 // cache software information
-// ---------------------------------------------------------------------
-//`define LEASE_CONFIG_BASE_B	 				26'h01FFFDC0 		// base address of configuration subpartition
-//`define LEASE_CONFIG_BASE_W  				24'h007FFF70
-//`define LEASE_ADDR_BASE_B 	 				26'h01FFFE00		// base address of lease reference address subpartition
-//`define LEASE_ADDR_BASE_W 	 				24'h007FFF80
-//`define LEASE_VALUE_BASE_B 	 				26'h01FFFF00 		// base address of lease value subpartition
-//`define LEASE_VALUE_BASE_W 	 				24'h007FFFC0
 
-`define LEASE_CONFIG_BASE_B 				26'h01FF0000
-`define LEASE_CONFIG_BASE_W 				24'h007FC000
-`define LEASE_REF_ADDR_BASE_B 				26'h01FF0040
-`define LEASE_REF_ADDR_BASE_W 				24'h007FC010
-`define LEASE_REF_LEASE0_BASE_B 			26'h01FF0240
-`define LEASE_REF_LEASE0_BASE_W 			24'h007FC090
-`define LEASE_REF_LEASE1_BASE_B 			26'h01FF0440
-`define LEASE_REF_LEASE1_BASE_W 			24'h007FC110
-`define LEASE_REF_LEASE0_PROB_BASE_B 		26'h01FF0640
-`define LEASE_REF_LEASE0_PROB_BASE_W 		24'h007FC190
+
+`define LEASE_CONFIG_BASE_B 				29'h01ff0000
+`define LEASE_CONFIG_BASE_W 				27'h007fc000
+`define LEASE_REF_ADDR_BASE_B 				29'h01ff0040
+`define LEASE_REF_ADDR_BASE_W 				24'h007fc010
 
 // misc cache information
 // ---------------------------------------------------------------------

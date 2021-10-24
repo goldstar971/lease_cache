@@ -8,7 +8,7 @@ module txrx_buffer_L2_L1(
 
 	// controller side
 	input 				req_i, rw_i,
-	input 		[23:0]	add_i, 
+	input 		[`BW_WORD_ADDR-1:0]	add_i, 
 	input 				write_en, read_ack, 
 	input 		[31:0]	data_i,
 	output				ready_write_o, ready_read_o,
@@ -16,7 +16,7 @@ module txrx_buffer_L2_L1(
 
 	// sdram side
 	output 	reg			cacheL2_L1_req_o, cacheL2_L1_rw_o, 
-	output 	reg [23:0]	cacheL2_L1_add_o, 
+	output 	reg [`BW_WORD_ADDR-1:0]	cacheL2_L1_add_o, 
 	output [31:0]	cacheL2_L1_data_o,
 	output  L2_ready_read_o,
 	output L2_ready_write_o,

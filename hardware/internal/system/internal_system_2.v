@@ -4,7 +4,7 @@
 module internal_system_2(
 
 	// general ports
-	input 	[3:0]	clock_bus_i, // [3,2,1,0] = [20/270,20/180,20/90,20/0]
+	input 	[3:0]	clock_bus_i, // [3,2,1,0] = [40/270,40/180,40/90,40/0]
 	input 			reset_i,
 	output 	[11:0]	exception_o,
 	input 	[31:0]	comm_i, 
@@ -18,7 +18,7 @@ module internal_system_2(
 	output 			mem_reqBlock_o, 
 	output 			mem_clear_o, 
 	output 			mem_rw_o,
-	output 	[23:0]	mem_add_o, 		// word addressible
+	output 	[`BW_WORD_ADDR-1:0]	mem_add_o, 		// word addressible
 	output 	[31:0]	mem_data_o,
 	input 	[31:0]	mem_data_i,
 	input 			mem_done_i, 
@@ -46,7 +46,7 @@ wire [3:0]	core_exceptions;
 wire [31:0]  				core_inst_addr; 	// core address assumes 2GB space, byte addressible
 wire [`BW_WORD_ADDR-1:0] 	core_inst_addr_word;// word addressible, limited to max address space width
 
-assign core_inst_addr_word = core_inst_addr[`BW_WORD_ADDR+1:2];
+assign core_inst_addr_word = core_inst_addr[`BW_BYTE_ADDR-1:2];
 
 
 `RISCV_HART_INST core0(
@@ -89,13 +89,13 @@ assign core_inst_addr_word = core_inst_addr[`BW_WORD_ADDR+1:2];
 // ---------------------------------------------------------------------------------------------------------------
 // core <-> cache
 wire 				core_reqToCache0, core_rwToCache0, core_doneFromCache0;
-wire 		[23:0]	core_addToCache0;
+wire 		[`BW_WORD_ADDR-1:0]	core_addToCache0;
 wire 		[31:0]	core_dataToCache0, core_dataFromCache0; 
 
 // cache <-> memory controller
 wire 				mci_enableToCache0, mci_readyToCache0, mci_writeReadyToCache0, mci_readReadyToCache0;
 wire 		[31:0]	mci_dataToCache0, mci_dataFromCache0;
-wire 		[23:0]	mci_addFromCache0;
+wire 		[`BW_WORD_ADDR-1:0]	mci_addFromCache0;
 wire 				mci_hitFromCache0, mci_reqFromCache0, mci_reqBlockFromCache0, mci_rwFromCache0, mci_writeFromCache0, mci_readFromCache0;
 	
 `INSTRUCTION_CACHE_INST #( 
@@ -139,13 +139,13 @@ wire 				mci_hitFromCache0, mci_reqFromCache0, mci_reqBlockFromCache0, mci_rwFro
 // ---------------------------------------------------------------------------------------------------------------
 // core <-> cache
 wire 				core_reqToCache1, core_rwToCache1, core_doneFromCache1;
-wire 		[23:0]	core_addToCache1;
+wire 		[`BW_WORD_ADDR-1:0]	core_addToCache1;
 wire 		[31:0]	core_dataToCache1, core_dataFromCache1; 
 
 // cache <-> memory controller
 wire 				mci_enableToCache1, mci_readyToCache1, mci_writeReadyToCache1, mci_readReadyToCache1;
 wire 		[31:0]	mci_dataToCache1, mci_dataFromCache1;
-wire 		[23:0]	mci_addFromCache1;
+wire 		[`BW_WORD_ADDR-1:0]	mci_addFromCache1;
 wire 				mci_hitFromCache1, mci_reqFromCache1, mci_reqBlockFromCache1, mci_rwFromCache1, mci_writeFromCache1, mci_readFromCache1;
 
 `DATA_CACHE_INST #(

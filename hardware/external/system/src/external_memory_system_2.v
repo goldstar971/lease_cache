@@ -1,3 +1,4 @@
+`include "../../../include/mem.h"
 module external_memory_system_2(
 
 	// ddr3 ports
@@ -29,7 +30,7 @@ module external_memory_system_2(
 	input 					int_req_i,
 	input 					int_reqBlock_i,
 	input 					int_rw_i,
-	input 		[23:0] 		int_add_i, 			// word addressible (64kB total)
+	input 		[`BW_WORD_ADDR-1:0] 		int_add_i, 			// word addressible (512MB total)
 	input 		[31:0]		int_data_i,
 	input 					int_clear_i,
 	output 					int_ready_o,
@@ -40,7 +41,7 @@ module external_memory_system_2(
 	// peripheral system ports - reduced bus
 	output 					per_req_o,
 	output 					per_rw_o,
-	output 		[26:0]		per_add_o,
+	output 		[`BW_BYTE_ADDR:0]		per_add_o,
 	output 		[31:0]		per_data_o,
 	input 		[31:0]		per_data_i	
 );
@@ -67,7 +68,7 @@ wire 			ready_toCOMM, done_toCOMM, valid_toCOMM;
 wire 	[31:0]	data_toCOMM, data_fromCOMM;
 wire 	[2:0] 	reqdev_fromCOMM;
 wire 			req_fromCOMM, reqBlock_fromCOMM, rw_fromCOMM, clear_fromCOMM;
-wire 	[26:0]	add_fromCOMM;
+wire 	[`BW_BYTE_ADDR:0]	add_fromCOMM;
 
 //comm_controller comm_cont0(
 uart_system_2 uart_inst0(
@@ -92,7 +93,7 @@ uart_system_2 uart_inst0(
 wire 			ready_fromDDR, done_fromDDR, valid_fromDDR;
 wire 	[31:0]	data_fromDDR, data_toDDR;
 wire 			req_toDDR, reqBlock_toDDR, rw_toDDR, clear_toDDR;
-wire 	[26:0]	add_toDDR;
+wire 	[`BW_BYTE_ADDR:0]	add_toDDR;
 
 ddr3_memory_controller #(.TEST_MODE(0)) ddr3_inst(
 
@@ -124,7 +125,7 @@ ddr3_memory_controller #(.TEST_MODE(0)) ddr3_inst(
 	.req_i 			(req_toDDR 			),
 	.reqBlock_i 	(reqBlock_toDDR		),
 	.rw_i 			(rw_toDDR 			),
-	.add_i 			(add_toDDR			), 	// i/o conv. hardware handles address translation [26:0] -> [25:2]
+	.add_i 			(add_toDDR			), 	// i/o conv. hardware handles address translation [`BW_BYTE_ADDR:0] -> [28:2]
 	.data_i 		(data_toDDR 		),
 	.clear_i 		(clear_toDDR 		),
 	.ready_o 		(ready_fromDDR 		),
@@ -149,7 +150,7 @@ external_memory_controller ext_cont(
 	.clear0_i 		(clear_fromCOMM 	), 
 	.dev0_i 		(reqdev_fromCOMM 	), 
 	.data0_i 		(data_fromCOMM 		), 
-	.add0_i 		(add_fromCOMM 		), 	// [26:0]
+	.add0_i 		(add_fromCOMM 		), 	// [`BW_BYTE_ADDR:0]
 	.data0_o 		(data_toCOMM 		), 
 	.ready0_o 		(ready_toCOMM 		), 
 	.done0_o 		(done_toCOMM 		), 
@@ -165,7 +166,7 @@ external_memory_controller ext_cont(
 	.rw3_o 			(rw_toDDR 			), 
 	.clear3_o 		(clear_toDDR 		), 
 	.data3_o 		(data_toDDR 		), 
-	.add3_o 		(add_toDDR 			),	// [26:0]
+	.add3_o 		(add_toDDR 			),	// [`BW_BYTE_ADDR:0]
 	.data3_i 		(data_fromDDR 		), 
 	.ready3_i 		(ready_fromDDR 		), 
 	.done3_i 		(done_fromDDR 		), 
@@ -184,7 +185,7 @@ external_memory_controller ext_cont(
 	.rw_int_i 		(int_rw_i 			), 
 	.clear_int_i 	(int_clear_i 		),
 	.data_int_i 	(int_data_i 		), 
-	.add_int_i 		(int_add_i 			),  // [23:0]
+	.add_int_i 		(int_add_i 			),  // [`BW_WORD_ADDR-1:0]
 	.data_int_o 	(int_data_o			), 
 	.ready_int_o 	(int_ready_o		), 
 	.done_int_o 	(int_done_o			), 

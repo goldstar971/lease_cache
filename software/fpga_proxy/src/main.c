@@ -8,7 +8,7 @@
 int main(int argc, char** argv)
 {
        // connect and synchronize
-    pHandle proxy_inst = proxy_connect();
+    pHandle proxy_inst=proxy_connect();
     if(proxy_inst==NULL){
         printf("Synchronization failed\n");
         return(1);
@@ -57,16 +57,20 @@ int main(int argc, char** argv)
                     //iterate through list of commands
                  while(end_pointer!=NULL){
                     command_length=(end_pointer-start_pointer)/sizeof(char);
+           
                     memcpy(command_str,start_pointer,command_length); //copy characters up to the delimiter
-                        
                         status=proxy_string_command(proxy_inst,command_str);
                           switch(status){
                             case 0: printf("Command Successful\n"); break;
                             case 1: printf("Command Failed\n"); break;
                         }
+                  
+
                         memset(command_str,0,command_length); //clear buffer
                         start_pointer=++end_pointer;//want to point to the character after the delimiter
                           end_pointer=strchr(start_pointer,':');
+                         
+
                      }
 
               //for last command or first command if only 1 command 
@@ -82,7 +86,8 @@ int main(int argc, char** argv)
             default: fprintf(stderr,"Usage: %s [-c \"command1:command2:....:commandn\"]\n",argv[0]);
             }
         }
+         
     }
-    
+   
     return 0;
 }

@@ -30,9 +30,7 @@ module L2_cache_fa_all #(
 	output 	[31:0]					L1_data_o,
 	output  L2_read_ack_o,
 	
-	//sampler
-	input    						core_req_i,
-	input [31:0]					PC_i, 
+
 	//tracker and sampler
 	output                          stall_o, 
 	// internal memory controller
@@ -41,6 +39,7 @@ module L2_cache_fa_all #(
 	input 							ready_write_i,  	// buffer signal (1: can be written to)
 	input 							ready_read_i, 		// buffer signal (1: can be read from)
 	input 	[31:0]					data_i,  			// data being read in from buffer (interfaced to external system)
+	input    [31:0]            PC_i,
 	output 							hit_o, 
 	output 							req_o, 
 	output 							req_block_o, 
@@ -188,12 +187,12 @@ wire 							cpc_stall_flag;
 		.req_i          (L1_req_reg         ),
 		.pc_ref_i           (PC_i),
 		.tag_ref_i			(req_tag            ),
-		.hit_i 				(hit_flag 			), 				// logic high when there is a cache hit
+		.hit_i 				(hit_flag 			), 				// logic high when there is an intial cache hit
 		.miss_i 			(miss_flag 	 		), 				// logic high when there is the initial cache miss
-		.writeback_i 		(wb_flag 	 		), 				// logic high when the cache writes a block back to externa memory
+		.writeback_i 		(wb_flag 	 		), 				// logic high when the L2 cache writes a block back to external memory
 		.expired_i			(expired_flag 		), 				// logic high when lease cache replaces an expired block
-		.expired_multi_i 	(expired_multi_flag ), 
-		.rand_evict_i       (rand_evict_flag),
+		.expired_multi_i 	(expired_multi_flag ), 				// logic high when there are multiple expired cache lines when lease cache replaces a block
+		.rand_evict_i       (rand_evict_flag),					// logic high when there are no expired cache lines when lease cache replaces a block
 		.defaulted_i 		(defaulted_flag 	), 				// logic high when lease cache renews using a default lease value
 		.swap_i(swap_flag),		
 		.comm_i 			(comm_i 			), 				// configuration signal

@@ -69,6 +69,17 @@ always @(*) begin
 
 end
 
+	reg 						req_reg;						
+	reg 	[31:0]				pc_ref_reg;
+	reg 	[`BW_CACHE_TAG-1:0]	tag_ref_reg;
+//register inputs to help timing
+always @(posedge clock_bus_i[0]) begin
+	req_reg<=req_i;
+	pc_ref_reg<=pc_ref_i;
+	tag_ref_reg<=tag_ref_i;
+end
+
+
 //assign add_sampler = (comm_i[24] == 1'b1) ? add_sampler_reg : comm_i[18:4];
 
 // output control logic - if requested address is not filled then overwrite output to null to prevent false positive
@@ -87,7 +98,6 @@ reg 	[63:0]					data_trace_reg;
 bram_64kB_32b interval_fifo	(.address(add_sampler), .clock(clock_bus_i[1]), .data(data_interval_reg), .wren(rw_sampler), .q(ref_interval));
 bram_64kB_32b address_fifo	(.address(add_sampler), .clock(clock_bus_i[1]), .data(data_address_reg), .wren(rw_sampler), .q(ref_address));
 bram_128kB_64b trace_fifo 	(.address(add_sampler), .clock(clock_bus_i[1]), .data(data_trace_reg), .wren(rw_sampler), .q(ref_trace));
-
 bram_64kB_32b target_fifo	(.address(add_sampler), .clock(clock_bus_i[1]), .data(target_address_reg), .wren(rw_sampler), .q(ref_target));
 
 // tag translation
@@ -97,29 +107,29 @@ bram_64kB_32b target_fifo	(.address(add_sampler), .clock(clock_bus_i[1]), .data(
 integer 						i;
 reg 	[`BW_CACHE_TAG-1:0] 	tag_mem[0:`N_SAMPLER-1]; 	// for tag -> $add translation
 reg 	[31:0]					pc_mem[0:`N_SAMPLER-1];		// rui recording
-reg 	[31:0] 					counters[0:`N_SAMPLER-1];	// rui recording
+reg 	[30:0] 					counters[0:`N_SAMPLER-1];	// rui recording (only needs to record up to int32 max)
 
-reg 	[`BW_SAMPLER-1:0]		add_stack[0:`N_SAMPLER-1]; 	// open address stack for cache
+
 reg 	[`N_SAMPLER-1:0]		valid_bits;
 wire 	[`N_SAMPLER-1:0] 		match_bits;
-wire 							hit_flag, full_flag, actual_match;
-wire 	[`BW_SAMPLER-1:0] 		match_index;
-reg 	[`BW_SAMPLER-1:0] 		add_stack_ptr;
+wire 							hit_flag, full_flag;
+wire 	[`BW_SAMPLER-1:0] 		match_index,replace_index;
+
 
 genvar j;
 generate 
 	for (j = 0; j < `N_SAMPLER; j = j + 1'b1) begin : tag_lookup_array
-		comparator_identity_20b comp_inst(tag_ref_i, tag_mem[j], match_bits[j]);
+		identity_comparator #(.BW(`BW_CACHE_TAG)) comp_inst(tag_ref_reg, tag_mem[j], match_bits[j]);
 	end
 endgenerate
 
-tag_match_encoder_6b tag_match((match_bits&valid_bits),match_index);
+`TAG_MATCH_ENCODER_INST tag_match((match_bits&valid_bits),match_index,hit_flag);
 
 
-//match_index==0 both when no bit in match_bits is set i.e., no match and when the match is the bottom entry i.e., match_bits[0]=1
-assign actual_match=|({match_index,match_bits[0]});
-assign hit_flag = (actual_match)? valid_bits[match_index] : 1'b0;
 
+
+//priority encoder to find where to store new sample. finds leading 0 in valid bit vector
+pe_valid_match find_empty_llt_slot(.clk(),.rst(),.oht(~valid_bits),.bin(replace_index),.vld());
 
 
 // full flag dependent on table entries
@@ -127,13 +137,13 @@ assign full_flag = &(valid_bits);
 assign stall_o = full_flag;
 
 reg 			lfsr_enable;
-wire 	[8:0]	lfsr_output;
-linear_shift_register_9b shift_reg0(.clock_i(clock_bus_i[0]), .resetn_i(resetn_i), .enable_i(lfsr_enable), .result_o(lfsr_output));
+wire 	[11:0]	lfsr_output;
+linear_shift_register_12b shift_reg0(.clock_i(clock_bus_i[0]), .resetn_i(resetn_i), .enable_i(lfsr_enable), .result_o(lfsr_output));
 
 
 // sampling rate controller
 // ----------------------------------------------------------------------
-reg 	[8:0]	fs_counter_reg;			// controls when a new ref is brought into LAT
+reg 	[9:0]	fs_counter_reg;			// controls when a new ref is brought into LAT
 reg 	[31:0]	n_rui_total_reg; 		// total number of intervals generated
 reg 	[12:0]	n_rui_buffer_reg;		// number of intervals stored in buffer - resets when clearing the table
 reg 	[31:0]	n_remaining_reg;
@@ -143,7 +153,7 @@ reg 	[63:0]	data_trace_running_reg;
 
 
 reg 	[1:0]				state_reg;
-reg 	[31:0]				rui_oldest_value_reg;
+reg 	[30:0]				rui_oldest_value_reg;
 reg 	[`BW_SAMPLER-1:0]	rui_oldest_index_reg;
 reg 	[`BW_SAMPLER-1:0]	rui_oldest_index_search_reg;
 
@@ -158,7 +168,7 @@ assign remaining_o 	= n_remaining_reg;
 assign full_flag_o = (add_sampler_reg == `N_BUFFER_SAMPLER) ? 1'b1 : 1'b0; 		// when this goes high, stalls the cache which in turn stalls the core
 																				// so that the host can pull the buffer data
 
-
+reg [`BW_SAMPLER-1:0]llt_index;
 
 
 always @(posedge clock_bus_i[0]) begin
@@ -168,7 +178,6 @@ always @(posedge clock_bus_i[0]) begin
 			tag_mem[i] = 'b0;
 			pc_mem[i] = 'b0;
 			counters[i] = 'b0;
-			add_stack[i] = i[`BW_SAMPLER-1:0];
 		end
 
 		valid_bits = 'b0;
@@ -177,8 +186,6 @@ always @(posedge clock_bus_i[0]) begin
 		data_address_reg 	= 'b0;
 		target_address_reg 	= 'b0;
 		add_sampler_reg = 'b0;
-		add_stack_ptr = 'b0;
-		
 
 		fs_counter_reg = 'b0;
 		n_rui_total_reg = 'b0;
@@ -188,6 +195,7 @@ always @(posedge clock_bus_i[0]) begin
 		data_trace_reg = 'b0;
 		data_trace_running_reg = 'b0;
 		lfsr_enable = 'b0;
+		llt_index='b0;
 
 		// upon a full sampler dump of the oldest value, these registers are used to store the pertinent data
 		rui_oldest_value_reg = 'b0;
@@ -217,6 +225,7 @@ always @(posedge clock_bus_i[0]) begin
 		// default signals
 		rw_reg = 1'b0;
 		lfsr_enable = 1'b0;
+		llt_index=replace_index;
 
 		if(en_i) begin
 			// only operate if metrics are enabled by processor
@@ -231,27 +240,18 @@ always @(posedge clock_bus_i[0]) begin
 						if (!full_flag) begin
 
 							// reference is valid so track
-							if (req_i) begin
+							if (req_reg) begin
 
 								// increment intervals of all valid lines
 								for (i = 0; i < `N_SAMPLER; i = i + 1) begin
-									if (valid_bits[i] == 1'b1) begin
+									//doesn't matter if valid or not given counters will be reset when a new sample is pushed to the table
 										if (counters[i] != 32'h7FFFFFFF) begin
 											counters[i] = counters[i] + 1'b1;
 										end
-									end
 								end
 
 								// check hit/miss
 								if (hit_flag) begin
-
-								
-									// if the buffer is not yet full then write result to it
-									// note: this is a precautionary guard, if running RUN_SAMPLER command
-									// then the host should see the full flag and clear the buffer from its commands
-
-
-									if (add_sampler_reg != `N_BUFFER_SAMPLER) begin
 
 										// point to next buffer address
 										add_sampler_reg 	= n_rui_buffer_reg;
@@ -260,22 +260,16 @@ always @(posedge clock_bus_i[0]) begin
 										// write result to buffer
 										rw_reg 				= 1'b1;
 										data_address_reg 	= pc_mem[match_index];
-										data_interval_reg 	= counters[match_index];
+										data_interval_reg 	= {1'b0,counters[match_index]};
 										data_trace_reg 		= data_trace_running_reg;
 									
 										target_address_reg  = tag_mem[match_index];
-									
-									end
 
 
 
 									// invalidate entry in LAT
 									valid_bits[match_index] = 1'b0;
-
-									// push address onto stack
-									add_stack_ptr = add_stack_ptr - 1'b1;
-									add_stack[add_stack_ptr] = match_index;
-									
+									llt_index=match_index; //set replacement index as most recently open spot.
 								end
 
 								// post increment trace
@@ -284,7 +278,7 @@ always @(posedge clock_bus_i[0]) begin
 
 								// fifo replacement check - full scale is 9b - 256 avg
 								// --------------------------------------------------------
-								if (fs_counter_reg[8:0] == lfsr_output[8:0]) begin
+								if (fs_counter_reg[`SAMPLE_RATE_BW:0] == lfsr_output[`SAMPLE_RATE_BW:0]) begin
 
 									// generate new random number
 									lfsr_enable 	= 1'b1;
@@ -293,12 +287,12 @@ always @(posedge clock_bus_i[0]) begin
 									// import in a new entry - add_stack_ptr points to next open location
 									if (!full_flag) begin
 									
-										tag_mem	[ add_stack[add_stack_ptr] ] 	= tag_ref_i;
-										pc_mem[ add_stack[add_stack_ptr] ] 	= pc_ref_i;
+										tag_mem	[ llt_index ] 	= tag_ref_reg;
+										pc_mem[ llt_index] 	= pc_ref_reg;
 
-										counters[ add_stack[add_stack_ptr] ] 	= 'b0;
-										valid_bits[ add_stack[add_stack_ptr] ] 	= 1'b1;
-										add_stack_ptr = add_stack_ptr + 1'b1;
+										counters[ llt_index] 	= 'b0;
+										valid_bits[ llt_index ] 	= 1'b1;
+										
 									end
 									
 								end
@@ -338,14 +332,12 @@ always @(posedge clock_bus_i[0]) begin
 							// save value to stack as a negative number
 							rw_reg 				= 1'b1;
 							data_address_reg 	= pc_mem[rui_oldest_index_reg];
-							data_interval_reg 	= ~counters[rui_oldest_index_reg]+1'b1; 	// 2's complement
+							data_interval_reg 	= ~{1'b0,counters[rui_oldest_index_reg]}+1'b1; 	// 2's complement
 							data_trace_reg 		= data_trace_running_reg;
 							target_address_reg  = tag_mem[rui_oldest_index_reg];
 
 							// invalidate the entry and put it on the address stack
 							valid_bits[rui_oldest_index_reg] = 1'b0;
-							add_stack_ptr = add_stack_ptr - 1'b1;
-							add_stack[add_stack_ptr] = rui_oldest_index_reg;
 
 							// cycle back to nominal operation
 							state_reg = ST_NORMAL;
@@ -381,7 +373,7 @@ always @(posedge clock_bus_i[0]) begin
 						// write it to buffer
 						rw_reg 				= 1'b1;
 						data_address_reg 	= pc_mem[rui_oldest_index_reg];
-						data_interval_reg 	= ~counters[rui_oldest_index_reg]+1'b1; 	// 2's complement
+						data_interval_reg 	= ~{1'b0,counters[rui_oldest_index_reg]}+1'b1; 	// 2's complement
 						data_trace_reg 		= data_trace_running_reg;
 						target_address_reg  = tag_mem[rui_oldest_index_reg];
 

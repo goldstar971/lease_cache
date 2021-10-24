@@ -1,5 +1,5 @@
 `include "../../../include/peripheral.h"
-
+`include "../../../include/mem.h"
 module peripheral_system_3(
 
 	// internal system
@@ -7,7 +7,7 @@ module peripheral_system_3(
 	input 				reset_i, 
 	input 				req_core_i, 
 	input				rw_core_i, 
-	input 		[26:0] 	add_core_i, 
+	input 		[`BW_BYTE_ADDR:0] 	add_core_i, 
 	input 		[31:0]	data_core_i,
 	output 	reg	[31:0]	data_core_o,
 	input           [191:0]        cycle_counts_i,
@@ -15,7 +15,7 @@ module peripheral_system_3(
 	// external system
 	input 				req_cs_i, 
 	input 				rw_cs_i, 
-	input 		[26:0] 	add_cs_i, 
+	input 		[`BW_BYTE_ADDR:0] 	add_cs_i, 
 	input 		[31:0]	data_cs_i,
 	output 	reg	[31:0]	data_cs_o,
 

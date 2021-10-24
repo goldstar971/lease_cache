@@ -9,9 +9,6 @@
 `include "../../../include/logic_components.h"
 `include "../../../utilities/embedded_memory/memory_embedded.v"
 
-// core
-// ----------------------------------------------------
-`define RISCV_PIPELINE
 
 
 // cache 
@@ -56,7 +53,7 @@
 `define DATA_CACHE_BLOCK_CAPACITY 		128
 `define L2_CACHE_BLOCK_CAPACITY         512
 
-`define FLOAT_INSTRUCTIONS 
+
 
 
 // derived configurations L2 cache
@@ -81,12 +78,8 @@
 // ----------------------------------------------------
 
 
-`ifdef RISCV_PIPELINE
-	`define RISCV_HART_INST riscv_hart_top 			// module name
-	`include "../../../include/riscv_v2_2.h" 			// path to module dependencies
-`else
-	`define RISCV_HART_INST riscv_core_split 		// module name
-`endif
+`define RISCV_HART_INST riscv_hart_top 			// module name
+`include "../../../include/riscv_v2_2.h" 			// path to module dependencies
 
 
 // cache
@@ -217,27 +210,21 @@
 // lease cache specific parameters
 // -------------------------------------------------------------------------------------------------
 `define LEASE_LLT_ENTRIES 				128
-`define LEASE_CONFIG_ENTRIES 			4 			// 0: default lease
-													// 1: backup policy - not used (05/12/2020)
-													// 2: pool 			- not used (05/12/2020)
-													// 3: null 			- not used (05/12/2020)
-`define LEASE_CONFIG_VAL_BW 			16
-`define LEASE_VALUE_BW 					24
-`define LEASE_REF_ADDR_BW 				16
+`define LEASE_CONFIG_ENTRIES 			5			//0: default lease
+													//1: long lease value
+													//2: short lease probability
+													//3: num of references in phase
+													//4: dual lease ref (word address)
+`define LEASE_CONFIG_VAL_BW 			32
+`define LEASE_VALUE_BW 					32
+`define LEASE_REF_ADDR_BW 				29
 `define BW_PERCENTAGE                   9
 
 
-// tracker and smapler specific parameters
-`ifdef MULTI_LEVEL_CACHE
-`define TRACKER_BUFFER_LIMIT 11'h4Cf
-`define TRACKER_OUT_SEL_WIDTH 6
-`else
-`define TRACKER_BUFFER_LIMIT 2**12
-`define TRACKER_OUT_SEL_WIDTH 5
-`endif
 
 `include "../../../include/sampler.h"
-`include "../../../include/tracker.h"
+
+
 
 
 //adding cache level and cache type specific files
@@ -246,6 +233,7 @@
 	`include "../../../internal/system_controller/src/memory_controller_internal_2level.v"
 	`include "../../../internal/cache_2level/L2_cache_fa_all.v"
 	`ifdef L2_CACHE_POLICY_DLEASE
+		`include "../../../include/tracker.h"
 		`include "../../../internal/cache_2level/lease_dynamic_cache_fa_controller_tracker_L2.v"
 		`include "../../../internal/cache/lib/lease_lookup_table.v"
 		`include "../../../internal/cache/lib/lease_probability_controller.v"
@@ -254,12 +242,10 @@
 		`include "../../../internal/cache_2level/cache_fa_controller_L2.v"
 	`endif
 	`include "../../../internal/cache_2level/cache_performance_controller_all_L2.v"
-	`include "../../../utilities/linear_feedback_shift_register/linear_shift_register_12b.v"
 	`include "../../../peripheral/src/peripheral_system_3.v"
 	`include "../../../internal/cache_2level/tag_memory_fa_L2.v"
 	`include "../../../internal/system_controller/src/txrx_buffer_L2_L1.v"
 	`include "../../../internal/system_controller/src/txrx_buffer.v"
-	`include "../../../internal/sampler/tag_match_encoder_9b.v"
 	`include "../../../internal/cache/lib/plru_line_controller.v"
 	`ifdef INST_CACHE_FA
 		`include "../../../internal/cache_2level/cache_fa_controller_multi_level.v"
@@ -272,22 +258,22 @@
 		`include "../../../internal/cache/two_way_set_associative/src/tag_memory_2way.v"
 	`endif
 `else 
+	`ifdef DATA_POLICY_DLEASE
+		`include "../../../include/tracker.h"
+		`include "../../../internal/cache/lib/lease_lookup_table.v"
+		`include "../../../internal/cache/lib/lease_probability_controller.v"
+		`include "../../../internal/cache/fully_associative/lease_scope/lease_dynamic_cache_fa_controller_tracker.v"
+	`endif
 	`include "../../../internal/cache/lib/plru_line_controller.v"
 	`include "../../../internal/cache/fully_associative/src/cache_fa_controller.v"
 	`include "../../../internal/cache/fully_associative/src/cache_fa.v"
 	`include "../../../internal/system_controller/src/txrx_buffer.v"
-	`include "../../../utilities/linear_feedback_shift_register/linear_shift_register_12b.v"
 	`include "../../../peripheral/src/peripheral_system_3.v"
 	`include "../../../internal/system/internal_system_2.v"
 	`include "../../../internal/cache/fully_associative/src/cache_fa_all.v"
 	`include "../../../internal/cache/lib/cache_performance_controller_all.v"
 	`include "../../../internal/cache/fully_associative/src/tag_memory_fa.v"
 	`include "../../../internal/system_controller/src/memory_controller_internal.v"
-	`ifdef DATA_POLICY_DLEASE
-		`include "../../../internal/cache/lib/lease_lookup_table.v"
-		`include "../../../internal/cache/lib/lease_probability_controller.v"
-		`include "../../../internal/cache/fully_associative/lease_scope/lease_dynamic_cache_fa_controller_tracker.v"
-	`endif
 `endif
 
 //comms stuff

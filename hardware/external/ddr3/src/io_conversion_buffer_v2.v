@@ -9,6 +9,7 @@
 //
 //
 // -------------------------------------------------------------------------------------------------------
+`include "../../../include/mem.h"
 
 `define ST_DDR3_IO_BUFFER_IDLE          3'b000
 `define ST_DDR3_IO_BUFFER_READ          3'b001
@@ -179,7 +180,7 @@ always @(posedge sys_clock_i) begin
                         if (!sys_rw_i) begin
                             s0_burstbegin_reg = 1'b1;
                             s0_size_reg = 10'h001;
-                            s0_addr_reg = {{4'b0000},sys_addr_i[23:3]};
+                            s0_addr_reg = {1'b0,sys_addr_i[`BW_WORD_ADDR-1:3]};
                             sub_word_reg = sys_addr_i[2:0];
                             s0_read_req_reg = 1'b1;
                             state = `ST_DDR3_IO_BUFFER_READ;
@@ -190,7 +191,7 @@ always @(posedge sys_clock_i) begin
                             // then overwrite the appropriate word in the half-block
                             s0_burstbegin_reg = 1'b1;
                             s0_size_reg = 10'h001;
-                            s0_addr_reg = {{4'b0000},sys_addr_i[23:3]};
+                            s0_addr_reg = {1'b0,sys_addr_i[`BW_WORD_ADDR-1:3]};
                             sub_word_reg = sys_addr_i[2:0];
                             s0_read_req_reg = 1'b1;
                             flag_write = 2'b00;
@@ -205,13 +206,13 @@ always @(posedge sys_clock_i) begin
                             s0_burstbegin_reg = 1'b1;
                             s0_size_reg = 10'h001;
                             s0_read_req_reg = 1'b1;
-                            s0_addr_reg = {{4'b0000},sys_addr_i[23:3]};
+                            s0_addr_reg ={1'b0,sys_addr_i[`BW_WORD_ADDR-1:3]};
                             state = `ST_DDR3_IO_BUFFER_READ_BLOCK;
                         end
                         // block write
                         else begin
                             flag_block = 2'b00;
-                            s0_addr_reg = {{4'b0000},sys_addr_i[23:3]} - 1'b1; // auto increments in next state
+                            s0_addr_reg = {1'b0,sys_addr_i[`BW_WORD_ADDR-1:3]} - 1'b1; // auto increments in next state
                             state = `ST_DDR3_IO_BUFFER_WRITE_BLOCK;
                         end
                     end

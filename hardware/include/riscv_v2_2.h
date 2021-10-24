@@ -21,9 +21,10 @@
 `define ENCODING_FNMADD             16'b0100000000000000
 `define ENCODING_FARITH             16'b1000000000000000
 
-`define SP_BASE 					32'h03FFFFFC
-`define OUTPUT_PERIPHERAL_BASE		32'h04000000	// byte addressible - read only
-`define INPUT_PERIPHERAL_BASE 		32'h04000100 	// byte addressible - read and write
+`define SP_BASE 					32'h1FFFFFFC
+`define OUTPUT_PERIPHERAL_BASE		32'h20000000	// byte addressible - read only
+`define INPUT_PERIPHERAL_BASE 		32'h20000100 	// byte addressible - read and write
+
 
 `define STATE_HART_PIPELINE_DEPENDENCY_STALL	5'b10000
 `define STATE_HART_PIPELINE_JUMP 				5'b00001
@@ -152,8 +153,6 @@
 
 // source files
 // ------------------------------------------------
-`ifdef FLOAT_INSTRUCTIONS 
-
 		`include "../internal/core/pipeline_f/dependency_handler.v"
 		`include "../internal/core/pipeline_f/memory_reference_controller.v"
 		`include "../internal/core/pipeline_f/port_switch.v"
@@ -170,22 +169,5 @@
 		`include "../internal/core/pipeline_f/target_address_generator.v"
 		`include "../internal/core/pipeline_f/udivider32b.v"
 		`include "../internal/core/pipeline_f/umultiplier32b.v"
-
-`else
-	`include "../internal/core/pipeline/dependency_handler.v"
-	`include "../internal/core/pipeline/memory_reference_controller.v"
-	`include "../internal/core/pipeline/port_switch.v"
-	`include "../internal/core/pipeline/riscv_32I_alu.v"
-	`include "../internal/core/pipeline/riscv_32M_alu_pipelined.v"
-	`include "../internal/core/pipeline/riscv_alu_32M_converter.v"
-	`include "../internal/core/pipeline/riscv_alu_pipelined.v"
-	`include "../internal/core/pipeline/riscv_hart_6stage_pipeline.v"
-	`include "../internal/core/pipeline/riscv_hart_top.v"
-	`include "../internal/core/pipeline/stage1_instruction_decode.v"
-	`include "../internal/core/pipeline/stage4_memory_operation.v"
-	`include "../internal/core/pipeline/target_address_generator.v"
-	`include "../internal/core/pipeline/udivider32b.v"
-	`include "../internal/core/pipeline/umultiplier32b.v"
-`endif
 
 `endif // RISCV_H_

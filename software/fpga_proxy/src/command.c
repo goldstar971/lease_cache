@@ -8,11 +8,17 @@ uint32_t parse_input(command *pInputInst, char *pBuffer){
 	uint32_t n = 0;
 	char *start_pointer, *end_pointer;
 	int command_length;
-	char command_str[256];
+	
 	int leading_whitespace;
 	start_pointer=&pBuffer[0];
-
 	end_pointer=strpbrk(start_pointer,COMMAND_DELIMITERS);
+
+	char* command_str=(char *)calloc(256,sizeof(char));
+	if(command_str==NULL){
+		printf("unable to allocate memory for command\n");
+		return 1;
+	}
+
 	memset(command_str,0,256);
 
 	//handle leading whitespace before command
@@ -41,7 +47,7 @@ uint32_t parse_input(command *pInputInst, char *pBuffer){
 	
 		start_pointer=start_pointer+leading_whitespace+command_length;
 	}while(end_pointer != NULL);
-	
+	free(command_str);
 	// find first field (code) in the lookup table
 	pInputInst->table_index = 100;
 	for (uint32_t i = 0; i < sizeof(pCodes)/sizeof(pCodes[0]); i++){

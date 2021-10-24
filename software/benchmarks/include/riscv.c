@@ -1,5 +1,4 @@
 #include "riscv.h"
-
 unsigned int volatile * const pCommReg0 = 		(unsigned int *) COMM_REGISTER0;
 unsigned int volatile * const pCommReg1 = 		(unsigned int *) COMM_REGISTER1;
 unsigned int volatile * const pCommReg2 = 		(unsigned int *) COMM_REGISTER2;

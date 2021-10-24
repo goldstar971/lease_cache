@@ -87,7 +87,7 @@ else
 end
 full_path=[base_data_dir,data_name,'/'];
 
-file_list=dir([full_path,'*.txt']);
+file_list=dir([full_path,'*.csv']);
 
  % if directory for term doesn't exist, create it.
     if(exist([tracking_dir,data_name,'/'],'dir')~=7)
@@ -105,9 +105,11 @@ for i=benchmark_index_2_plot
 	display([num2str(i),':',file_list(i).name(1:end-4)]);
 % extract delimited fields
 benchmark=file_list(i).name(1:end-4);
-current_tracking_file=strcat(full_path,benchmark,'.txt');
-if(contains(benchmark,'adi'))
-	[average,exp_mat,trace]=extract_tracking_data_all(current_tracking_file,cache_size,'large');
+current_tracking_file=strcat(full_path,benchmark,'.csv');
+[~,size_bytes]=system(['wc -c ',current_tracking_file,'| sed ''s/^\([0-9]*\).*/\1/''']);
+size_bytes=str2num(size_bytes);
+if(size_bytes>5*10^7)
+	[average,exp_mat,trace]=extract_tracking_data_all(current_tracking_file,cache_size,'very_large');
 else
 	[average,exp_mat,trace]=extract_tracking_data_all(current_tracking_file,cache_size,'small');
 end
@@ -126,10 +128,10 @@ set(gcf, 'Position',[100,100,1000,600]);     % [low left x, low left y, top righ
         xlabel('Millions of accesses');
         title('-Aggregate Cache Vacancy');
         ylim([0 cache_size]);
-    clear average.exp
+    clear average
     ax_2=subplot(1,3,2:3);
         s = surface(trace_millions,1:cache_size,exp_mat.fin');
-	clear exp_mat.fin
+	clear exp_mat
         s.EdgeColor = 'none';
         axis tight;
         title('Individual Cache Line Status');

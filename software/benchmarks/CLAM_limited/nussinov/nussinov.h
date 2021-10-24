@@ -1,1 +1,0 @@
-../../CLAM/nussinov/nussinov.h
