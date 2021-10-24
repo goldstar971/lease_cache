@@ -217,7 +217,7 @@
 													//4: dual lease ref (word address)
 `define LEASE_CONFIG_VAL_BW 			32
 `define LEASE_VALUE_BW 					32
-`define LEASE_REF_ADDR_BW 				29
+`define LEASE_REF_ADDR_BW 				27
 `define BW_PERCENTAGE                   9
 
 

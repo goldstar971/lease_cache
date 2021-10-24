@@ -8,7 +8,7 @@
 `include "../../../include/utilities.h"
 `include "../../../include/logic_components.h"
 `include "../../../utilities/embedded_memory/memory_embedded.v"
-
+`include "../../../include/mem.h"
 
 
 // cache 
@@ -217,7 +217,7 @@
 													//4: dual lease ref (word address)
 `define LEASE_CONFIG_VAL_BW 			32
 `define LEASE_VALUE_BW 					32
-`define LEASE_REF_ADDR_BW 				29
+`define LEASE_REF_ADDR_BW 				27
 `define BW_PERCENTAGE                   9
 
 

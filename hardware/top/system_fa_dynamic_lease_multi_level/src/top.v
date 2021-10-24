@@ -109,7 +109,7 @@ internal_system_2_multi_level riscv_sys (
 
 // external system <-> peripheral system buses
 wire 			req_toPer1, rw_toPer1;
-wire 	[`BW_BYTE_ADDR:0]
+wire 	[`BW_BYTE_ADDR:0] add_toPer1;
 wire 	[31:0]	data_toPer1, data_fromPer1;
 wire [1:0] sel_cpc;
 

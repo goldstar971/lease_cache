@@ -20,8 +20,6 @@ RESULT_DIR=./leases
 
 all_bench =  deriche lu ludcmp cholesky adi 2mm 3mm atax bicg correlation covariance durbin doitgen fdtd-2d gemm gemver gesummv gramschmidt heat-3d jacobi-1d jacobi-2d mvt nussinov seidel-2d symm syr2k syrk trisolv trmm floyd-warshall  
 multi_bench = mvt covariance correlation heat-3d jacobi-2d gemver 2mm fdtd-2d 3mm adi lu ludcmp  deriche
-all_bench_large = adi 2mm 3mm atax bicg correlation covariance durbin doitgen fdtd-2d gemm gemver gesummv gramschmidt heat-3d jacobi-1d jacobi-2d mvt nussinov seidel-2d symm syr2k syrk trisolv trmm lu ludcmp cholesky floyd-warshall  #deriche
-multi_bench_large = lu ludcmp correlation covariance mvt heat-3d jacobi-2d gemver fdtd-2d adi 2mm 3mm    #deriche
 clean: 
 	rm -rf $(BIN_DIR)/*
 
@@ -54,20 +52,20 @@ run_all_medium: src/lib.rs src/main.rs Cargo.toml
 	wait;
 
 run_all_large: src/lib.rs src/main.rs Cargo.toml
-	for i in $(all_bench_large); do \
+	for i in $(all_bench); do \
 		cargo run --release  $(SAMPLE_ALL_LARGE)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -p   > /dev/null ; \
 	done & \
-	for i in $(multi_bench_large); do \
+	for i in $(multi_bench); do \
 		cargo run --release  $(SAMPLE_ALL_PHASE_LARGE)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -c   > /dev/null ; \
 	done & \
 	wait;
 
 
 run_all_extra_large: src/lib.rs src/main.rs Cargo.toml
-	for i in $(all_bench_large); do \
+	for i in $(all_bench); do \
 		cargo run --release  $(SAMPLE_ALL_EXTRA_LARGE)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -p   > /dev/null ; \
 	done & \
-	for i in $(multi_bench_large); do \
+	for i in $(multi_bench); do \
 		cargo run --release  $(SAMPLE_ALL_PHASE_EXTRA_LARGE)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -c   > /dev/null ; \
 	done & \
 	wait;
@@ -91,18 +89,18 @@ run_all_medium_multi_level: src/lib.rs src/main.rs Cargo.toml
 	wait;
 
 run_all_large_multi_level: src/lib.rs src/main.rs Cargo.toml
-	for i in $(all_bench_large); do \
+	for i in $(all_bench); do \
 		cargo run --release  $(SAMPLE_ALL_LARGE)_multi_level/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -p   > /dev/null ; \
 	done & \
-	for i in $(multi_bench_large); do \
+	for i in $(multi_bench); do \
 		cargo run --release  $(SAMPLE_ALL_PHASE_LARGE)_multi_level/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -c   > /dev/null ; \
 	done & \
 	wait;
 run_all_extra_large_multi_level: src/lib.rs src/main.rs Cargo.toml
-	for i in $(all_bench_large); do \
+	for i in $(all_bench); do \
 		cargo run --release  $(SAMPLE_ALL_EXTRA_LARGE)_multi_level/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -p   > /dev/null ; \
 	done & \
-	for i in $(multi_bench_large); do \
+	for i in $(multi_bench); do \
 		cargo run --release  $(SAMPLE_ALL_PHASE_EXTRA_LARGE)_multi_level/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -c   > /dev/null ; \
 	done & \
 	wait;

@@ -37,6 +37,7 @@
 `include "../../../internal/sampler/tag_match_encoder_8b.v"
 `include "../../../internal/sampler/tag_match_encoder_9b.v"
 `include "../../../internal/sampler/pe_valid_match.v"
+`include "../../../internal/sampler/bram_2048_entries_32b.v"
 `include "../../../utilities/linear_feedback_shift_register/linear_shift_register_12b.v"
 
 `endif // _CACHE_H_

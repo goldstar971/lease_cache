@@ -85,17 +85,11 @@ make_run_all_script ()
     for i in *;
     do
         if [[ "$variant" == "SHEL"* || "$variant" == "C-SHEL"* ]]; then
-            if [[ -d "$i" && "$i" != "atax" && "$i" != "bicg" && "$i" != "cholesky" && "$i" != "floyd-warshall" && "$i" != "gemm" && "$i" != "gesummv" && "$i" != "gramschmidt" && "$i" != "jacobi-1d" && "$i" != "nussinov" && "$i" != "seidel-2d" && "$i" != "symm" && "$i" != "syr2k" && "$i" != "syrk" && "$i" != "trisolv" && "$i" != "trmm" && "$i" != "doitgen" && "$i" != "durbin" && "$i" != "deriche" ]]; then
+            if [[ -d "$i" && "$i" != "atax" && "$i" != "bicg" && "$i" != "cholesky" && "$i" != "floyd-warshall" && "$i" != "gemm" && "$i" != "gesummv" && "$i" != "gramschmidt" && "$i" != "jacobi-1d" && "$i" != "nussinov" && "$i" != "seidel-2d" && "$i" != "symm" && "$i" != "syr2k" && "$i" != "syrk" && "$i" != "trisolv" && "$i" != "trmm" && "$i" != "doitgen" && "$i" != "durbin" ]]; then
                 echo RUN ../benchmarks/"$variant"/"$i"/program >> "$file_path"/"$script_name";
-            else
-                if [[ "$i" == "deriche" && "$variant" != *"large" ]]; then
-                    echo RUN ../benchmarks/"$variant"/"$i"/program >> "$file_path"/"$script_name";
-                fi;
             fi;
         else
-            if [[ "$i" != "deriche" || ( "$i" == "deriche" && "$variant" != *"large" ) ]]; then
                 echo RUN ../benchmarks/"$variant"/"$i"/program >> "$file_path"/"$script_name";
-            fi;
         fi;
     done
 }
@@ -111,17 +105,11 @@ make_track_all_script ()
     for i in *;
     do
         if [[ "$variant" == "SHEL"* || "$variant" == "C-SHEL"* ]]; then
-            if [[ -d "$i" && "$i" != "atax" && "$i" != "bicg" && "$i" != "cholesky" && "$i" != "floyd-warshall" && "$i" != "gemm" && "$i" != "gesummv" && "$i" != "gramschmidt" && "$i" != "jacobi-1d" && "$i" != "nussinov" && "$i" != "seidel-2d" && "$i" != "symm" && "$i" != "syr2k" && "$i" != "syrk" && "$i" != "trisolv" && "$i" != "trmm" && "$i" != "doitgen" && "$i" != "durbin" && "$i" != "deriche" ]]; then
+            if [[ -d "$i" && "$i" != "atax" && "$i" != "bicg" && "$i" != "cholesky" && "$i" != "floyd-warshall" && "$i" != "gemm" && "$i" != "gesummv" && "$i" != "gramschmidt" && "$i" != "jacobi-1d" && "$i" != "nussinov" && "$i" != "seidel-2d" && "$i" != "symm" && "$i" != "syr2k" && "$i" != "syrk" && "$i" != "trisolv" && "$i" != "trmm" && "$i" != "doitgen" && "$i" != "durbin" ]]; then
                 echo TRACK ../benchmarks/"$variant"/"$i"/program >> "$file_path"/"$script_name";
-            else
-                if [[ "$i" == "deriche" && "$variant" != *"large" ]]; then
-                    echo TRACK ../benchmarks/"$variant"/"$i"/program >> "$file_path"/"$script_name";
-                fi;
             fi;
         else
-            if [[ "$i" != "deriche" || ( "$i" == "deriche" && "$variant" != *"large" ) ]]; then
                 echo TRACK ../benchmarks/"$variant"/"$i"/program >> "$file_path"/"$script_name";
-            fi;
         fi;
     done
 }
@@ -138,13 +126,12 @@ make_run_all_plru_script ()
     rm -f "$file_path"/"$script_name";
     for i in *;
     do
-    	if [[ "$i" != "deriche" || ("$i" == "deriche" && "$variant" != *"large") ]]; then
+  
 	    	if [[ "$1" != "" ]]; then
 	            echo RUN ../benchmarks/SHEL_"$1"/"$i"/program >> "$file_path"/"$script_name";
 	        else
 	        	echo RUN ../benchmarks/SHEL/"$i"/program >> "$file_path"/"$script_name";
 	        fi
-	   fi
     done
 }
 

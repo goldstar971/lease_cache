@@ -509,7 +509,6 @@ set_global_assignment -name TIMING_ANALYZER_MULTICORNER_ANALYSIS ON
 set_global_assignment -name SEED 4
 set_global_assignment -name QIP_FILE ../../../internal/cache_2level/L2_cache.qip
 set_global_assignment -name VERILOG_FILE ../src/top.v
-set_global_assignment -name QIP_FILE ../../../utilities/clock_generation/50mhz_pll/fifty_mhz_pll.qip
 set_global_assignment -name QIP_FILE ../../../utilities/clock_generation/double_speed_pll/double_speed.qip
 set_global_assignment -name SDC_FILE ../../system_fa_PLRU_multi_level/project/output_files/SDC1.sdc
 set_global_assignment -name VERILOG_FILE ../../../external/system/src/external_memory_system_2.v
