@@ -36,6 +36,11 @@ fn main(){
             .takes_value(false)
             .required(false)
             .about("output information about lease assignment"))
+        .arg(Arg::new("SAMPLING_RATE")
+            .short('S')
+            .default_value("256")
+            .about("benchmark sampling rate")
+            .required(false))
         .arg(Arg::new("LLT_SIZE")
             .short('L')
             .default_value("128")
@@ -55,13 +60,9 @@ fn main(){
             .takes_value(false)
             .required(false)
             .about("enable even more information about lease assignment")).get_matches();
-        // .arg(Arg::new("SAMPLING_RATE")
-        //     .short('S')
-        //     .default_value("256")
-        //     .about("benchmark sampling rate")
-        //     .required(false))
 
     let cache_size=matches.value_of("CACHE_SIZE").unwrap().parse::<u64>().unwrap();
+    let sample_rate = matches.value_of("SAMPLING_RATE").unwrap().parse::<u64>().unwrap();
     let perl_bin_num =matches.value_of("PRL").unwrap().parse::<u64>().unwrap();
     let llt_size=matches.value_of("LLT_SIZE").unwrap().parse::<usize>().unwrap();
     let mem_size=matches.value_of("MEM_SIZE").unwrap().parse::<usize>().unwrap();
@@ -76,7 +77,7 @@ fn main(){
     let cap= re.captures(&*search_string).unwrap();
 
 //generate distributions
-       let (ri_hists,samples_per_phase,misses_from_first_access,sample_rate) = cshel::io::build_ri_hists(matches.value_of("INPUT").unwrap(),cshel);
+       let (ri_hists,samples_per_phase,misses_from_first_access) = cshel::io::build_ri_hists(matches.value_of("INPUT").unwrap(),cshel);
    //generates PRL
    if prl {
     //generate bins
@@ -91,13 +92,13 @@ fn main(){
     //generate prl leases
     let (leases, dual_leases, lease_hits,trace_length) = cshel::lease_gen::prl(bin_width,
         &ri_hists,&binned_ri_distributions,&binned_freqs,256,cache_size,discretize_width,&samples_per_phase,verbose).unwrap();
-    println!("running PRL");
+    
     let lease_vectors=cshel::io::dump_leases(leases,dual_leases,lease_hits,trace_length,&output_file_name[..],misses_from_first_access);
     let output_lease_file_name=format!("{}/{}_{}_{}",matches.value_of("OUTPUT").unwrap(),&cap[2],"prl","lease.c");
     cshel::io::gen_lease_c_file(lease_vectors,llt_size,mem_size,output_lease_file_name,discretize_width);
    }
  
-   println!("running {}",&cap[2]);
+   
     output_file_name=format!("{}/{}_{}_{}",matches.value_of("OUTPUT").unwrap(),&cap[2],&cap[1],"leases");
        //generates based on input file phases, CLAM or SHEL 
    let (leases,dual_leases, lease_hits,trace_length) = cshel::lease_gen::shel_cshel(false,&ri_hists,cache_size,sample_rate,&samples_per_phase,discretize_width, 
@@ -109,7 +110,6 @@ fn main(){
   //generate CSHEL if option specified
    if cshel {
     //generate leases
-    println!("Running C-SHEL.");
      let (leases, dual_leases, lease_hits,trace_length) = cshel::lease_gen::shel_cshel(true,&ri_hists,cache_size,sample_rate,&samples_per_phase,discretize_width,
         verbose,debug).unwrap();
        //compose output file name
