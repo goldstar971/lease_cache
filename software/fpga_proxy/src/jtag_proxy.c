@@ -40,7 +40,7 @@ uint32_t proxy_terminal_command(pHandle pInst){
 }
 
 uint32_t proxy_string_command(pHandle pInst, char *command_str){
-
+	printf("command_str:%s\n",command_str);
 	// use string command to populate command data structure
 	command command_inst; 
 
@@ -57,7 +57,6 @@ uint32_t proxy_execute(pHandle pInst, command *pCommand){
 
 	// execute the command specified by the lookup table index (found during parsing)
 	switch(pCommand->table_index){
-
 		// CLOSE
 		// --------------------------------------------------
 		case 0:
@@ -112,13 +111,13 @@ uint32_t proxy_execute(pHandle pInst, command *pCommand){
 		// --------------------------------------------------
 		case 7: return script_run(pInst, pCommand);
 
-		// SAMPLE
-		// --------------------------------------------------
-		case 8: return sampler_run(pInst, pCommand);
-
 		// TRACK
 		// --------------------------------------------------
-		case 9: return tracker_run(pInst, pCommand);
+		case 8: return tracker_run(pInst, pCommand);
+
+		// SAMPLE
+		// --------------------------------------------------
+		case 9: return sampler_run(pInst, pCommand);
 
 	}
 

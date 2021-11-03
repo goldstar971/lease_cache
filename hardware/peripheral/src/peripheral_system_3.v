@@ -1,10 +1,11 @@
 `include "../../../include/peripheral.h"
 `include "../../../include/mem.h"
+`include "../../../include/sampler.h"
 module peripheral_system_3(
 
 	// internal system
 	input				clock_i, 
-	input 				reset_i, 
+	input 				cpu_resetn_i, 
 	input 				req_core_i, 
 	input				rw_core_i, 
 	input 		[`BW_BYTE_ADDR:0] 	add_core_i, 
@@ -24,30 +25,44 @@ module peripheral_system_3(
 	input 		[31:0]	comm_cache1_i,
 	input       [31:0]  comm_cacheL2_i,
 	output   	[1:0]    metric_sel_o,
+	output      [15:0]    shift_sample_rate_o,
 	output 		[31:0] 	phase_o,
-	output 		[31:0]	comm_o
+	output 		[31:0]	comm_o,
+	output      reset_system_o
 	
 );
+reg [1:0] reset_reg;
+assign reset_system_o=reset_reg[0];
 
 // write control
 reg [31:0]	comm_reg0, comm_reg1;
 reg [7:0]	comm_pro_i_reg;
 reg [23:0]	comm_cs_i_reg;
+reg [15:0]   sample_rate_reg;
 reg [1:0] metric_sel_reg;
+wire [3:0]shift_sample_rate;
+
+assign shift_sample_rate=data_cs_i[13:2]>=2048 ? 0 : data_cs_i[13:2]>=1024 ? 1 : data_cs_i[13:2]>=512
+? 2 : data_cs_i[13:2]>=256 ? 3 : data_cs_i[13:2]>=128 ? 4 : data_cs_i[13:2]>=64 ? 5 : data_cs_i[13:2]>=32 ? 6 :
+data_cs_i[13:2]>=16 ? 7 : data_cs_i[13:2]>=8 ? 8: data_cs_i[13:2] >=4 ? 9 :data_cs_i[13:2]>=2 ? 10 : 11;
+
+
 assign metric_sel_o=metric_sel_reg;
+assign shift_sample_rate_o=sample_rate_reg;
 
 assign comm_o = {comm_pro_i_reg, comm_cs_i_reg};
 		reg [31:0]	core_phase_reg;
 		assign phase_o = core_phase_reg;
 
 always @(posedge clock_i) begin
-	if (!reset_i) begin
+	if (!reset_reg[1]) begin
 		comm_reg0 		<= 32'h0; 
 		comm_reg1 		<= 32'h0; 
 		comm_pro_i_reg 	<= 'b0; 
 		comm_cs_i_reg 	<= 'b0;
 		metric_sel_reg<='b0;
 		core_phase_reg 	<= 'b0;
+		sample_rate_reg<='b0;
 	end
 	else begin
 
@@ -70,7 +85,15 @@ always @(posedge clock_i) begin
 		if (req_cs_i & rw_cs_i) begin
 			case(add_cs_i)
 				`COMM_CONTROL:  comm_cs_i_reg <= data_cs_i[23:0];
-				`CPC_METRIC_SWITCH:    metric_sel_reg<=data_cs_i[1:0];
+				`CPC_METRIC_SWITCH:   begin
+						metric_sel_reg<=data_cs_i[1:0];
+						if(data_cs_i[1:0]==2'b1)begin
+							sample_rate_reg[15:0]<={data_cs_i[25:14],shift_sample_rate}; //get seed for sampler
+						end
+						else begin
+							sample_rate_reg<=data_cs_i[17:2]; //get tracking data sampling rate
+						end
+				end
 				`STATS_BASE: begin
 					case(data_cs_i[2:0])
 						3'b000: comm_reg1 <= cycle_counts_i[31:0];
@@ -90,8 +113,13 @@ end
 
 // read control
 always @(posedge clock_i) begin
-	if (reset_i != 1'b1) begin
-		data_core_o <= 32'hDEADBEAF; data_cs_o <= 32'hDEADBEAF;
+	if (!reset_reg[1]) begin
+		data_core_o <= 32'hDEADBEAF; 
+		//even when peripheral system is in reset, output the value of the reset reg
+		case(add_cs_i)
+			`RESET_CONTROL: data_cs_o <= {{30{1'b1}},reset_reg};
+			default: data_cs_o <= 32'hDEADBEAF;
+		endcase
 	end
 	else begin
 		// core requests
@@ -106,7 +134,7 @@ always @(posedge clock_i) begin
 			case(add_cs_i)
 				`COMM_REGISTER0: data_cs_o <= comm_reg0;
 				`STATS_BASE:     data_cs_o <= comm_reg1;
-			
+				`RESET_CONTROL:  data_cs_o <= {{30{1'b1}},reset_reg};
 				
 				// cache comm stuff
 				`COMM_CACHE0: data_cs_o <= comm_cache0_i;
@@ -118,5 +146,22 @@ always @(posedge clock_i) begin
 		end
 	end
 end
+
+
+//reset control
+//handles write control
+always @(posedge clock_i)begin
+	if(!cpu_resetn_i)begin
+		reset_reg<=2'b00;
+	end
+	else begin
+		if(req_cs_i & rw_cs_i)begin 
+			case(add_cs_i)
+				`RESET_CONTROL: reset_reg<=data_cs_i[1:0];
+			endcase
+		end
+	end 
+end
+
 	
 endmodule

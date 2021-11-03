@@ -116,7 +116,9 @@ function [] =plot_cache_summary(varargin)
 		benchmarks(i)=regexp(filenames{i},"/benchmarks/.*\/(.*)\/program",'tokens');
 	end
 	benchmarks=string(benchmarks);
-	benchmark_names=unique(benchmarks);
+	%make sure in alphabetical order
+	benchmark_names=sort(unique(benchmarks));
+	
 
 	for i = 1:length(benchmark_names)
 	    data_bm{i} = parse_name(data, transpose(benchmarks), benchmark_names(i));

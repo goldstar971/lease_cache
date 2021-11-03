@@ -13,6 +13,8 @@ module internal_system_2_multi_level(
 	output 	[31:0]	comm_cacheL1D_o,
 	output  [31:0]  comm_cacheL2_o,
 	input    [1:0]  cpc_metric_switch_i,
+	input    [15:0]    rate_shift_seed_i,
+
 	
 	// external system
 	output 			mem_req_o, 
@@ -117,6 +119,7 @@ wire 				mci_hitFromCacheL2, mci_reqFromCacheL2, mci_reqBlockFromCacheL2, mci_rw
 	.comm_o 				(comm_cacheL2_o 				),
 	.metric_sel_i(cpc_metric_switch_i),
 	.phase_i(phase_i),
+	.rate_shift_seed_i     (rate_shift_seed_i),
 	
 	// L1					
 	.L1_req_i 			(L1_reqToCacheL2 			), 

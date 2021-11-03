@@ -15,14 +15,16 @@
 
 
 
-
 `ifdef MULTI_LEVEL_CACHE
-	`define SAMPLE_RATE_BW `CLOG2(256)
+	`define LSFR_PERIOD        2048
+	`define SAMPLE_RATE_BW `CLOG2(`LSFR_PERIOD)+1
+
 	`define 	N_SAMPLER			256 			// table entries
 `define 	BW_SAMPLER 			8
 `define TAG_MATCH_ENCODER_INST tag_match_encoder_8b
 `else 
-	`define SAMPLE_RATE_BW `CLOG2(256)
+	`define LSFR_PERIOD       2048
+	`define SAMPLE_RATE_BW `CLOG2(`LSFR_PERIOD)+1
 	`define 	N_SAMPLER			256 			// table entries
 `define 	BW_SAMPLER 			8
 `define TAG_MATCH_ENCODER_INST tag_match_encoder_8b
@@ -37,7 +39,6 @@
 `include "../../../internal/sampler/tag_match_encoder_8b.v"
 `include "../../../internal/sampler/tag_match_encoder_9b.v"
 `include "../../../internal/sampler/pe_valid_match.v"
-`include "../../../internal/sampler/bram_2048_entries_32b.v"
-`include "../../../utilities/linear_feedback_shift_register/linear_shift_register_12b.v"
+`include "../../../utilities/linear_feedback_shift_register/seeded_linear_shift_register_12b.v"
 
 `endif // _CACHE_H_

@@ -36,6 +36,7 @@ pub mod io {
         let mut curr_ri_distribution_dict=HashMap::<u64,HashMap<u64,u64>>::new();
         let mut last_address: u64 =0;
         let mut all_keys: Vec<u64>=Vec::new();
+        
         bin_freqs.insert(0,curr_bin_dict.clone());
         bin_ri_distributions.insert(0,curr_ri_distribution_dict.clone());
        
@@ -54,6 +55,7 @@ pub mod io {
             .unwrap();
         for result in rdr.deserialize(){
             let sample: Sample = result.unwrap();
+
             
             //if outside of current bin, moved to the next
             if sample.time>curr_bin+bin_width{
@@ -84,8 +86,9 @@ pub mod io {
             if !all_keys.iter().any(|&i| i==addr){
                 all_keys.push(addr);
             }
-            
+                
         }
+       
         //store the frequency and RI data for the last bin
         bin_freqs.insert(curr_bin,curr_bin_dict.clone());
         bin_ri_distributions.insert(curr_bin,curr_ri_distribution_dict.clone());
@@ -104,7 +107,7 @@ pub mod io {
 
 
 
-    pub fn build_phase_transitions(input_file:&str) -> (Vec<(u64,u64)>,usize){
+    pub fn build_phase_transitions(input_file:&str) -> (Vec<(u64,u64)>,usize,u64){
         println!("Reading input from: {}", input_file);
 
 
@@ -114,10 +117,17 @@ pub mod io {
             .unwrap();
         let mut u_tags=HashMap::<u64,bool>::new();
         let mut sample_hash = HashMap::new();
+        let mut last_sample_time: u64=0;
+        let mut sample_num: u64=0;
 
         for result in rdr.deserialize() {
             let sample: Sample = result.unwrap();
             let ri = u64::from_str_radix(&sample.ri,16).unwrap();
+
+            
+            //don't use end of benchmark infinite RIs
+           
+
             //store unique tags
              u_tags.insert(u64::from_str_radix(&sample.tag,16).unwrap(),false);
 
@@ -136,7 +146,14 @@ pub mod io {
                 use_time = reuse_time - ri as u64;
             }
             sample_hash.insert(use_time,phase_id);
+            //get empircal sampling rate
+            last_sample_time=sample.time;
+            sample_num+=1;
+
         }
+        //empircally calculate sampling rate
+        let sampling_rate=(last_sample_time as f64/sample_num as f64).round() as u64;
+        println!("sampling_rate:{}",sampling_rate);
         //every data block is associated with at least one miss in the absense of hardware prefetching.
         let first_misses=u_tags.len();
        
@@ -159,7 +176,7 @@ pub mod io {
         let mut sorted_transitions: Vec<_> = phase_transitions.iter().collect();
         sorted_transitions.sort_by_key(|a| a.0);
 
-        return(sorted_transitions.iter().map(|&x| (*(x.0),*(x.1))).collect(),first_misses);
+        return(sorted_transitions.iter().map(|&x| (*(x.0),*(x.1))).collect(),first_misses,sampling_rate);
       
     }
 
@@ -174,8 +191,8 @@ pub mod io {
     
     // Tail cost refers to the accumulation of cost from reuses greater than ri.
     // This cost may span a phase boundary 
-    pub fn build_ri_hists(input_file:&str,cshel:bool) -> (super::lease_gen::RIHists,HashMap<u64,u64>,usize){
-        let (phase_transitions,first_misses) = build_phase_transitions(input_file);
+    pub fn build_ri_hists(input_file:&str,cshel:bool) -> (super::lease_gen::RIHists,HashMap<u64,u64>,usize,u64){
+        let (phase_transitions,first_misses,sampling_rate) = build_phase_transitions(input_file);
         let mut rdr = csv::ReaderBuilder::new()
             .has_headers(false)
             .from_path(input_file)
@@ -275,13 +292,14 @@ pub mod io {
                ri_hists.entry(phase_id_ref).or_insert(HashMap::new()).entry(ri).and_modify(|e| {e.0+=1}).or_insert((1,HashMap::new())).1.entry(phase_id).or_insert((0,0));
             }
         }
-        (super::lease_gen::RIHists::new(ri_hists),samples_per_phase,first_misses)
+        (super::lease_gen::RIHists::new(ri_hists),samples_per_phase,first_misses,sampling_rate)
     }
     pub fn dump_leases(leases: HashMap<u64,u64>, 
         dual_leases: HashMap<u64,(f64,u64)>,
         lease_hits:HashMap<u64,HashMap<u64,u64>>,
         trace_length:u64,
         output_file:&str,
+        sampling_rate:u64,
         first_misses:usize) ->Vec<(u64,u64,u64,u64,f64)> {
         let mut num_hits=0;
         //create lease output vector
@@ -314,7 +332,7 @@ pub mod io {
          }
          println!("Writing output to: {}",output_file);
          let mut file = std::fs::File::create(output_file).expect("create failed");
-         file.write_all(&format!("Dump predicted miss count (no contention misses): {}\n",trace_length-num_hits*256+first_misses as u64)[..].as_bytes()).expect("write failed");
+         file.write_all(&format!("Dump predicted miss count (no contention misses): {}\n",trace_length-num_hits*sampling_rate+first_misses as u64)[..].as_bytes()).expect("write failed");
          file.write_all("Dump formated leases\n".as_bytes()).expect("write failed");
 
          for (phase, address, lease_short, lease_long, percentage) in lease_vector.iter(){
@@ -337,9 +355,22 @@ pub mod io {
     }
 // function for generating c-files
     pub fn gen_lease_c_file(
-        lease_vector:Vec<(u64,u64,u64,u64,f64)>,llt_size:usize,mem_size:usize,output_file:String,discretize_width:u64){
+        mut lease_vector:Vec<(u64,u64,u64,u64,f64)>,llt_size:usize,mem_size:usize,output_file:String,discretize_width:u64){
     
     let mut phase_lease_arr:HashMap<u64,HashMap<u64,(u64,u64,f64,bool)>>=HashMap::new();
+    let mut phases:Vec<u64>=Vec::new();
+    for lease in lease_vector.iter(){
+        if !phases.contains(&lease.0){
+            phases.push(lease.0);
+        }
+    }
+    //due to the way we store leases in memory, we can't skip any phases so 
+    //if there are phases with no leases, assign a dummy lease to the skipped phase
+    for phase in 0..*phases.iter().max().unwrap(){
+        if !phases.contains(&phase){
+            lease_vector.push((phase,0,0,0,1.0));
+        }
+    }
 
 
 
@@ -812,13 +843,14 @@ pub mod lease_gen {
                 cache_size : u64,
                 discretize: u64,
                 samples_per_phase : &HashMap<u64,u64>,
-                verbose: bool,)-> Option<(HashMap<u64,u64>,HashMap<u64,(f64,u64)>,HashMap<u64,HashMap<u64,u64>>,u64)>{
+                verbose: bool,
+                debug: bool)-> Option<(HashMap<u64,u64>,HashMap<u64,(f64,u64)>,HashMap<u64,HashMap<u64,u64>>,u64)>{
         let mut new_lease: PPUC;
         let mut dual_leases : HashMap<u64,(f64,u64)>= HashMap::new(); //{ref_id, (alpha, long_lease)}
         let mut trace_length : u64=0;
         let bin_target:u64=bin_width*cache_size;
         let mut bin_endpoints:Vec<u64>=Vec::new();
-        let min_alpha=(((2<<(discretize-1)) as f64)-1.5 as f64)/(((2<<(discretize-1)) as f64)-1.0 as f64); //threshold for meaningful dual lease
+       let min_alpha=1.0-(((2<<(discretize-1)) as f64)-1.5 as f64)/(((2<<(discretize-1)) as f64)-1.0 as f64); //threshold for meaningful dual lease
 
         if verbose{
         println!("bin_width:  {}",bin_width);
@@ -924,15 +956,21 @@ pub mod lease_gen {
                 }
             }
             for (bin,sat) in &bin_saturation.clone(){
-                if verbose {
-                    println!("bin: {} current capacity: {:.7} impact: {:.7}", bin/bin_width, sat/bin_width as f64,impact_dict.get(bin).unwrap()/bin_width as f64);
+                if verbose && debug {
+                    println!("bin: {} current capacity: {:.7} impact: {:.7}", bin/bin_width, sat/bin_width as f64,impact_dict.get(bin).unwrap()/bin_width as f64); 
                 }
+
              }
-             println!("addr:{} ri:{}",addr,new_lease.lease);
+             if verbose{
+                println!("addr:{:x} ri:{:x}",addr,new_lease.lease);
+             }
+            
             //skip lease, if it makes it worse
            
             if neg_impact{
-               
+                if verbose{
+                    println!("lease value would be negative");
+                }
                 continue;
             }
             if num_unsuitable<1{
@@ -954,7 +992,7 @@ pub mod lease_gen {
                    
                 }
                 if verbose{
-                 println!("assigning lease: {} to reference {}",new_lease.lease, addr);
+                  println!("assigning lease: {:x} to reference {:x}",new_lease.lease, addr);
                  println!("Average cache occupancy per bin: [{}]",print_string);
              }
             }
@@ -995,9 +1033,9 @@ pub mod lease_gen {
                    
                     }
                     if verbose{
-                    println!("Assigning dual lease {} to address {} with percentage: {}",new_lease.lease,addr,acceptable_ratio);
-                    println!("Average cache occupancy per bin: [{}]",print_string);
-                }
+                        println!("Assigning dual lease {} to address {} with percentage: {}",new_lease.lease,addr,acceptable_ratio);
+                        println!("Average cache occupancy per bin: [{}]",print_string);
+                    }
                 }
                 
             }
@@ -1027,12 +1065,17 @@ pub mod lease_gen {
         let mut last_lease_cost: HashMap<u64,(u64,u64,u64)>=HashMap::new();
         
         let phase_ids: Vec<&u64> = samples_per_phase.keys().collect();
-        if verbose {
+        //since we can't run CSHEL without also running SHEL, don't output RI history twice
+        if !cshel {
+            if verbose {
             println!("---------Dump RI Hists------------");
             super::io::debug::print_ri_hists(&ri_hists);
             println!("---------Dump Samples Per Phase---");
             println!("{:?}",&samples_per_phase);
+            }
         }
+        
+        
         let min_alpha:f64=1.0-(((2<<(discretize-1)) as f64)-1.5 as f64)/(((2<<(discretize-1)) as f64)-1.0 as f64); //threshold for meaningful dual lease
          //initialize ppucs
         let mut ppuc_tree = BinaryHeap::new();
@@ -1116,7 +1159,7 @@ pub mod lease_gen {
             // if   dual_lease_phases.contains(&(new_lease.ref_id>>24)){  
                 if cost_per_phase.get(&(new_lease.ref_id>>24)).unwrap()==budget_per_phase.get(&(new_lease.ref_id>>24)).unwrap(){
                     continue;
-                }
+              }
                 //if we've already assigned dual leases to all phases, end
             if dual_lease_phases.len()==cost_per_phase.len(){
               return Some((leases,dual_leases,lease_hits,trace_length)) ;
@@ -1280,6 +1323,8 @@ pub mod lease_gen {
                                             dual_leases.get(&old_phase_ref).unwrap().1;
                                               println!("Assigning adjusted dual lease {:x} with percentage {} to reference ({},{:x}) would not be meaningful.", 
                                         new_lease.lease,phase_alpha,phase,old_phase_ref);
+                                               adjust_lease=false;
+                                              break;
                                         }
 
                                         new_alpha.insert(phase,phase_alpha);
@@ -1336,7 +1381,7 @@ pub mod lease_gen {
                         }
                         else {
                             //if we can't assign a dual lease without overflowing a phase
-                            //without adjustment of past dual leases, with adjustment of past dual leases 
+                            //without adjustment of past dual leases, with adjustment of past dual leases, 
                             //or in the the unlikely case a phase is full with no dual lease
                            
                               println!("Unable to assign lease {:x} with percentage {} to reference ({},{:x})", 
@@ -1352,7 +1397,6 @@ pub mod lease_gen {
                 
             
                 let phase=(new_lease.ref_id & 0xFF000000)>>24;
-                println!("current_phase_alpha: {},alpha: {}",current_phase_alpha,alpha);
                 //if last lease was a dual lease with alpha of 1 that didn't fill the budget, then it is actually a short lease and adjustments can be made to ensure 
                 //there is only 1 dual lease per phase.
                 if alpha==1.0 && cost_per_phase.get(&phase).unwrap()!=budget_per_phase.get(&phase).unwrap(){

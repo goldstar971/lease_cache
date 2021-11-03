@@ -12,6 +12,7 @@ module internal_system_2(
 	output 	[31:0]	comm_cache0_o, 
 	output 	[31:0]	comm_cache1_o,
 	input    [1:0]    cpc_metric_switch_i,
+	input    [15:0]    rate_shift_seed_i,
 	
 	// external system
 	output 			mem_req_o, 
@@ -163,6 +164,7 @@ wire 				mci_hitFromCache1, mci_reqFromCache1, mci_reqBlockFromCache1, mci_rwFro
 	.PC_i             (core_inst_addr               ),  
 		.phase_i          (phase_i                   ),
 	.metric_sel_i    (cpc_metric_switch_i           ),
+	.rate_shift_seed_i     (rate_shift_seed_i),
 	// core/hart					
 	.core_req_i 			(core_reqToCache1 			), 
 	.core_ref_add_i			(core_inst_addr_word		), 	// only used in lease data cache

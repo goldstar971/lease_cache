@@ -7,7 +7,7 @@ module cache_performance_controller_all #(
 	input 			resetn_i,
 	input[31:0] phase_i,   
 	input [31:0]	 pc_ref_i,         
-	input [`BW_CACHE_TAG-1:0] tag_ref_i,	
+	input [`BW_CACHE_TAG-1:0] tag_ref_i,
 	input          swap_i,
 	input 			req_i,
 	input 			hit_i, 				// logic high when there is a cache hit
@@ -25,7 +25,8 @@ module cache_performance_controller_all #(
 	input 	[CACHE_BLOCK_CAPACITY-1:0]	expired_flags_1_i,
 	input 	[CACHE_BLOCK_CAPACITY-1:0]	expired_flags_2_i,
 `endif
-	input  [1:0] select_data_record
+	input  [1:0] select_data_record,
+	input  [15:0] rate_shift_seed_i
 );
 
 reg 	[31:0]	comm_o_reg0,comm_o_reg1,comm_o_reg2;
@@ -238,7 +239,7 @@ end
 //tracker
 `ifdef L2_CACHE_POLICY_DLEASE
 cache_line_tracker_4 #(
-	.FS 				(256 					),
+	.FS 				(		),
 	.N_LINES 	 		(CACHE_BLOCK_CAPACITY 	)
 ) tracker_inst (
 	.clock_i  			(!clock_i[1]				), 		// phase = 90 deg		
@@ -250,13 +251,13 @@ cache_line_tracker_4 #(
 	.expired_bits_0_i 	(expired_flags_0_i 		),
 	.expired_bits_1_i 	(expired_flags_1_i 		),
 	.expired_bits_2_i 	(expired_flags_2_i 		),
-
 	.stall_o 			(tracker_stall_o 		),
 	.count_o 			(count_bus 				),	 			
 	.trace_o 			(trace_bus 				),
 	.expired_bits_0_o 	(eviction_bit_0_bus 	),
 	.expired_bits_1_o 	(eviction_bit_1_bus 	),
-	.expired_bits_2_o 	(eviction_bit_2_bus 	)
+	.expired_bits_2_o 	(eviction_bit_2_bus 	),
+	.rate_i       (rate_shift_seed_i)
 
 );
 `endif
@@ -278,6 +279,7 @@ cache_line_tracker_4 #(
 		.count_o 			(rui_count 			), 
 		.remaining_o 		(rui_remaining 		),
 		.full_flag_o 		(buffer_full_flag 	), 
+		.rate_shift_seed_i		(rate_shift_seed_i),
 		.stall_o 			(table_full_flag 		)
 	);
 

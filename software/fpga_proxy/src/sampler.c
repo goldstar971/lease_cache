@@ -232,15 +232,14 @@ uint32_t protocol_tracker_buffer_read(pHandle pInst, uint32_t buffer_start_addre
 
 
 uint32_t sampler_run(pHandle pInst, command *pCommand){
-
 	// temporaries
 	time_t time0, time1;
 	char command_str[300];
 
-	char file_path[200]; 
+	char file_path[512];
 	char benchmark_type[50];
 	char benchmark_name[50];
-	char full_output_path[256]; 
+	char full_output_path[570]; 
 	char application[256];
 
 	strcpy(application,pCommand->field[1]);
@@ -252,6 +251,13 @@ uint32_t sampler_run(pHandle pInst, command *pCommand){
 		sprintf(application,"%s/%s/%s/program.elf",BENCHMARK_DIR,benchmark_type,benchmark_name);
 		
 	}
+
+	//check if sampling rate allowed
+	if(pCommand->field2_number>2048){
+		printf("sample rate selected must be less than 2048!\n");
+		return 1;
+	}
+
 
 	if(access(application,F_OK)!=0){
 		printf("Could not find provided application file: %s. \
@@ -274,8 +280,8 @@ proxy makefile",pCommand->field[1],application);
 		if(tries>9){
 			return 1;
 		}
-		// put system in reset
-		sprintf(command_str, "CONFIG 0x2 0x0");
+// give comms system permission to r/w main memory.
+		sprintf(command_str, SET_MM_ACCESS_COMMS);
 	if(proxy_string_command(pInst, command_str)){
 		return 1;
 	}
@@ -304,20 +310,34 @@ proxy makefile",pCommand->field[1],application);
 	#else
 		sprintf(file_path,"%s/sample/%s/",RESULT_DIR,benchmark_type);
 	#endif
-	sprintf(full_output_path,"%s%s.txt",file_path,benchmark_name);
-	//if directory doesn't exist, try to create it.
-	if(0!= access(file_path,F_OK)){
-		//make folder if error is that dir doesn't exist
-		if (ENOENT==errno){
-			mkdir(file_path,0777);
+	
+	//if directories don't exist, try to create them.
+	for(int i=0;i<3;i++){
+		if(0!= access(file_path,F_OK)){
+			//make folder if error is that dir doesn't exist
+			if (ENOENT==errno){
+				mkdir(file_path,0777);
+			}
+			else{
+				printf("Can't access directory for reasons other than non-existence.\n");
+				return 1;
+			}
 		}
-		else{
-			printf("Can't access directory for reasons other than non-existence.\n");
-			return 1;
+		char path_extension [30];
+		//create directory for rate
+		if (i==0){
+			sprintf(path_extension,"rate_%d/",pCommand->field2_number);
+			strcat(file_path,path_extension);
 		}
+		//create directory for seed
+		else if (i==1){
+			sprintf(path_extension,"seed_%d/",pCommand->field3_number);
+			strcat(file_path,path_extension);
+		}
+		
 	}
-
-
+	sprintf(full_output_path,"%s%s.txt",file_path,benchmark_name);
+	
 	//open file to log data
 	FILE *file_handle =fopen(full_output_path,"w");
 	if (file_handle == NULL){
@@ -330,17 +350,26 @@ proxy makefile",pCommand->field[1],application);
 		return 1;
 	}
 
-	// begin wall-clock timer
-	sprintf(command_str, SEL_PERIPHS);
+	// give CPU permission to r/w main memory.
+		sprintf(command_str, SET_MM_ACCESS_CPU);
 	if(proxy_string_command(pInst, command_str)){
 		return 1;
 	}
 
-		    //select sampling as metric
-	 sprintf(command_str, SAMPLING_SEL);
+	int seed_value;
+	//seed random number generator with provided or default seed
+	srand(pCommand->field3_number);
+	seed_value=rand()%4096;
+	
+	    //select sampling as metric and give sampling rate
+	 sprintf(command_str,"WRITE 0x20000088, 0x%08x",1|(pCommand->field2_number<<2)|(seed_value<<14));
+	
     if(proxy_string_command(pInst, command_str)){
 		return 1;
 	}
+
+	
+	
 	//pull processor out of reset
 	sprintf(command_str, SET_CPU);
 	if(proxy_string_command(pInst, command_str)){
@@ -477,8 +506,8 @@ proxy makefile",pCommand->field[1],application);
 		if(tries>9){
 			return 1;
 		}
-		// put system in reset
-		sprintf(command_str, "CONFIG 0x2 0x0");
+		// give comms system permission to r/w main memory.
+		sprintf(command_str, SET_MM_ACCESS_COMMS);
 	if(proxy_string_command(pInst, command_str)){
 		return 1;
 	}
@@ -534,13 +563,14 @@ proxy makefile",pCommand->field[1],application);
 		return 1;
 	}
 
-	// begin wall-clock timer
-	sprintf(command_str, SEL_PERIPHS);
+	//give CPU permission to r/w main memory
+	sprintf(command_str, SET_MM_ACCESS_CPU);
 	if(proxy_string_command(pInst, command_str)){
-		return 1;
-	}
+			return 1;
+		}
+	
 		    //select tracking as metric
-	 sprintf(command_str, TRACKING_SEL);
+	 sprintf(command_str,"WRITE 0x20000088, 0x%08x",2|(pCommand->field2_number<<2));
     if(proxy_string_command(pInst, command_str)){
 		return 1;
 	}

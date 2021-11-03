@@ -239,10 +239,10 @@ branch_predictor_2b branch_predictor(
 	.clock_bus_i(clock_bus_i[2:1]),
 	.resetn_i(reset_i),
 	.jump_destination_i(jump_destination_o),
-	.PC_i(PC[25:2]),
+	.PC_i(PC[`BW_BYTE_ADDR-1:2]),
 	.stage_3_encoding_i(inst_encoding_3_reg),
-	.stage_1_instruct_addr_i(inst_addr_1_reg[25:2] ),
-	.stage_3_instruct_addr_i(inst_addr_3_reg[25:2] ),
+	.stage_1_instruct_addr_i(inst_addr_1_reg[`BW_BYTE_ADDR-1:2] ),
+	.stage_3_instruct_addr_i(inst_addr_3_reg[`BW_BYTE_ADDR-1:2] ),
 	.mispredict_i(jump_exception[2]),
 	.PC_o(prediction));
 
@@ -484,8 +484,8 @@ always @(posedge clock_bus_i[0]) begin
 					end
 					else begin
 						inst_addr_reg 		= PC; 		// if blocking will not be overwritten by combinational logic above
-						//PC = {5'b0,prediction}; 	
-						PC=PC+4;
+						PC = {3'b0,prediction}; 	
+						//PC=PC+4;
 					end
 				end
 

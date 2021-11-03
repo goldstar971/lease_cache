@@ -52,7 +52,7 @@ module external_memory_controller(
 	output 				rw3_o, 
 	output 				clear3_o, 
 	output 	[31:0]		data3_o, 
-	output 	[`BW_BYTE_ADDR:0]		add3_o, 
+	output 	[`BW_BYTE_ADDR-1:0]		add3_o, 
 	input 	[31:0]		data3_i,
 	input 				ready3_i, 
 	input 				done3_i, 
@@ -88,7 +88,6 @@ always @(posedge clock_i) begin
 	else begin
 
 		// default signals
-		req1_o <= 1'b0;
 		per_done_flag <= 1'b0;
 
 		case(state)
@@ -162,7 +161,7 @@ assign req3_o = ((mem_access == `ACCESS_COMM) & (comm_req_type == 1'b0) & (dev0_
 assign clear3_o = ((mem_access == `ACCESS_COMM) & (comm_req_type == 1'b0)) ? clear0_i : clear_int_i;
 assign reqBlock3_o = ((mem_access == `ACCESS_COMM) & (comm_req_type == 1'b0)) ? reqBlock0_i : reqBlock_int_i;
 assign rw3_o = ((mem_access == `ACCESS_COMM) & (comm_req_type == 1'b0)) ? rw0_i : rw_int_i;
-assign add3_o = ((mem_access == `ACCESS_COMM) & (comm_req_type == 1'b0)) ? add0_i : {{1'b0},add_int_i,{2'b00}};
+assign add3_o = ((mem_access == `ACCESS_COMM) & (comm_req_type == 1'b0)) ? add0_i[`BW_BYTE_ADDR-1:0] : {add_int_i,{2'b00}};
 assign data3_o = ((mem_access == `ACCESS_COMM) & (comm_req_type == 1'b0)) ? data0_i : data_int_i;
 
 // to peripherals

@@ -11,6 +11,7 @@ module cache_line_tracker_4 #(
 	input 	[N_LINES-1:0] 	expired_bits_0_i,
 	input 	[N_LINES-1:0] 	expired_bits_1_i,
 	input 	[N_LINES-1:0] 	expired_bits_2_i,
+	input   [15:0]           rate_i,
 
 	output 					stall_o,
 	output 	[31:0]			count_o,	 		// number of buffer entries to pull	
@@ -139,7 +140,7 @@ always @(posedge clock_i) begin
 			if (sampling_counter_reg == 'b0) begin
 
 				// reset counter
-				sampling_counter_reg 	= FS;
+				sampling_counter_reg 	= rate_i;
 
 				// store into memory
 				buffer_addr_reg 		= buffer_addr_next_reg[BW_BUFFER-1:0];

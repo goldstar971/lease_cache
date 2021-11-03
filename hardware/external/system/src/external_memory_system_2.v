@@ -23,10 +23,9 @@ module external_memory_system_2(
 	input 					clkin_r_p,
 	input 					cpu_resetn,
 	input 					rzqin_1_5v,
-	output 		[1:0]		reset_bus_o,
 
 	// internal system ports
-	input 		[3:0] 		clock_bus_i, 		// 20 Mhz, 20 Mhz 180deg phase, 40 Mhz, 40 Mhz 180deg phase
+	input 		[3:0] 		clock_bus_i, 		// 40 Mhz, 40 Mhz 180deg phase, 80 Mhz, 80 Mhz 180deg phase
 	input 					int_req_i,
 	input 					int_reqBlock_i,
 	input 					int_rw_i,
@@ -45,22 +44,6 @@ module external_memory_system_2(
 	output 		[31:0]		per_data_o,
 	input 		[31:0]		per_data_i	
 );
-
-// reset controller
-// ---------------------------------------
-wire 	[2:0]		system_reset_bus;
-wire 				req_reset;
-wire 	[1:0]		config_reset;
-
-reset_controller_v2 rst_cont0(
-	.clock 			(clock_bus_i[0]		), 
-	.reset_i 		(cpu_resetn 		), 
-	.reset_bus_o 	(system_reset_bus 	), 
-	.req_i 			(req_reset 			), 
-	.config_i 		(config_reset 		) 
-);
-
-assign reset_bus_o = system_reset_bus[2:1];
 
 // jtag-uart controller
 // ---------------------------------------
@@ -82,7 +65,7 @@ uart_system_2 uart_inst0(
 	.req_o 			(req_fromCOMM 		),
 	.req_block_o 	(reqBlock_fromCOMM 	),
 	.rw_o 			(rw_fromCOMM 		),
-	.add_o 			(add_fromCOMM 		),					// addresses are byte addressible (64MB mem, above that are peripherals)
+	.add_o 			(add_fromCOMM 		),					// addresses are byte addressible (512MB mem, above that are peripherals)
 	.data_o 		(data_fromCOMM 		),
 	.clear_o 		(clear_fromCOMM 	),
 	.exception_o 	()
@@ -93,7 +76,7 @@ uart_system_2 uart_inst0(
 wire 			ready_fromDDR, done_fromDDR, valid_fromDDR;
 wire 	[31:0]	data_fromDDR, data_toDDR;
 wire 			req_toDDR, reqBlock_toDDR, rw_toDDR, clear_toDDR;
-wire 	[`BW_BYTE_ADDR:0]	add_toDDR;
+wire 	[`BW_BYTE_ADDR-1:0]	add_toDDR;
 
 ddr3_memory_controller #(.TEST_MODE(0)) ddr3_inst(
 
@@ -125,7 +108,7 @@ ddr3_memory_controller #(.TEST_MODE(0)) ddr3_inst(
 	.req_i 			(req_toDDR 			),
 	.reqBlock_i 	(reqBlock_toDDR		),
 	.rw_i 			(rw_toDDR 			),
-	.add_i 			(add_toDDR			), 	// i/o conv. hardware handles address translation [`BW_BYTE_ADDR:0] -> [28:2]
+	.add_i 			(add_toDDR			), 	// i/o conv. hardware handles address translation [`BW_BYTE_ADDR-1:0] -> [28:2]
 	.data_i 		(data_toDDR 		),
 	.clear_i 		(clear_toDDR 		),
 	.ready_o 		(ready_fromDDR 		),
@@ -156,9 +139,6 @@ external_memory_controller ext_cont(
 	.done0_o 		(done_toCOMM 		), 
 	.valid0_o 		(valid_toCOMM 		),
 
-	// reset controller
-	.req1_o 		(req_reset 			), 
-	.config1_o 		(config_reset 		),
 
 	// external memory
 	.req3_o 		(req_toDDR 			), 
@@ -166,7 +146,7 @@ external_memory_controller ext_cont(
 	.rw3_o 			(rw_toDDR 			), 
 	.clear3_o 		(clear_toDDR 		), 
 	.data3_o 		(data_toDDR 		), 
-	.add3_o 		(add_toDDR 			),	// [`BW_BYTE_ADDR:0]
+	.add3_o 		(add_toDDR 			),	// [`BW_BYTE_ADDR-1:0]
 	.data3_i 		(data_fromDDR 		), 
 	.ready3_i 		(ready_fromDDR 		), 
 	.done3_i 		(done_fromDDR 		), 

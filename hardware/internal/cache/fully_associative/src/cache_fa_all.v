@@ -13,6 +13,7 @@ module cache_fa_all #(
 	input 							resetn_i, 			
 	input 	[31:0]					comm_i, 			// generic comm port in
 	input   [1:0]                   metric_sel_i,
+	input   [15:0]                   rate_shift_seed_i,
 	input[31:0] phase_i,    
 	
 	output 	[31:0]					comm_o,				// specific comm port out
@@ -145,6 +146,7 @@ wire 							cpc_stall_flag;
 		.resetn_i 			(resetn_i 			),
 		.phase_i             (phase_i),
 		.select_data_record (metric_sel_i),
+		.rate_shift_seed_i       (rate_shift_seed_i),
 		.req_i          (core_req_i         ),
 		.pc_ref_i           (PC_i),
 		.tag_ref_i			(req_tag            ),

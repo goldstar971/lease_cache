@@ -50,12 +50,13 @@ proxy makefile\n",pCommand->field[1],application);
 		if(tries>9){
 			return 1;
 		}
-		// put system in reset
-		sprintf(command_str, "CONFIG 0x2 0x0");
+		// give comms system permission to r/w main memory.
+		sprintf(command_str, SET_MM_ACCESS_COMMS);
 	if(proxy_string_command(pInst, command_str)){
 		return 1;
 	}
 	sleep(.1);
+	//put peripherals and cpu in reset
 	sprintf(command_str, RESET);
 
 	if(proxy_string_command(pInst, command_str)){
@@ -73,13 +74,13 @@ proxy makefile\n",pCommand->field[1],application);
 	tries++;
 	}while(proxy_string_command(pInst, command_str));
 
-	// pull system out of reset 
-	sprintf(command_str, "CONFIG 0x1 0x3");
+	// pull cpu and peripherals out of reset 
+	sprintf(command_str, SET_CPU);
 	if(proxy_string_command(pInst, command_str)){
 			return 1;
 		}
-	//begin wall-clock timer
-	sprintf(command_str, "CONFIG 0x2 0x1");
+	//give CPU permission to r/w main memory
+	sprintf(command_str, SET_MM_ACCESS_CPU);
 	if(proxy_string_command(pInst, command_str)){
 			return 1;
 		}

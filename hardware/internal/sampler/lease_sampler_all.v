@@ -8,11 +8,12 @@ module lease_sampler_all(
 	input 						resetn_i, 			// active low
 	input 	[31:0]				comm_i, 			// generic comm port in
 	input    en_i,  //if tracking or gathering cache statistics don't sample
-
+	input    [15:0] rate_shift_seed_i,
 	// input pins
 	input 						req_i,						
 	input 	[31:0]				pc_ref_i,
 	input 	[`BW_CACHE_TAG-1:0]	tag_ref_i,
+	
 
 	// output pins
 	output 	[31:0]				ref_address_o,
@@ -137,13 +138,15 @@ assign full_flag = &(valid_bits);
 assign stall_o = full_flag;
 
 reg 			lfsr_enable;
-wire 	[11:0]	lfsr_output;
-linear_shift_register_12b shift_reg0(.clock_i(clock_bus_i[0]), .resetn_i(resetn_i), .enable_i(lfsr_enable), .result_o(lfsr_output));
+wire 	[`SAMPLE_RATE_BW-1:0]	lfsr_output,lsfr_output_rate_adjusted,sample_rate_mask;
+assign sample_rate_mask=(12'hfff)>>rate_shift_seed_i[3:0];
+assign lsfr_output_rate_adjusted=lfsr_output&sample_rate_mask;
+seeded_linear_shift_register_12b shift_reg0(.clock_i(clock_bus_i[0]), .resetn_i(comm_i[24]), .enable_i(lfsr_enable), .result_o(lfsr_output), .seed(rate_shift_seed_i[15:4]));
 
 
 // sampling rate controller
 // ----------------------------------------------------------------------
-reg 	[9:0]	fs_counter_reg;			// controls when a new ref is brought into LAT
+reg 	[`SAMPLE_RATE_BW:0]	fs_counter_reg;			// controls when a new ref is brought into LAT
 reg 	[31:0]	n_rui_total_reg; 		// total number of intervals generated
 reg 	[12:0]	n_rui_buffer_reg;		// number of intervals stored in buffer - resets when clearing the table
 reg 	[31:0]	n_remaining_reg;
@@ -278,7 +281,9 @@ always @(posedge clock_bus_i[0]) begin
 
 								// fifo replacement check - full scale is 9b - 256 avg
 								// --------------------------------------------------------
-								if (fs_counter_reg[`SAMPLE_RATE_BW:0] == lfsr_output[`SAMPLE_RATE_BW:0]) begin
+								//if (fs_counter_reg[`SAMPLE_RATE_BW:0] == lfsr_output[`SAMPLE_RATE_BW:0]>>rate_shift_seed_i) begin
+								if (fs_counter_reg[`SAMPLE_RATE_BW-1:0] == lsfr_output_rate_adjusted) begin
+
 
 									// generate new random number
 									lfsr_enable 	= 1'b1;

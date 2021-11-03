@@ -1,19 +1,19 @@
 SRC_DIR=./src
 BIN_DIR=./bin
 
-SAMPLE_ALL_SMALL=../fpga_proxy/results/sample/CLAM
-SAMPLE_ALL_PHASE_SMALL=../fpga_proxy/results/sample/SHEL
+SAMPLE_ALL_SMALL=../fpga_proxy/results/sample/CLAM/rate_$(RATE)/seed_$(SEED)
+SAMPLE_ALL_PHASE_SMALL=../fpga_proxy/results/sample/SHEL/rate_$(RATE)/seed_$(SEED)
 
-SAMPLE_ALL_MEDIUM=../fpga_proxy/results/sample/CLAM_medium
-SAMPLE_ALL_PHASE_MEDIUM=../fpga_proxy/results/sample/SHEL_medium
-
-
-SAMPLE_ALL_LARGE=../fpga_proxy/results/sample/CLAM_large
-SAMPLE_ALL_PHASE_LARGE=../fpga_proxy/results/sample/SHEL_large
+SAMPLE_ALL_MEDIUM=../fpga_proxy/results/sample/CLAM_medium/rate_$(RATE)/seed_$(SEED)
+SAMPLE_ALL_PHASE_MEDIUM=../fpga_proxy/results/sample/SHEL_medium/rate_$(RATE)/seed_$(SEED)
 
 
-SAMPLE_ALL_EXTRA_LARGE=../fpga_proxy/results/sample/CLAM_extra_large
-SAMPLE_ALL_PHASE_EXTRA_LARGE=../fpga_proxy/results/sample/SHEL_extra_large
+SAMPLE_ALL_LARGE=../fpga_proxy/results/sample/CLAM_large/rate_$(RATE)/seed_$(SEED)
+SAMPLE_ALL_PHASE_LARGE=../fpga_proxy/results/sample/SHEL_large/rate_$(RATE)/seed_$(SEED)
+
+
+SAMPLE_ALL_EXTRA_LARGE=../fpga_proxy/results/sample/CLAM_extra_large/rate_$(RATE)/seed_$(SEED)
+SAMPLE_ALL_PHASE_EXTRA_LARGE=../fpga_proxy/results/sample/SHEL_extra_large/rate_$(RATE)/seed_$(SEED)
 
 RESULT_DIR=./leases
 
@@ -37,8 +37,8 @@ run_all_small: src/lib.rs src/main.rs Cargo.toml
 	for i in $(all_bench); do \
 		cargo run --release  $(SAMPLE_ALL_SMALL)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -p   > /dev/null ; \
 	done & \
-	for i in $(multi_bench); do \
-		cargo run --release  $(SAMPLE_ALL_PHASE_SMALL)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -c   > /dev/null ; \
+	for i in $(all_bench); do \
+		cargo run --release  $(SAMPLE_ALL_PHASE_SMALL)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY)    > /dev/null ; \
 	done & \
 	wait;
 
@@ -46,8 +46,8 @@ run_all_medium: src/lib.rs src/main.rs Cargo.toml
 	for i in $(all_bench); do \
 		cargo run --release  $(SAMPLE_ALL_MEDIUM)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -p   > /dev/null ; \
 	done & \
-	for i in $(multi_bench); do \
-		cargo run --release  $(SAMPLE_ALL_PHASE_MEDIUM)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -c   > /dev/null ; \
+	for i in $(all_bench); do \
+		cargo run --release  $(SAMPLE_ALL_PHASE_MEDIUM)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY)    > /dev/null ; \
 	done & \
 	wait;
 
