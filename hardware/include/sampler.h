@@ -37,9 +37,9 @@
 
 `endif
 
-`include "../../../internal/sampler/lease_sampler_all.v"
-`include "../../../internal/sampler/bram_64kB_32b.v"
-`include "../../../internal/sampler/bram_128kB_64b.v"
+`include "../../../internal/sampler_tracker/lease_sampler_all.v"
+`include "../../../internal/sampler_tracker/bram_64kB_32b.v"
+`include "../../../internal/sampler_tracker/bram_128kB_64b.v"
 `include "../../../utilities/linear_feedback_shift_register/seeded_linear_shift_register_12b.v"
 
 `endif // _CACHE_H_

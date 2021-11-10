@@ -21,6 +21,12 @@ fn main(){
             .takes_value(true)
             .required(true)
             .about("target cache size for algorithms"))
+        .arg(Arg::new("Set Associativity")
+            .short('S')
+            .takes_value(true)
+            .default_value("-1")
+            .required(false)
+            .about("set associativity of the cache being targeted"))
         .arg(Arg::new("PRL")
             .short('p')
             .default_missing_value("5")
@@ -75,12 +81,23 @@ fn main(){
     let search_string=matches.value_of("INPUT").unwrap().to_lowercase();
     let cap= re.captures(&*search_string).unwrap();
 
+/*
+//if associativity not specified, set as fully associative
+    let num_ways:u64;
+    if matches.value_of("Set Associativity").unwrap().parse::<i64>().unwrap()==-1{
+        num_ways=cache_size;
+    }
+    else {
+        num_ways=matches.value_of("Set Associativity").unwrap().parse::<u64>().unwrap();
+    }*/
+
 //generate distributions
        let (ri_hists,samples_per_phase,misses_from_first_access,sample_rate) = cshel::io::build_ri_hists(matches.value_of("INPUT").unwrap(),cshel);
    //generates PRL
    if prl {
     //generate bins
     let (binned_ri_distributions,binned_freqs,bin_width) = cshel::io::get_binned_hists(matches.value_of("INPUT").unwrap(),perl_bin_num);
+  println!("{:?}",binned_ri_distributions);
     //compose output file name
     //this panic here avoids the almost certain panic that will result from running PRL on multi phase sampling files
     if &cap[1]=="shel"{

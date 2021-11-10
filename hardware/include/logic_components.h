@@ -8,7 +8,6 @@
 `include "../utilities/combinational_logic/multi_detect_priority_encoder.v"
 `include "../utilities/combinational_logic/tag_match_encoder.v"
 `include "../utilities/combinational_logic/barrel_shifter.v"
-
 `include "../utilities/linear_feedback_shift_register/linear_shift_register_9b.v"
 `include "../utilities/linear_feedback_shift_register/src/DFF_Custom.v"
 
