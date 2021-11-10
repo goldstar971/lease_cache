@@ -49,12 +49,8 @@ generate
 endgenerate
 
 // encode reductions as an address
-priority_encoder #(
-	.INPUT_SIZE 	(N_LOCATIONS 			)
-) p_encoder(
-	.encoding_i 	(reduction_bits 		),
-	.binary_o 		(replacement_encoding 	)
-);
+priority_encoder lease_rep_encoder(.clk(),.rst(),.oht(reduction_bits),.bin(replacement_encoding ),.vld());
+
 
 
 // LRU controller logic

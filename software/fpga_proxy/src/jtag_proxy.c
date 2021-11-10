@@ -40,7 +40,7 @@ uint32_t proxy_terminal_command(pHandle pInst){
 }
 
 uint32_t proxy_string_command(pHandle pInst, char *command_str){
-	printf("command_str:%s\n",command_str);
+	//printf("%s\n",command_str);
 	// use string command to populate command data structure
 	command command_inst; 
 

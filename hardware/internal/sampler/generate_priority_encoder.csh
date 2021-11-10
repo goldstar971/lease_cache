@@ -45,7 +45,7 @@
 ##       - "CASE"  : standard binary 4->1 mux using case statement                ##
 ##       - "IFELSE": using if/else statement                                      ##
 ##       - "AS5EXT": Altera's StratixV extended ALM (7LUT)                        ##
-##     - Top module name and file will be "pe_<top module suffex>"                ##
+##     - Top module name and file will be "<top module suffex>"                ##
 ## EXAMPLES:                                                                      ##
 ## ./pe 1024 1 1 2 CASE cam                                                       ##
 ##     - Will generate Verilog files for a 1K wide priority encoder               ##
@@ -135,7 +135,7 @@ end
 set ELSE = "else"
 
 # wide recursive priority encoder based on narrower priority encoder
-printf "" >! pe_${TMS}.v
+printf "" >! ${TMS}.v
 
 @ i = 1
 @ l2i = 0
@@ -147,7 +147,7 @@ while ($i < $PEW)
   @ l4i = $l4i + 1
 
 ###################################### VERILOG ######################################
-cat >> pe_${TMS}.v << EOV
+cat >> ${TMS}.v << EOV
 // pe${i}_${TMS}: recursive priority encoder based; Automatically generated
 // Ameer Abedlhadi ; April 2014 - The University of British Columbia
 // i: $i, l2i: $l2i, l4i: $l4i
@@ -158,7 +158,7 @@ EOV
   if ($i == 4) then
 
 ###################################### VERILOG ######################################
-cat >> pe_${TMS}.v << EOV
+cat >> ${TMS}.v << EOV
   assign {bin,vld} = {!(oht[0]||oht[1]),!oht[0]&&(oht[1]||!oht[2]),|oht};
 EOV
 #####################################################################################
@@ -166,7 +166,7 @@ EOV
   else
 
 ###################################### VERILOG ######################################
-cat >> pe_${TMS}.v << EOV
+cat >> ${TMS}.v << EOV
   // recursive calls for four narrower (fourth the inout width) priority encoders
   wire [$l2i-3:0] binI[3:0];
   wire [   3:0] vldI     ;
@@ -183,7 +183,7 @@ EOV
     if ( ( ( $l4i - 1 ) % $CMD ) == 0 ) then
 
 ###################################### VERILOG ######################################
-cat >> pe_${TMS}.v << EOV
+cat >> ${TMS}.v << EOV
   reg  [$l2i-3:0] binIR[3:0];
   reg  [   3:0] vldIR     ;
   always @(posedge clk, posedge rst)
@@ -196,7 +196,7 @@ EOV
     else
 
 ###################################### VERILOG ######################################
-cat >> pe_${TMS}.v << EOV
+cat >> ${TMS}.v << EOV
   assign {binII[3],binII[2],binII[1],binII[0],vldII} = {binI[3],binI[2],binI[1],binI[0],vldI};
 EOV
 #####################################################################################
@@ -204,7 +204,7 @@ EOV
     endif
 
 ###################################### VERILOG ######################################
-cat >> pe_${TMS}.v << EOV
+cat >> ${TMS}.v << EOV
   // output pe4 to generate indices from valid bits
   pe4_${TMS} pe4_${TMS}_out0(clk,rst,vldII,bin[$l2i-1:$l2i-2],vld);
 EOV
@@ -213,7 +213,7 @@ EOV
     if      ($MUX == "AS5EXT") then
 
 ###################################### VERILOG ######################################
-cat >> pe_${TMS}.v << EOV
+cat >> ${TMS}.v << EOV
   // generate stratixv_lcell_comb for extended 7LUT to implement the mux
   wire [$l2i-3:0] binO;
   genvar gi;
@@ -248,7 +248,7 @@ EOV
     else if ($MUX == "IFELSE") then
 
 ###################################### VERILOG ######################################
-cat >> pe_${TMS}.v << EOV
+cat >> ${TMS}.v << EOV
   // implement the mux with a 7-inputs ALM in extended mode for each output
   reg [$l2i-3:0] binO;
   always @(*)
@@ -262,7 +262,7 @@ EOV
     else
 
 ###################################### VERILOG ######################################
-cat >> pe_${TMS}.v << EOV
+cat >> ${TMS}.v << EOV
   // a 4->1 mux to steer indices from the narrower pe's
   reg [$l2i-3:0] binO;
   always @(*)
@@ -278,7 +278,7 @@ EOV
     endif
 
 ###################################### VERILOG ######################################
-cat >> pe_${TMS}.v << EOV
+cat >> ${TMS}.v << EOV
   assign bin[$l2i-3:0] = binO;
 EOV
 #####################################################################################
@@ -286,7 +286,7 @@ EOV
   endif
 
 ###################################### VERILOG ######################################
-cat >> pe_${TMS}.v << EOV
+cat >> ${TMS}.v << EOV
 endmodule
 
 EOV
@@ -297,19 +297,19 @@ end
 # priority encoder top module file
 
 ###################################### VERILOG ######################################
-cat >> pe_${TMS}.v << EOV
-// pe_${TMS}.v: priority encoder top module file
+cat >> ${TMS}.v << EOV
+// ${TMS}.v: priority encoder top module file
 // Automatically generated for priority encoder design
 // Ameer Abedlhadi; April 2014 - University of British Columbia
 
-module pe_${TMS}(input clk, input rst, input [$PEW-1:0] oht, output [$l2w-1:0] bin, output vld);
+module ${TMS}(input clk, input rst, input [$PEW-1:0] oht, output [$l2w-1:0] bin, output vld);
 EOV
 #####################################################################################
 
 if ($RI == "1") then
 
 ###################################### VERILOG ######################################
-cat >> pe_${TMS}.v << EOV
+cat >> ${TMS}.v << EOV
   // register input (oht)
   reg [$PEW-1:0] ohtR;
   always @(posedge clk, posedge rst)
@@ -321,7 +321,7 @@ EOV
 else
 
 ###################################### VERILOG ######################################
-cat >> pe_${TMS}.v << EOV
+cat >> ${TMS}.v << EOV
   wire [$PEW-1:0] ohtR = oht;
 EOV
 #####################################################################################
@@ -329,7 +329,7 @@ EOV
 endif
 
 ###################################### VERILOG ######################################
-cat >> pe_${TMS}.v << EOV
+cat >> ${TMS}.v << EOV
   wire [$l2w-1:0] binII;
   wire          vldI ;
   // instantiate peiority encoder
@@ -339,7 +339,7 @@ EOV
 if ($i > $PEW) then
 
 ###################################### VERILOG ######################################
-cat >> pe_${TMS}.v << EOV
+cat >> ${TMS}.v << EOV
   wire [$i-1:0] ohtI = {{($i-$PEW){1'b0}},ohtR};
   wire [$l2i-1:0] binI ;
   pe${i}_${TMS} pe${i}_${TMS}_0(clk,rst,ohtI,binI,vldI);
@@ -350,7 +350,7 @@ EOV
 else
 
 ###################################### VERILOG ######################################
-cat >> pe_${TMS}.v << EOV
+cat >> ${TMS}.v << EOV
   pe${i}_${TMS} pe${i}_${TMS}_0(clk,rst,ohtR,binII,vldI);
 EOV
 #####################################################################################
@@ -360,7 +360,7 @@ endif
 if ($RO == "1") then
 
 ###################################### VERILOG ######################################
-cat >> pe_${TMS}.v << EOV
+cat >> ${TMS}.v << EOV
   // register outputs (bin, vld)
   reg [$l2w-1:0] binIIR;
   reg          vldIR ;
@@ -374,7 +374,7 @@ EOV
 else
 
 ###################################### VERILOG ######################################
-cat >> pe_${TMS}.v << EOV
+cat >> ${TMS}.v << EOV
   assign {bin,vld} = {binII ,vldI };
 EOV
 #####################################################################################
@@ -382,7 +382,7 @@ EOV
 endif
 
 ###################################### VERILOG ######################################
-cat >> pe_${TMS}.v << EOV
+cat >> ${TMS}.v << EOV
 endmodule
 EOV
 #####################################################################################
@@ -405,7 +405,7 @@ USAGE:
       - "CASE"  : standard binary 4->1 mux using case statement
       - "IFELSE": using if/else statement
       - "AS5EXT": Altera's StratixV extended ALM (7LUT)
-    - Top module name and file will be "pe_<top module suffex>"
+    - Top module name and file will be "<top module suffex>"
 EXAMPLES:
 ./pe 1024 1 1 2 CASE cam                                       
     - Will generate Verilog files for a 1K wide priority encoder

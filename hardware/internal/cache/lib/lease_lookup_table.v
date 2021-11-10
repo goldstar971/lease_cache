@@ -24,7 +24,7 @@ module lease_lookup_table #(
 // parameterizations
 // ----------------------------------------------------------------------------------------
 localparam BW_ENTRIES 		= `CLOG2(N_ENTRIES); 	// entries per table
-localparam BW_ADDR_SPACE 	= BW_ENTRIES + 2; 		// four tables total (address, lease0, lease1, lease0_probability)
+localparam BW_ADDR_SPACE 	= BW_ENTRIES + 1; 		// two tables total (address, lease0)
 
 
 // table write/remove logic

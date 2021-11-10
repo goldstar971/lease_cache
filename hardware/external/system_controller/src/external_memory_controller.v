@@ -35,9 +35,7 @@ module external_memory_controller(
 	output 				done0_o, 
 	output 				valid0_o,
 
-	// reset controller
-	output 	reg			req1_o,
-	output 	reg [1:0]	config1_o,
+
 
 	// peripherals
 	output 				req2_o, 
@@ -76,8 +74,6 @@ always @(posedge clock_i) begin
 	if (reset_i != 1'b1) begin
 		mem_access <= `ACCESS_COMM; 			// by default jtag has access to sdram
 		comm_req_type <= 1'b0;
-		req1_o <= 1'b0;
-		config1_o <= 'b0;
 		per_read_flag <= 1'b0;
 		per_done_flag <= 1'b0;
 		state <= `ST_MEMuC_EXT_NOMINAL;
@@ -102,14 +98,9 @@ always @(posedge clock_i) begin
 				// permission independent
 				// ---------------------------------------------------------
 
-				// reset controller
-				if (req0_i & (dev0_i == 3'b001)) begin
-					req1_o <= 1'b1;
-					config1_o <= data0_i[1:0];
-				end
-
+	
 				// memory controller
-				else if (req0_i & (dev0_i == 3'b010)) begin
+				if (req0_i & (dev0_i == 3'b010)) begin
 					// try trying to take back memory permission 
 					// if a transaction is in progress then wait until complete
 					// if ((mem_access == `ACCESS_PROCESSOR) & (data0_i[0] == `ACCESS_COMM)) begin

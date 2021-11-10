@@ -110,7 +110,8 @@ wire 				mci_hitFromCacheL2, mci_reqFromCacheL2, mci_reqBlockFromCacheL2, mci_rw
 	.POLICY 				(`L2_CACHE_POLICY 		), 
 	.STRUCTURE 				(`L2_CACHE_STRUCTURE 		),
 	.INIT_DONE 				(`L2_CACHE_INIT 			), 
-	.CACHE_BLOCK_CAPACITY 	(`L2_CACHE_BLOCK_CAPACITY	)
+	.CACHE_BLOCK_CAPACITY 	(`L2_CACHE_BLOCK_CAPACITY	),
+	.CACHE_SET_SIZE         (`L2_CACHE_SET_SIZE)
 ) L2_combined_cache(
 	// system 
 	.clock_bus_i 			(clock_bus_i[3:2] 			), 
@@ -133,7 +134,7 @@ wire 				mci_hitFromCacheL2, mci_reqFromCacheL2, mci_reqBlockFromCacheL2, mci_rw
 	.L2_read_ack_o      (L2_read_ack_i),
 	.L2_ready_read_i    (L2_ready_read_o),
 	.L2_ready_write_i   (L2_ready_write_o),
-	`ifdef L2_CACHE_POLICY_DLEASE
+	`ifdef L2_POLICY_DLEASE
 	.swap_flag_o(swap_flag_o),
 	`endif
 
@@ -178,7 +179,8 @@ wire 				mci_hitFromCacheL1I, mci_reqFromCacheL1I,  mci_rwFromCacheL1I, mci_writ
 	.POLICY 				(`INST_CACHE_POLICY 		), 
 	.STRUCTURE 				(`INST_CACHE_STRUCTURE 		),
 	.INIT_DONE 				(`INST_CACHE_INIT 			), 
-	.CACHE_BLOCK_CAPACITY 	(`INST_CACHE_BLOCK_CAPACITY	)
+	.CACHE_BLOCK_CAPACITY 	(`INST_CACHE_BLOCK_CAPACITY	),
+	.CACHE_SET_SIZE         (`INST_CACHE_SET_SIZE)
 ) inst_cache(
 	// system 
 	.clock_bus_i 			(clock_bus_i[3:2] 			), 
@@ -194,7 +196,7 @@ wire 				mci_hitFromCacheL1I, mci_reqFromCacheL1I,  mci_rwFromCacheL1I, mci_writ
 	.core_data_i 			(core_dataToCacheL1I 			),
 	.core_done_o 			(core_doneFromCacheL1I 		), 
 	.core_data_o 			(core_dataFromCacheL1I 		),
-	`ifdef L2_CACHE_POLICY_DLEASE
+	`ifdef L2_POLICY_DLEASE
 	.swap_flag_i(swap_flag_o),
 	`endif
 
@@ -231,7 +233,9 @@ wire 				mci_hitFromCacheL1D, mci_reqFromCacheL1D,  mci_rwFromCacheL1D, mci_writ
 	.POLICY 		 		(`DATA_CACHE_POLICY 		), 
 	.STRUCTURE 				(`DATA_CACHE_STRUCTURE 		),
 	.INIT_DONE 				(`DATA_CACHE_INIT 			), 
-	.CACHE_BLOCK_CAPACITY 	(`DATA_CACHE_BLOCK_CAPACITY	)
+	.CACHE_BLOCK_CAPACITY 	(`DATA_CACHE_BLOCK_CAPACITY	),
+	.CACHE_SET_SIZE         (`DATA_CACHE_SET_SIZE)
+
 ) data_cache(
 
 	// system 
@@ -248,7 +252,7 @@ wire 				mci_hitFromCacheL1D, mci_reqFromCacheL1D,  mci_rwFromCacheL1D, mci_writ
 	.core_done_o 			(core_doneFromCacheL1D 		), 
 	.core_data_o 			(core_dataFromCacheL1D 		),
 
-	`ifdef L2_CACHE_POLICY_DLEASE
+	`ifdef L2_POLICY_DLEASE
 	.swap_flag_i(swap_flag_o),
 	`endif
 	// memory controller	

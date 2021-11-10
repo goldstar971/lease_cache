@@ -42,9 +42,9 @@ reg [15:0]   sample_rate_reg;
 reg [1:0] metric_sel_reg;
 wire [3:0]shift_sample_rate;
 
-assign shift_sample_rate=data_cs_i[13:2]>=2048 ? 0 : data_cs_i[13:2]>=1024 ? 1 : data_cs_i[13:2]>=512
-? 2 : data_cs_i[13:2]>=256 ? 3 : data_cs_i[13:2]>=128 ? 4 : data_cs_i[13:2]>=64 ? 5 : data_cs_i[13:2]>=32 ? 6 :
-data_cs_i[13:2]>=16 ? 7 : data_cs_i[13:2]>=8 ? 8: data_cs_i[13:2] >=4 ? 9 :data_cs_i[13:2]>=2 ? 10 : 11;
+assign shift_sample_rate=data_cs_i[13:2]>=2048 ? 4'd0 : data_cs_i[13:2]>=1024 ? 4'd1 : data_cs_i[13:2]>=512
+? 4'd2 : data_cs_i[13:2]>=256 ? 4'd3 : data_cs_i[13:2]>=128 ? 4'd4 : data_cs_i[13:2]>=64 ? 4'd5 : data_cs_i[13:2]>=32 ? 4'd6 :
+data_cs_i[13:2]>=16 ? 4'd7 : data_cs_i[13:2]>=8 ? 4'd8: data_cs_i[13:2] >=4 ? 4'd9 :data_cs_i[13:2]>=2 ? 4'd10 : 4'b11;
 
 
 assign metric_sel_o=metric_sel_reg;

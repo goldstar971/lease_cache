@@ -1,4 +1,4 @@
-module cache_performance_controller_all #(
+module cache_performance_controller_all_L2 #(
 	parameter CACHE_STRUCTURE 	=  	"",
 	parameter CACHE_REPLACEMENT = 	"",
 	parameter CACHE_BLOCK_CAPACITY = ""
@@ -20,7 +20,7 @@ module cache_performance_controller_all #(
 	input 	[31:0]	comm_i, 			// configuration signal	
 	output 	[31:0] 	comm_o, 	 		// return value of comm_i
 	output 			stall_o,
-`ifdef L2_CACHE_POLICY_DLEASE
+`ifdef L2_POLICY_DLEASE
 	input 	[CACHE_BLOCK_CAPACITY-1:0]	expired_flags_0_i,
 	input 	[CACHE_BLOCK_CAPACITY-1:0]	expired_flags_1_i,
 	input 	[CACHE_BLOCK_CAPACITY-1:0]	expired_flags_2_i,
@@ -35,7 +35,7 @@ reg swap_store;
 wire enable_tracker, enable_sampler, tracker_stall_o,sampler_stall_o, buffer_full_flag,table_full_flag;
 
 //wire 	[127:0]	eviction_bit_bus;
-`ifdef L2_CACHE_POLICY_DLEASE
+`ifdef L2_POLICY_DLEASE
 wire 	[CACHE_BLOCK_CAPACITY-1:0]	eviction_bit_0_bus,
 				eviction_bit_1_bus,
 				eviction_bit_2_bus;
@@ -67,7 +67,7 @@ wire 	[63:0]		rui_trace;
 assign enable_sampler = (!select_data_record[1] & select_data_record[0]);
 assign sampler_stall_o=buffer_full_flag | table_full_flag;
 
-`ifdef L2_CACHE_POLICY_DLEASE
+`ifdef L2_POLICY_DLEASE
 
 	assign enable_tracker = (select_data_record[1] & !select_data_record[0]);
 	assign stall_o=(enable_tracker) ? tracker_stall_o : (enable_sampler) ? sampler_stall_o : 1'b0;
@@ -142,7 +142,7 @@ always @(posedge clock_i[0]) begin
 
 			default comm_o_reg1 <= 'b0;
 		endcase
-	`ifdef L2_CACHE_POLICY_DLEASE
+	`ifdef L2_POLICY_DLEASE
 		case(comm_i[5:0])
 
 			6'b000000: 	comm_o_reg2 <= eviction_bit_0_bus[31:0];
@@ -237,7 +237,7 @@ always @(posedge clock_i[0]) begin
 end
 
 //tracker
-`ifdef L2_CACHE_POLICY_DLEASE
+`ifdef L2_POLICY_DLEASE
 cache_line_tracker_4 #(
 	.FS 				(		),
 	.N_LINES 	 		(CACHE_BLOCK_CAPACITY 	)

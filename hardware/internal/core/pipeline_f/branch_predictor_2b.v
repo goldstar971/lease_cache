@@ -1,4 +1,4 @@
-`include "../../../include/btb.h"
+//`include "../../../include/btb.h"
 module branch_predictor_2b(
 	input [1:0] clock_bus_i,
 	input resetn_i,
@@ -25,10 +25,9 @@ generate
 		identity_comparator #(.BW(`BW_WORD_ADDR)) comp_inst(PC_i, branch_pcs[j], match_bits[j]);
 	end
 endgenerate
-
-tag_match_encoder_6b btb_match(.match_bits(match_bits&valid_bits),.match_index_reg(match_index),.actual_match(match));
+tag_match_encoder btb_match(.clk(),.rst(),.oht(match_bits&valid_bits),.bin(match_index),.vld(match));
 //only used if btb has been filled, will always be valid and a match.
-tag_match_encoder_6b lru_match(.match_bits(LRU_stack_bits),.match_index_reg(LRU_index),.actual_match());
+tag_match_encoder lru_match(.clk(),.rst(),.oht(LRU_stack_bits),.bin(LRU_index),.vld());
 
 
 //assume not taken for new branch

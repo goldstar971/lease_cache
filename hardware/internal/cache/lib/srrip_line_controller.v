@@ -39,12 +39,8 @@ endgenerate
 
 // priority encoder to find first occurrence of at capacity RRPV register
 wire	[BW_LOCATIONS-1:0]	rrpv_encoder_addr;
-priority_encoder #(
-	.INPUT_SIZE 		(N_LOCATIONS 		)
-) rrpv_addr_encoder(
-	.encoding_i 		(rrpv_flag 			),
-	.binary_o 			(rrpv_encoder_addr 	)
-);
+priority_encoder lease_rep_encoder(.clk(),.rst(),.oht(rrpv_flag),.bin(rrpv_encoder_addr),.vld());
+
 
 // SRRIP controller logic
 // ----------------------------------------------------------------

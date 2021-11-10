@@ -9,7 +9,7 @@
 `define TRACKER_OUT_SEL_WIDTH 5
 `endif
 `include "../../../internal/sampler/cache_line_tracker_4.v"
-`include "../../../internal/cache/lib/fa_cache_lease_policy_controller_tracker_2.v"
+`include "../../../internal/cache/lib/n_set_cache_lease_policy_controller_tracker.v"
 `include "../../../utilities/linear_feedback_shift_register/linear_shift_register_12b.v"
 
 `endif

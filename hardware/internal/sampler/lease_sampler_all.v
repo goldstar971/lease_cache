@@ -124,13 +124,10 @@ generate
 	end
 endgenerate
 
-`TAG_MATCH_ENCODER_INST tag_match((match_bits&valid_bits),match_index,hit_flag);
-
-
-
+tag_match_encoder tag_match(.clk(),.rst(),.oht(match_bits&valid_bits),.bin(match_index),.vld(hit_flag));
 
 //priority encoder to find where to store new sample. finds leading 0 in valid bit vector
-pe_valid_match find_empty_llt_slot(.clk(),.rst(),.oht(~valid_bits),.bin(replace_index),.vld());
+priority_encoder find_empty_llt_slot(.clk(),.rst(),.oht(~valid_bits),.bin(replace_index),.vld());
 
 
 // full flag dependent on table entries
@@ -141,7 +138,7 @@ reg 			lfsr_enable;
 wire 	[`SAMPLE_RATE_BW-1:0]	lfsr_output,lsfr_output_rate_adjusted,sample_rate_mask;
 assign sample_rate_mask=(12'hfff)>>rate_shift_seed_i[3:0];
 assign lsfr_output_rate_adjusted=lfsr_output&sample_rate_mask;
-seeded_linear_shift_register_12b shift_reg0(.clock_i(clock_bus_i[0]), .resetn_i(comm_i[24]), .enable_i(lfsr_enable), .result_o(lfsr_output), .seed(rate_shift_seed_i[15:4]));
+seeded_linear_shift_register_12b shift_reg0(.clock_i(clock_bus_i[0]), .resetn_i(comm_i[24]&resetn_i), .enable_i(lfsr_enable), .result_o(lfsr_output), .seed(rate_shift_seed_i[15:4]));
 
 
 // sampling rate controller

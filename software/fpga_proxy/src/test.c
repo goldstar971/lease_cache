@@ -43,14 +43,8 @@ proxy makefile\n",pCommand->field[1],application);
 	//now that existence has been checked, remove the file extension, otherwise it will cause problems
 	application[strlen(application)-4]='\0';
 
-	//sometimes loading the application initially fails
-	int tries=0;
-	do {
-		//if more than ten tries, terminate.
-		if(tries>9){
-			return 1;
-		}
-		// give comms system permission to r/w main memory.
+	// give comms system permission to r/w main memory.
+
 		sprintf(command_str, SET_MM_ACCESS_COMMS);
 	if(proxy_string_command(pInst, command_str)){
 		return 1;
@@ -62,14 +56,24 @@ proxy makefile\n",pCommand->field[1],application);
 	if(proxy_string_command(pInst, command_str)){
 		return 1;
 	}
-		sleep(.1);
+	//sometimes loading the application initially fails
+	int tries=0;
+	do {
+		//if more than ten tries, terminate.
+		if(tries>9){
+			return 1;
+		}
+		
+		sprintf(command_str, SET_MM_ACCESS_COMMS);
+	sprintf(command_str, RESET);
+		sleep(.5);
 		// load fpga memory with target application
 	sprintf(command_str, "LOAD %s\r",application);
 		if(proxy_string_command(pInst, command_str)==2){
 			return 1;
 		}
 		
-		sleep(.1);
+		sleep(.5);
 	sprintf(command_str, "VERIFY %s\r",application);
 	tries++;
 	}while(proxy_string_command(pInst, command_str));

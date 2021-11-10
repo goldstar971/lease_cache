@@ -99,21 +99,25 @@ wire 		[31:0]	mci_dataToCache0, mci_dataFromCache0;
 wire 		[`BW_WORD_ADDR-1:0]	mci_addFromCache0;
 wire 				mci_hitFromCache0, mci_reqFromCache0, mci_reqBlockFromCache0, mci_rwFromCache0, mci_writeFromCache0, mci_readFromCache0;
 	
-`INSTRUCTION_CACHE_INST #( 
+`INSTRUCTION_CACHE_INST#( 
 	.POLICY 				(`INST_CACHE_POLICY 		), 
 	.STRUCTURE 				(`INST_CACHE_STRUCTURE 		),
 	.INIT_DONE 				(`INST_CACHE_INIT 			), 
-	.CACHE_BLOCK_CAPACITY 	(`INST_CACHE_BLOCK_CAPACITY	)
+	.CACHE_BLOCK_CAPACITY 	(`INST_CACHE_BLOCK_CAPACITY	),
+	.CACHE_SET_SIZE         (`INST_CACHE_SET_SIZE),
+	.CACHE_TYPE             (`MIN_DATA_COLLECTION)
 ) inst_cache(
 	// system 
 	.clock_bus_i 			(clock_bus_i[3:2] 			), 
 	.resetn_i 				(reset_i 					),
 	.comm_i 				(comm_i 					), 
 	.comm_o 				(comm_cache0_o 				),
-
+	.phase_i          		(phase_i                   ),
+	.metric_sel_i          (cpc_metric_switch_i           ),
+	.rate_shift_seed_i     (rate_shift_seed_i),
 	// core/hart					
 	.core_req_i 			(core_reqToCache0 			), 
-	.core_ref_add_i			(24'b0						), 	// only used in lease data cache
+	.core_ref_add_i			(core_inst_addr_word		), 	// only used in lease data cache
 	.core_rw_i 				(core_rwToCache0 			), 
 	.core_add_i 			(core_addToCache0 			), 
 	.core_data_i 			(core_dataToCache0 			),
@@ -153,7 +157,9 @@ wire 				mci_hitFromCache1, mci_reqFromCache1, mci_reqBlockFromCache1, mci_rwFro
 	.POLICY 		 		(`DATA_CACHE_POLICY 		), 
 	.STRUCTURE 				(`DATA_CACHE_STRUCTURE 		),
 	.INIT_DONE 				(`DATA_CACHE_INIT 			), 
-	.CACHE_BLOCK_CAPACITY 	(`DATA_CACHE_BLOCK_CAPACITY	)
+	.CACHE_BLOCK_CAPACITY 	(`DATA_CACHE_BLOCK_CAPACITY	),
+	.CACHE_SET_SIZE         (`DATA_CACHE_SET_SIZE),
+	.CACHE_TYPE             (`MAX_DATA_COLLECTION)
 ) data_cache(
 
 	// system 

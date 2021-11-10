@@ -38,7 +38,7 @@ run_all_small: src/lib.rs src/main.rs Cargo.toml
 		cargo run --release  $(SAMPLE_ALL_SMALL)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -p   > /dev/null ; \
 	done & \
 	for i in $(all_bench); do \
-		cargo run --release  $(SAMPLE_ALL_PHASE_SMALL)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY)    > /dev/null ; \
+		cargo run --release  $(SAMPLE_ALL_PHASE_SMALL)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -c   > /dev/null ; \
 	done & \
 	wait;
 
@@ -47,7 +47,7 @@ run_all_medium: src/lib.rs src/main.rs Cargo.toml
 		cargo run --release  $(SAMPLE_ALL_MEDIUM)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -p   > /dev/null ; \
 	done & \
 	for i in $(all_bench); do \
-		cargo run --release  $(SAMPLE_ALL_PHASE_MEDIUM)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY)    > /dev/null ; \
+		cargo run --release  $(SAMPLE_ALL_PHASE_MEDIUM)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -c   > /dev/null ; \
 	done & \
 	wait;
 

@@ -1,5 +1,7 @@
 `ifndef _RISCV_H_
 `define _RISCV_H_
+// size of branch prediction buffer
+`define BRANCH_TABLE_BUFFER_SIZE 64
 
 // custom define encodings
 // ------------------------------------------------
