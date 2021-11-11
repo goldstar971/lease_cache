@@ -49,73 +49,73 @@ rl_set_shel: src/reference_lease_set_shel.h src/rl_set_main_shel.cpp
 
 run_all_small: src/lib.rs src/main.rs Cargo.toml
 	for i in $(all_bench); do \
-		cargo run --release  $(SAMPLE_ALL_SMALL)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -p   > /dev/null ; \
+		cargo run --release  $(SAMPLE_ALL_SMALL)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -S $(WAYS) -p   > /dev/null ; \
 	done & \
 	for i in $(all_bench); do \
-		cargo run --release  $(SAMPLE_ALL_PHASE_SMALL)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -c   > /dev/null ; \
+		cargo run --release  $(SAMPLE_ALL_PHASE_SMALL)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -S $(WAYS) -c   > /dev/null ; \
 	done & \
 	wait;
 
 run_all_medium: src/lib.rs src/main.rs Cargo.toml
 	for i in $(all_bench); do \
-		cargo run --release  $(SAMPLE_ALL_MEDIUM)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -p   > /dev/null ; \
+		cargo run --release  $(SAMPLE_ALL_MEDIUM)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -S $(WAYS) -p   > /dev/null ; \
 	done & \
 	for i in $(all_bench); do \
-		cargo run --release  $(SAMPLE_ALL_PHASE_MEDIUM)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -c   > /dev/null ; \
+		cargo run --release  $(SAMPLE_ALL_PHASE_MEDIUM)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -S $(WAYS) -c   > /dev/null ; \
 	done & \
 	wait;
 
 run_all_large: src/lib.rs src/main.rs Cargo.toml
 	for i in $(all_bench); do \
-		cargo run --release  $(SAMPLE_ALL_LARGE)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -p   > /dev/null ; \
+		cargo run --release  $(SAMPLE_ALL_LARGE)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -S $(WAYS) -p   > /dev/null ; \
 	done & \
 	for i in $(multi_bench); do \
-		cargo run --release  $(SAMPLE_ALL_PHASE_LARGE)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -c   > /dev/null ; \
+		cargo run --release  $(SAMPLE_ALL_PHASE_LARGE)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -S $(WAYS) -c   > /dev/null ; \
 	done & \
 	wait;
 
 
 run_all_extra_large: src/lib.rs src/main.rs Cargo.toml
 	for i in $(all_bench); do \
-		cargo run --release  $(SAMPLE_ALL_EXTRA_LARGE)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -p   > /dev/null ; \
+		cargo run --release  $(SAMPLE_ALL_EXTRA_LARGE)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -S $(WAYS) -p   > /dev/null ; \
 	done & \
 	for i in $(multi_bench); do \
-		cargo run --release  $(SAMPLE_ALL_PHASE_EXTRA_LARGE)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -c   > /dev/null ; \
+		cargo run --release  $(SAMPLE_ALL_PHASE_EXTRA_LARGE)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -S $(WAYS) -c   > /dev/null ; \
 	done & \
 	wait;
 
 run_all_small_multi_level: src/lib.rs src/main.rs Cargo.toml
 	for i in $(all_bench); do \
-		cargo run --release  $(SAMPLE_ALL_SMALL_multi_level)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -p   > /dev/null ; \
+		cargo run --release  $(SAMPLE_ALL_SMALL_multi_level)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -S $(WAYS) -p   > /dev/null ; \
 	done & \
 	for i in $(multi_bench); do \
-		cargo run --release  $(SAMPLE_ALL_PHASE_SMALL_multi_level)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -c   > /dev/null ; \
+		cargo run --release  $(SAMPLE_ALL_PHASE_SMALL_multi_level)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -S $(WAYS) -c   > /dev/null ; \
 	done & \
 	wait;
 
 run_all_medium_multi_level: src/lib.rs src/main.rs Cargo.toml
 	for i in $(all_bench); do \
-		cargo run --release  $(SAMPLE_ALL_MEDIUM_multi_level)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -p   > /dev/null ; \
+		cargo run --release  $(SAMPLE_ALL_MEDIUM_multi_level)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -S $(WAYS) -p   > /dev/null ; \
 	done & \
 	for i in $(multi_bench); do \
-		cargo run --release  $(SAMPLE_ALL_PHASE_MEDIUM_multi_level)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -c   > /dev/null ; \
+		cargo run --release  $(SAMPLE_ALL_PHASE_MEDIUM_multi_level)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -S $(WAYS) -c   > /dev/null ; \
 	done & \
 	wait;
 
 run_all_large_multi_level: src/lib.rs src/main.rs Cargo.toml
 	for i in $(all_bench); do \
-		cargo run --release  $(SAMPLE_ALL_LARGE_multi_level)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -p   > /dev/null ; \
+		cargo run --release  $(SAMPLE_ALL_LARGE_multi_level)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -S $(WAYS) -p   > /dev/null ; \
 	done & \
 	for i in $(multi_bench); do \
-		cargo run --release  $(SAMPLE_ALL_PHASE_LARGE_multi_level)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -c   > /dev/null ; \
+		cargo run --release  $(SAMPLE_ALL_PHASE_LARGE_multi_level)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -S $(WAYS) -c   > /dev/null ; \
 	done & \
 	wait;
 run_all_extra_large_multi_level: src/lib.rs src/main.rs Cargo.toml
 	for i in $(all_bench); do \
-		cargo run --release  $(SAMPLE_ALL_EXTRA_LARGE_multi_level)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -p   > /dev/null ; \
+		cargo run --release  $(SAMPLE_ALL_EXTRA_LARGE_multi_level)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -S $(WAYS) -p   > /dev/null ; \
 	done & \
 	for i in $(multi_bench); do \
-		cargo run --release  $(SAMPLE_ALL_PHASE_EXTRA_LARGE_multi_level)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -c   > /dev/null ; \
+		cargo run --release  $(SAMPLE_ALL_PHASE_EXTRA_LARGE_multi_level)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -S $(WAYS) -c   > /dev/null ; \
 	done & \
 	wait;
 
