@@ -1,33 +1,19 @@
 SRC_DIR=./src
 BIN_DIR=./bin
 
-SAMPLE_ALL_SMALL=../fpga_proxy/results/sample/CLAM/rate_$(RATE)/seed_$(SEED)
-SAMPLE_ALL_PHASE_SMALL=../fpga_proxy/results/sample/SHEL/rate_$(RATE)/seed_$(SEED)
+SAMPLE_ALL_SMALL=../fpga_proxy/results/sample/CLAM
+SAMPLE_ALL_PHASE_SMALL=../fpga_proxy/results/sample/SHEL
 
-SAMPLE_ALL_MEDIUM=../fpga_proxy/results/sample/CLAM_medium/rate_$(RATE)/seed_$(SEED)
-SAMPLE_ALL_PHASE_MEDIUM=../fpga_proxy/results/sample/SHEL_medium/rate_$(RATE)/seed_$(SEED)
+SAMPLE_ALL_MEDIUM=../fpga_proxy/results/sample/CLAM_medium
+SAMPLE_ALL_PHASE_MEDIUM=../fpga_proxy/results/sample/SHEL_medium
 
-
-SAMPLE_ALL_LARGE=../fpga_proxy/results/sample/CLAM_large/rate_$(RATE)/seed_$(SEED)
-SAMPLE_ALL_PHASE_LARGE=../fpga_proxy/results/sample/SHEL_large/rate_$(RATE)/seed_$(SEED)
-
-
-SAMPLE_ALL_EXTRA_LARGE=../fpga_proxy/results/sample/CLAM_extra_large/rate_$(RATE)/seed_$(SEED)
-SAMPLE_ALL_PHASE_EXTRA_LARGE=../fpga_proxy/results/sample/SHEL_extra_large/rate_$(RATE)/seed_$(SEED)
-
-SAMPLE_ALL_SMALL_multi_level=../fpga_proxy/results/sample/CLAM_multi_level/rate_$(RATE)/seed_$(SEED)
-SAMPLE_ALL_PHASE_SMALL_multi_level=../fpga_proxy/results/sample/SHEL_multi_level/rate_$(RATE)/seed_$(SEED)
-
-SAMPLE_ALL_MEDIUM_multi_level=../fpga_proxy/results/sample/CLAM_medium_multi_level/rate_$(RATE)/seed_$(SEED)
-SAMPLE_ALL_PHASE_MEDIUM_multi_level=../fpga_proxy/results/sample/SHEL_medium_multi_level/rate_$(RATE)/seed_$(SEED)
+SAMPLE_ALL_LARGE=../fpga_proxy/results/sample/CLAM_large
+SAMPLE_ALL_PHASE_LARGE=../fpga_proxy/results/sample/SHEL_large
 
 
-SAMPLE_ALL_LARGE_multi_level=../fpga_proxy/results/sample/CLAM_large_multi_level/rate_$(RATE)/seed_$(SEED)
-SAMPLE_ALL_PHASE_LARGE_multi_level=../fpga_proxy/results/sample/SHEL_large_multi_level/rate_$(RATE)/seed_$(SEED)
+SAMPLE_ALL_EXTRA_LARGE=../fpga_proxy/results/sample/CLAM_extra_large
+SAMPLE_ALL_PHASE_EXTRA_LARGE=../fpga_proxy/results/sample/SHEL_extra_large
 
-
-SAMPLE_ALL_EXTRA_LARGE_multi_level=../fpga_proxy/results/sample/CLAM_extra_large_multi_level/rate_$(RATE)/seed_$(SEED)
-SAMPLE_ALL_PHASE_EXTRA_LARGE_multi_level=../fpga_proxy/results/sample/SHEL_extra_large_multi_level/rate_$(RATE)/seed_$(SEED)
 
 RESULT_DIR=./leases
 
@@ -37,85 +23,79 @@ multi_bench = mvt covariance correlation heat-3d jacobi-2d gemver 2mm fdtd-2d 3m
 clean: 
 	rm -rf $(BIN_DIR)/*
 
-rl_set_c_shel: src/reference_lease_set_c_shel.h src/rl_set_main_c_shel.cpp
-	sed -i "4s/\(.*\)/#include \"reference_lease_set_c_shel.h\"/" src/rl_set_main_c_shel.cpp
-	sed -i "6s/\(.*\)\n.*/\1\n#include <algorithm>/" src/reference_lease_set_c_shel.h
-	g++ -std=c++11 $(SRC_DIR)/rl_set_main_c_shel.cpp -O3 -o $(BIN_DIR)/rl_set_c_shel
-rl_set_shel: src/reference_lease_set_shel.h src/rl_set_main_shel.cpp
-	sed -i "4s/\(.*\)/#include \"reference_lease_set_shel.h\"/" src/rl_set_main_shel.cpp
-	sed -i "6s/\(.*\)\n.*/\1\n#include <algorithm>/" src/reference_lease_set_shel.h
-	g++ -std=c++11 $(SRC_DIR)/rl_set_main_shel.cpp -O3 -o $(BIN_DIR)/rl_set_shel
-	
+clam: src/lib.rs src/main.rs  
+	cargo build --release 
+
 
 run_all_small: src/lib.rs src/main.rs Cargo.toml
 	for i in $(all_bench); do \
-		cargo run --release  $(SAMPLE_ALL_SMALL)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -S $(WAYS) -p   > /dev/null ; \
+		./target/release/clam $(SAMPLE_ALL_SMALL)//rate_$(RATE)/seed_$(SEED)/$${i}.txt -s $(CAPACITY) -S $(WAYS) -p   > /dev/null ; \
 	done & \
 	for i in $(all_bench); do \
-		cargo run --release  $(SAMPLE_ALL_PHASE_SMALL)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -S $(WAYS) -c   > /dev/null ; \
+		./target/release/clam  $(SAMPLE_ALL_PHASE_SMALL)/rate_$(RATE)/seed_$(SEED)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -S $(WAYS) -c   > /dev/null ; \
 	done & \
 	wait;
 
 run_all_medium: src/lib.rs src/main.rs Cargo.toml
 	for i in $(all_bench); do \
-		cargo run --release  $(SAMPLE_ALL_MEDIUM)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -S $(WAYS) -p   > /dev/null ; \
+		./target/release/clam  $(SAMPLE_ALL_MEDIUM)/rate_$(RATE)/seed_$(SEED)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -S $(WAYS) -p   > /dev/null ; \
 	done & \
 	for i in $(all_bench); do \
-		cargo run --release  $(SAMPLE_ALL_PHASE_MEDIUM)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -S $(WAYS) -c   > /dev/null ; \
+		./target/release/clam  $(SAMPLE_ALL_PHASE_MEDIUM)/rate_$(RATE)/seed_$(SEED)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -S $(WAYS) -c   > /dev/null ; \
 	done & \
 	wait;
 
 run_all_large: src/lib.rs src/main.rs Cargo.toml
 	for i in $(all_bench); do \
-		cargo run --release  $(SAMPLE_ALL_LARGE)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -S $(WAYS) -p   > /dev/null ; \
+		./target/release/clam  $(SAMPLE_ALL_LARGE)/rate_$(RATE)/seed_$(SEED)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -S $(WAYS) -p   > /dev/null ; \
 	done & \
 	for i in $(multi_bench); do \
-		cargo run --release  $(SAMPLE_ALL_PHASE_LARGE)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -S $(WAYS) -c   > /dev/null ; \
+		./target/release/clam  $(SAMPLE_ALL_PHASE_LARGE)/rate_$(RATE)/seed_$(SEED)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -S $(WAYS) -c   > /dev/null ; \
 	done & \
 	wait;
 
 
 run_all_extra_large: src/lib.rs src/main.rs Cargo.toml
 	for i in $(all_bench); do \
-		cargo run --release  $(SAMPLE_ALL_EXTRA_LARGE)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -S $(WAYS) -p   > /dev/null ; \
+		./target/release/clam  $(SAMPLE_ALL_EXTRA_LARGE)/rate_$(RATE)/seed_$(SEED)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -S $(WAYS) -p   > /dev/null ; \
 	done & \
 	for i in $(multi_bench); do \
-		cargo run --release  $(SAMPLE_ALL_PHASE_EXTRA_LARGE)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -S $(WAYS) -c   > /dev/null ; \
+		./target/release/clam  $(SAMPLE_ALL_PHASE_EXTRA_LARGE)/rate_$(RATE)/seed_$(SEED)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -S $(WAYS) -c   > /dev/null ; \
 	done & \
 	wait;
 
 run_all_small_multi_level: src/lib.rs src/main.rs Cargo.toml
 	for i in $(all_bench); do \
-		cargo run --release  $(SAMPLE_ALL_SMALL_multi_level)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -S $(WAYS) -p   > /dev/null ; \
+		./target/release/clam  $(SAMPLE_ALL_SMALL)_multi_level/rate_$(RATE)/seed_$(SEED)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -S $(WAYS) -p   > /dev/null ; \
 	done & \
 	for i in $(multi_bench); do \
-		cargo run --release  $(SAMPLE_ALL_PHASE_SMALL_multi_level)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -S $(WAYS) -c   > /dev/null ; \
+		./target/release/clam  $(SAMPLE_ALL_PHASE_SMALL)_multi_level/rate_$(RATE)/seed_$(SEED)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -S $(WAYS) -c   > /dev/null ; \
 	done & \
 	wait;
 
 run_all_medium_multi_level: src/lib.rs src/main.rs Cargo.toml
 	for i in $(all_bench); do \
-		cargo run --release  $(SAMPLE_ALL_MEDIUM_multi_level)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -S $(WAYS) -p   > /dev/null ; \
+		./target/release/clam  $(SAMPLE_ALL_MEDIUM)_multi_level/rate_$(RATE)/seed_$(SEED)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -S $(WAYS) -p   > /dev/null ; \
 	done & \
 	for i in $(multi_bench); do \
-		cargo run --release  $(SAMPLE_ALL_PHASE_MEDIUM_multi_level)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -S $(WAYS) -c   > /dev/null ; \
+		./target/release/clam  $(SAMPLE_ALL_PHASE_MEDIUM)_multi_level/rate_$(RATE)/seed_$(SEED)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -S $(WAYS) -c   > /dev/null ; \
 	done & \
 	wait;
 
 run_all_large_multi_level: src/lib.rs src/main.rs Cargo.toml
 	for i in $(all_bench); do \
-		cargo run --release  $(SAMPLE_ALL_LARGE_multi_level)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -S $(WAYS) -p   > /dev/null ; \
+		./target/release/clam  $(SAMPLE_ALL_LARGE)_multi_level/rate_$(RATE)/seed_$(SEED)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -S $(WAYS) -p   > /dev/null ; \
 	done & \
 	for i in $(multi_bench); do \
-		cargo run --release  $(SAMPLE_ALL_PHASE_LARGE_multi_level)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -S $(WAYS) -c   > /dev/null ; \
+		./target/release/clam  $(SAMPLE_ALL_PHASE_LARGE)_multi_level/rate_$(RATE)/seed_$(SEED)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -S $(WAYS) -c   > /dev/null ; \
 	done & \
 	wait;
 run_all_extra_large_multi_level: src/lib.rs src/main.rs Cargo.toml
 	for i in $(all_bench); do \
-		cargo run --release  $(SAMPLE_ALL_EXTRA_LARGE_multi_level)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -S $(WAYS) -p   > /dev/null ; \
+		./target/release/clam  $(SAMPLE_ALL_EXTRA_LARGE)_multi_level/rate_$(RATE)/seed_$(SEED)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -S $(WAYS) -p   > /dev/null ; \
 	done & \
 	for i in $(multi_bench); do \
-		cargo run --release  $(SAMPLE_ALL_PHASE_EXTRA_LARGE_multi_level)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -S $(WAYS) -c   > /dev/null ; \
+		./target/release/clam  $(SAMPLE_ALL_PHASE_EXTRA_LARGE)_multi_level/rate_$(RATE)/seed_$(SEED)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -S $(WAYS) -c   > /dev/null ; \
 	done & \
 	wait;
 

@@ -51,10 +51,10 @@ always @(posedge clock_i) begin
 	end
 	else begin
 		
-		case(addr_i[BW_ADDR_SPACE-1:BW_ADDR_SPACE-2])
+		case(addr_i[BW_ADDR_SPACE-1])
 
 			// reference address array
-			2'b00: begin
+			1'b0: begin
 				if (wren_i) begin
 					//if reference is 0 that means it isn't actually a LLT entry since reference of 0 can't appear in code
 					
@@ -63,7 +63,7 @@ always @(posedge clock_i) begin
 				end
 			end
 			// lease 0 array
-			2'b01: if (wren_i) lease0_mem[addr_table] 		<= data_i[BW_LEASE_REGISTER-1:0];
+			1'b1: if (wren_i) lease0_mem[addr_table] 		<= data_i[BW_LEASE_REGISTER-1:0];
 
 		endcase
 	end

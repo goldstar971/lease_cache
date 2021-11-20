@@ -77,7 +77,7 @@
 `endif
 
 ///true for both levels
-`define LEASE_POLICY_CONTROLLER_INST 	n_set_cache_lease_policy_controller_tracker
+`define LEASE_POLICY_CONTROLLER_INST 	n_set_cache_lease_policy_default_switch_controller_tracker
 //define L1 
 `ifndef MULTI_LEVEL_CACHE
 `define INSTRUCTION_CACHE_INST cache_n_set_all

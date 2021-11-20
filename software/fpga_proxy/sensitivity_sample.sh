@@ -1,14 +1,32 @@
 
+program_lease_scope_multi_level (){
+    path_start=$CLAM_path
+    (cd "$path_start/hardware/top/system_fa_dynamic_lease_multi_level/project/output_files/"
+    /opt/intelFPGA_lite/18.1/quartus/bin/quartus_pgm -c USB-BlasterII -m JTAG -o "P;top.sof")
+}
+
+
+
+program_plru_multi_level (){
+    path_start=$CLAM_path
+    (cd "$path_start/hardware/top/system_fa_PLRU_multi_level/project/output_files/"
+    /opt/intelFPGA_lite/18.1/quartus/bin/quartus_pgm -c USB-BlasterII -m JTAG -o "P;top.sof")
+}
+
+
+
+
+program_lease_scope (){
+    path_start=$CLAM_path
+    (cd "$path_start/hardware/top/system_fa_dynamic_lease_perfected/project/output_files/"
+    /opt/intelFPGA_lite/18.1/quartus/bin/quartus_pgm -c USB-BlasterII -m JTAG -o "P;top.sof")
+}
+
 
 
 
 program_plru (){
-    cwd=${PWD}
-    if [[ "$cwd" =~ "SHEL" && "$cwd" != *"Thesis_stuff"* ]]; then
-        path_start="$HOME/Documents/SHEL";
-    else
-        path_start="$HOME/Documents/Thesis_stuff";
-    fi
+    path_start=$CLAM_path
     (cd "$path_start/hardware/top/system_fa_plru_perfected/project/output_files/"
     /opt/intelFPGA_lite/18.1/quartus/bin/quartus_pgm -c USB-BlasterII -m JTAG -o "P;top.sof")
 }
@@ -32,33 +50,18 @@ make_sample_all_script ()
 
 }
 
-run_proxy () 
-{ 
-    cwd=${PWD};
-    if [[ "$cwd" =~ "SHEL" && "$cwd" != *"Thesis_stuff"* ]]; then
-        path_start="$HOME/Documents/SHEL";
-    else
-        path_start="$HOME/Documents/Thesis_stuff";
-    fi;
+function goto_proxy {
+    path_start=$CLAM_path
+    cd "$path_start/software/fpga_proxy"
+}
+function run_proxy {
+    path_start=$CLAM_path
     goto_proxy;
     if [[ "$#" == 2 ]]; then
         ./bin/main $1 "$2";
-    else
-        if [[ "$#" == 0 ]]; then
-            ./bin/main;
-        fi;
+    elif [[ "$#" == 0 ]]; then
+        ./bin/main;
     fi
-}
-
-goto_proxy () 
-{ 
-    cwd=${PWD};
-    if [[ "$cwd" =~ "SHEL" && "$cwd" != *"Thesis_stuff"* ]]; then
-        path_start="$HOME/Documents/SHEL";
-    else
-        path_start="$HOME/Documents/Thesis_stuff";
-    fi;
-    cd "$path_start/software/fpga_proxy"
 }
  music_4='/home/matthew/Music/Unknown/magia_live.mp3'
 

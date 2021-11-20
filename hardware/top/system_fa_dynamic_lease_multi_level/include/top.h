@@ -77,7 +77,7 @@
 `endif
 
 //true for both levels
-`define LEASE_POLICY_CONTROLLER_INST 	n_set_cache_lease_policy_controller_tracker
+`define LEASE_POLICY_CONTROLLER_INST 	n_set_cache_lease_policy_default_switch_controller_tracker
 //define L1 
 `ifndef MULTI_LEVEL_CACHE
 `define INSTRUCTION_CACHE_INST cache_n_set_all
@@ -232,7 +232,8 @@
 													//3: num of references in phase
 													//4: dual lease ref (word address)
 `define LEASE_CONFIG_VAL_BW 			32
-`define LEASE_VALUE_BW 					31 //int max
+//not enough resources to support 32-bit leases for multi-level
+`define LEASE_VALUE_BW 					24 //int max
 `define LEASE_REF_ADDR_BW 				27
 `define BW_PERCENTAGE                   9
 

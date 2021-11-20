@@ -223,8 +223,8 @@ always @(posedge clock_i[0]) begin
 			5'b01011: comm_o_reg0 <= counter_defaulted_reg[63:32];
 			5'b01100: comm_o_reg0 <= counter_mexpired_reg[31:0]; 			// multiple leases expired at eviction
 			5'b01101: comm_o_reg0 <= counter_mexpired_reg[63:32];
-			5'b10000: comm_o_reg0 <= counter_default_misses[31:0];
-			5'b10001: comm_o_reg0 <= counter_default_misses[63:32];
+			5'b10000: comm_o_reg0 <= counter_swap_reg[31:0];
+			5'b10001: comm_o_reg0 <= counter_swap_reg[63:32];
 			5'b10010: comm_o_reg0 <= counter_rand_evic_reg[31:0];
 			5'b10011: comm_o_reg0 <= counter_rand_evic_reg[63:32]; 
 			// cache identification
@@ -263,6 +263,8 @@ cache_line_tracker_4 #(
 `endif
 //sampler
 
+//not enough resources for sampler on cyclone V gt dev kit when combined with multi-level lease cache
+`ifndef L2_POLICY_DLEASE
 	lease_sampler_all inst0(
 		.clock_bus_i 		(clock_i 		), 
 		.resetn_i 			(resetn_i 			), 
@@ -282,6 +284,7 @@ cache_line_tracker_4 #(
 		.rate_shift_seed_i		(rate_shift_seed_i),
 		.stall_o 			(table_full_flag 		)
 	);
+`endif 
 
 endmodule
 

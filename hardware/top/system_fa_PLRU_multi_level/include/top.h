@@ -15,8 +15,8 @@
 // ----------------------------------------------------
 //Uncomment desired eviction policy and cache associativity
 
-`define INST_CACHE_FA
-//`define INST_CACHE_2WAY
+//`define INST_CACHE_FA
+`define INST_CACHE_2WAY
 //`define INST_CACHE_4WAY
 //`define INST_CACHE_8WAY
 //`define INST_CACHE_16WAY
@@ -27,8 +27,8 @@
 //`define INST_POLICY_SRRIP
 //`define INST_POLICY_MRU
 
-`define DATA_CACHE_FA
-//`define DATA_CACHE_2WAY
+//`define DATA_CACHE_FA
+`define DATA_CACHE_2WAY
 //`define DATA_CACHE_4WAY
 //`define DATA_CACHE_8WAY
 //`define DATA_CACHE_16WAY

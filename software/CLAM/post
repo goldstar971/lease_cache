@@ -7,49 +7,16 @@ if [[ "$1" == "" || "$2" == "" || "$3" == "" ]]; then
 	exit 1;
 fi
 
-FILES=leases/128_llt_entries/"$2"blocks_"$3"ways*/*.c
+FILES=leases/"$1"_llt_entries/"$2"blocks/"$3"ways/**/*.c
 OUT=./output
 
 # process
 for f in $FILES
 do
-lease_dir="$(basename "$(dirname -- "$f")")"
-filename=$(basename "$f") 
-benchmark_name=$(sed 's/_[^_]*_lease.*//'<<< "$filename")
-
- 	if [[ "$lease_dir" == *"C-SHEL_medium" ]]; then
-		cp "$f" ../benchmarks/C-SHEL_medium/$benchmark_name/lease_scope.c
-	elif [[ "$lease_dir" == *"C-SHEL_large" ]]; then
-		 cp "$f" ../benchmarks/C-SHEL_large/$benchmark_name/lease_scope.c
-	elif [[ "$lease_dir" == *"C-SHEL_extra_large" ]]; then
-		 cp "$f" ../benchmarks/C-SHEL_extra_large/$benchmark_name/lease_scope.c
-	elif [[ "$lease_dir" == *"C-SHEL" ]]; then
-		 cp "$f" ../benchmarks/C-SHEL/$benchmark_name/lease_scope.c
-	elif [[ "$lease_dir" == *"PRL_medium" ]]; then
-		cp "$f" ../benchmarks/PRL_medium/$benchmark_name/lease.c
-	elif [[ "$lease_dir" == *"PRL_large" ]]; then
-		cp "$f" ../benchmarks/PRL_large/$benchmark_name/lease.c
-	elif [[ "$lease_dir" == *"PRL_extra_large" ]]; then
-		cp "$f" ../benchmarks/PRL_extra_large/$benchmark_name/lease.c
-	elif [[ "$lease_dir" == *"PRL" ]]; then
-		cp "$f" ../benchmarks/PRL/$benchmark_name/lease.c
-	elif [[ "$lease_dir" == *"CLAM_medium" ]]; then
-		cp "$f" ../benchmarks/CLAM_medium/$benchmark_name/lease.c
-	elif [[ "$lease_dir" == *"CLAM_large" ]]; then
-		cp "$f" ../benchmarks/CLAM_large/$benchmark_name/lease.c
-	elif [[ "$lease_dir" == *"CLAM_extra_large" ]]; then
-		cp "$f" ../benchmarks/CLAM_extra_large/$benchmark_name/lease.c
-	elif [[ "$lease_dir" == *"CLAM" ]]; then
-  	 	 cp "$f" ../benchmarks/CLAM/$benchmark_name/lease.c
-  	elif [[ "$lease_dir" == *"SHEL_medium" ]]; then
-		cp "$f" ../benchmarks/SHEL_medium/$benchmark_name/lease_scope.c
-	elif [[ "$lease_dir" == *"SHEL_large" ]]; then
-		cp "$f" ../benchmarks/SHEL_large/$benchmark_name/lease_scope.c
-	elif [[ "$lease_dir" == *"SHEL_extra_large" ]]; then
-		cp "$f" ../benchmarks/SHEL_extra_large/$benchmark_name/lease_scope.c
-	else
-		cp "$f" ../benchmarks/SHEL/$benchmark_name/lease_scope.c
-	fi
+	lease_dir="$(basename "$(dirname -- "$f")")"
+	filename=$(basename "$f") 
+	benchmark_name=$(sed 's/_[^_]*_lease.*//'<<< "$filename")
+	cp "$f" ../benchmarks/$lease_dir/$benchmark_name/lease_scope.c
 done
 
 

@@ -222,7 +222,7 @@ reg 							latch_swap_reg; 				// when high tells the controller to latch swap v
 // phase load interrupt
 reg 	[7:0]				phase_reg;
 wire 						phase_interrupt;
-assign phase_interrupt 	= 	(phase_i[31] & (phase_reg != phase_i[7:0])) ? 1'b1 : 1'b0;
+assign phase_interrupt 	= 	phase_reg != phase_i[7:0];
 
 // llt population
 reg 	[BW_ADDR_SPACE-1:0]	llt_counter_reg; 				// {2'bXY, BW_ENTRIES-1}
@@ -297,8 +297,8 @@ always @(posedge clock_i) begin
 		latch_swap_reg 			= 	1'b0;
 
 		// scope leasing
-		phase_reg 					<= 8'hFF;
-		llt_counter_reg 			<= 'b0;
+		phase_reg 					= 8'h00;
+		llt_counter_reg 			= 'b0;
 
 	end
 
@@ -422,7 +422,7 @@ always @(posedge clock_i) begin
 							llt_counter_reg<=llt_counter_reg+1'b1;
 						end
 						//if writen all short leases in phase, we are done with importing (must wait until current block has been entirely read from buffer)
-						if(refs_to_write<=(llt_counter_reg[BW_ENTRIES-1:0]+1)&&n_transfer_reg==4'b1111&&llt_counter_reg[BW_ENTRIES]==1'b1)begin 
+						if(refs_in_phase<=(llt_counter_reg[BW_ENTRIES-1:0]+1)&&n_transfer_reg==4'b1111&&llt_counter_reg[BW_ENTRIES]==1'b1)begin 
 							n_transfer_reg 	<= 'b0;
 							state_reg 		<= ST_NORMAL;
 							// if there was no buffered request unstall the core

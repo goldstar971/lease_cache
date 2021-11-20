@@ -1,22 +1,45 @@
+program_lease_scope_multi_level (){
+    path_start=$CLAM_path
+    (cd "$path_start/hardware/top/system_fa_dynamic_lease_multi_level/project/output_files/"
+    /opt/intelFPGA_lite/18.1/quartus/bin/quartus_pgm -c USB-BlasterII -m JTAG -o "P;top.sof")
+}
+
+
+
+program_plru_multi_level (){
+    path_start=$CLAM_path
+    (cd "$path_start/hardware/top/system_fa_PLRU_multi_level/project/output_files/"
+    /opt/intelFPGA_lite/18.1/quartus/bin/quartus_pgm -c USB-BlasterII -m JTAG -o "P;top.sof")
+}
+
+
+
+
 program_lease_scope (){
-    cwd=${PWD}
-    if [[ "$cwd" =~ "SHEL" && "$cwd" != *"Thesis_stuff"* ]]; then
-        path_start="$HOME/Documents/SHEL";
-    else
-        path_start="$HOME/Documents/Thesis_stuff";
-    fi
+    path_start=$CLAM_path
     (cd "$path_start/hardware/top/system_fa_dynamic_lease_perfected/project/output_files/"
     /opt/intelFPGA_lite/18.1/quartus/bin/quartus_pgm -c USB-BlasterII -m JTAG -o "P;top.sof")
 }
 
+
+
+
+program_plru (){
+    path_start=$CLAM_path
+    (cd "$path_start/hardware/top/system_fa_plru_perfected/project/output_files/"
+    /opt/intelFPGA_lite/18.1/quartus/bin/quartus_pgm -c USB-BlasterII -m JTAG -o "P;top.sof")
+}
+
 function gen_leases {
-    unset rate multi_level seed
+    unset rate multi_level seed llt_size ways
     #get options
-    while getopts "m:r:s:" option; do
+    while getopts "m:r:s:l:w:" option; do
         case "$option" in
             r ) rate="$OPTARG";;
             s ) seed="$OPTARG";;
             m ) multi_level="$OPTARG";;
+            l ) llt_size="$OPTARG";;
+            w ) ways="$OPTARG";;
             * ) exit 1;;
         esac
     done
@@ -24,50 +47,36 @@ function gen_leases {
     rate=${rate-256}
     seed=${seed-1}
     multi_level=${multi_level-no}
-
-     cwd=${PWD}
-    if [[ "$cwd" =~ "SHEL" && "$cwd" != *"Thesis_stuff"* ]]; then
-        path_start="$HOME/Documents/SHEL";
+    if [[ "$multi_level" == "yes" ]]; then
+        ways=${ways-512};
     else
-        path_start="$HOME/Documents/Thesis_stuff";
+        ways=${ways-128};
     fi
+    llt_size=${llt_size-128}
+
+     path_start=$CLAM_path
     
     cd "$path_start/software/CLAM";
-    ./run.sh -m $multi_level -r $rate -s $seed >/dev/null 2>&1 ;
+    ./run.sh -m $multi_level -r $rate -s $seed -l $llt_size -w $ways >/dev/null 2>&1 ;
     if [[ "$multi_level" == "yes" ]]; then
-    ./post 128 512 512 >/dev/null 2>&1;
+    ./post 128 512 512  >/dev/null 2>&1;
     else 
     ./post 128 128 128 >/dev/null 2>&1;
     fi
 }
 
-run_proxy () 
-{ 
-    cwd=${PWD};
-    if [[ "$cwd" =~ "SHEL" && "$cwd" != *"Thesis_stuff"* ]]; then
-        path_start="$HOME/Documents/SHEL";
-    else
-        path_start="$HOME/Documents/Thesis_stuff";
-    fi;
+function goto_proxy {
+    path_start=$CLAM_path
+    cd "$path_start/software/fpga_proxy"
+}
+function run_proxy {
+    path_start=$CLAM_path
     goto_proxy;
     if [[ "$#" == 2 ]]; then
         ./bin/main $1 "$2";
-    else
-        if [[ "$#" == 0 ]]; then
-            ./bin/main;
-        fi;
+    elif [[ "$#" == 0 ]]; then
+        ./bin/main;
     fi
-}
-
-goto_proxy () 
-{ 
-    cwd=${PWD};
-    if [[ "$cwd" =~ "SHEL" && "$cwd" != *"Thesis_stuff"* ]]; then
-        path_start="$HOME/Documents/SHEL";
-    else
-        path_start="$HOME/Documents/Thesis_stuff";
-    fi;
-    cd "$path_start/software/fpga_proxy"
 }
 sample_rates=( 64 128 256 512 1024 )
 seeds=( 1 2 3 4 5 )
@@ -125,13 +134,13 @@ play_command='audacious'
            echo "please reset the fpga then press any key to continue"
            read -n 1;
            if [ "$response2" == "y" ]; then 
-             run_proxy -c "SCRIPT run_all_PRL_medium:SCRIPT run_all_SHEL_medium";
+                       run_proxy -c "SCRIPT run_all_C-SHEL_medium";#:SCRIPT run_all_SHEL_medium:SCRIPT run_all_PRL_medium";
             tail -n +31 results/cache/results_medium.txt |sed "s/^[^,]*\/\([0-9a-zA-Z\-]*\)\(_\([0-9a-zA-Z]*\)\)*\/\(.*\)\/program/$seed,$rate,\1,\3,\4/"\
           >> results/cache/sensitivity_results/results_medium_sensitivity.txt 
           head -n 30 results/cache/results_medium.txt > temp.txt
         cat temp.txt >results/cache/results_medium.txt
           else
-            run_proxy -c "SCRIPT run_all_SHEL:SCRIPT run_all_PRL"; 
+            run_proxy -c "SCRIPT run_all_C-SHEL";#:SCRIPT run_all_SHEL:SCRIPT run_all_PRL";
              tail -n +31 results/cache/results.txt |sed "s/^[^,]*\/\([0-9a-zA-Z\-]*\)\(_\([0-9a-zA-Z]*\)\)*\/\(.*\)\/program/$seed,$rate,\1,\3,\4/" | sed "s/,,/,small,/" \
 >>results/cache/sensitivity_results/results_sensitivity.txt
    head -n 30 results/cache/results.txt > temp.txt

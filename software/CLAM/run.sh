@@ -2,8 +2,9 @@ rm -f leases/*_*_lease*
 unset rate multi_level seed ways
 
 #get options
-while getopts "m:r:s:w" option; do
+while getopts "m:r:s:w:l:" option; do
     case "$option" in
+        l ) llt_size="$OPTARG";;
         r ) rate="$OPTARG";;
         s ) seed="$OPTARG";;
         m ) multi_level="$OPTARG";;
@@ -15,55 +16,75 @@ done
 rate=${rate-256}
 seed=${seed-1}
 multi_level=${multi_level-no}
+llt_size=${llt_size-128}
+policies=( "CLAM" "SHEL" "C-SHEL" "PRL" )
+sizes=( "" "_medium" "_large" )
 
-
-
+make clam
 if [[ "$multi_level" == "yes" ]]; then
 	ways=${ways-512}
+	if [[ -d "./leases/"$llt_size"_llt_entries/512blocks/"$ways"ways/PRL" ]]; then 
+		:
+	else 
+		for policy in "${policies[@]}"; do  
+			for size in "${sizes[@]}"; do 
+				mkdir -p "./leases/"$llt_size"_llt_entries/512blocks/"$ways"ways/"$policy$size""; 
+			done; 
+		done; 
+	fi
 	make run_all_small_multi_level CAPACITY=512 RATE=$rate SEED=$seed WAYS=$ways
-	 mv leases/*_prl*  "./leases/128_llt_entries/512blocks_512ways_PRL/"
-	 	mv leases/*_c-shel* "./leases/128_llt_entries/512blocks_512ways_C-SHEL/"
-	 	 mv leases/*_shel* "./leases/128_llt_entries/512blocks_512ways_SHEL/"
-	 	 mv leases/*_clam* "./leases/128_llt_entries/512blocks_512ways_CLAM/"
+	 mv leases/*_prl*  "./leases/"$llt_size"_llt_entries/512blocks/"$ways"ways/PRL/"
+	 	mv leases/*_c-shel* "./leases/"$llt_size"_llt_entries/512blocks/"$ways"ways/C-SHEL/"
+	 	 mv leases/*_shel* "./leases/"$llt_size"_llt_entries/512blocks/"$ways"ways/SHEL/"
+	 	 mv leases/*_clam* "./leases/"$llt_size"_llt_entries/512blocks/"$ways"ways/CLAM/"
 	 make run_all_medium_multi_level CAPACITY=512 RATE=$rate SEED=$seed WAYS=$ways
-	  mv leases/*_prl*  "./leases/128_llt_entries/512blocks_512ways_PRL_medium/"
-	 	 mv leases/*_c-shel* "./leases/128_llt_entries/512blocks_512ways_C-SHEL_medium/"
-	 	 mv leases/*_shel_* "./leases/128_llt_entries/512blocks_512ways_SHEL_medium/"
-	 	 mv leases/*_clam_* "./leases/128_llt_entries/512blocks_512ways_CLAM_medium/"
+	  mv leases/*_prl*  "./leases/"$llt_size"_llt_entries/512blocks/"$ways"ways/PRL_medium/"
+	 	 mv leases/*_c-shel* "./leases/"$llt_size"_llt_entries/512blocks/"$ways"ways/C-SHEL_medium/"
+	 	 mv leases/*_shel_* "./leases/"$llt_size"_llt_entries/512blocks/"$ways"ways/SHEL_medium/"
+	 	 mv leases/*_clam_* "./leases/"$llt_size"_llt_entries/512blocks/"$ways"ways/CLAM_medium/"
 	 make run_all_large_multi_level CAPACITY=512 RATE=$rate SEED=$seed WAYS=$ways
-	 mv leases/*_prl*  "./leases/128_llt_entries/512blocks_512ways_PRL_large/"
-		mv leases/*_c-shel* "./leases/128_llt_entries/512blocks_512ways_C-SHEL_large/"
-	 	mv leases/*_shel* "./leases/128_llt_entries/512blocks_512ways_SHEL_large/"
-	mv leases/*_clam* "./leases/128_llt_entries/512blocks_512ways_CLAM_large/"	
+	 mv leases/*_prl*  "./leases/"$llt_size"_llt_entries/512blocks/"$ways"ways/PRL_large/"
+		mv leases/*_c-shel* "./leases/"$llt_size"_llt_entries/512blocks/"$ways"ways/C-SHEL_large/"
+	 	mv leases/*_shel* "./leases/"$llt_size"_llt_entries/512blocks/"$ways"ways/SHEL_large/"
+	mv leases/*_clam* "./leases/"$llt_size"_llt_entries/512blocks/"$ways"ways/CLAM_large/"
 #make run_all_extra_large_multi_level CAPACITY=512 RATE=$rate SEED=$seed WAYS=$ways
-#mv leases/*_c_shel* "./leases/128_llt_entries/512blocks_512ways_C-SHEL_extra_large/"
-#mv leases/*_shel* "./leases/128_llt_entries/512blocks_512ways_SHEL_extra_large/"
-#mv leases/*_clam* "./leases/128_llt_entries/512blocks_512ways_CLAM_extra_large/"
-#mv leases/*_prl*  "./leases/128_llt_entries/512blocks_512ways_PRL_extra_large/"
+#mv leases/*_c_shel* "./leases/"$llt_size"_llt_entries/512blocks/"$ways"ways/C-SHEL/"
+#mv leases/*_shel* "./leases/"$llt_size"_llt_entries/512blocks/"$ways"ways/SHEL_extra_large/"
+#mv leases/*_clam* "./leases/"$llt_size"_llt_entries/512blocks/"$ways"ways/CLAM_extra_large/"
+#mv leases/*_prl*  "./leases/"$llt_size"_llt_entries/512blocks/"$ways"ways/PRL_extra_large/"
 
 
 
  else 
 	ways=${ways-128}
-make run_all_small CAPACITY=128 RATE=$rate SEED=$seed WAYS=$ways
-	mv leases/*_prl*  "./leases/128_llt_entries/128blocks_128ways_PRL/"
-		mv leases/*_c-shel* "./leases/128_llt_entries/128blocks_128ways_C-SHEL/"
-		mv leases/*_shel* "./leases/128_llt_entries/128blocks_128ways_SHEL/"
-		mv leases/*_clam* "./leases/128_llt_entries/128blocks_128ways_CLAM/"
+	if [[ -d "./leases/"$llt_size"_llt_entries/128blocks/"$ways"ways/PRL" ]]; then 
+		:
+	else 
+		for policy in "${policies[@]}"; do  
+			for size in "${sizes[@]}"; do 
+				mkdir -p "./leases/"$llt_size"_llt_entries/128blocks/"$ways"ways/"$policy$size""; 
+			done; 
+		done; 
+	fi
+	make run_all_small CAPACITY=128 RATE=$rate SEED=$seed WAYS=$ways
+	mv leases/*_prl*  "./leases/"$llt_size"_llt_entries/128blocks/"$ways"ways/PRL/"
+		mv leases/*_c-shel* "./leases/"$llt_size"_llt_entries/128blocks/"$ways"ways/C-SHEL/"
+		mv leases/*_shel* "./leases/"$llt_size"_llt_entries/128blocks/"$ways"ways/SHEL/"
+		mv leases/*_clam* "./leases/"$llt_size"_llt_entries/128blocks/"$ways"ways/CLAM/"
 	 make run_all_medium CAPACITY=128 RATE=$rate SEED=$seed WAYS=$ways
-	 mv leases/*_prl*  "./leases/128_llt_entries/128blocks_128ways_PRL_medium/"
-	 	mv leases/*_c-shel* "./leases/128_llt_entries/128blocks_128ways_C-SHEL_medium/"
-	 	mv leases/*_shel* "./leases/128_llt_entries/128blocks_128ways_SHEL_medium/"
-	 	mv leases/*_clam* "./leases/128_llt_entries/128blocks_128ways_CLAM_medium/"
+	 mv leases/*_prl*  "./leases/"$llt_size"_llt_entries/128blocks/"$ways"ways/PRL_medium/"
+	 	mv leases/*_c-shel* "./leases/"$llt_size"_llt_entries/128blocks/"$ways"ways/C-SHEL_medium/"
+	 	mv leases/*_shel* "./leases/"$llt_size"_llt_entries/128blocks/"$ways"ways/SHEL_medium/"
+	 	mv leases/*_clam* "./leases/"$llt_size"_llt_entries/128blocks/"$ways"ways/CLAM_medium/"
 	make run_all_large CAPACITY=128 RATE=$rate SEED=$seed WAYS=$ways
-	mv leases/*_prl*  "./leases/128_llt_entries/128blocks_128ways_PRL_large/"
-	 	mv leases/*_c-shel* "./leases/128_llt_entries/128blocks_128ways_C-SHEL_large/"
-	 	mv leases/*_shel* "./leases/128_llt_entries/128blocks_128ways_SHEL_large/"
-	 	mv leases/*_clam* "./leases/128_llt_entries/128blocks_128ways_CLAM_large/"
+	mv leases/*_prl*  "./leases/"$llt_size"_llt_entries/128blocks/"$ways"ways/PRL_large/"
+	 	mv leases/*_c-shel* "./leases/"$llt_size"_llt_entries/128blocks/"$ways"ways/C-SHEL_large/"
+	 	mv leases/*_shel* "./leases/"$llt_size"_llt_entries/128blocks/"$ways"ways/SHEL_large/"
+	 	mv leases/*_clam* "./leases/"$llt_size"_llt_entries/128blocks/"$ways"ways/CLAM_large/"
 #make run_all_extra_large CAPACITY=128 RATE=$rate SEED=$seed WAYS=$ways
-#mv leases/*_c_shel* "./leases/128_llt_entries/128blocks_128ways_C-SHEL_extra_large/"
-#mv leases/*_shel* "./leases/128_llt_entries/128blocks_128ways_SHEL_extra_large/"
-#mv leases/*_clam* "./leases/128_llt_entries/128blocks_128ways_CLAM_extra_large/"
-#mv leases/*_prl*  "./leases/128_llt_entries/128blocks_128ways_PRL_extra_large/"
+#mv leases/*_c_shel* "./leases/"$llt_size"_llt_entries/128blocks/"$ways"ways/C-SHEL_extra_large/"
+#mv leases/*_shel* "./leases/"$llt_size"_llt_entries/128blocks/"$ways"ways/SHEL_extra_large/"
+#mv leases/*_clam* "./leases/"$llt_size"_llt_entries/128blocks/"$ways"ways/CLAM_extra_large/"
+#mv leases/*_prl*  "./leases/"$llt_size"_llt_entries/128blocks/"$ways"ways/PRL_extra_large/"
 
 fi

@@ -32,7 +32,6 @@ module n_set_lease_dynamic_cache_controller_tracker_L2 #(
 	// tag memory signals
 	input 								cam_hit_i,
 	output 								cam_wren_o,
-	output 								cam_rmen_o,
 	input 	[BW_TAG-1:0]				cam_tag_i, 				// tag <- addr
 	input 	[BW_CACHE_ADDR_PART-1:0] 	cam_addr_i, 			// addr <- tag
 	output 	[BW_CACHE_ADDR_PART-1:0] 	cam_addr_o, 			// tag -> addr
@@ -95,12 +94,11 @@ localparam ST_NO_SWAP = 4'b1110;
 
 localparam BW_CACHE_ADDR_PART 		= `CLOG2(CACHE_BLOCK_CAPACITY); 
 localparam BW_CACHE_ADDR_FULL 		= BW_CACHE_ADDR_PART + `BW_BLOCK; 				
-localparam BW_SET 					= BW_CACHE_ADDR_PART - `CLOG2(CACHE_SET_SIZE); 	
-localparam BW_GRP                   = BW_CACHE_ADDR_PART-BW_SET;				
-localparam BW_TAG 					= `BW_WORD_ADDR - BW_GRP - `BW_BLOCK; 
-
+localparam BW_GRP                   =`CLOG2(CACHE_SET_SIZE);
+localparam BW_SET                   = BW_CACHE_ADDR_PART -BW_GRP;
+localparam BW_TAG 					= `BW_WORD_ADDR -BW_SET- `BW_BLOCK; 
 localparam BW_ENTRIES 				= `CLOG2(`LEASE_LLT_ENTRIES); 	// entries per table
-localparam BW_ADDR_SPACE 			= BW_ENTRIES + 1; 				// four tables total (address, lease0, lease1, lease0_probability)
+localparam BW_ADDR_SPACE 			= BW_ENTRIES + 1; 				// two tables total (address, lease0)
 
 
 // internal signals - registered ports
@@ -118,7 +116,6 @@ reg 							cam_wren_reg;
 reg [BW_CACHE_ADDR_PART-1:0]	cam_addr_reg;
 
 assign cam_wren_o = cam_wren_reg;
-assign cam_rmen_o = 1'b0; 				// not used but allocated for
 assign cam_addr_o = cam_addr_reg;
 // cache memory
 reg 							cache_mem_rw_reg;
@@ -244,8 +241,6 @@ assign phase_interrupt 	= 	phase_reg != phase_i[7:0];
 reg 	[BW_ADDR_SPACE-1:0]	llt_counter_reg; 				// {2'bXY, BW_ENTRIES-1}
 															// XY = 00 : ref_addr
 															// XY = 01 : lease_primary
-															// XY = 10 : lease_secondary
-															// XY = 11 : lease_primary_percentage
 
 reg [BW_ENTRIES:0] refs_in_previous_phase, refs_in_phase;
 wire [BW_ENTRIES:0] refs_to_write;
@@ -476,6 +471,9 @@ always @(posedge clock_i) begin
 						if (L1_req_i) begin
 							req_flag_reg 	= 1'b1; 				// so that upon handling the miss the cache serves the L1
 							rw_flag_reg 	= L1_rw_i; 			// register request type (ld/st)
+							if(cam_hit_i)begin 
+								init_hit_reg =1'b1;
+							end
 						end
 
 						// switch to population sequence
@@ -622,7 +620,12 @@ always @(posedge clock_i) begin
 								// request the item
 								mem_req_reg 		= 1'b1;
 								mem_req_block_reg 	= 1'b0;
-								mem_addr_reg 		= {L1_tag_i, L1_word_i};
+								if(CACHE_SET_SIZE!=CACHE_BLOCK_CAPACITY)begin
+									mem_addr_reg 		= {L1_tag_i,L1_set_i, L1_word_i };
+								end
+								else begin
+									mem_addr_reg 		= {L1_tag_i, L1_word_i};
+								end
 								mem_rw_reg 			= rw_flag_reg;
 
 								if (!rw_flag_reg) begin
@@ -751,7 +754,7 @@ always @(posedge clock_i) begin
 				ST_NO_SWAP_READ: begin
 					if (buffer_read_ready_i) begin
 
-						// pull data from buffer and route to L2
+						// pull data from L2 buffer and route to L1 buffer
 						buffer_read_ack_reg = 1'b1;
 						L1_data_reg 		= buffer_data_i;
 						data_valid_reg          = 1'b1;//signal that data is valid so L1 rx buffer reads in value from main memory buffer
