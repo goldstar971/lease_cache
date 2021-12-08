@@ -7,7 +7,8 @@ function matlab_path_setup {
 
 function gen_leases {
 	unset rate multi_level seed llt_size ways
-	#get options
+	local OPTIND
+#get options
 	while getopts "m:r:s:l:w:" option; do
 	    case "$option" in
 	        r ) rate="$OPTARG";;
@@ -15,7 +16,7 @@ function gen_leases {
 	        m ) multi_level="$OPTARG";;
 			l ) llt_size="$OPTARG";;
 			w ) ways="$OPTARG";;
-	        * ) exit 1;;
+	        * ) return 0;;
 	    esac
 	done
 	#set defaults if not used
@@ -59,7 +60,7 @@ function generate_cache_spectrums {
 	elif [ "$#" -eq 1 ]; then
 		matlab -nodesktop -r "plot_tracking_results  "$1"; quit"
 	else
-		matlab -nodesktop -r "plot_cache_summary; quit";
+		matlab -nodesktop -r "plot_tracking_results; quit";
 	fi
 }
 

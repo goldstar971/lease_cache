@@ -11,7 +11,7 @@ module cache_line_tracker_4 #(
 	input 	[N_LINES-1:0] 	expired_bits_0_i,
 	input 	[N_LINES-1:0] 	expired_bits_1_i,
 	input 	[N_LINES-1:0] 	expired_bits_2_i,
-	input   [15:0]           rate_i,
+	input   [18:0]             rate_i,
 
 	output 					stall_o,
 	output 	[31:0]			count_o,	 		// number of buffer entries to pull	

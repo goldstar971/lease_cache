@@ -20,38 +20,40 @@ module comm_controller_v3(
 );
 
 
-localparam 	IDLE					= 5'b00000;
-localparam 	SYNC 					= 5'b00001;
-localparam 	CONFIG		 			= 5'b00100;
-localparam 	GET_WORD 				= 5'b00010;
-localparam 	SEND_WORD 				= 5'b00011;
-localparam 	JTAG_READ 				= 5'b00101;
-localparam 	JTAG_WRITE 				= 5'b00110;
-localparam 	ACKNOWLEDGE 			= 5'b00111;
-localparam 	MANAGE 					= 5'b01000;
-localparam 	ERROR 					= 5'b01001;
-localparam 	ACKNOWLEDGE_RELOAD 		= 5'b01010;
-localparam 	WAIT_FOR_ACKNOWLEDGE 	= 5'b01011;
-localparam 	CHECK_TERM2 			= 5'b01100;
-localparam 	WAIT_READY_READ 		= 5'b01101;
-localparam 	WAIT_READY_WRITE 		= 5'b01110;
-localparam 	RESET_PURGE 			= 5'b10000;
-localparam 	CONFIG2 				= 5'b10001;
-localparam 	MANAGE_BURST 			= 5'b10010;
-localparam 	BURST_RX 				= 5'b10011;
-localparam 	BURST_WAIT_DONE			= 5'b10100;
-localparam 	BURST_TX 				= 5'b10101;
-localparam 	BURST_TX_INIT 			= 5'b10110;
-localparam 	BURST_WAIT_DONE2		= 5'b10111;
-localparam 	FUSION_MANAGE0 			= 5'b11000;
-localparam 	FUSION_MANAGE1 			= 5'b11001;
-localparam  FUSION_MANAGE2          = 5'b01111;
-localparam 	FUSION_READ 			= 5'b11011;
-localparam 	FUSION_WRITE 			= 5'b11100;
-localparam 	FUSION_CACHE_READ 		= 5'b11101;
-localparam  FUSION_CACHE_WRITE 		= 5'b11110;
-localparam 	FUSION_CACHE_MANAGE 	= 5'b11111;
-
+localparam 	IDLE					= 6'b00000;
+localparam 	SYNC 					= 6'b00001;
+localparam 	CONFIG		 			= 6'b00100;
+localparam 	GET_WORD 				= 6'b00010;
+localparam 	SEND_WORD 				= 6'b00011;
+localparam 	JTAG_READ 				= 6'b00101;
+localparam 	JTAG_WRITE 				= 6'b00110;
+localparam 	ACKNOWLEDGE 			= 6'b00111;
+localparam 	MANAGE 					= 6'b01000;
+localparam 	ERROR 					= 6'b01001;
+//localparam 	ACKNOWLEDGE_RELOAD 		= 6'b01010;
+//localparam 	WAIT_FOR_ACKNOWLEDGE 	= 6'b01011;
+//localparam 	CHECK_TERM2 			= 6'b01100;
+localparam 	WAIT_READY_READ 		= 6'b01101;
+localparam 	WAIT_READY_WRITE 		= 6'b01110;
+localparam  CONFIG3                 = 6'b11010;
+localparam 	RESET_PURGE 			= 6'b10000;
+localparam 	CONFIG2 				= 6'b10001;
+localparam 	MANAGE_BURST 			= 6'b10010;
+localparam 	BURST_RX 				= 6'b10011;
+localparam 	BURST_WAIT_DONE			= 6'b10100;
+localparam 	BURST_TX 				= 6'b10101;
+localparam 	BURST_TX_INIT 			= 6'b10110;
+localparam 	BURST_WAIT_DONE2		= 6'b10111;
+localparam 	FUSION_MANAGE0 			= 6'b11000;
+localparam 	FUSION_MANAGE1 			= 6'b11001;
+localparam  FUSION_MANAGE2          = 6'b01111;
+localparam 	FUSION_READ 			= 6'b11011;
+localparam 	FUSION_WRITE 			= 6'b11100;
+localparam 	FUSION_CACHE_READ 		= 6'b11101;
+localparam  FUSION_CACHE_WRITE 		= 6'b11110;
+localparam 	FUSION_CACHE_MANAGE 	= 6'b11111;
+localparam  BURST_WAIT_WRITE        = 6'b100000;
+localparam  BURST_WAIT_READ			= 6'b100001;
 localparam 	KEY_SYNC 				= 32'h4A78B9F2;
 localparam 	XOR_SYNC 				= 32'hCD0031F7;
 
@@ -97,13 +99,13 @@ assign tx_write_o = tx_put_reg;
 assign tx_data_o = tx_put_data_reg;
 
 // controller signals
-reg 	[4:0]	state_current,
+reg 	[5:0]	state_current,
 				state_next0,
 				state_next1;
 reg 	[11:0]	word_reload,
 				word_counter,fusion_words_num;
 reg 	[15:0]	fusion_counter;
-reg 	[13:0]	packet_counter;
+//reg 	[13:0]	packet_counter;
 
 reg 	[31:0]	rx_data_reg;
 reg 	[11:0]	config_bits; 			// [31:26]
@@ -136,13 +138,13 @@ always @(posedge clock_i) begin
 		// controller signals
 
 		uart_tx_data = 'b0;
-		state_current = RESET_PURGE;
-		state_next0 = IDLE;
-		state_next1 = IDLE;
+		state_current <= RESET_PURGE;
+		state_next0 <= IDLE;
+		state_next1 <= IDLE;
 		word_reload = 'b0;
 		word_counter = 'b0;
 
-		packet_counter = 'b0;
+	//	packet_counter = 'b0;
 		config_bits = 'b0;
 		iteration_counter = PURGE_ITERATIONS;
 		fusion_counter = 'b0;
@@ -188,7 +190,7 @@ always @(posedge clock_i) begin
 				if (!rx_empty_i) begin
 					rx_get_reg 		= 1'b1;
 					rx_get_data_reg = rx_data_i;
-					state_current 	= state_next0;
+					state_current 	<= state_next0;
 				end
 			end
 
@@ -196,7 +198,7 @@ always @(posedge clock_i) begin
 				if (!tx_full_i) begin
 					tx_put_reg 		= 1'b1;
 					tx_put_data_reg = uart_tx_data;
-					state_current 	= state_next0;
+					state_current 	<= state_next0;
 				end
 			end
 
@@ -208,7 +210,7 @@ always @(posedge clock_i) begin
 				end
 				else begin
 					if (iteration_counter != 'b0) 	iteration_counter = iteration_counter - 1'b1;
-					else 							state_current = SYNC;
+					else 							state_current <= SYNC;
 				end
 			end
 
@@ -217,7 +219,7 @@ always @(posedge clock_i) begin
 					rx_get_reg = 1'b1;
 					rx_get_data_reg = rx_data_i;
 
-					if (rx_get_data_reg == KEY_SYNC) state_current = IDLE;
+					if (rx_get_data_reg == KEY_SYNC) state_current <= IDLE;
 					else begin
 						tx_put_reg = 1'b1;
 						tx_put_data_reg = rx_get_data_reg ^ XOR_SYNC;
@@ -233,8 +235,8 @@ always @(posedge clock_i) begin
 					rx_get_data_reg = rx_data_i;
 
 					// check out of idle terminator
-					if (rx_get_data_reg != 32'h0) 	state_current = ERROR;
-					else 							state_current = CONFIG;
+					if (rx_get_data_reg != 32'h0) 	state_current <= ERROR;
+					else 							state_current <= CONFIG;
 				end
 			end
 
@@ -249,7 +251,7 @@ always @(posedge clock_i) begin
 
 					// CONFIG
 					if (config_bits[2] == 1'b1) begin
-						state_current 	= ACKNOWLEDGE;
+						state_current 	<= ACKNOWLEDGE;
 						req_o 			= 1'b1;
 						reqdev_o 		= rx_get_data_reg[26:24];
 						data_o 			= rx_get_data_reg[1:0];
@@ -257,20 +259,20 @@ always @(posedge clock_i) begin
 
 					// WRITE
 					else if (config_bits[0] == 1'b1) begin
-						state_current 	= GET_WORD; 			// get the target address
-						state_next0 	= CONFIG2;
-						state_next1 	= MANAGE;
+						state_current 	<= GET_WORD; 			// get the target address
+						state_next0 	<= CONFIG2;
+						state_next1 	<= MANAGE;
 						word_counter 	= 'b1;
-						packet_counter 	= 'b1;
+				//		packet_counter 	= 'b1;
 					end
 
 					// READ
 					else if (config_bits[0] == 1'b0) begin
-						state_current 	= GET_WORD; 			// get the target address
-						state_next0 	= CONFIG2;
-						state_next1 	= MANAGE;
+						state_current 	<= GET_WORD; 			// get the target address
+						state_next0 	<= CONFIG2;
+						state_next1 	<= MANAGE;
 						word_counter 	= 'b1;
-						packet_counter 	= 'b1;
+					//	packet_counter 	= 'b1;
 					end
 
 					// check burst settings
@@ -280,19 +282,23 @@ always @(posedge clock_i) begin
 
 					// if block burst then enable the read buffer
 					if (config_bits[3] == 1'b1) begin
-						if (config_bits[0] == 1'b0) begin	// only enable if reading
-							buffer_enable <= 1'b1;
+						//only do block reading or writing if there is at least a block to read or write
+						if(word_counter>=5'b10000)begin 
+							if (config_bits[0] == 1'b0) begin	// only enable if reading
+								buffer_enable <= 1'b1;
+							end
+								state_current 	<= GET_WORD; 			// get the target address
+								state_next0 	<= CONFIG3;
+								
+								state_next1 	<= MANAGE_BURST;
 						end
-						state_current 	= GET_WORD; 			// get the target address
-						state_next0 	= CONFIG2;
-						state_next1 	= MANAGE_BURST;
 					end
 
 					// cache specific operation
 					if (config_bits[4] == 1'b1) begin
 						// operation is to read all cache parameters as a block - involves write->read sequences
-						state_current 	= GET_WORD; 			// get the target address
-						state_next0 	= FUSION_MANAGE0;
+						state_current 	<= GET_WORD; 			// get the target address
+						state_next0 	<= FUSION_MANAGE0;
 					end
 
 					if (config_bits[5] == 1'b1||config_bits[6]==1'b1) begin
@@ -304,8 +310,8 @@ always @(posedge clock_i) begin
 						`endif
 						fusion_counter 		= 'b0;
 
-						state_current 		= GET_WORD; 			// get number of words
-						state_next0 		= FUSION_CACHE_MANAGE;
+						state_current 		<= GET_WORD; 			// get number of words
+						state_next0 		<= FUSION_CACHE_MANAGE;
 						fusion_cache_flag 	= 1'b1;
 						fusion_base_add 	= 'b0;
 						tracking_flag=config_bits[6]; 
@@ -319,37 +325,37 @@ always @(posedge clock_i) begin
 			// -------------------------------------------------------------------------------------------------------
 			FUSION_MANAGE0: begin
 				fusion_write_add 	= rx_get_data_reg[`BW_BYTE_ADDR:0];
-				state_current 		= GET_WORD;	// first get the address to continuously read from 
-				state_next0 		= FUSION_MANAGE1;
+				state_current 		<= GET_WORD;	// first get the address to continuously read from 
+				state_next0 		<= FUSION_MANAGE1;
 			end
 			FUSION_MANAGE1: begin
 				fusion_read_add 	= rx_get_data_reg[`BW_BYTE_ADDR:0];
-				state_current 		= GET_WORD;
-				state_next0         =FUSION_MANAGE2;
+				state_current 		<= GET_WORD;
+				state_next0         <=FUSION_MANAGE2;
 			end
 			FUSION_MANAGE2: begin 
 				fusion_words_num =rx_get_data_reg[11:0];
-				state_current       =FUSION_WRITE;
+				state_current       <=FUSION_WRITE;
 				word_counter 		= 'b0;
 			end
 
 			FUSION_WRITE: begin
 				if (word_counter != fusion_words_num) begin
-					state_current 	= WAIT_READY_WRITE; 	// request a write
+					state_current 	<= WAIT_READY_WRITE; 	// request a write
 					add_o 			= fusion_write_add;			// write address
 					rx_get_data_reg = word_counter; 		// value to write is incrementing count
-					state_next1 	= FUSION_READ; 		// then read the output from cache
+					state_next1 	<= FUSION_READ; 		// then read the output from cache
 				end
 				// all transfered so end readblock
 				else begin
 					word_counter 	= 'b0;
-					state_current 	= IDLE;
+					state_current 	<= IDLE;
 				end
 			end
 			FUSION_READ: begin
-				state_current 		= WAIT_READY_READ;		
+				state_current 		<= WAIT_READY_READ;		
 				add_o 				= fusion_read_add;
-				state_next0 		= FUSION_WRITE;
+				state_next0 		<= FUSION_WRITE;
 				word_counter 		= word_counter + 1'b1;
 			end
 			// ---------------------------------------------------------------------------------------------------------
@@ -357,13 +363,13 @@ always @(posedge clock_i) begin
 				FUSION_CACHE_MANAGE: begin
 					if (fusion_cache_flag == 1'b1) begin
 						fusion_cache_flag 	= 1'b0;
-						state_current 		= GET_WORD; 			// get number of words
-						state_next0 		= FUSION_CACHE_MANAGE;
+						state_current 		<= GET_WORD; 			// get number of words
+						state_next0 		<= FUSION_CACHE_MANAGE;
 						fusion_base_add 	= rx_get_data_reg[15:0];
 					end
 					else begin
 						word_counter 		= rx_get_data_reg[11:0]; 	// this is correct I believe
-						state_current 		= FUSION_CACHE_WRITE;
+						state_current 		<= FUSION_CACHE_WRITE;
 						fusion_counter 		= 'b0;
 					end
 				end
@@ -422,22 +428,22 @@ always @(posedge clock_i) begin
 						end
 
 
-						state_current 	= WAIT_READY_WRITE; 	// request a write
+						state_current 	<= WAIT_READY_WRITE; 	// request a write
 						add_o 			= fusion_write_add;		// set address
-						state_next1 	= FUSION_CACHE_READ;
+						state_next1 	<= FUSION_CACHE_READ;
 
 					end
 					else begin
 						fusion_counter 	= 'b0;
 						word_counter 	= 'b0;
-						state_current 	= IDLE;
+						state_current 	<= IDLE;
 					end
 				end
 
 				FUSION_CACHE_READ: begin
-					state_current 	= WAIT_READY_READ;		
+					state_current 	<= WAIT_READY_READ;		
 					add_o 			= fusion_read_add;
-					state_next0 	= FUSION_CACHE_WRITE;
+					state_next0 	<= FUSION_CACHE_WRITE;
 				end
 
 			// ---------------------------------------------------------------------------------------------------------
@@ -445,14 +451,19 @@ always @(posedge clock_i) begin
 
 			CONFIG2: begin
 				add_o 			= rx_get_data_reg[`BW_BYTE_ADDR:0] - 3'b100;
-				state_current 	= state_next1;
+				state_current 	<= state_next1;
+			end
+
+			CONFIG3: begin 
+				add_o 			= rx_get_data_reg[`BW_BYTE_ADDR:0] - 7'b1000000;
+				state_current 	<= state_next1;
 			end
 
 			WAIT_READY_READ: begin
 				if (ready_i == 1'b1) begin
 					req_o 			= 1'b1;
 					rw_o 			= 1'b0;
-					state_current 	= JTAG_READ;
+					state_current 	<= JTAG_READ;
 				end
 			end
 
@@ -461,7 +472,7 @@ always @(posedge clock_i) begin
 					req_o 			= 1'b1;
 					rw_o 			= 1'b1;
 					data_o 			= rx_get_data_reg;
-					state_current 	= JTAG_WRITE;
+					state_current 	<= JTAG_WRITE;
 				end
 			end
 
@@ -471,21 +482,21 @@ always @(posedge clock_i) begin
 
 				// if read first read memory then TX
 				if (config_bits[0] == 1'b0) begin
-					state_current = WAIT_READY_READ;
+					state_current <= WAIT_READY_READ;
 
 					// if word counter at limit
 					if (word_counter == 'b1) begin
-						if (packet_counter != 'b1) begin
+						/*if (packet_counter != 'b1) begin
 							packet_counter = packet_counter - 1'b1;
-							state_next0 = WAIT_FOR_ACKNOWLEDGE;
+							state_next0 <= WAIT_FOR_ACKNOWLEDGE;
 						end
-						else begin
-							state_next0 = IDLE;
-						end
+						else begin*/
+							state_next0 <= IDLE;
+						//end
 					end
 					else begin
 						word_counter = word_counter - 1'b1;
-						state_next0 = MANAGE;
+						state_next0 <= MANAGE;
 					end
 
 				end
@@ -493,23 +504,23 @@ always @(posedge clock_i) begin
 				// if write first RX then write to memory
 				// ---------------------------------------
 				else begin
-					state_current = GET_WORD;
-					state_next0 = WAIT_READY_WRITE;
+					state_current <= GET_WORD;
+					state_next0 <= WAIT_READY_WRITE;
 
 					// if word counter at limit
 					if (word_counter == 'b1) begin
 						// send ack before going onto next packet
-						if (packet_counter != 'b1) begin
+						/*if (packet_counter != 'b1) begin
 							packet_counter = packet_counter - 1'b1;
-							state_next1 = ACKNOWLEDGE_RELOAD;
+							state_next1 <= ACKNOWLEDGE_RELOAD;
 						end
-						else begin
-							state_next1 = ACKNOWLEDGE;
-						end
+						else begin*/
+							state_next1 <= ACKNOWLEDGE;
+						//end
 					end
 					else begin
 						word_counter = word_counter - 1'b1;
-						state_next1 = MANAGE;
+						state_next1 <= MANAGE;
 					end
 				end
 			end
@@ -517,18 +528,20 @@ always @(posedge clock_i) begin
 			MANAGE_BURST: begin
 				// block read
 				if (config_bits[0] == 1'b0) begin
+					buffer_enable=1'b1;
 					if (ready_i == 1'b1) begin
-						add_o = add_o + 3'b100;
+						//auto block increment
+						add_o = add_o + 7'b1000000;
 						req_o = 1'b1;
 						req_block_o = 1'b1;
 						rw_o = 1'b0;
-						state_current = BURST_RX;
+						state_current <= BURST_RX;
 					end
 				end
 				// block write
 				else begin
-					state_current = GET_WORD; 	// get word to write
-					state_next0 = BURST_TX_INIT;
+					state_current <= GET_WORD; 	// get word to write
+					state_next0 <= BURST_TX_INIT;
 				end
 
 			end
@@ -537,29 +550,47 @@ always @(posedge clock_i) begin
 				if (txrx_ptr > op_ptr) begin
 					rx_data_reg = txrx_buffer[op_ptr];
 					uart_tx_data = txrx_buffer[op_ptr];
+					word_counter =word_counter-1'b1;
 					op_ptr = op_ptr + 1'b1;
-					state_current = SEND_WORD;
+					state_current <= SEND_WORD;
 					if (op_ptr == 5'b10000) begin
 						op_ptr = 'b0;
-						buffer_enable = 1'b0;
-						state_next0 = BURST_WAIT_DONE;
+						//if there's less than a full block to transmit, begin sending single words
+						if(word_counter<'b10000 && word_counter!='b0)begin 
+								buffer_enable = 1'b0;
+							state_next1 <= MANAGE;
+							add_o = add_o + 7'b0111111; //go to next block (auto increment in next state so subtract 1)
+							state_next0 <= BURST_WAIT_READ;
+						end
+						//if no words remaining end
+						else if (word_counter=='b0)begin
+								buffer_enable = 1'b0;
+							state_next0 <= BURST_WAIT_DONE;
+						end
+						//if more than a block remaining to transmit get next block
+						else begin
+							buffer_enable =1'b0;
+							state_next1 <=MANAGE_BURST;
+							state_next0 <= BURST_WAIT_READ;
+						end
 					end
 					else begin
-						state_next0 = BURST_RX;
+						state_next0 <= BURST_RX;
 					end
 				end
 			end
 
 			BURST_TX_INIT: begin
-				//state_current = ACKNOWLEDGE;
+				//state_current <= ACKNOWLEDGE;
 				if (ready_i == 1'b1) begin
-					add_o = add_o + 3'b100;
+					add_o = add_o + 7'b1000000;
 					req_o = 1'b1;
 					req_block_o = 1'b1;
 					rw_o = 1'b1;
 					data_o = rx_get_data_reg;
-					state_current = GET_WORD; 	// get next word
-					state_next0 = BURST_TX;
+					state_current <= GET_WORD; 	// get next word
+					state_next0 <= BURST_TX;
+					word_counter =word_counter-1'b1;
 					op_ptr = 'b1; 				// sent one word
 				end
 			end
@@ -568,27 +599,55 @@ always @(posedge clock_i) begin
 				req_block_o = 1'b1;
 				data_o = rx_get_data_reg;
 				op_ptr = op_ptr + 1'b1;
+				word_counter =word_counter-1'b1;
 				if (op_ptr < 5'b10000) begin
-					state_current = GET_WORD;
-					state_next0 = BURST_TX;
+					state_current <= GET_WORD;
+					state_next0 <= BURST_TX;
 				end
 				else begin
-					state_current = BURST_WAIT_DONE2;
-					op_ptr = 'b0;
+						//if there's less than a full block to recieve, begin recieving single words
+						if(word_counter<'b10000 && word_counter!='b0)begin 
+							add_o = add_o + 7'b0111111; //go to next block
+							state_current<= BURST_WAIT_WRITE;
+							state_next0 <= MANAGE;
+						end
+						//if no words remaining end
+						else if (word_counter=='b0)begin  
+							state_current <= BURST_WAIT_DONE2;
+						end
+						//if more than a block remaining to recieve get next block
+						else begin
+							state_current<= BURST_WAIT_WRITE;
+							state_next0 <=MANAGE_BURST;
+						end
+					op_ptr = 'b0;	
 				end
 			end
+			BURST_WAIT_WRITE: begin 
+				if (done_i ==1'b1)begin 
+					clear_o=1'b1;
+					state_current<=state_next0;
+				end
+			end
+			BURST_WAIT_READ: begin
+				if  (done_i ==1'b1)begin 
+					clear_o =1'b1;
+					state_current<=state_next1;
+				end 
+			end
+
 
 			BURST_WAIT_DONE: begin
 				if (done_i == 1'b1) begin
 					clear_o = 1'b1;
-					state_current = IDLE;
+					state_current <= IDLE;
 				end
 			end
 
 			BURST_WAIT_DONE2: begin
 				if (done_i == 1'b1) begin
 					clear_o = 1'b1;
-					state_current = ACKNOWLEDGE;
+					state_current <= ACKNOWLEDGE;
 				end
 			end
 
@@ -598,7 +657,7 @@ always @(posedge clock_i) begin
 					clear_o 		= 1'b1; 
 					rx_get_data_reg = data_i;
 					uart_tx_data 	= data_i;
-					state_current 	= SEND_WORD;
+					state_current 	<= SEND_WORD;
 				end
 			end
 
@@ -607,7 +666,7 @@ always @(posedge clock_i) begin
 				if (done_i == 1'b1) begin
 					// clear request
 					clear_o 		= 1'b1;
-					state_current 	= state_next1;
+					state_current 	<= state_next1;
 				end
 			end
 
@@ -615,37 +674,38 @@ always @(posedge clock_i) begin
 				if (!tx_full_i) begin
 					tx_put_reg = 1'b1;
 					tx_put_data_reg = 32'h0;
-					state_current = IDLE;
+					state_current <= IDLE;
 				end
 			end
-
+			//not using multiple packets atm
+			/*
 			ACKNOWLEDGE_RELOAD: begin
 				uart_tx_data = 32'h0;
-				state_current = SEND_WORD;
+				state_current <= SEND_WORD;
 				word_counter = word_reload;
-				state_next0 = MANAGE;
+				state_next0 <= MANAGE;
 			end
 
 			WAIT_FOR_ACKNOWLEDGE: begin
-				state_current = GET_WORD;
+				state_current <= GET_WORD;
 				word_counter = word_reload;
-				state_next0 = CHECK_TERM2;
+				state_next0 <= CHECK_TERM2;
 			end
 
 			// check for correct sequencing
 			CHECK_TERM2: begin
 				if (rx_data_reg != 32'h0) begin
-					state_current = ERROR;
+					state_current <= ERROR;
 				end
 				else begin
-					state_current = MANAGE;
+					state_current <= MANAGE;
 				end
-			end
+			end*/
 
 			// error state
 			ERROR: begin
 				exception_o = 1'b1;
-				state_current = ERROR;
+				state_current <= ERROR;
 			end
 
 		endcase

@@ -191,7 +191,6 @@ L1_n_set_cache_controller_multi_level #(
 	// tag memory signals
 	.cam_hit_i 				(hit_cam 				),
 	.cam_wren_o 			(rw_cam 				),
-	.cam_rmen_o 			(),
 	.cam_tag_i 				(tag_cam2cache 	 		),
 	.cam_addr_i 			(add_cam2cache 			),
 	.cam_addr_o 			(add_cache2cam 			),

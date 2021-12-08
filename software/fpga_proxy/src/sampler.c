@@ -6,7 +6,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <errno.h>
-
+#include <math.h>
 
 
 void get_file_name(char* application, char* dir, char * benchmark_name ){
@@ -15,11 +15,11 @@ void get_file_name(char* application, char* dir, char * benchmark_name ){
 	int counter=-1; //loop will increment 1 passed where we want
 
 	strcpy(unsplit,application);
-	char *ptr =strtok(unsplit,"/");
+	char *save_ptr,*ptr =strtok_r(unsplit,"/",&save_ptr);
 	do {
 	    counter++;
 	    strcpy(parts[counter],ptr);
-	     ptr = strtok(NULL,"/");
+	     ptr = strtok_r(NULL,"/",&save_ptr);
 	}while(ptr !=NULL);
 	//if absolute path provided
     if(!strcmp(parts[counter],"program")){
@@ -251,10 +251,14 @@ uint32_t sampler_run(pHandle pInst, command *pCommand){
 		sprintf(application,"%s/%s/%s/program.elf",BENCHMARK_DIR,benchmark_type,benchmark_name);
 		
 	}
+	if(pCommand->field3_number>16383 || pCommand->field3_number<1){
+		printf("allowed seed values are between 1 and 16383\n");
+		return 1;
+	}
 
 	//check if sampling rate allowed
-	if(pCommand->field2_number>2048){
-		printf("sample rate selected must be less than 2048!\n");
+	if(pCommand->field2_number>65355){
+		printf("sample rate selected must be less than 65355!\n");
 		return 1;
 	}
 
@@ -270,16 +274,6 @@ proxy makefile",pCommand->field[1],application);
 	}
 		//now that existence has been checked, remove the file extension, otherwise it will cause problems
 	application[strlen(application)-4]='\0';
-
-	
-//applications sometimes fail to load to the FPGA, loop until the program written has been sucessfully 
-	
-	int tries=0;
-	do {
-		//if more than ten tries, terminate.
-		if(tries>9){
-			return 1;
-		}
 // give comms system permission to r/w main memory.
 		sprintf(command_str, SET_MM_ACCESS_COMMS);
 	if(proxy_string_command(pInst, command_str)){
@@ -287,22 +281,21 @@ proxy makefile",pCommand->field[1],application);
 	}
 	sleep(.1);
 	sprintf(command_str, RESET);
-
 	if(proxy_string_command(pInst, command_str)){
 		return 1;
 	}
 		sleep(.1);
 		// load fpga memory with target application
 	sprintf(command_str, "LOAD %s\r",application);
-		if(proxy_string_command(pInst, command_str)==2){
+		if(proxy_string_command(pInst, command_str)){
 			return 1;
 		}
 		sleep(.1);
+		//applications sometimes fail to load to the FPGA, verify this has occured (function will attempt to fix incorrect words if it finds them)
 	sprintf(command_str, "VERIFY %s\r",application);
-	tries++;
-	}while(proxy_string_command(pInst, command_str));
-
-
+	if(proxy_string_command(pInst, command_str)){
+			return 1;
+		}
 	
 	//create full path
 	#ifdef MULTI_LEVEL_CACHE
@@ -347,32 +340,32 @@ proxy makefile",pCommand->field[1],application);
  //pull peripherals out of reset
 	sprintf(command_str, SET_PERIPHS);
 	if(proxy_string_command(pInst, command_str)){
+		fclose(file_handle);
 		return 1;
 	}
 
 	// give CPU permission to r/w main memory.
 		sprintf(command_str, SET_MM_ACCESS_CPU);
 	if(proxy_string_command(pInst, command_str)){
+		fclose(file_handle);
 		return 1;
 	}
 
-	int seed_value;
-	//seed random number generator with provided or default seed
-	srand(pCommand->field3_number);
-	seed_value=rand()%4096;
 	
 	    //select sampling as metric and give sampling rate
-	 sprintf(command_str,"WRITE 0x20000088, 0x%08x",1|(pCommand->field2_number<<2)|(seed_value<<14));
-	
+	 sprintf(command_str,"WRITE 0x20000088, 0x%08x",1|(pCommand->field2_number<<2)|(pCommand->field3_number<<18));
     if(proxy_string_command(pInst, command_str)){
+    	fclose(file_handle);
 		return 1;
 	}
-
+	printf("Sampling for %s %s rate:%d seed:%d\n",benchmark_type,benchmark_name,
+		(int)exp2((int)log2(pCommand->field2_number)),pCommand->field3_number);
 	
 	
 	//pull processor out of reset
 	sprintf(command_str, SET_CPU);
 	if(proxy_string_command(pInst, command_str)){
+		fclose(file_handle);
 		return 1;
 	}
 
@@ -390,12 +383,13 @@ proxy makefile",pCommand->field[1],application);
 		// check if the sampler buffer is full
 		sprintf(command_str, CHECK_IF_SAMPLER_FULL); 		// switch to full flag register
 		if(proxy_string_command(pInst, command_str)){
+			fclose(file_handle);
 				return 1;
 			}
 		#ifdef MULTI_LEVEL_CACHE
-			protocol_read(pInst, rx_buffer, 4, CACHE_L2_ADDR); 
+			protocol_read(pInst, rx_buffer, 4, CACHE_L2_ADDR,0); 
 		#else
-		protocol_read(pInst, rx_buffer, 4, CACHE_L1D_ADDR); 
+		protocol_read(pInst, rx_buffer, 4, CACHE_L1D_ADDR,0); 
 		#endif	
 			// read the full flag
 
@@ -415,7 +409,7 @@ proxy makefile",pCommand->field[1],application);
 		}
 		// else check to see if the application execution has finished
 		else{
-			protocol_read(pInst, rx_buffer, 4, TEST_DONE_ADDR); 	// read done flag
+			protocol_read(pInst, rx_buffer, 4, TEST_DONE_ADDR,0); 	// read done flag
 		}
 
 	}
@@ -423,12 +417,13 @@ proxy makefile",pCommand->field[1],application);
 	// read out the remaining entries of the sampler buffer
 	sprintf(command_str, GET_NUM_BUFFER_ENTRIES_SAMPLER); 		// switch to number of buffer entries register
 	if(proxy_string_command(pInst, command_str)){
+		fclose(file_handle);
 			return 1;
 		}
 			#ifdef MULTI_LEVEL_CACHE
-			protocol_read(pInst, rx_buffer, 4, CACHE_L2_ADDR); 
+			protocol_read(pInst, rx_buffer, 4, CACHE_L2_ADDR,0); 
 		#else
-		protocol_read(pInst, rx_buffer, 4, CACHE_L1D_ADDR); 
+		protocol_read(pInst, rx_buffer, 4, CACHE_L1D_ADDR,0); 
 		#endif	
 	printf("%s%x\n","Num_entries==",*(uint32_t *)rx_buffer);
 
@@ -444,12 +439,13 @@ proxy makefile",pCommand->field[1],application);
 	sprintf(command_str, GET_NUM_BUFFER_ENTRIES_SAMPLER); 	// switch to number of buffer(table) entries register
 	
 	if(proxy_string_command(pInst, command_str)){
+		fclose(file_handle);
 			return 1;
 		}
 		#ifdef MULTI_LEVEL_CACHE
-			protocol_read(pInst, rx_buffer, 4, CACHE_L2_ADDR); 
+			protocol_read(pInst, rx_buffer, 4, CACHE_L2_ADDR,0); 
 		#else
-		protocol_read(pInst, rx_buffer, 4, CACHE_L1D_ADDR); 
+		protocol_read(pInst, rx_buffer, 4, CACHE_L1D_ADDR,0); 
 		#endif	 	// read the number of buffer(table) entries
 	printf("%s%x\n","Num_entries==",*(uint32_t *)rx_buffer);
 	sampler_read_buffer(pInst, *(uint32_t *)rx_buffer,file_handle);
@@ -500,17 +496,13 @@ proxy makefile",pCommand->field[1],application);
 	}
 	//now that existence has been checked, remove the file extension, otherwise it will cause problems
 	application[strlen(application)-4]='\0';
-	int tries=0;
-	do {
-		//if more than ten tries, terminate.
-		if(tries>9){
-			return 1;
-		}
-		// give comms system permission to r/w main memory.
-		sprintf(command_str, SET_MM_ACCESS_COMMS);
+
+// give comms system permission to r/w main memory.
+	sprintf(command_str, SET_MM_ACCESS_COMMS);
 	if(proxy_string_command(pInst, command_str)){
 		return 1;
 	}
+	//put peripherals and processor in reset
 	sleep(.1);
 	sprintf(command_str, RESET);
 
@@ -520,6 +512,26 @@ proxy makefile",pCommand->field[1],application);
 		sleep(.1);
 		// load fpga memory with target application
 	sprintf(command_str, "LOAD %s\r",application);
+		if(proxy_string_command(pInst, command_str)){
+			return 1;
+		}
+		sleep(.1);
+		//applications sometimes fail to load to the FPGA, verify this has occured (function will attempt to fix incorrect words if it finds them)
+	sprintf(command_str, "VERIFY %s\r",application);
+	if(proxy_string_command(pInst, command_str)){
+			return 1;
+		}
+/*
+	int tries=0;
+	do {
+		//if more than ten tries, terminate.
+		if(tries>9){
+			return 1;
+		}
+		
+		
+		// load fpga memory with target application
+	sprintf(command_str, "LOAD %s\r",application);
 		if(proxy_string_command(pInst, command_str)==2){
 			return 1;
 		}
@@ -527,7 +539,7 @@ proxy makefile",pCommand->field[1],application);
 	sprintf(command_str, "VERIFY %s\r",application);
 	tries++;
 	}while(proxy_string_command(pInst, command_str));
-
+*/
 
 	//create full path
 	#ifdef MULTI_LEVEL_CACHE
@@ -604,9 +616,9 @@ proxy makefile",pCommand->field[1],application);
 				return 1;
 			}
 		#ifdef MULTI_LEVEL_CACHE
-			protocol_read(pInst, rx_buffer, 4, CACHE_L2_ADDR); 
+			protocol_read(pInst, rx_buffer, 4, CACHE_L2_ADDR,0); 
 		#else
-		protocol_read(pInst, rx_buffer, 4, CACHE_L1D_ADDR); 
+		protocol_read(pInst, rx_buffer, 4, CACHE_L1D_ADDR,0); 
 		#endif	 		// read the full flag
 
 		// if full then read out the contents of the buffer
@@ -625,7 +637,7 @@ proxy makefile",pCommand->field[1],application);
 		}
 		// else check to see if the application execution has finished
 		else{
-			protocol_read(pInst, rx_buffer, 4, TEST_DONE_ADDR); 	// read done flag
+			protocol_read(pInst, rx_buffer, 4, TEST_DONE_ADDR,0); 	// read done flag
 		}
 
 	}
@@ -641,9 +653,9 @@ proxy makefile",pCommand->field[1],application);
 			return 1;
 		}
 		#ifdef MULTI_LEVEL_CACHE
-			protocol_read(pInst, rx_buffer, 4, CACHE_L2_ADDR); 
+			protocol_read(pInst, rx_buffer, 4, CACHE_L2_ADDR,0); 
 		#else
-		protocol_read(pInst, rx_buffer, 4, CACHE_L1D_ADDR); 
+		protocol_read(pInst, rx_buffer, 4, CACHE_L1D_ADDR,0); 
 		#endif	 		// read the number of buffer entries
 	tracker_read_buffer(pInst, *(uint32_t *)rx_buffer, file_handle);
 

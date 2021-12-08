@@ -25,7 +25,7 @@ module peripheral_system_3(
 	input 		[31:0]	comm_cache1_i,
 	input       [31:0]  comm_cacheL2_i,
 	output   	[1:0]    metric_sel_o,
-	output      [15:0]    shift_sample_rate_o,
+	output      [18:0]    shift_sample_rate_o,
 	output 		[31:0] 	phase_o,
 	output 		[31:0]	comm_o,
 	output      reset_system_o
@@ -38,13 +38,14 @@ assign reset_system_o=reset_reg[0];
 reg [31:0]	comm_reg0, comm_reg1;
 reg [7:0]	comm_pro_i_reg;
 reg [23:0]	comm_cs_i_reg;
-reg [15:0]   sample_rate_reg;
+reg [18:0]   sample_rate_reg;
 reg [1:0] metric_sel_reg;
-wire [3:0]shift_sample_rate;
+wire [4:0]shift_sample_rate;
 
-assign shift_sample_rate=data_cs_i[13:2]>=2048 ? 4'd0 : data_cs_i[13:2]>=1024 ? 4'd1 : data_cs_i[13:2]>=512
-? 4'd2 : data_cs_i[13:2]>=256 ? 4'd3 : data_cs_i[13:2]>=128 ? 4'd4 : data_cs_i[13:2]>=64 ? 4'd5 : data_cs_i[13:2]>=32 ? 4'd6 :
-data_cs_i[13:2]>=16 ? 4'd7 : data_cs_i[13:2]>=8 ? 4'd8: data_cs_i[13:2] >=4 ? 4'd9 :data_cs_i[13:2]>=2 ? 4'd10 : 4'b11;
+assign shift_sample_rate= data_cs_i[17:2]>=32768 ? 5'd0 : data_cs_i[17:2]>=16384 ? 5'd1 : 
+data_cs_i[17:2]>=8192 ? 5'd2 : data_cs_i[17:2]>=4096? 5'd3 : data_cs_i[17:2]>=2048 ? 5'd4 : data_cs_i[17:2]>=1024 ? 5'd5 : data_cs_i[17:2]>=512
+? 5'd6 : data_cs_i[17:2]>=256 ? 5'd7 : data_cs_i[17:2]>=128 ? 5'd8 : data_cs_i[17:2]>=64 ? 5'd9 : data_cs_i[17:2]>=32 ? 5'd10 :
+data_cs_i[17:2]>=16 ? 5'd11 : data_cs_i[17:2]>=8 ? 5'd12: data_cs_i[17:2] >=4 ? 5'd13 :data_cs_i[17:2]>=2 ? 5'd14 : data_cs_i[17:2] ==1 ? 5'd15 : 5'd16;
 
 
 assign metric_sel_o=metric_sel_reg;
@@ -88,10 +89,10 @@ always @(posedge clock_i) begin
 				`CPC_METRIC_SWITCH:   begin
 						metric_sel_reg<=data_cs_i[1:0];
 						if(data_cs_i[1:0]==2'b1)begin
-							sample_rate_reg[15:0]<={data_cs_i[25:14],shift_sample_rate}; //get seed for sampler
+							sample_rate_reg<={data_cs_i[31:18],shift_sample_rate}; //combine seed and sampling rate
 						end
 						else begin
-							sample_rate_reg<=data_cs_i[17:2]; //get tracking data sampling rate
+							sample_rate_reg<=data_cs_i[19:2]; //get tracking data sampling rate
 						end
 				end
 				`STATS_BASE: begin

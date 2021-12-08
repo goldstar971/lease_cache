@@ -40,7 +40,7 @@ uint32_t proxy_terminal_command(pHandle pInst){
 }
 
 uint32_t proxy_string_command(pHandle pInst, char *command_str){
-	//printf("%s\n",command_str);
+//	printf("%s\n",command_str);
 	// use string command to populate command data structure
 	command command_inst; 
 
@@ -69,7 +69,7 @@ uint32_t proxy_execute(pHandle pInst, command *pCommand){
 		case 1:
 		{
 			char rx_buffer[BYTES_PER_WORD];
-			if (protocol_read(pInst, rx_buffer, BYTES_PER_WORD, pCommand->field1_number)){
+			if (protocol_read(pInst, rx_buffer, BYTES_PER_WORD, pCommand->field1_number,0)){
 				return 1;
 			}
 			else{
@@ -82,7 +82,7 @@ uint32_t proxy_execute(pHandle pInst, command *pCommand){
 		// --------------------------------------------------
 		case 2:
 		{
-			if (protocol_write(pInst, (char *)&pCommand->field2_number, BYTES_PER_WORD, pCommand->field1_number)){
+			if (protocol_write(pInst, (char *)&pCommand->field2_number, BYTES_PER_WORD, pCommand->field1_number,0)){
 				return 1;
 			}
 			else{

@@ -43,40 +43,30 @@ proxy makefile\n",pCommand->field[1],application);
 	//now that existence has been checked, remove the file extension, otherwise it will cause problems
 	application[strlen(application)-4]='\0';
 
-	// give comms system permission to r/w main memory.
-
-		sprintf(command_str, SET_MM_ACCESS_COMMS);
-	if(proxy_string_command(pInst, command_str)){
-		return 1;
-	}
-	sleep(.1);
 	//put peripherals and cpu in reset
 	sprintf(command_str, RESET);
 
 	if(proxy_string_command(pInst, command_str)){
 		return 1;
 	}
-	//sometimes loading the application initially fails
-	int tries=0;
-	do {
-		//if more than ten tries, terminate.
-		if(tries>9){
-			return 1;
-		}
-		
+	// give comms system permission to r/w main memory.
+
 		sprintf(command_str, SET_MM_ACCESS_COMMS);
-	sprintf(command_str, RESET);
-		sleep(.5);
+	if(proxy_string_command(pInst, command_str)){
+		return 1;
+	}
+			sleep(.1);
 		// load fpga memory with target application
 	sprintf(command_str, "LOAD %s\r",application);
-		if(proxy_string_command(pInst, command_str)==2){
+		if(proxy_string_command(pInst, command_str)){
 			return 1;
 		}
-		
-		sleep(.5);
+		sleep(.1);
+		//applications sometimes fail to load to the FPGA, verify this has occured (function will attempt to fix incorrect words if it finds them)
 	sprintf(command_str, "VERIFY %s\r",application);
-	tries++;
-	}while(proxy_string_command(pInst, command_str));
+	if(proxy_string_command(pInst, command_str)){
+			return 1;
+		}
 
 	// pull cpu and peripherals out of reset 
 	sprintf(command_str, SET_CPU);
@@ -97,7 +87,7 @@ proxy makefile\n",pCommand->field[1],application);
 	printf("\n");
 	while(*(uint32_t *)rx_buffer != 0x00000001){
 
-		protocol_read(pInst, rx_buffer, 4, TEST_DONE_ADDR);
+		protocol_read(pInst, rx_buffer, 4, TEST_DONE_ADDR,0);
 	}
 	//get cpu stats
 	// report
@@ -225,17 +215,22 @@ proxy makefile\n",pCommand->field[1],application);
 
 uint32_t script_run(pHandle pInst, command *pCommand){
 	//handles both absolute path to scripts and just providing script name i.e., run_all_PRL.pss
-	char script_file[256];
+	 char *script_file=(char*)calloc(256,sizeof(char));
+	 if(script_file==NULL){
+	 	printf("failed to allocate memory for script file name!");
+	 	return 1;
+	 }
+
 	strcpy(script_file,pCommand->field[1]);
-	//if we don't the absolute path try an assemble using benchmark directory
+	//if we don't the absolute path try an assemble using script directory
 	if(access(script_file,F_OK)!=0){
 		sprintf(script_file,"%s/%s.pss",SCRIPT_DIR,pCommand->field[1]);
 	}
 	if(access(script_file,F_OK)!=0){
-		printf("Could not find provided application file: %s. \
+		printf("Could not find provided script file: %s. \
 Attempt to find alternative %s failed.\n  \
 Provide either the absolute path from proxy dir or just script name: \
-e.g CLAM_large/adi\n \
+e.g run_all_PRL \n \
 If just providing script name fails, check the proxy makefile to see \
 if SCRIPT_DIRECTORY has been correctly defined\n",pCommand->field[1],script_file);
 		return 1;
@@ -246,7 +241,7 @@ if SCRIPT_DIRECTORY has been correctly defined\n",pCommand->field[1],script_file
 	FILE *pFile = fopen(script_file,"r");
 	if(!pFile){
 		printf("Error, could not open %s\n", script_file);
-
+		free(script_file);
     	return 1;
     }
 
@@ -255,12 +250,14 @@ if SCRIPT_DIRECTORY has been correctly defined\n",pCommand->field[1],script_file
     while(fgets(line, sizeof(line)/sizeof(line[0]), pFile)){
     	if (proxy_string_command(pInst, line)){
     		fclose(pFile);
+    		free(script_file);
     		return 1;
     	}
     }
 
     // return without error
     fclose(pFile);
+    free(script_file);
 	return 0;
 }
 

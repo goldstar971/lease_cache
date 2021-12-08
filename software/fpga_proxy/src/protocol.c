@@ -50,7 +50,7 @@ uint32_t protocol_synchronize(pHandle pInst, uint32_t n_iterations, uint32_t opt
 
 }
 
-uint32_t protocol_read(pHandle pInst, char *pBuffer, uint32_t n_bytes, uint32_t addr){
+uint32_t protocol_read(pHandle pInst, char *pBuffer, uint32_t n_bytes, uint32_t addr, char burst){
 
 	// validate the number of bytes being sent
 	if (!n_bytes | (n_bytes > MAX_READ_BYTES) | (n_bytes % BYTES_PER_WORD)){
@@ -65,8 +65,14 @@ uint32_t protocol_read(pHandle pInst, char *pBuffer, uint32_t n_bytes, uint32_t 
 		*(uint32_t *)(tx_buffer+2*BYTES_PER_WORD) = addr; 										// address
 
 		// if more than one word being sent flag it
+		// if more than one word being sent flag it
 		if (n_bytes > BYTES_PER_WORD){
-			*(uint32_t *)(tx_buffer+1*BYTES_PER_WORD) = *(uint32_t *)(tx_buffer+1*BYTES_PER_WORD) | PROTOCOL_FLAG_MULTIWORD;
+			if(burst){
+				*(uint32_t *)(tx_buffer+1*BYTES_PER_WORD) = *(uint32_t *)(tx_buffer+1*BYTES_PER_WORD) | PROTOCOL_FLAG_MULTIWORD| PROTOCOL_FLAG_BURST;
+			}
+			else {
+				*(uint32_t *)(tx_buffer+1*BYTES_PER_WORD) = *(uint32_t *)(tx_buffer+1*BYTES_PER_WORD) | PROTOCOL_FLAG_MULTIWORD;
+			}
 		}
 
 		// command
@@ -81,7 +87,7 @@ uint32_t protocol_read(pHandle pInst, char *pBuffer, uint32_t n_bytes, uint32_t 
 	}
 }
 
-uint32_t protocol_write(pHandle pInst, char *pBuffer, uint32_t n_bytes, uint32_t addr){
+uint32_t protocol_write(pHandle pInst, char *pBuffer, uint32_t n_bytes, uint32_t addr,char burst){
 	//printf("\nhere\n");
 	// validate the number of bytes being sent
 	if (!n_bytes | (n_bytes > MAX_WRITE_BYTES) | (n_bytes % BYTES_PER_WORD)){
@@ -99,7 +105,12 @@ uint32_t protocol_write(pHandle pInst, char *pBuffer, uint32_t n_bytes, uint32_t
 		*(uint32_t *)(tx_buffer+1*BYTES_PER_WORD) = *(uint32_t *)(tx_buffer+1*BYTES_PER_WORD) | PROTOCOL_FLAG_WRITE;
 		// if more than one word being sent flag it
 		if (n_bytes > BYTES_PER_WORD){
-			*(uint32_t *)(tx_buffer+1*BYTES_PER_WORD) = *(uint32_t *)(tx_buffer+1*BYTES_PER_WORD) | PROTOCOL_FLAG_MULTIWORD;
+			if(burst){
+				*(uint32_t *)(tx_buffer+1*BYTES_PER_WORD) = *(uint32_t *)(tx_buffer+1*BYTES_PER_WORD) | PROTOCOL_FLAG_MULTIWORD| PROTOCOL_FLAG_BURST;
+			}
+			else {
+				*(uint32_t *)(tx_buffer+1*BYTES_PER_WORD) = *(uint32_t *)(tx_buffer+1*BYTES_PER_WORD) | PROTOCOL_FLAG_MULTIWORD;
+			}
 		}
 
 		// populate the rest of the tx_buffer content

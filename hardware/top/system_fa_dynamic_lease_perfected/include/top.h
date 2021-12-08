@@ -231,7 +231,7 @@
 													//3: num of references in phase
 													//4: dual lease ref (word address)
 `define LEASE_CONFIG_VAL_BW 			32
-`define LEASE_VALUE_BW 					31 //int max
+`define LEASE_VALUE_BW					24
 `define LEASE_REF_ADDR_BW 				27
 `define BW_PERCENTAGE                   9
 
@@ -261,19 +261,29 @@
 
 
 
+//adding tracker and sampler stuff
 
-
-
-`include "../../../include/sampler.h"
-`ifdef L2_POLICY_DLEASE  
+//only meaningful for lease cache 
+`define TRACKER
+`ifdef TRACKER
 	`include "../../../include/tracker.h"
+`endif
+
+`define SAMPLER
+`ifdef SAMPLER
+	`include "../../../include/sampler.h"
+`endif 
+
+
+//adding lease cache stuff
+`ifdef L2_POLICY_DLEASE  
 		`include "../../../internal/cache/lib/lease_lookup_table.v"
 		`include "../../../internal/cache/lib/lease_probability_controller.v"
 `elsif DATA_POLICY_DLEASE
-	`include "../../../include/tracker.h"
 		`include "../../../internal/cache/lib/lease_lookup_table.v"
 		`include "../../../internal/cache/lib/lease_probability_controller.v"
 `endif
+
 `include "../../../include/cache_components.h"
 
 

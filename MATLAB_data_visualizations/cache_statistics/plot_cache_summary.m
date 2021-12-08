@@ -1,4 +1,4 @@
-function [] =plot_cache_summary(varargin)
+	function [] =plot_cache_summary(varargin)
 % initialize workspace
 	if usejava('desktop')
 			clc;
@@ -92,7 +92,18 @@ function [] =plot_cache_summary(varargin)
 	if(exist([base_save_path,'cache_statistics/cache_statistics_graphs/',convertStringsToChars(num_level(multi_level+1)),'/'],'dir')~=7)
 		mkdir([base_save_path,'cache_statistics/cache_statistics_graphs/',convertStringsToChars(num_level(multi_level+1)),'/']);
 	end
-
+	if(exist([base_save_path,'cache_statistics/cache_statistics_graphs/',convertStringsToChars(num_level(multi_level+1)),'/misses/'],'dir')~=7)
+		mkdir([base_save_path,'cache_statistics/cache_statistics_graphs/',convertStringsToChars(num_level(multi_level+1)),'/misses/']);
+	end
+	if(exist([base_save_path,'cache_statistics/cache_statistics_graphs/',convertStringsToChars(num_level(multi_level+1)),'/contention/'],'dir')~=7)
+		mkdir([base_save_path,'cache_statistics/cache_statistics_graphs/',convertStringsToChars(num_level(multi_level+1)),'/contention/']);
+	end
+	if(exist([base_save_path,'cache_statistics/cache_statistics_graphs/',convertStringsToChars(num_level(multi_level+1)),'/clock_cycles/'],'dir')~=7)
+		mkdir([base_save_path,'cache_statistics/cache_statistics_graphs/',convertStringsToChars(num_level(multi_level+1)),'/clock_cycles/']);
+	end
+	if(exist([base_save_path,'cache_statistics/cache_statistics_graphs/',convertStringsToChars(num_level(multi_level+1)),'/miss_ratios/'],'dir')~=7)
+		mkdir([base_save_path,'cache_statistics/cache_statistics_graphs/',convertStringsToChars(num_level(multi_level+1)),'/miss_ratios/']);
+	end
 
 	%benchmarks to ignore for small dataset size
 	small_benchmarks=[''];%["jacobi-1d","trisolv","gesummv",'durbin'];
@@ -126,11 +137,9 @@ function [] =plot_cache_summary(varargin)
 
 	%rearrange benchmarks so cross scoped RIs are on right and non cross scoped
 	%are on left
-	if(strcmp(dataset_size,'large'))
-		re_index=[1,2,4:1:10,12:1:16,18,22:1:29,3,11,17,19,20,21];
-	else
+	
 		re_index=[1,2,4:1:11,13:1:17,19,23:1:30,3,12,18,20,21,22];
-	end
+	
 	data_bm=data_bm(re_index);
 	benchmark_names=benchmark_names(re_index);
 
@@ -159,10 +168,31 @@ function [] =plot_cache_summary(varargin)
 	PLRU_multi_scope=PLRU_data(~ismember(benchmark_names,single_scope_benchmarks));
 	% don't display figures if we are running from command line
 
-	
-		if ~usejava('desktop')
+	%not used because graphs end up being saved very distorted.
+%		if ~usejava('desktop')
 	%		set(0,'DefaultFigureVisible','off');	
-		end
+%		end
+
+% Get predicted misses data
+	temp_file=[cache_stats_dir,'temp.csv'];
+	%generate CSV file with all miss data
+	system(['echo "Size, Policy, Dataset_Size, benchmark_name, predicted_misses" >',temp_file]);
+gen_predictive_miss_command=['grep -rnw "predicted miss" ',base_path,'software/CLAM/leases/**/**/**/**/*leases' ...
+' |sed ''s/^.*_llt_entries\/\([0-9]\+\)blocks\/[0-9]\+ways\/\([A-Z\-]\+\)_*\([a-z]*\)\/\([a-z0-9\-]\+\)_.*_leases.*: \([0-9]\+\)$/\1,\2,\3,\4,\5/'' '...
+' | sed ''s/,,/,small,/'' >> ', temp_file];
+	system(gen_predictive_miss_command);
+	%import the miss data to a table 
+	data_table=readtable(temp_file);
+	%delete file (the actual misses chance with tweaks in policy so no point in
+	%saving it.
+	system(['rm ',temp_file]);
+	cache_sizes=[128,512];
+	%get the subset of the table with the correct cache size
+	data_table1=data_table(data_table.Size==cache_sizes(multi_level+1),:);
+	%get the subset of the table with the correct data set size
+	data_table2=data_table1(strcmp(data_table1.Dataset_Size,dataset_size),:);
+
+
 	
 	
 	%open geomean file and output header describing the data being visualized 
@@ -176,6 +206,7 @@ function [] =plot_cache_summary(varargin)
 	for h=1:2
 		%plot for single or multi scope benchmarks
 		for i=1:2
+			projected_misses=[];
 			if(i==1)
 				num_benchmarks=length(data_bm_single_scope);
 				used_policies=size(data_bm_single_scope{1},1);
@@ -184,7 +215,12 @@ function [] =plot_cache_summary(varargin)
 						sorted_benchmark=sortrows(data_bm_single_scope{j},17+offset);
 						plru_normed_data{i+(h-1)*2}=[plru_normed_data{i+(h-1)*2},sorted_benchmark(:,21+offset)];
 						miss_ratios{i}=[miss_ratios{i},sorted_benchmark(:,7+offset)./(sorted_benchmark(:,7+offset)+sorted_benchmark(:,6+offset))];
-					end
+			    		projected_misses(j)=data_table2.predicted_misses(strcmp(data_table2.Policy(:),lease_policies(1))...
+				 		&strcmp(data_table2.benchmark_name(:),benchmark_names_single(j))); 
+						%normalized by plru
+						projected_misses(j)=projected_misses(j)/PLRU_single_scope{j}(7+offset);
+				 	end
+				 	plru_normed_data{i+(h-1)*2}=[projected_misses;plru_normed_data{i+(h-1)*2}];
 				else
 					for j=1:num_benchmarks
 						sorted_benchmark=sortrows(data_bm_single_scope{j},17+offset);
@@ -199,7 +235,12 @@ function [] =plot_cache_summary(varargin)
 						sorted_benchmark=sortrows(data_bm_multi_scope{j},17+offset);
 						plru_normed_data{i+(h-1)*2}=[plru_normed_data{i+(h-1)*2},sorted_benchmark(:,21+offset)];
 						miss_ratios{i}=[miss_ratios{i},sorted_benchmark(:,7+offset)./(sorted_benchmark(:,7+offset)+sorted_benchmark(:,6+offset))];
-					end
+			    		projected_misses(j)=data_table2.predicted_misses(strcmp(data_table2.Policy(:),lease_policies(1))...
+				 		&strcmp(data_table2.benchmark_name(:),benchmark_names_multi(j))); 
+				 		%normalized by plru
+						projected_misses(j)=projected_misses(j)/PLRU_multi_scope{j}(7+offset);
+				 	end
+				 	plru_normed_data{i+(h-1)*2}=[projected_misses;plru_normed_data{i+(h-1)*2}];
 				else
 					for j=1:num_benchmarks
 						sorted_benchmark=sortrows(data_bm_multi_scope{j},17+offset);
@@ -208,6 +249,7 @@ function [] =plot_cache_summary(varargin)
 				end
 			end
 		% graphic
+
 			fig((h-1)*2+i)=figure();
 			set(0,'currentfigure',fig((h-1)*2+i));
 			set(fig((h-1)*2+i), 'Position',[0,0,1080,1920]);
@@ -234,6 +276,9 @@ function [] =plot_cache_summary(varargin)
 			hold on
 			legend('AutoUpdate', 'Off')
 			yline(1,'k-');
+			if(i==2)
+				xline(num_benchmarks+1-6.5,'r');
+			end
 			grid on
 			xCnt = cell2mat(get(b,'XData')) + cell2mat(get(b,'XOffset'));
 			if used_policies+1>3
@@ -252,7 +297,11 @@ function [] =plot_cache_summary(varargin)
 					end
 				end
 			end
-			legend(convertStringsToChars(lease_policies(1:size(plru_normed_data{i+(h-1)*2},1))),'Orientation','vertical','FontSize',14,'Location','northeastoutside');
+			if (h==1)
+				legend(convertStringsToChars(["CARL",lease_policies(1:size(plru_normed_data{i+(h-1)*2},1)-1)]),'Orientation','vertical','FontSize',14,'Location','northeastoutside');
+			else 
+				legend(convertStringsToChars(lease_policies(1:size(plru_normed_data{i+(h-1)*2},1))),'Orientation','vertical','FontSize',14,'Location','northeastoutside');
+			end
 			PLRU_array_data=[];
 			%put absolute plru numbers for clock cycles or misses under
 			%benchmark name.
@@ -342,21 +391,26 @@ function [] =plot_cache_summary(varargin)
 					end
 				end
 			end
+
 			geomean_values=transpose(geomean(transpose(plru_normed_data{i+(h-1)*2})));
 			if(h==1)
 				fprintf(fileID,"\nGeomean values for %s normalized misses: ",convertStringsToChars(num_scope(i)));
 				for j=1:size(plru_normed_data{i+(h-1)*2},1)
-					fprintf(fileID,"%s: %.5f ",lease_policies(j),geomean_values(j));
+					if(j==1)
+						fprintf(fileID,"%s: %f ","CARL",geomean_values(1));
+					else 
+						fprintf(fileID,"%s: %.5f ",lease_policies(j-1),geomean_values(j));
+					end
 				end
 
-				saveas(fig((h-1)*2+i),[base_save_path,'cache_statistics/cache_statistics_graphs/',convertStringsToChars(num_level(multi_level+1)),'/misses_',convertStringsToChars(num_scope(i)),'_',dataset_size,'.png'])
+				saveas(fig((h-1)*2+i),[base_save_path,'cache_statistics/cache_statistics_graphs/',convertStringsToChars(num_level(multi_level+1)),'/misses/',convertStringsToChars(num_scope(i)),'_',dataset_size,'.png'])
 				close(fig((h-1)*2+i));
 			elseif(h==2)
 				fprintf(fileID,"\nGeomean values for %s normalized clock cycles: ",convertStringsToChars(num_scope(i)));
 				for j=1:size(plru_normed_data{i+(h-1)*2},1)
 					fprintf(fileID,"%s: %.5f ",lease_policies(j),geomean_values(j));
 				end
-				saveas(fig((h-1)*2+i),[base_save_path,'cache_statistics/cache_statistics_graphs/',convertStringsToChars(num_level(multi_level+1)),'/clock_cycles_',convertStringsToChars(num_scope(i)),'_',dataset_size,'.png'])
+				saveas(fig((h-1)*2+i),[base_save_path,'cache_statistics/cache_statistics_graphs/',convertStringsToChars(num_level(multi_level+1)),'/clock_cycles/',convertStringsToChars(num_scope(i)),'_',dataset_size,'.png'])
 				close(fig((h-1)*2+i));
 			end
 		end
@@ -365,24 +419,6 @@ function [] =plot_cache_summary(varargin)
 	fclose(fileID);
 
 
-	% Generate predicted misses graph
-	temp_file=[cache_stats_dir,'temp.csv'];
-	%generate CSV file with all miss data
-	system(['echo "Size, Policy, Dataset_Size, benchmark_name, predicted_misses" >',temp_file]);
-	gen_predictive_miss_command=['grep -rnw "predicted miss" /home/matthew/Documents/Thesis_stuff/software/CLAM/leases/**/' ...
-	'| sed ''s/.*entries\/\([0-9]*\).*ways_\([A-Za-z\-]*\)_*\([a-zA-Z]*\|\)\/\([0-9A-Za-z\-]*\).*:\s*\([0-9]*\)$/\1,\2,\3,\4,\5/'' ' ...
-	'| sed ''s/,,/,small,/'' >> ', temp_file];
-	system(gen_predictive_miss_command);
-	%import the miss data to a table 
-	data_table=readtable(temp_file);
-	%delete file (the actual misses chance with tweaks in policy so no point in
-	%saving it.
-	system(['rm ',temp_file]);
-	cache_sizes=[128,512];
-	%get the subset of the table with the correct cache size
-	data_table1=data_table(data_table.Size==cache_sizes(multi_level+1),:);
-	%get the subset of the table with the correct data set size
-	data_table2=data_table1(strcmp(data_table1.Dataset_Size,dataset_size),:);
 
 %iterate over single scope and multi scope benchmarks
 	for i=1:2
@@ -413,9 +449,7 @@ function [] =plot_cache_summary(varargin)
 			random_evictions(j,k)=sorted_benches(k,13+offset);
 			end
 		end
-		if(~any(any(random_evictions./actual_misses)))
-			return
-		end
+
 		fig(i)=figure();
 
 			set(0,'currentfigure',fig(i));
@@ -469,16 +503,11 @@ function [] =plot_cache_summary(varargin)
 		xtickangle(ax3,45);
 		grid on
 		label_pos=ylabel("Percent error between projected and actual misses");
-		%add normalized misses subplot to contention plot with added normalized
-		%bar for projected CLAM misses.
+		%add normalized misses subplot to contention plot 
 		plru_miss_ratios=[];
 		normed_CLAM_projected_misses=[];
-		%normalize projected misses by PLRU misses and get PLRU miss ratios
-		for j=1:num_benchmarks
-			normed_CLAM_projected_misses(j)=projected_misses(j,1)/plru_data{j}(7+offset);
-			%if hits are actually total references (old way)
-			plru_miss_ratios(j)=plru_data{j}(7+offset)/(plru_data{j}(7+offset)+plru_data{j}(6+offset));
-		end
+
+		
 		ax2=subplot(2,2,3);
 		fig_pos=ax2.Position;
 		ax2.Position=[.05,fig_pos(2)+.04,fig_pos(3)+.075,fig_pos(4)];
@@ -500,6 +529,9 @@ function [] =plot_cache_summary(varargin)
 		hold on
 		legend('AutoUpdate', 'Off')
 		yline(1,'k-');
+		if(i==2)
+			xline(num_benchmarks+1-6.5,'r');
+		end
 		grid on
 		xCnt = cell2mat(get(b,'XData')) + cell2mat(get(b,'XOffset'));
 		if used_policies+1>3
@@ -518,16 +550,18 @@ function [] =plot_cache_summary(varargin)
 				end
 			end
 		end
-	legend_cell_ar=convertStringsToChars(lease_policies(1:used_policies));
-	legend_cell_ar{length(legend_cell_ar)+1}='Proj\_CLAM';
+	legend_cell_ar=convertStringsToChars(["CARL",lease_policies(1:used_policies)]);
 	leg=legend(legend_cell_ar,'Location','southeastoutside','Orientation','vertical','FontSize',14);
 	leg_pos=leg.Position;
 	leg.Position=[(leg_pos(1)*.5+.72) leg_pos(2)+.4, leg_pos(3), leg_pos(4)];
-	saveas(fig(i),[base_save_path,'cache_statistics/cache_statistics_graphs/',convertStringsToChars(num_level(multi_level+1)),'/contention_',convertStringsToChars(num_scope(i)),'_',dataset_size,'.png'])
+	saveas(fig(i),[base_save_path,'cache_statistics/cache_statistics_graphs/',convertStringsToChars(num_level(multi_level+1)),'/contention/',convertStringsToChars(num_scope(i)),'_',dataset_size,'.png'])
 	close(fig(i));
 
 	% plot miss ratios
-
+	%get PLRU miss ratios
+	for j=1:num_benchmarks
+			plru_miss_ratios(j)=plru_data{j}(7+offset)/(plru_data{j}(7+offset)+plru_data{j}(6+offset));
+		end
 	fig(2+i)=figure();
 	set(0,'currentfigure',fig(2+i));
 	set(fig(2+i), 'Position',[0,0,1080,1920]);
@@ -550,7 +584,7 @@ function [] =plot_cache_summary(varargin)
 	legend_cell_ar=convertStringsToChars(lease_policies(1:used_policies));
 	legend_cell_ar{length(legend_cell_ar)+1}='PLRU';
 	legend(legend_cell_ar,'Location','northeastoutside','Orientation','vertical','FontSize',14);
-	saveas(fig(2+i),[base_save_path,'cache_statistics/cache_statistics_graphs/',convertStringsToChars(num_level(multi_level+1)),'/miss_ratios_',convertStringsToChars(num_scope(i)),'_',dataset_size,'.png'])
+	saveas(fig(2+i),[base_save_path,'cache_statistics/cache_statistics_graphs/',convertStringsToChars(num_level(multi_level+1)),'/miss_ratios/',convertStringsToChars(num_scope(i)),'_',dataset_size,'.png'])
 	close(fig(2+i));
 	end
 end

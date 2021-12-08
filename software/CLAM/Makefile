@@ -29,9 +29,9 @@ clam: src/lib.rs src/main.rs
 
 run_all_small: src/lib.rs src/main.rs Cargo.toml
 	for i in $(all_bench); do \
-		./target/release/clam $(SAMPLE_ALL_SMALL)//rate_$(RATE)/seed_$(SEED)/$${i}.txt -s $(CAPACITY) -S $(WAYS) -p   > /dev/null ; \
+		./target/release/clam $(SAMPLE_ALL_SMALL)//rate_$(RATE)/seed_$(SEED)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -S $(WAYS) -p   > /dev/null ; \
 	done & \
-	for i in $(all_bench); do \
+	for i in $(multi_bench); do \
 		./target/release/clam  $(SAMPLE_ALL_PHASE_SMALL)/rate_$(RATE)/seed_$(SEED)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -S $(WAYS) -c   > /dev/null ; \
 	done & \
 	wait;
@@ -40,7 +40,7 @@ run_all_medium: src/lib.rs src/main.rs Cargo.toml
 	for i in $(all_bench); do \
 		./target/release/clam  $(SAMPLE_ALL_MEDIUM)/rate_$(RATE)/seed_$(SEED)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -S $(WAYS) -p   > /dev/null ; \
 	done & \
-	for i in $(all_bench); do \
+	for i in $(multi_bench); do \
 		./target/release/clam  $(SAMPLE_ALL_PHASE_MEDIUM)/rate_$(RATE)/seed_$(SEED)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -S $(WAYS) -c   > /dev/null ; \
 	done & \
 	wait;

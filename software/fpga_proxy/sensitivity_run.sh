@@ -32,7 +32,8 @@ program_plru (){
 
 function gen_leases {
     unset rate multi_level seed llt_size ways
-    #get options
+	local OPTIND
+#get options
     while getopts "m:r:s:l:w:" option; do
         case "$option" in
             r ) rate="$OPTARG";;
@@ -78,77 +79,141 @@ function run_proxy {
         ./bin/main;
     fi
 }
+trap "cat saved_results.txt >results/cache/results""$data_size""$cache_level"".txt && rm saved_results.txt && exit 0" SIGINT
+
+
+
+
 sample_rates=( 64 128 256 512 1024 )
 seeds=( 1 2 3 4 5 )
 
 goto_proxy
 mkdir -p ./results/cache/sensitivity_results
-read -p "program device? (y/n)" response 
-if [ "$response" == "y" ]; then
-program_lease_scope
-fi
+read  -p "Multi_level? (y/n)" multi_level 
+ read -p "program device? (y/n)" response 
 
-#Clear non plru results
-  head -n 30 results/cache/results.txt > temp.txt
- cat temp.txt >results/cache/results.txt 
- head -n 30 results/cache/results_medium.txt > temp.txt
- cat temp.txt >results/cache/results_medium.txt
- rm temp.txt  
+ if [ "$response" == "y" ]; then
+     if [ "$multi_level" == "y" ]; then 
+         program_lease_scope_multi_level
+     else 
+         program_lease_scope
+     fi
+ fi
 
-read -p "clear sensitivity results? (y/n): " response
+ 
+
 read -p "medium data set size? (y/n): " response2
 
+if [ "$response2" == "y" ]; then 
+    data_size="_medium"
+else 
+    data_size=""
+fi 
+
+if [ "$multi_level" == "y" ]; then
+	cache_level="_multi_level"
+else
+	cache_level=""
+fi
+ rm -f temp.txt  
+ cat results/cache/results"$data_size""$cache_level".txt > saved_results.txt 
+ head -n 30 results/cache/results"$data_size""$cache_level".txt > temp.txt
+ cat temp.txt >results/cache/results"$data_size""$cache_level.txt"
+ rm temp.txt  
+
+read -p "get predicted_misses? (y/n)" predicted_misses
+
+
+read -p "run SHEL? (y/n)"  SHEL 
+read -p "Run PRL? (y/n)" PRL
+read -p "Run C-SHEL? (y/n)" CSHEL
+
+run_command="run_proxy -c \"SCRIPT run_all_CLAM""$data_size"
+
+if [ "$CSHEL" == "y" ]; then 
+    run_command="$run_command"":SCRIPT run_all_C-SHEL""$data_size"
+fi 
+
+if [ "$PRL" == "y" ]; then 
+    run_command="$run_command"":SCRIPT run_all_PRL""$data_size"
+fi 
+
+if [ "$SHEL" == "y" ]; then 
+    run_command="$run_command"":SCRIPT run_all_SHEL""$data_size"
+fi 
+
+run_command="$run_command""\"" 
+
+read -p "clear sensitivity results? (y/n): " response
+
+
 if [ "$response" == "y" ]; then 
-    if [ "$response2" == "y" ]; then 
+    if [ "$multi_level" == "y" ]; then 
+        echo "seed,rate,policy,dataset_size,benchmark,cache0_hits,cache0_misses,cache0_writebacks,clock_cycles,cache0_ID,cache1_hits,\
+cache1_misses,cache1_writebacks,cache1_ID,cache_l2_hits,cache_l2_misses,cache_l2_writebacks,cacheL2_expired_leases,cacheL2_multi_expired,\
+cacheL2_default_renewals,cacheL2_default_misses,\
+cacheL2_random_evicts,cacheL2_ID"> results/cache/sensitivity_results/results"$data_size"_sensitivity_multi_level.txt 
+sed 's/^[^,]*\/\([0-9a-zA-Z\-]*\)\(_\([0-9a-zA-Z]*\)\)*\/\(.*\)\/program/0,0,\1,\3,\4/' results/cache/results"$data_size"_multi_level.txt \
+ |sed 's/,,/,small,/'>>results/cache/sensitivity_results/results"$data_size"_sensitivity_multi_level.txt
+    else
          echo "seed,rate,policy,dataset_size,benchmark,cache0_hits,cache0_misses,cache0_writebacks,clock_cycles,cache0_ID,cache1_hits,\
 cache1_misses,cache1_writebacks,cache1_expired_leases,cache1_multi_expired,cache1_default_renewals,cache1_default_misses,\
-cache1_random_evicts,cache1_ID"> results/cache/sensitivity_results/results_medium_sensitivity.txt 
-sed 's/^[^,]*\/\([0-9a-zA-Z\-]*\)\(_\([0-9a-zA-Z]*\)\)*\/\(.*\)\/program/0,0,\1,\3,\4/' results/cache/results_medium.txt \
- >>results/cache/sensitivity_results/results_medium_sensitivity.txt
-    else
-        echo "seed,rate,policy,dataset_size,benchmark,cache0_hits,cache0_misses,cache0_writebacks,clock_cycles,cache0_ID,cache1_hits,\
-cache1_misses,cache1_writebacks,cache1_expired_leases,cache1_multi_expired,cache1_default_renewals,cache1_default_misses,\
-cache1_random_evicts,cache1_ID"> results/cache/sensitivity_results/results_sensitivity.txt 
-sed 's/^[^,]*\/\([0-9a-zA-Z\-]*\)\(_\([0-9a-zA-Z]*\)\)*\/\(.*\)\/program/0,0,\1,\3,\4/' results/cache/results.txt \
-| sed "s/,,/,small,/" >>results/cache/sensitivity_results/results_sensitivity.txt
+cache1_random_evicts,cache1_ID"> results/cache/sensitivity_results/results"$data_size"_sensitivity.txt 
+sed 's/^[^,]*\/\([0-9a-zA-Z\-]*\)\(_\([0-9a-zA-Z]*\)\)*\/\(.*\)\/program/0,0,\1,\3,\4/' results/cache/results"$data_size".txt \
+|sed 's/,,/,small,/' >>results/cache/sensitivity_results/results"$data_size"_sensitivity.txt
 fi
 
-echo "seed,rate,cache_size,Policy,Dataset_Size,benchmark_name,predicted_misses" > results/cache/sensitivity_results/predicted_misses.txt
+echo "seed,rate,cache_size,policy,dataset_Size,benchmark_name,predicted_misses" > results/cache/sensitivity_results/predicted_misses"$cache_level".txt
 fi
-
+echo "$run_command"
  music_4='/home/matthew/Music/Unknown/magia_live.mp3'
 
 play_command='audacious'
 
  for seed in "${seeds[@]}"; do
-     echo "seed is: $seed";
      for rate in "${sample_rates[@]}"; do
-            echo "rate is: $rate";
-            # if [[   $seed -ne 1 || ( $seed -eq 1 && $rate -le 64 ) ]];  then
-            #      continue
-            #  fi
-         (gen_leases -m no -r $rate -s $seed)
-         #signal that script is awaiting user push of reset button
-         "$play_command" "$music_4" > /dev/null 2>&1 & 
+	
+	read -p  "seed is: $seed rate is $rate. Skip? (y/n)" skip
 
+	if [ "$skip" == "y" ];  then
+		continue
+	fi
+         if [ "$multi_level" == "y" ]; then 
+            (gen_leases -m yes -r $rate -s $seed)
+        else 
+             (gen_leases -m no -r $rate -s $seed)
+        fi
+         #signal that script is awaiting user push of reset button
+            success="n" 
+        while [ "$success" != "y" ]; do
            echo "please reset the fpga then press any key to continue"
            read -n 1;
-           if [ "$response2" == "y" ]; then 
-                       run_proxy -c "SCRIPT run_all_C-SHEL_medium";#:SCRIPT run_all_SHEL_medium:SCRIPT run_all_PRL_medium";
-            tail -n +31 results/cache/results_medium.txt |sed "s/^[^,]*\/\([0-9a-zA-Z\-]*\)\(_\([0-9a-zA-Z]*\)\)*\/\(.*\)\/program/$seed,$rate,\1,\3,\4/"\
-          >> results/cache/sensitivity_results/results_medium_sensitivity.txt 
-          head -n 30 results/cache/results_medium.txt > temp.txt
-        cat temp.txt >results/cache/results_medium.txt
-          else
-            run_proxy -c "SCRIPT run_all_C-SHEL";#:SCRIPT run_all_SHEL:SCRIPT run_all_PRL";
-             tail -n +31 results/cache/results.txt |sed "s/^[^,]*\/\([0-9a-zA-Z\-]*\)\(_\([0-9a-zA-Z]*\)\)*\/\(.*\)\/program/$seed,$rate,\1,\3,\4/" | sed "s/,,/,small,/" \
->>results/cache/sensitivity_results/results_sensitivity.txt
-   head -n 30 results/cache/results.txt > temp.txt
-        cat temp.txt >results/cache/results.txt 
-          fi
-        rm temp.txt  
-        grep -rnw "predicted miss" /home/matthew/Documents/Thesis_stuff/software/CLAM/leases/**/*CLAM* \
-     | sed 's/.*entries\/\([0-9]*\).*ways_\([A-Za-z\-]*\)_*\([a-zA-Z]*\|\)\/\([0-9A-Za-z\-]*\).*:\s*\([0-9]*\)$/\1,\2,\3,\4,\5/' \
-     | sed 's/,,/,small,/'|sed "s/\(.*\)/$seed,$rate,\1/" >>  results/cache/sensitivity_results/predicted_misses.txt
+           eval "$run_command"
+            if [ "$?" == 0 ]; then 
+                success="y"
+            else 
+                success="n"
+                #clear any partial results
+                 head -n 30 results/cache/results"$data_size""$cache_level".txt > temp.txt
+                 cat temp.txt >results/cache/results"$data_size""$cache_level".txt
+                rm temp.txt 
+            fi
+			"$play_command" "$music_4" > /dev/null 2>&1 &
+          # read -p "command sucessful? (y/n)" success
+       done
+           tail -n +31 results/cache/results"$data_size""$cache_level".txt \
+            |sed "s/^[^,]*\/\([0-9a-zA-Z\-]*\)\(_\([0-9a-zA-Z]*\)\)*\/\(.*\)\/program,\([^,]*,[^,]*,[^,]*\),[^,]*,\(.*\)/$seed,$rate,\1,\3,\4,\5,5,\6/"\
+            |sed 's/,,/,small,/' >> results/cache/sensitivity_results/results"$data_size"_sensitivity"$cache_level".txt 
+          head -n 30 results/cache/results"$data_size""$cache_level".txt > temp.txt
+        cat temp.txt >results/cache/results"$data_size""$cache_level".txt
+        rm temp.txt    
+    if [ "$predicted_misses" == "y" ]; then
+        grep -rnw "predicted miss" /home/matthew/Documents/Thesis_stuff/software/CLAM/leases/**/**/**/*CLAM* \
+        | sed 's/^.*_llt_entries\/\([0-9]\+\)blocks\/[0-9]\+ways\/\([A-Z\-]\+\)_*\([a-z]*\)\/\([a-z0-9\-]\+\)_.*_leases.*: \([0-9]\+\)$/\1,\2,\3,\4,\5/' \
+        | sed 's/,,/,small,/'|sed "s/\(.*\)/$seed,$rate,\1/" >>  results/cache/sensitivity_results/predicted_misses.txt
+    fi
     done
  done
+ #restore run results.
+cat saved_results.txt >results/cache/results""$data_size""$cache_level"".txt
+rm saved_results.txt

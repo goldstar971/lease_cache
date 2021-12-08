@@ -12,7 +12,7 @@ module internal_system_2(
 	output 	[31:0]	comm_cache0_o, 
 	output 	[31:0]	comm_cache1_o,
 	input    [1:0]    cpc_metric_switch_i,
-	input    [15:0]    rate_shift_seed_i,
+	input    [18:0]        rate_shift_seed_i,
 	
 	// external system
 	output 			mem_req_o, 

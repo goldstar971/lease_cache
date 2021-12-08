@@ -149,7 +149,7 @@ wire 			req_toPer1, rw_toPer1;
 wire 	[`BW_BYTE_ADDR:0]	add_toPer1;
 wire 	[31:0]	data_toPer1, data_fromPer1;
 wire [1:0] sel_cpc;
-wire [15:0] rate_shift_seed;
+wire [18:0]   rate_shift_seed;
 
 external_memory_system_2 system_ext_inst(
 

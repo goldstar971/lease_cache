@@ -21,7 +21,7 @@ fn main(){
             .takes_value(true)
             .required(true)
             .about("target cache size for algorithms"))
-        .arg(Arg::new("Set Associativity")
+        .arg(Arg::new("SET ASSOCIATIVITY")
             .short('S')
             .takes_value(true)
             .default_value("0")
@@ -60,12 +60,17 @@ fn main(){
             .short('d')
             .takes_value(false)
             .required(false)
-            .about("enable even more information about lease assignment")).get_matches();
-        // .arg(Arg::new("SAMPLING_RATE")
-        //     .short('S')
-        //     .default_value("256")
-        //     .about("benchmark sampling rate")
-        //     .required(false))
+            .about("enable even more information about lease assignment"))
+         .arg(Arg::new("SAMPLING_RATE")
+             .short('S')
+             .default_value("256")
+             .about("benchmark sampling rate")
+             .required(false))
+         .arg(Arg::new("EMPIRICAL_SAMPLE_RATE")
+             .short('E')
+             .default_value("yes")
+             .about("Use given or empirically derived sampling rate")
+             .required(false)).get_matches();
 
     let cache_size=matches.value_of("CACHE_SIZE").unwrap().parse::<u64>().unwrap();
     let perl_bin_num =matches.value_of("PRL").unwrap().parse::<u64>().unwrap();
@@ -80,11 +85,11 @@ fn main(){
     let re= Regex::new(r"/(clam|shel).*/(.*?)\.txt$").unwrap();
     let search_string=matches.value_of("INPUT").unwrap().to_lowercase();
     let cap= re.captures(&*search_string).unwrap();
-
+    let empirical_rate=matches.value_of("EMPIRICAL_SAMPLE_RATE").unwrap().to_lowercase();
 
 //if associativity not specified, set as fully associative
     let num_ways:u64;
-    let num_ways_given=matches.value_of("Set Associativity").unwrap().parse::<u64>().unwrap();
+    let num_ways_given=matches.value_of("SET ASSOCIATIVITY").unwrap().parse::<u64>().unwrap();
     if num_ways_given==0{
         num_ways=cache_size;
     }
@@ -99,12 +104,16 @@ fn main(){
     let set_mask=(cache_size as f64 /num_ways as f64) as u32-1;
 
 //generate distributions
-       let (ri_hists,samples_per_phase,misses_from_first_access,sample_rate) = clam::io::build_ri_hists(matches.value_of("INPUT").unwrap(),cshel,set_mask);
+       let (ri_hists,samples_per_phase,misses_from_first_access,empirical_sample_rate) = clam::io::build_ri_hists(matches.value_of("INPUT").unwrap(),cshel,set_mask);
+
+//if specified used empirical sampling rate else use given or default rate.
+    let sample_rate=if empirical_rate=="no" {matches.value_of("SAMPLING_RATE").unwrap().parse::<u64>().unwrap()}
+    else {empirical_sample_rate};
+   
    //generates PRL
    if prl {
     //generate bins
     let (binned_ri_distributions,binned_freqs,bin_width) = clam::io::get_binned_hists(matches.value_of("INPUT").unwrap(),perl_bin_num,set_mask);
-  println!("{:?}",binned_ri_distributions);
     //compose output file name
     //this panic here avoids the almost certain panic that will result from running PRL on multi phase sampling files
     if &cap[1]=="shel"{

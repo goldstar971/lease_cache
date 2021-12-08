@@ -17,7 +17,12 @@ module n_set_cache_lease_policy_default_switch_controller_tracker #(
 	input 	[31:0]					llt_data_i, 		// value to write to llt_addr_i
 	input 	[`BW_WORD_ADDR-1:0] 	llt_search_addr_i, 	// address from core to table search for
 
-
+	// line tracking ports
+	`ifdef TRACKER
+	output [CACHE_BLOCK_CAPACITY-1:0] expired_flags_0_o,
+	output [CACHE_BLOCK_CAPACITY-1:0] expired_flags_1_o,
+	output [CACHE_BLOCK_CAPACITY-1:0] expired_flags_2_o,
+	`endif
 	// controller - lease ports
 	input 	[BW_CACHE_CAPACITY-1:0] cache_addr_i, 		// translated cache address - so that lease controller can update lease value
 	input 							hit_i, 				// when high, adjust lease register values (strobe trigger)
@@ -28,11 +33,8 @@ module n_set_cache_lease_policy_default_switch_controller_tracker #(
 	output 							expired_o, 			// logic high if the replaced cache addr.'s lease expired
 	output 							expired_multi_o, 	// logic high if there are multiple cache lines expired at the time of a miss
 	output 							default_o, 			// logic high if upon a hit the line is renewed with the default lease value
-	output                          rand_evict_o,
-	// line tracking ports
-	output [CACHE_BLOCK_CAPACITY-1:0] expired_flags_0_o,
-	output [CACHE_BLOCK_CAPACITY-1:0] expired_flags_1_o,
-	output [CACHE_BLOCK_CAPACITY-1:0] expired_flags_2_o
+	output                          rand_evict_o
+	
 );
 
 
@@ -200,7 +202,7 @@ generate
 endgenerate
 // line tracking hardware
 // -----------------------------------------------------------------
-
+`ifdef TRACKER
 generate
 	for (g = 0; g < CACHE_BLOCK_CAPACITY; g = g + 1) begin: exp_flag_discrete_arr
 	
@@ -214,6 +216,7 @@ generate
 		assign expired_flags_2_o[g] = |lease_register_bus[`LEASE_VALUE_BW-1:16];
 	end
 endgenerate
+`endif
 
 
 // backup policy address generator (LFSR)

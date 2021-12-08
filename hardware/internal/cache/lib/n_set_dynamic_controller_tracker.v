@@ -45,12 +45,21 @@ module n_set_dynamic_controller_tracker #(
 	output	[31:0] 						buffer_data_o,
 	output 								buffer_write_ack_o,
 
+		// line tracking ports
+	`ifdef TRACKER
+	output [CACHE_BLOCK_CAPACITY-1:0]	flag_expired_0_o,
+	output [CACHE_BLOCK_CAPACITY-1:0]	flag_expired_1_o,
+	output [CACHE_BLOCK_CAPACITY-1:0]	flag_expired_2_o,
+	`endif 
 	// command ports
 	input 								mem_ready_i,
 	output 								mem_req_o, 				// must be at least one item in the buffer before driving high
 	output 								mem_req_block_o,
 	output 								mem_rw_o,
 	output 	[`BW_WORD_ADDR-1:0]			mem_addr_o,
+
+
+
 
 	// performance ports
 	output                        flag_rand_evict_o,
@@ -60,13 +69,9 @@ module n_set_dynamic_controller_tracker #(
 	output 								flag_expired_o,
 	output 								flag_expired_multi_o,
 	output 								flag_defaulted_o,
-	output 								flag_swap_o,
-
-	// line tracking ports
-	output [CACHE_BLOCK_CAPACITY-1:0]	flag_expired_0_o,
-	output [CACHE_BLOCK_CAPACITY-1:0]	flag_expired_1_o,
-	output [CACHE_BLOCK_CAPACITY-1:0]	flag_expired_2_o
+	output 								flag_swap_o
 );
+
 
 // parameterizations
 // ---------------------------------------------------------------------------------------------------------------------
@@ -177,7 +182,12 @@ reg 							replacement_swap_reg; 	// saved version of above
 	.llt_addr_i 			(llt_addr_reg			), 	// also used to write configurations (assumed that config reg addr space < llt addr space)
 	.llt_data_i 			(llt_data_reg 			), 	// value to write to llt_addr_i
 	.llt_search_addr_i 		(core_ref_addr_i 		), 	// address from core to table search for
-
+`ifdef TRACKER
+	//expired line ports
+	.expired_flags_0_o 		(flag_expired_0_o 		),
+	.expired_flags_1_o 		(flag_expired_1_o 		),
+	.expired_flags_2_o 		(flag_expired_2_o 		),
+`endif
 	// controller - lease ports
 	.cache_addr_i 			(cam_addr_i 			), 	// translated cache address - so that lease controller can update lease value
 	.hit_i 					(strobe_hit_reg 	 	), 	// when high, adjust lease register values (strobe trigger)
@@ -188,10 +198,8 @@ reg 							replacement_swap_reg; 	// saved version of above
 	.expired_o 				(flag_expired_o 		), 	// logic high if the replaced cache addr.'s lease expired
 	.expired_multi_o 		(flag_expired_multi_o 	),
 	.default_o 				(flag_defaulted_o 		), 	// logic high if upon a hit the line is renewed with the default lease value
-	.rand_evict_o           (flag_rand_evict_o		),
-	.expired_flags_0_o 		(flag_expired_0_o 		),
-	.expired_flags_1_o 		(flag_expired_1_o 		),
-	.expired_flags_2_o 		(flag_expired_2_o 		)
+	.rand_evict_o           (flag_rand_evict_o		)
+	
 );
 
 

@@ -233,7 +233,7 @@
 													//4: dual lease ref (word address)
 `define LEASE_CONFIG_VAL_BW 			32
 //not enough resources to support 32-bit leases for multi-level
-`define LEASE_VALUE_BW 					24 //int max
+`define LEASE_VALUE_BW					24
 `define LEASE_REF_ADDR_BW 				27
 `define BW_PERCENTAGE                   9
 
@@ -266,13 +266,26 @@
 
 
 
-`include "../../../include/sampler.h"
-`ifdef L2_POLICY_DLEASE  
+//adding tracker and sampler stuff
+
+//only meaningful for lease cache 
+`define TRACKER
+`ifdef TRACKER
 	`include "../../../include/tracker.h"
+`endif
+
+//for multi-level lease cache sampler may not fit depending on llt-size just use multi-level PLRU for sampling
+//`define SAMPLER
+`ifdef SAMPLER
+	`include "../../../include/sampler.h"
+`endif 
+
+
+//adding lease cache stuff
+`ifdef L2_POLICY_DLEASE  
 		`include "../../../internal/cache/lib/lease_lookup_table.v"
 		`include "../../../internal/cache/lib/lease_probability_controller.v"
 `elsif DATA_POLICY_DLEASE
-	`include "../../../include/tracker.h"
 		`include "../../../internal/cache/lib/lease_lookup_table.v"
 		`include "../../../internal/cache/lib/lease_probability_controller.v"
 `endif

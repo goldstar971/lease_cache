@@ -17,6 +17,8 @@
 `include "../../../internal/cache/lib/n_set_cache_random_policy_controller.v"
 `include "../../../internal/cache/lib/n_set_cache_controller.v"
 `include "../../../internal/cache/lib/n_set_dynamic_controller_tracker.v"
+`include "../../../internal/cache/lib/n_set_cache_lease_policy_controller_tracker.v"
+`include "../../../internal/cache/lib/n_set_cache_lease_policy_default_switch_controller_tracker.v"
 `include "../../../internal/cache/lib/tag_memory_n_set.v"
 `include "../../../internal/cache/lib/cache_n_set_all.v"
 

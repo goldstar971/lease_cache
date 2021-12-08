@@ -156,7 +156,7 @@ pub mod io {
         }
         //empircally calculate sampling rate
         let sampling_rate=(last_sample_time as f64/sample_num as f64).round() as u64;
-        println!("sampling_rate:{}",sampling_rate);
+        println!("empirical sampling_rate:{}",sampling_rate);
         //every data block is associated with at least one miss in the absense of hardware prefetching.
         let first_misses=u_tags.len();
        
@@ -219,7 +219,7 @@ pub mod io {
 
                  if ri_signed < 0 {
                    use_time=reuse_time -(!ri_signed+1)as u64;
-                    ri_signed = i32::MAX; //canonical value for negatives
+                    ri_signed = 16777215; //canonical value for negatives
                 }
                 else {
                     use_time = reuse_time - ri_signed as u64;
@@ -262,7 +262,7 @@ pub mod io {
 
                 if ri_signed < 0 {
                    use_time=reuse_time -(!ri_signed+1)as u64;
-                    ri_signed = i32::MAX; //canonical value for negatives
+                    ri_signed = 16777215; //canonical value for negatives
                 }
                 else {
                     use_time = reuse_time - ri_signed as u64;
@@ -292,7 +292,10 @@ pub mod io {
                 let mut ri = u64::from_str_radix(&sample.ri,16).unwrap();
                 let _reuse_time = sample.time;
                 //if sample is negative, there is no reuse 
-                ri = std::cmp::min(ri,i32::MAX as u64);
+                 let ri_signed = ri as i32;
+                if ri_signed < 0 {
+                    ri=16777215;
+                }
 
                 let phase_id_ref = u64::from_str_radix(&sample.phase_id_ref,16).unwrap();
                 let tag = u32::from_str_radix(&sample.tag,16).unwrap();
@@ -318,6 +321,7 @@ pub mod io {
         let mut num_hits=0;
         //create lease output vector
         let mut lease_vector: Vec<(u64,u64,u64,u64,f64)> = Vec::new();
+        println!("first misses:{}",first_misses);
         for (&phase_address,&lease) in leases.iter() {
             let lease = if lease >0 {lease} else {1}; 
             let phase   = (phase_address & 0xFF000000)>>24;
@@ -430,7 +434,7 @@ pub mod io {
             dual_lease_ref=(*lease_ref,lease_data.1,lease_data.2);
         }          
        }
-      
+      lease_phase.sort_by_key(|a| a.0);
        //output config
        for j in 0..16{
                 if j==0{
@@ -517,6 +521,19 @@ file.write_all(format!("\t0x{:08x},\t // unused\n",0).as_bytes()).expect("write 
                                  cost.1);
                     }
                 }
+            }
+        }
+        //<u64,HashMap<u64,HashMap<u64,u64>>>
+        pub fn print_binned_hists(binned_ris: &super::super::lease_gen::BinnedRIs){
+            for (bin, ref_ri_hist) in &binned_ris.bin_ri_distribution{
+                println!("Bin:{}",bin);
+                for (ref_id, ri_hist) in ref_ri_hist{
+                    println!(" | ref 0x{:x}:",ref_id);
+                    for (ri,count) in ri_hist{
+                        println!(" | | ri 0x{:x}: count {}",ri,count);
+                    }
+                }
+
             }
         }
 
@@ -887,6 +904,14 @@ pub mod lease_gen {
         let num_sets=set_mask as u64+1;
          let bin_target:u64=bin_width*cache_size/num_sets;
        let min_alpha=1.0-(((2<<(discretize-1)) as f64)-1.5 as f64)/(((2<<(discretize-1)) as f64)-1.0 as f64); //threshold for meaningful dual lease
+
+        if verbose {
+            println!("---------Dump Binned RI Hists------------");
+             super::io::debug::print_binned_hists(&binned_ris);
+            println!("---------Dump Reference Frequency per bin---");
+            println!("{:?}",&binned_freqs);
+         }
+        
 
         if verbose{
         println!("bin_width:  {}",bin_width);

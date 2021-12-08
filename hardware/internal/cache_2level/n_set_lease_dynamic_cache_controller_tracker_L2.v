@@ -58,6 +58,13 @@ module n_set_lease_dynamic_cache_controller_tracker_L2 #(
 	output 								mem_rw_o,
 	output 	[`BW_WORD_ADDR-1:0]			mem_addr_o,
 
+	`ifdef TRACKER
+	// line tracking ports
+	output [CACHE_BLOCK_CAPACITY-1:0]	flag_expired_0_o,
+	output [CACHE_BLOCK_CAPACITY-1:0]	flag_expired_1_o,
+	output [CACHE_BLOCK_CAPACITY-1:0]	flag_expired_2_o,
+`endif
+
 	// performance ports
 	output 								flag_hit_o,
 	output 								flag_miss_o,
@@ -66,13 +73,9 @@ module n_set_lease_dynamic_cache_controller_tracker_L2 #(
 	output 								flag_expired_multi_o,
 	output 								flag_defaulted_o,
 	output 								flag_swap_o,
-	output                              flag_rand_evict_o, 
+	output                              flag_rand_evict_o 
 
 
-	// line tracking ports
-	output [CACHE_BLOCK_CAPACITY-1:0]	flag_expired_0_o,
-	output [CACHE_BLOCK_CAPACITY-1:0]	flag_expired_1_o,
-	output [CACHE_BLOCK_CAPACITY-1:0]	flag_expired_2_o
 );
 
 // parameterizations
@@ -189,6 +192,12 @@ reg 							replacement_swap_reg; 	// saved version of above
 	.llt_data_i 			(llt_data_reg 			), 	// value to write to llt_addr_i
 	.llt_search_addr_i 		(L1_ref_addr_i 		), 	// address from L1 to table search for
 
+	`ifdef TRACKER
+	.expired_flags_0_o 		(flag_expired_0_o 		),
+	.expired_flags_1_o 		(flag_expired_1_o 		),
+	.expired_flags_2_o 		(flag_expired_2_o 		),
+`endif
+
 	// controller - lease ports
 	.cache_addr_i 			(cam_addr_i 			), 	// translated cache address - so that lease controller can update lease value
 	.hit_i 					(strobe_hit_reg 			), 	// when high, adjust lease register values (strobe trigger)
@@ -199,11 +208,8 @@ reg 							replacement_swap_reg; 	// saved version of above
 	.expired_o 				(flag_expired_o 		), 	// logic high if the replaced cache addr.'s lease expired
 	.expired_multi_o 		(flag_expired_multi_o 	),
 	.default_o 				(flag_defaulted_o 		), 	// logic high if upon a hit the line is renewed with the default lease value
-	.rand_evict_o           (flag_rand_evict_o		),
+	.rand_evict_o           (flag_rand_evict_o		)
 
-	.expired_flags_0_o 		(flag_expired_0_o 		),
-	.expired_flags_1_o 		(flag_expired_1_o 		),
-	.expired_flags_2_o 		(flag_expired_2_o 		)
 );
 
 

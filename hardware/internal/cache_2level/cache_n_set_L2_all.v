@@ -13,7 +13,7 @@ module cache_n_set_L2_all #(
 	input 							resetn_i, 			
 	input 	[31:0]					comm_i, 			// generic comm port in
 	input   [1:0]                   metric_sel_i,
-	input    [15:0]    rate_shift_seed_i,
+	input    [18:0]        rate_shift_seed_i,
 	input[31:0] phase_i,
 	
 	output 	[31:0]					comm_o,				// specific comm port out
@@ -182,17 +182,19 @@ wire 	hit_flag,  											// performance metric flags set by controller
 		defaulted_flag,
 		expired_multi_flag,
 		rand_evict_flag;
-generate if (POLICY==`ID_CACHE_DLEASE )begin
+`ifdef TRACKER
 		wire [CACHE_BLOCK_CAPACITY-1:0] flag_expired_0_bus,
 								flag_expired_1_bus,
 								flag_expired_2_bus;
-end
-endgenerate
+`endif
+
 wire 							cpc_stall_flag;
 		
-
+`ifdef SAMPLER
 wire    [BW_TAG+BW_SET-1:0]req_tag_sampler;
 assign req_tag_sampler =L1_add_i[`BW_WORD_ADDR-1:`BW_BLOCK];
+`endif
+
 	cache_performance_controller_all_L2 #(
 		.CACHE_STRUCTURE	(STRUCTURE 			), 
 		.CACHE_REPLACEMENT 	(POLICY				),
@@ -200,12 +202,14 @@ assign req_tag_sampler =L1_add_i[`BW_WORD_ADDR-1:`BW_BLOCK];
 	) perf_cont_inst(
 		.clock_i 			(clock_bus_i),
 		.resetn_i 			(resetn_i 			),
-		.phase_i             (phase_i),
 		.select_data_record (metric_sel_i),
 		.rate_shift_seed_i       (rate_shift_seed_i),
 		.req_i          (L1_req_reg         ),
+		`ifdef SAMPLER
 		.pc_ref_i           (PC_i),
+		.phase_i             (phase_i),
 		.tag_ref_i			(req_tag_sampler    ), 				// regardless of set, sample fully associative tags
+		`endif
 		.hit_i 				(hit_flag 			), 				// logic high when there is an intial cache hit
 		.miss_i 			(miss_flag 	 		), 				// logic high when there is the initial cache miss
 		.writeback_i 		(wb_flag 	 		), 				// logic high when the L2 cache writes a block back to external memory
@@ -216,8 +220,10 @@ assign req_tag_sampler =L1_add_i[`BW_WORD_ADDR-1:`BW_BLOCK];
 		
 		.comm_i 			(comm_i 			), 				// configuration signal
 		.comm_o 			(comm_o 			), 				// return value of comm_i
-			`ifdef L2_POLICY_DLEASE	
+		`ifdef L2_POLICY_DLEASE	
 			.swap_i(swap_flag),		
+		`endif 
+		`ifdef TRACKER
 		.expired_flags_0_i 	(flag_expired_0_bus ),
 		.expired_flags_1_i 	(flag_expired_1_bus ),
 		.expired_flags_2_i 	(flag_expired_2_bus ),
@@ -310,6 +316,8 @@ assign stall_o   =cache_contr_enable; //core can unstall if L1 is done, even if 
 		.flag_defaulted_o 		(defaulted_flag 		),
 		.flag_swap_o 			(swap_flag 		 		),
 	//line tracking ports
+	`endif
+	`ifdef TRACKER
 		.flag_expired_0_o 		(flag_expired_0_bus 	),
 		.flag_expired_1_o 		(flag_expired_1_bus 	),
 		.flag_expired_2_o 		(flag_expired_2_bus 	),

@@ -8,48 +8,21 @@
 uint32_t parse_input(command *pInputInst, char *pBuffer){
 	// extract delimited fields from string
 	uint32_t n = 0;
-	char *start_pointer, *end_pointer;
-	int command_length;
-	
-	int leading_whitespace;
+	char *start_pointer, *save_pointer, *token;
+
 	start_pointer=&pBuffer[0];
-	end_pointer=strpbrk(start_pointer,COMMAND_DELIMITERS);
 
-	char* command_str=(char *)calloc(256,sizeof(char));
-	if(command_str==NULL){
-		printf("unable to allocate memory for command\n");
-		return 1;
-	}
+	token=strtok_r(start_pointer,COMMAND_DELIMITERS,&save_pointer);
+	while(token!=NULL){
 
-	memset(command_str,0,256);
+		strcpy(pInputInst->field[n++],token);
 
-	//handle leading whitespace before command
-	if(start_pointer==end_pointer){
-		leading_whitespace=strspn(start_pointer,COMMAND_DELIMITERS);
-		start_pointer+=leading_whitespace;
-		end_pointer=strpbrk(start_pointer,COMMAND_DELIMITERS);
-	}
-	do{
-		end_pointer=strpbrk(start_pointer,COMMAND_DELIMITERS);
-		command_length=strcspn(start_pointer,COMMAND_DELIMITERS);
-		memcpy(command_str,start_pointer,command_length);
-		if(command_length==0){
-			break;
-		}
-		strcpy(pInputInst->field[n++],command_str);
 		if (n > N_FIELDS){
 			printf("too many fields for command!\n");
 			return 1;
 		}
-		memset(command_str,0,command_length); //clear buffer
-		//get whitespace between fields
-		leading_whitespace=strspn(start_pointer+command_length,COMMAND_DELIMITERS);
-		
-		//adjust start pointer to the beginning of the next field
-	
-		start_pointer=start_pointer+leading_whitespace+command_length;
-	}while(end_pointer != NULL);
-	free(command_str);
+		token=strtok_r(NULL,COMMAND_DELIMITERS,&save_pointer);
+	}
 	// find first field (code) in the lookup table
 	pInputInst->table_index = 100;
 	for (uint32_t i = 0; i < sizeof(pCodes)/sizeof(pCodes[0]); i++){
@@ -66,12 +39,11 @@ uint32_t parse_input(command *pInputInst, char *pBuffer){
 	}
 
 	// error check each field based on lookup table format
-
+	
 	//if we weren't provided with a sampling rate for a track or sample command use default rate of 256
 	if (n==2 &&pInputInst->table_index>7){
 		//add default rate
-		strcpy(pInputInst->field[n++],"0x100");
-		
+		strcpy(pInputInst->field[n++],"0x0100");
 		if(pInputInst->table_index==9){
 			//add default seed
 			strcpy(pInputInst->field[n++],"0x1");
@@ -79,6 +51,7 @@ uint32_t parse_input(command *pInputInst, char *pBuffer){
 	}
 	else if (n==3 &&pInputInst->table_index>7){
 	//convert given sample rate to hex
+
 		sprintf(pInputInst->field[2],"%#x",(uint32_t)strtol(pInputInst->field[2],NULL,0));
 		
 		if(pInputInst->table_index==9){
@@ -91,7 +64,7 @@ uint32_t parse_input(command *pInputInst, char *pBuffer){
 		sprintf(pInputInst->field[2],"%#x",(uint32_t)strtol(pInputInst->field[2],NULL,0));
 		sprintf(pInputInst->field[3],"%#x",(uint32_t)strtol(pInputInst->field[3],NULL,0));
 	}
-
+	
 	// - make sure right number of fields
 	if (n_fields[pInputInst->table_index] != n){ 	// check number of fields
 		return 1;
@@ -117,7 +90,7 @@ uint32_t parse_input(command *pInputInst, char *pBuffer){
 	if (field3_hex[pInputInst->table_index]){
 		pInputInst->field3_number = (uint32_t)strtol(pInputInst->field[3], NULL, 0);
 	}
-
+	
 
 	// return without error
 	return 0;

@@ -38,8 +38,7 @@ int main(int argc, char** argv)
     //if running in headless mode
     else{
     //check to see if command has been given
-        char command_str[1000];
-        char *start_pointer,*end_pointer;
+        char *start_ptr, *save_ptr,*token;
         char arg_len;
         char opt;
         int command_length;
@@ -48,40 +47,17 @@ int main(int argc, char** argv)
         while((opt=getopt(argc,argv,"c:"))!=-1){
             switch(opt) {
             case 'c': 
-                //get total length of command arg
-            //fuck strtok being non-rentrant safe
-
-                  memset(command_str,0,1000); //clear buffer
-                start_pointer=&optarg[0];
-                end_pointer=strchr(start_pointer,':');
+                start_ptr=&optarg[0];
+               token=strtok_r(start_ptr,":",&save_ptr);
                     //iterate through list of commands
-                 while(end_pointer!=NULL){
-                    command_length=(end_pointer-start_pointer)/sizeof(char);
-           
-                    memcpy(command_str,start_pointer,command_length); //copy characters up to the delimiter
-                        status=proxy_string_command(proxy_inst,command_str);
+                 while(token!=NULL){
+                        status=proxy_string_command(proxy_inst,token);
                           switch(status){
                             case 0: printf("Command Successful\n"); break;
-                            case 1: printf("Command Failed\n"); break;
+                            case 1: printf("Command Failed\n"); return 1; break;
                         }
-                  
-
-                        memset(command_str,0,command_length); //clear buffer
-                        start_pointer=++end_pointer;//want to point to the character after the delimiter
-                          end_pointer=strchr(start_pointer,':');
-                         
-
-                     }
-
-              //for last command or first command if only 1 command 
-                 command_length=strlen(start_pointer)/sizeof(char);
-                 memcpy(command_str,start_pointer,command_length);
-                 
-                 status=proxy_string_command(proxy_inst,command_str);
-                  switch(status){
-                    case 0: printf("Command Successful\n"); break;
-                    case 1: printf("Command Failed\n"); break;
-                 }
+                       token=strtok_r(NULL,":",&save_ptr);
+                }
              break;
             default: fprintf(stderr,"Usage: %s [-c \"command1:command2:....:commandn\"]\n",argv[0]);
             }

@@ -6,6 +6,8 @@
 #include "stdint.h" 
 #include "stdio.h"
 
+#define NUM_VERIFICATION_ATTEMPTS 10
+
 uint32_t get_elf_sections(char *filepath, uint32_t *pAddr, uint32_t *pSize);
 // description: 		- blocking
 //  					- get elf section data for fpga memory import
@@ -43,7 +45,7 @@ uint32_t fpga_load_memory(pHandle, command *);
 
 uint32_t fpga_verify_memory(pHandle, command *);
 // description: 		- blocking
-// 						- reads fpga memory and checks the read values against a specified file's contents
+// 						- reads fpga memory and checks the read values against a specified file's contents and attempts to fix any descrepencies
 // return: 				0: success, 1: error
 // pHandle: 			proxy handle
 // command*: 			data structure that holds filename

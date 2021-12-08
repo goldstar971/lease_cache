@@ -280,9 +280,10 @@ always @(posedge clock_i) begin
 		rw_flag_reg =  			1'b0; 
 		writeback_flag_reg =  	1'b0;
 		replacement_ptr_reg = 	{BW_CACHE_ADDR_PART{1'b1}}; 	// start at max so first replacement rolls over into first cache line location 
-
+		
 		// core/hart
 		core_done_o_reg = 		1'b1;
+		core_data_reg='b0;
 
 		// tag memory
 		cam_wren_reg = 			1'b0;

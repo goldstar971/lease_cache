@@ -86,14 +86,16 @@ make_run_all_plru_script ()
 	variant=$(pwd |sed -n 's/.*\/\([0-9A-Za-z_]*\)/\1/p');
 	if [[ "$1" == "" ]]; then
 		script_name=run_all_plru.pss
+		command_begin="RUN ../benchmarks/SHEL/"
 	else
 		script_name=run_all_plru_"$1".pss;
+		command_begin="RUN ../benchmarks/SHEL_""$1""/"
 	fi;
     file_path=../../fpga_proxy/scripts/;
     rm -f "$file_path"/"$script_name";
     for i in *;
     do
-	            echo RUN ../benchmarks/SHEL_"$1"/"$i"/program >> "$file_path"/"$script_name";
+	            echo "$command_begin""$i""/program" >> "$file_path"/"$script_name";
     done
 }
 

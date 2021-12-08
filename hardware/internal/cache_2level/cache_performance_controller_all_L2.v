@@ -5,9 +5,11 @@ module cache_performance_controller_all_L2 #(
 )(	
 	input 	[1:0]		clock_i,
 	input 			resetn_i,
+	`ifdef SAMPLER
 	input[31:0] phase_i,   
 	input [31:0]	 pc_ref_i,         
 	input [`BW_CACHE_TAG-1:0] tag_ref_i,
+	`endif
 	input          swap_i,
 	input 			req_i,
 	input 			hit_i, 				// logic high when there is a cache hit
@@ -20,13 +22,13 @@ module cache_performance_controller_all_L2 #(
 	input 	[31:0]	comm_i, 			// configuration signal	
 	output 	[31:0] 	comm_o, 	 		// return value of comm_i
 	output 			stall_o,
-`ifdef L2_POLICY_DLEASE
+`ifdef TRACKER
 	input 	[CACHE_BLOCK_CAPACITY-1:0]	expired_flags_0_i,
 	input 	[CACHE_BLOCK_CAPACITY-1:0]	expired_flags_1_i,
 	input 	[CACHE_BLOCK_CAPACITY-1:0]	expired_flags_2_i,
 `endif
 	input  [1:0] select_data_record,
-	input  [15:0] rate_shift_seed_i
+	input  [18:0]     rate_shift_seed_i
 );
 
 reg 	[31:0]	comm_o_reg0,comm_o_reg1,comm_o_reg2;
@@ -35,7 +37,7 @@ reg swap_store;
 wire enable_tracker, enable_sampler, tracker_stall_o,sampler_stall_o, buffer_full_flag,table_full_flag;
 
 //wire 	[127:0]	eviction_bit_bus;
-`ifdef L2_POLICY_DLEASE
+`ifdef TRACKER
 wire 	[CACHE_BLOCK_CAPACITY-1:0]	eviction_bit_0_bus,
 				eviction_bit_1_bus,
 				eviction_bit_2_bus;
@@ -51,7 +53,9 @@ reg 	[63:0]	counter_walltime_reg,	// when enabled counts "wall time" - actually 
 				counter_wb_reg, 		// when enabled counts times writeback_i is logic high
 				counter_expired_reg, 	// counts times expired_i is logic high
 				counter_mexpired_reg, 	// counts times multi_expired_i is logic high
+`ifdef L2_POLICY_DLEASE
 				counter_swap_reg, //counts the number of times a zero lease was assigned
+`endif
 				counter_defaulted_reg, 	// counts references that result in default leases
 				counter_rand_evic_reg,
 				counter_default_misses; //counts number of misses that are due to default leases
@@ -64,23 +68,40 @@ wire 	[63:0]		rui_trace;
 
 
 
-assign enable_sampler = (!select_data_record[1] & select_data_record[0]);
-assign sampler_stall_o=buffer_full_flag | table_full_flag;
 
-`ifdef L2_POLICY_DLEASE
 
-	assign enable_tracker = (select_data_record[1] & !select_data_record[0]);
-	assign stall_o=(enable_tracker) ? tracker_stall_o : (enable_sampler) ? sampler_stall_o : 1'b0;
-	//choose between cache statistics, sampler, or tracker
-	assign comm_o = (select_data_record==2'b00) ? comm_o_reg0 : (select_data_record==2'b01) ? comm_o_reg1 :
+`ifdef TRACKER 
+	`ifdef SAMPLER
+		assign enable_sampler = (!select_data_record[1] & select_data_record[0]);
+		assign sampler_stall_o=buffer_full_flag | table_full_flag;
+		assign enable_tracker = (select_data_record[1] & !select_data_record[0]);
+		assign stall_o=(enable_tracker) ? tracker_stall_o : (enable_sampler) ? sampler_stall_o : 1'b0;
+		//choose between cache statistics, sampler, or tracker
+		assign comm_o = (select_data_record==2'b00) ? comm_o_reg0 : (select_data_record==2'b01) ? comm_o_reg1 :
 	(select_data_record==2'b10) ? comm_o_reg2 : comm_o_reg0;
+	`else 
+		assign enable_tracker = (select_data_record[1] & !select_data_record[0]);
+		assign stall_o=(enable_tracker) ? tracker_stall_o : 1'b0;
+		//choose between cache statistics,  tracker
+		assign comm_o = (select_data_record==2'b00) ? comm_o_reg0 :  comm_o_reg2; 
+	`endif
 `else
-	assign stall_o= (enable_sampler) ? sampler_stall_o : 1'b0;
-	//choose between cache statistics or sampler
-	assign comm_o = (select_data_record==2'b01) ? comm_o_reg1 : comm_o_reg0;
+	`ifdef SAMPLER
+		assign enable_sampler = (!select_data_record[1] & select_data_record[0]);
+		assign sampler_stall_o=buffer_full_flag | table_full_flag;
+		assign stall_o= (enable_sampler) ? sampler_stall_o : 1'b0;
+		//choose between cache statistics or sampler
+		assign comm_o = (select_data_record==2'b01) ? comm_o_reg1 : comm_o_reg0;
+	`else 
+	 	assign stall_o=1'b0;
+	 	assign comm_o = comm_o_reg0;
+	 `endif
 `endif
-wire [31:0] pc_bus;
-assign pc_bus= {phase_i[7:0],pc_ref_i[23:0]};
+
+`ifdef SAMPLER
+	wire [31:0] pc_bus;
+	assign pc_bus= {phase_i[7:0],pc_ref_i[23:0]};
+`endif 
 
 always @(posedge clock_i[0]) begin
 	if (!resetn_i) begin
@@ -94,8 +115,10 @@ always @(posedge clock_i[0]) begin
 		counter_defaulted_reg 	<= 'b0;
 		counter_rand_evic_reg 	<= 'b0;
 		counter_default_misses  <= 'b0;
+		`ifdef L2_POLICY_DLEASE
 		counter_swap_reg<='b0;
 		swap_store <=1'b0;
+		`endif
 	end
 
 	else begin
@@ -109,13 +132,15 @@ always @(posedge clock_i[0]) begin
 			if 		(defaulted_i) 		counter_defaulted_reg 	<= counter_defaulted_reg + 1'b1;
 			if      (rand_evict_i)      counter_rand_evic_reg   <= counter_rand_evic_reg + 1'b1;
 			if      (miss_i&defaulted_i) counter_default_misses <=counter_default_misses+1'b1;
-			swap_store<=swap_i;
+			`ifdef L2_POLICY_DLEASE
+				swap_store<=swap_i;
 			//always strobed even if no lease cache
 			if       (!swap_i&&swap_store!=swap_i)     counter_swap_reg <=counter_swap_reg+1'b1;  //increments when there is a zero lease assigned (swaps is equal to the number of misses minus the number of zero leases)
+			`endif
 			// always increment wall-timer
 			counter_walltime_reg <= counter_walltime_reg + 1'b1;
 		end
-
+		`ifdef SAMPLER
 		case (comm_i[3:0])
 
 			// primary outputs
@@ -137,12 +162,10 @@ always @(posedge clock_i[0]) begin
 
 			4'b1110: comm_o_reg1 <= 'b0; 								// cache system id
 			4'b1111: comm_o_reg1 <= buffer_full_flag;
-			
-			
-
 			default comm_o_reg1 <= 'b0;
 		endcase
-	`ifdef L2_POLICY_DLEASE
+		`endif
+	`ifdef TRACKER
 		case(comm_i[5:0])
 
 			6'b000000: 	comm_o_reg2 <= eviction_bit_0_bus[31:0];
@@ -223,8 +246,8 @@ always @(posedge clock_i[0]) begin
 			5'b01011: comm_o_reg0 <= counter_defaulted_reg[63:32];
 			5'b01100: comm_o_reg0 <= counter_mexpired_reg[31:0]; 			// multiple leases expired at eviction
 			5'b01101: comm_o_reg0 <= counter_mexpired_reg[63:32];
-			5'b10000: comm_o_reg0 <= counter_swap_reg[31:0];
-			5'b10001: comm_o_reg0 <= counter_swap_reg[63:32];
+			5'b10000: comm_o_reg0 <= counter_default_misses[31:0];
+			5'b10001: comm_o_reg0 <= counter_default_misses[63:32];
 			5'b10010: comm_o_reg0 <= counter_rand_evic_reg[31:0];
 			5'b10011: comm_o_reg0 <= counter_rand_evic_reg[63:32]; 
 			// cache identification
@@ -237,7 +260,7 @@ always @(posedge clock_i[0]) begin
 end
 
 //tracker
-`ifdef L2_POLICY_DLEASE
+`ifdef TRACKER
 cache_line_tracker_4 #(
 	.FS 				(		),
 	.N_LINES 	 		(CACHE_BLOCK_CAPACITY 	)
@@ -263,8 +286,7 @@ cache_line_tracker_4 #(
 `endif
 //sampler
 
-//not enough resources for sampler on cyclone V gt dev kit when combined with multi-level lease cache
-`ifndef L2_POLICY_DLEASE
+`ifdef SAMPLER
 	lease_sampler_all inst0(
 		.clock_bus_i 		(clock_i 		), 
 		.resetn_i 			(resetn_i 			), 

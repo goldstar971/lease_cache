@@ -63,26 +63,50 @@ function run_proxy {
         ./bin/main;
     fi
 }
- music_4='/home/matthew/Music/Unknown/magia_live.mp3'
 
-play_command='audacious'
-program_plru
+ read -p "multi_level? (y/n)" multi_level
+ read -p "use lease cache for single level sampling? (y/n)" lease_cache
+ goto_proxy
+
+ if [ "$multi_level" == "y" ]; then 
+    make multi_level
+    program_plru_multi_level
+else 
+    make
+    if [ "$lease_cache" == "y" ]; then
+        program_lease_scope 
+    else 
+        program_plru
+    fi
+fi
+
 sample_rates=( 64 128 256 512 1024 )
 seeds=( 1 2 3 4 5 )
 for seed in "${seeds[@]}"; do
     for rate in "${sample_rates[@]}"; do
+	
+	read -p  "seed is: $seed rate is $rate. Skip? (y/n)" skip
+
+	if [ "$skip" == "y" ];  then
+		continue
+	fi
+
 (cd ../benchmarks/SHEL/ && make_sample_all_script $rate $seed);
 (cd ../benchmarks/CLAM/ && make_sample_all_script $rate $seed);
 (cd ../benchmarks/SHEL_medium/ && make_sample_all_script $rate $seed);
 (cd ../benchmarks/CLAM_medium/ && make_sample_all_script $rate $seed);
            
-
-"$play_command" "$music_4" > /dev/null 2>&1 & 
-
-               echo "please reset the fpga then press any key to continue\n"
-          read -n 1;
-        run_proxy -c "SCRIPT sample_all_SHEL:SCRIPT sample_all_CLAM:SCRIPT sample_all_CLAM_medium:SCRIPT sample_all_SHEL_medium";
-            echo "rate is: $rate"
-    done
-    echo "seed is: $seed";
+	success="n"
+     while [ "$success" != "y" ]; do
+           echo "please reset the fpga then press any key to continue"
+           read -n 1
+           run_proxy -c "SCRIPT sample_all_SHEL:SCRIPT sample_all_CLAM:SCRIPT sample_all_CLAM_medium:SCRIPT sample_all_SHEL_medium" 
+			"$play_command" "$music_4" > /dev/null 2>&1 & 
+	   	if [ "$?" == 0 ]; then
+			success="y"
+		else
+			success="n"
+		fi 
+	done
+done
 done

@@ -15,7 +15,7 @@ module cache_n_set_all #(
 	input 							resetn_i, 			
 	input 	[31:0]					comm_i, 			// generic comm port in
 	input   [1:0]                   metric_sel_i,
-	input   [15:0]                   rate_shift_seed_i,
+	input   [18:0]                       rate_shift_seed_i,
 	input[31:0] phase_i,    
 	
 	output 	[31:0]					comm_o,				// specific comm port out
@@ -96,6 +96,7 @@ tag_memory_n_set #(
 	.add_o 			(add_cam2cache 		), 					// primary output (cache location <- tag)
 	.tag_o 			(tag_cam2cache 		),					// tag <- add
 	.hit_o 			(hit_cam 			) 					// logic high if lookup hit
+
 );
 
 
@@ -150,18 +151,19 @@ wire 	hit_flag,  											// performance metric flags set by controller
 		defaulted_flag,
 		expired_multi_flag,
 		rand_evict_flag;
-generate if (POLICY==`ID_CACHE_DLEASE )begin
+`ifdef TRACKER
 		wire [CACHE_BLOCK_CAPACITY-1:0] flag_expired_0_bus,
 								flag_expired_1_bus,
 								flag_expired_2_bus;
-end
-endgenerate
+`endif
 wire 							cpc_stall_flag;
 		
 
 generate if (CACHE_TYPE==1) begin
-wire    [BW_TAG+BW_SET-1:0]req_tag_sampler;
-assign req_tag_sampler =core_add_i[`BW_WORD_ADDR-1:`BW_BLOCK];
+`ifdef SAMPLER
+	wire    [BW_TAG+BW_SET-1:0]req_tag_sampler;
+	assign req_tag_sampler =core_add_i[`BW_WORD_ADDR-1:`BW_BLOCK];
+`endif
 	cache_performance_controller_all #(
 		.CACHE_STRUCTURE	(STRUCTURE 			), 
 		.CACHE_REPLACEMENT 	(POLICY				), 
@@ -169,12 +171,14 @@ assign req_tag_sampler =core_add_i[`BW_WORD_ADDR-1:`BW_BLOCK];
 	) perf_cont_inst(
 		.clock_i 			(clock_bus_i),
 		.resetn_i 			(resetn_i 			),
-		.phase_i             (phase_i),
 		.select_data_record (metric_sel_i),
 		.rate_shift_seed_i       (rate_shift_seed_i),
 		.req_i          (core_req_i         ),
+		`ifdef SAMPLER
+		.phase_i             (phase_i),
 		.pc_ref_i           (PC_i),
 		.tag_ref_i			(req_tag_sampler    ),              // regardless of set, sample fully associative tags
+		`endif
 		.hit_i 				(hit_flag 			), 				// logic high when there is a cache hit
 		.miss_i 			(miss_flag 	 		), 				// logic high when there is the initial cache miss
 		.writeback_i 		(wb_flag 	 		), 				// logic high when the cache writes a block back to externa memory
@@ -187,6 +191,8 @@ assign req_tag_sampler =core_add_i[`BW_WORD_ADDR-1:`BW_BLOCK];
 		.comm_o 			(comm_o 			), 				// return value of comm_i
 		`ifdef DATA_POLICY_DLEASE
 		.swap_i(swap_flag),	
+		`endif 
+		`ifdef TRACKER
 		.expired_flags_0_i 	(flag_expired_0_bus ),
 		.expired_flags_1_i 	(flag_expired_1_bus ),
 		.expired_flags_2_i 	(flag_expired_2_bus ),
@@ -293,9 +299,11 @@ n_set_dynamic_controller_tracker #(
 		.flag_defaulted_o 		(defaulted_flag 		),
 		.flag_swap_o 			(swap_flag 		 		),
 	//line tracking ports
+	`ifdef TRACKER
 		.flag_expired_0_o 		(flag_expired_0_bus 	),
 		.flag_expired_1_o 		(flag_expired_1_bus 	),
 		.flag_expired_2_o 		(flag_expired_2_bus 	),
+	`endif
 
 	// command ports
 	.mem_ready_i 			(ready_req_i 			),

@@ -13,7 +13,7 @@ module internal_system_2_multi_level(
 	output 	[31:0]	comm_cacheL1D_o,
 	output  [31:0]  comm_cacheL2_o,
 	input    [1:0]  cpc_metric_switch_i,
-	input    [15:0]    rate_shift_seed_i,
+	input    [18:0]        rate_shift_seed_i,
 
 	
 	// external system

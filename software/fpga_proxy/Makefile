@@ -1,5 +1,5 @@
 # compiler options
-CXX=g++ -g -O3 -std=c++11
+CXX=g++ -g -O3 
 
 # project directories
 SRC_DIR=./src

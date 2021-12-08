@@ -25,6 +25,7 @@
 #define PROTOCOL_FLAG_WRITE 			0x00001000
 #define PROTOCOL_FLAG_MULTIWORD 		0x00002000
 #define PROTOCOL_FLAG_CONFIG  			0x00004000
+#define PROTOCOL_FLAG_BURST				0x00008000
 #define PROTOCOL_FLAG_CACHE_FUSION  	0x00010000
 #define PROTOCOL_FLAG_SAMPLER_FUSION  	0x00020000
 #define PROTOCOL_FLAG_TRACKER_FUSION 	0x00040000
@@ -51,7 +52,7 @@ uint32_t 	protocol_synchronize 	(pHandle, uint32_t n_iterations, uint32_t option
 // option_print: 			0: do not print sync. log to terminal, Else: do ... 
 
 
-uint32_t 	protocol_read 			(pHandle, char *pBuffer, uint32_t n_bytes, uint32_t addr);
+uint32_t 	protocol_read 			(pHandle, char *pBuffer, uint32_t n_bytes, uint32_t addr, char burst);
 // description: 			- blocking
 // 							- creates read request
 // return: 					0: pass, 1: fail
@@ -61,7 +62,7 @@ uint32_t 	protocol_read 			(pHandle, char *pBuffer, uint32_t n_bytes, uint32_t a
 // addr: 					address of where to begin reading from
 
 
-uint32_t 	protocol_write 			(pHandle, char *pBuffer, uint32_t n_bytes, uint32_t addr);
+uint32_t 	protocol_write 			(pHandle, char *pBuffer, uint32_t n_bytes, uint32_t addr, char burst);
 // description: 			- blocking
 // 							- creates write request
 // return: 					0: pass, 1: fail

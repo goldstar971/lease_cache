@@ -4,6 +4,7 @@ module tag_memory_n_set_L2 #(
 	parameter CACHE_SET_SIZE
 
 )(
+
 	input 	[1:0]					clock_bus_i, 	//read and write edge
 	input 						resetn_i, 	// reset active low 		
 	input 						wren_i, 	// write enable (write new entry)
@@ -90,7 +91,7 @@ generate
 	
 endgenerate
 
-// tag -> add search out
+
 
 
 
