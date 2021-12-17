@@ -71,11 +71,14 @@ fn main(){
              .default_value("yes")
              .about("Use given or empirically derived sampling rate")
              .required(false)).get_matches();
+    
 
     let cache_size=matches.value_of("CACHE_SIZE").unwrap().parse::<u64>().unwrap();
     let perl_bin_num =matches.value_of("PRL").unwrap().parse::<u64>().unwrap();
-    let llt_size=matches.value_of("LLT_SIZE").unwrap().parse::<usize>().unwrap();
-    let mem_size=matches.value_of("MEM_SIZE").unwrap().parse::<usize>().unwrap();
+    let llt_size=matches.value_of("LLT_SIZE").unwrap().parse::<u64>().unwrap();
+    let mem_size=matches.value_of("MEM_SIZE").unwrap().parse::<u64>().unwrap();
+    //get maximum number of scopes that can fit in given memory size with given llt size
+    let max_scopes=mem_size/((2*llt_size + 16)*4);
     let discretize_width=matches.value_of("DISCRETIZE_WIDTH").unwrap().parse::<u64>().unwrap();
     let verbose = matches.is_present("VERBOSE");
     let debug   = matches.is_present("DEBUG");
@@ -117,8 +120,7 @@ fn main(){
     //compose output file name
     //this panic here avoids the almost certain panic that will result from running PRL on multi phase sampling files
     if &cap[1]=="shel"{
-        println!("Error! You can only use prl on sampling files with a single phase!");
-        panic!();
+        panic!("Error! You can only use prl on sampling files with a single phase!");
     }
     output_file_name=format!("{}/{}_{}_{}",matches.value_of("OUTPUT").unwrap(),&cap[2],"prl","leases");
     //generate prl leases
@@ -127,7 +129,7 @@ fn main(){
     println!("running PRL");
     let lease_vectors=clam::io::dump_leases(leases,dual_leases,lease_hits,trace_length,&output_file_name[..],sample_rate,misses_from_first_access);
     let output_lease_file_name=format!("{}/{}_{}_{}",matches.value_of("OUTPUT").unwrap(),&cap[2],"prl","lease.c");
-    clam::io::gen_lease_c_file(lease_vectors,llt_size,mem_size,output_lease_file_name,discretize_width);
+    clam::io::gen_lease_c_file(lease_vectors,llt_size,max_scopes,mem_size,output_lease_file_name,discretize_width);
    }
  
    println!("running {}",&cap[1]);
@@ -138,7 +140,7 @@ fn main(){
   let lease_vectors=clam::io::dump_leases(leases,dual_leases,lease_hits,trace_length,&output_file_name[..],sample_rate,misses_from_first_access);
    let output_lease_file_name=format!("{}/{}_{}_{}",matches.value_of("OUTPUT").unwrap(),&cap[2],&cap[1],"lease.c");
    //generate lease file
- clam::io::gen_lease_c_file(lease_vectors,llt_size,mem_size,output_lease_file_name,discretize_width);
+ clam::io::gen_lease_c_file(lease_vectors,llt_size,max_scopes,mem_size,output_lease_file_name,discretize_width);
   //generate CSHEL if option specified
    if cshel {
     //generate leases
@@ -150,7 +152,7 @@ fn main(){
       //output to file
       let output_lease_file_name=format!("{}/{}_{}_{}",matches.value_of("OUTPUT").unwrap(),&cap[2],"c-shel","lease.c");
     let lease_vectors=clam::io::dump_leases(leases,dual_leases,lease_hits,trace_length,&output_file_name[..],sample_rate,misses_from_first_access);
-     clam::io::gen_lease_c_file(lease_vectors,llt_size,mem_size,output_lease_file_name,discretize_width);
+     clam::io::gen_lease_c_file(lease_vectors,llt_size,max_scopes,mem_size,output_lease_file_name,discretize_width);
     }
 
 }

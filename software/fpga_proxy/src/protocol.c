@@ -88,7 +88,7 @@ uint32_t protocol_read(pHandle pInst, char *pBuffer, uint32_t n_bytes, uint32_t 
 }
 
 uint32_t protocol_write(pHandle pInst, char *pBuffer, uint32_t n_bytes, uint32_t addr,char burst){
-	//printf("\nhere\n");
+	
 	// validate the number of bytes being sent
 	if (!n_bytes | (n_bytes > MAX_WRITE_BYTES) | (n_bytes % BYTES_PER_WORD)){
 		return 1;

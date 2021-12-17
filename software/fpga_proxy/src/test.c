@@ -56,6 +56,7 @@ proxy makefile\n",pCommand->field[1],application);
 		return 1;
 	}
 			sleep(.1);
+		
 		// load fpga memory with target application
 	sprintf(command_str, "LOAD %s\r",application);
 		if(proxy_string_command(pInst, command_str)){

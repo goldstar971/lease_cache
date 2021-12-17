@@ -29,7 +29,6 @@ uint32_t proxy_terminal_command(pHandle pInst){
 	// parse the terminal command
 	// if parse returns '1' then command was not executed
 	command command_inst; 
-
 	if(parse_input(&command_inst, pBuffer)){
 		return 1;
 	}

@@ -19,7 +19,7 @@ RESULT_DIR=./leases
 
 
 all_bench =  deriche lu ludcmp cholesky adi 2mm 3mm atax bicg correlation covariance durbin doitgen fdtd-2d gemm gemver gesummv gramschmidt heat-3d jacobi-1d jacobi-2d mvt nussinov seidel-2d symm syr2k syrk trisolv trmm floyd-warshall  
-multi_bench = mvt covariance correlation heat-3d jacobi-2d gemver 2mm fdtd-2d 3mm adi lu ludcmp  deriche
+multi_bench = mvt covariance correlation heat-3d jacobi-2d gemver 2mm fdtd-2d 3mm adi deriche lu ludcmp  
 clean: 
 	rm -rf $(BIN_DIR)/*
 
@@ -29,7 +29,7 @@ clam: src/lib.rs src/main.rs
 
 run_all_small: src/lib.rs src/main.rs Cargo.toml
 	for i in $(all_bench); do \
-		./target/release/clam $(SAMPLE_ALL_SMALL)//rate_$(RATE)/seed_$(SEED)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -S $(WAYS) -p   > /dev/null ; \
+		./target/release/clam $(SAMPLE_ALL_SMALL)/rate_$(RATE)/seed_$(SEED)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -S $(WAYS) -p   > /dev/null ; \
 	done & \
 	for i in $(multi_bench); do \
 		./target/release/clam  $(SAMPLE_ALL_PHASE_SMALL)/rate_$(RATE)/seed_$(SEED)/$${i}.txt $(RESULT_DIR) -s $(CAPACITY) -S $(WAYS) -c   > /dev/null ; \

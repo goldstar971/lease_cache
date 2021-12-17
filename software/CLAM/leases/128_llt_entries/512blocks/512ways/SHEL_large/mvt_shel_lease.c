@@ -4,10 +4,10 @@ static uint32_t lease[16384] __attribute__((section (".lease"))) __attribute__ (
 // lease header
 // phase 0
 	0x00000001,	// default lease
-	0x00ffffff,	// long lease value
-	0x000001f4,	// short lease probability
+	0x00000a46,	// long lease value
+	0x00000166,	// short lease probability
 	0x00000004,	// num of references in phase
-	0x0000017e,	// dual lease ref (word address)
+	0x0000017d,	// dual lease ref (word address)
 	0x00000000,	 // unused
 	0x00000000,	 // unused
 	0x00000000,	 // unused
@@ -34,7 +34,7 @@ static uint32_t lease[16384] __attribute__((section (".lease"))) __attribute__ (
 	0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
 	0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
 	//lease0 value
-	0x00000006, 0x00000004, 0x00000178, 0x00000003, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
+	0x00000006, 0x00000004, 0x0000022f, 0x00000003, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
 	0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
 	0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
 	0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
@@ -49,8 +49,8 @@ static uint32_t lease[16384] __attribute__((section (".lease"))) __attribute__ (
 	0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
 // phase 1
 	0x00000001,	// default lease
-	0x00000853,	// long lease value
-	0x0000019d,	// short lease probability
+	0x00000852,	// long lease value
+	0x0000019b,	// short lease probability
 	0x00000004,	// num of references in phase
 	0x00000195,	// dual lease ref (word address)
 	0x00000000,	 // unused

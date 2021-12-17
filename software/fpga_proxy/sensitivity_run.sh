@@ -94,8 +94,10 @@ read  -p "Multi_level? (y/n)" multi_level
 
  if [ "$response" == "y" ]; then
      if [ "$multi_level" == "y" ]; then 
+        make multi_level
          program_lease_scope_multi_level
      else 
+        make
          program_lease_scope
      fi
  fi
@@ -121,7 +123,6 @@ fi
  cat temp.txt >results/cache/results"$data_size""$cache_level.txt"
  rm temp.txt  
 
-read -p "get predicted_misses? (y/n)" predicted_misses
 
 
 read -p "run SHEL? (y/n)"  SHEL 
@@ -129,17 +130,20 @@ read -p "Run PRL? (y/n)" PRL
 read -p "Run C-SHEL? (y/n)" CSHEL
 
 run_command="run_proxy -c \"SCRIPT run_all_CLAM""$data_size"
-
+cat "scripts/run_all_CLAM""$data_size"".pss" > scripts/run_everything.pss
 if [ "$CSHEL" == "y" ]; then 
-    run_command="$run_command"":SCRIPT run_all_C-SHEL""$data_size"
+    #run_command="$run_command"":SCRIPT run_all_C-SHEL""$data_size"
+    cat "scripts/run_all_C-SHEL""$data_size"".pss" >> scripts/run_everything.pss
 fi 
 
 if [ "$PRL" == "y" ]; then 
     run_command="$run_command"":SCRIPT run_all_PRL""$data_size"
+    cat "scripts/run_all_PRL""$data_size"".pss" >> scripts/run_everything.pss
 fi 
 
 if [ "$SHEL" == "y" ]; then 
     run_command="$run_command"":SCRIPT run_all_SHEL""$data_size"
+    cat "scripts/run_all_SHEL""$data_size"".pss" >> scripts/run_everything.pss
 fi 
 
 run_command="$run_command""\"" 
@@ -161,11 +165,8 @@ cache1_misses,cache1_writebacks,cache1_expired_leases,cache1_multi_expired,cache
 cache1_random_evicts,cache1_ID"> results/cache/sensitivity_results/results"$data_size"_sensitivity.txt 
 sed 's/^[^,]*\/\([0-9a-zA-Z\-]*\)\(_\([0-9a-zA-Z]*\)\)*\/\(.*\)\/program/0,0,\1,\3,\4/' results/cache/results"$data_size".txt \
 |sed 's/,,/,small,/' >>results/cache/sensitivity_results/results"$data_size"_sensitivity.txt
+    fi
 fi
-
-echo "seed,rate,cache_size,policy,dataset_Size,benchmark_name,predicted_misses" > results/cache/sensitivity_results/predicted_misses"$cache_level".txt
-fi
-echo "$run_command"
  music_4='/home/matthew/Music/Unknown/magia_live.mp3'
 
 play_command='audacious'
@@ -185,20 +186,20 @@ play_command='audacious'
         fi
          #signal that script is awaiting user push of reset button
             success="n" 
+            cat scripts/run_everything.pss > scripts/run_everything2.pss
         while [ "$success" != "y" ]; do
-           echo "please reset the fpga then press any key to continue"
-           read -n 1;
-           eval "$run_command"
-            if [ "$?" == 0 ]; then 
-                success="y"
-            else 
-                success="n"
-                #clear any partial results
-                 head -n 30 results/cache/results"$data_size""$cache_level".txt > temp.txt
-                 cat temp.txt >results/cache/results"$data_size""$cache_level".txt
-                rm temp.txt 
+           #echo "please reset the fpga then press any key to continue"
+          # read -n 1;
+           #eval "$run_command"
+          # "$play_command" "$music_4" > /dev/null 2>&1 &
+           read -p "succeded (y/n)" success
+            if [ "$success" == "n" ]; then 
+                cat scripts/run_everything.pss > scripts/run_everything2.pss
+                #don't rerun benchmarks that have already been run
+                benchmarks_run=$(expr $(wc -l < results/cache/results"$data_size""$cache_level".txt) - 30 )
+                sed -i "1,""$benchmarks_run""d" scripts/run_everything2.pss
             fi
-			"$play_command" "$music_4" > /dev/null 2>&1 &
+			
           # read -p "command sucessful? (y/n)" success
        done
            tail -n +31 results/cache/results"$data_size""$cache_level".txt \
@@ -207,13 +208,8 @@ play_command='audacious'
           head -n 30 results/cache/results"$data_size""$cache_level".txt > temp.txt
         cat temp.txt >results/cache/results"$data_size""$cache_level".txt
         rm temp.txt    
-    if [ "$predicted_misses" == "y" ]; then
-        grep -rnw "predicted miss" /home/matthew/Documents/Thesis_stuff/software/CLAM/leases/**/**/**/*CLAM* \
-        | sed 's/^.*_llt_entries\/\([0-9]\+\)blocks\/[0-9]\+ways\/\([A-Z\-]\+\)_*\([a-z]*\)\/\([a-z0-9\-]\+\)_.*_leases.*: \([0-9]\+\)$/\1,\2,\3,\4,\5/' \
-        | sed 's/,,/,small,/'|sed "s/\(.*\)/$seed,$rate,\1/" >>  results/cache/sensitivity_results/predicted_misses.txt
-    fi
-    done
  done
- #restore run results.
+done
+#restore run results.
 cat saved_results.txt >results/cache/results""$data_size""$cache_level"".txt
 rm saved_results.txt

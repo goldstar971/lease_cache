@@ -60,6 +60,7 @@ uint32_t 	protocol_read 			(pHandle, char *pBuffer, uint32_t n_bytes, uint32_t a
 // pBuffer: 				buffer to store the read data
 // n_bytes: 				number of bytes to read
 // addr: 					address of where to begin reading from
+// burst:                   whether or not to read each word invidually (0) or as part of an entire block (1)
 
 
 uint32_t 	protocol_write 			(pHandle, char *pBuffer, uint32_t n_bytes, uint32_t addr, char burst);
@@ -70,10 +71,11 @@ uint32_t 	protocol_write 			(pHandle, char *pBuffer, uint32_t n_bytes, uint32_t 
 // pBuffer: 				buffered data to write
 // n_bytes: 				number of bytes to write
 // addr: 					address of where to begin writing to
+// burst:                   whether or not to write each word invidually (0) or as part of an entire block (1)
+
 
 uint32_t 	protocol_fpga_config 	(pHandle, uint32_t addr, uint32_t data);
 // description: 			- blocking
-//  						- legacy command
 // return: 					0: pass, 1: fail 
 // pHandle: 				handle
 // data: 					configuration data
@@ -81,11 +83,11 @@ uint32_t 	protocol_fpga_config 	(pHandle, uint32_t addr, uint32_t data);
 
 uint32_t 	protocol_cache_fusion 	(pHandle, char *pBuffer, uint32_t addr, uint32_t data, uint32_t num_words);
 // description: 			- blocking
-//  						- legacy command
 // 							- executes a compound command
 // return: 					0: pass, 1: fail 
 // pHandle: 				handle
 // data: 					primary fusion address
 // addr: 					fusion data/secondary address
+// num_words:               number of words we are expecting to read from cache (differs based cache heriarchy)
 
 #endif
