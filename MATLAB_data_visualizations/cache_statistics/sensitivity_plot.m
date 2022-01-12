@@ -1,4 +1,3 @@
-%function [] =plot_cache_summary(varargin)
 % initialize workspace
 clear all;
 	if usejava('desktop')
@@ -44,23 +43,23 @@ base_save_path=[base_path,'/MATLAB_data_visualizations/'];
  			mkdir([base_save_path,'cache_statistics/cache_statistics_graphs/',convertStringsToChars(num_level(multi_level+1)),'/']);
 		end
 		%make needed output directories if they don't already exist
- 		if(exist([base_save_path,'cache_statistics/cache_statistics_graphs/sensitivity/'],'dir')~=7)
- 			mkdir([base_save_path,'cache_statistics/cache_statistics_graphs/sensitivity/']);
+ 		if(exist([base_save_path,'cache_statistics/cache_statistics_graphs/',convertStringsToChars(num_level(multi_level+1)),'/sensitivity/'],'dir')~=7)
+ 			mkdir([base_save_path,'cache_statistics/cache_statistics_graphs/',convertStringsToChars(num_level(multi_level+1)),'/sensitivity/']);
  		end
  		
 		
 
 	for size_index=1:2
 		%grab and organize projected misses data
-		file_path=[base_path,'software/fpga_proxy/results/cache/sensitivity_results/predicted_misses',convertStringsToChars(cache_level_str(multi_level+1)),'.txt'];
+		file_path=[base_path,'software/fpga_proxy/results/cache/sensitivity_results/predicted_misses.txt'];
 		projected_misses_table_all=readtable(file_path);
 		%grab data from correct cache size and split based on dataset size
-		pm_table=projected_misses_table_all(strcmp(projected_misses_table_all.Dataset_Size,dataset_size(size_index))&projected_misses_table_all.cache_size==cache_sizes(multi_level+1),:);
+		pm_table=projected_misses_table_all(strcmp(projected_misses_table_all.dataset_Size,dataset_size(size_index))&projected_misses_table_all.cache_size==cache_sizes(multi_level+1),:);
 		%get benchmark names
 	    benchmark_names=sort(unique(pm_table.benchmark_name));
 		benchmark_names_single=benchmark_names(ismember(benchmark_names,single_scope_benchmarks));
 		benchmark_names_multi=benchmark_names(~ismember(benchmark_names,single_scope_benchmarks));
-		%loop over benchmarks
+			%loop over benchmarks
 		for benchmark_index=1:length(benchmark_names)
 			% loop over rates
 			for rate_index=1:5
@@ -83,9 +82,9 @@ base_save_path=[base_path,'/MATLAB_data_visualizations/'];
 
 		%get plru and benchmark run data
 	 		if(strcmp(dataset_size(size_index),'small'))
-	 				file_path=[base_path,'software/fpga_proxy/results/cache/sensitivity_results/results_sensitivity.txt']; 	
+	 				file_path=[base_path,'software/fpga_proxy/results/cache/sensitivity_results/results_sensitivity',convertStringsToChars(cache_level_str(multi_level+1)),'.txt']; 	
 			else
-					file_path=[base_path,'software/fpga_proxy/results/cache/sensitivity_results/results_medium_sensitivity.txt'];
+					file_path=[base_path,'software/fpga_proxy/results/cache/sensitivity_results/results_medium_sensitivity',convertStringsToChars(cache_level_str(multi_level+1)),'.txt'];
 			end
 				results_table_all=readtable(file_path);
 				plru_table=results_table_all(results_table_all.rate==0&results_table_all.seed==0,:);
@@ -101,41 +100,63 @@ base_save_path=[base_path,'/MATLAB_data_visualizations/'];
 							if(any(strcmp(benchmark_names(benchmark_index),benchmark_names_single)))
 								indexes=strcmp(results_table.benchmark,benchmark_names(benchmark_index))...
 								&results_table.rate==rates(rate_index)&strcmp(results_table.policy,lease_policies(policy_index));
-								single_scope_results_data{policy_index}{benchmark_index,rate_index}=results_table.cache1_misses(indexes);
+								if(multi_level)
+									single_scope_results_data{policy_index}{benchmark_index,rate_index}=results_table.cacheL2_misses(indexes);
+								else 
+									single_scope_results_data{policy_index}{benchmark_index,rate_index}=results_table.cache1_misses(indexes);
+								end
+								
 							else
 								indexes=strcmp(results_table.benchmark,benchmark_names(benchmark_index))...
 								&results_table.rate==rates(rate_index)&strcmp(results_table.policy,lease_policies(policy_index));
-								multi_scope_results_data{policy_index}{benchmark_index,rate_index}=results_table.cache1_misses(indexes);
+								if(multi_level)
+									multi_scope_results_data{policy_index}{benchmark_index,rate_index}=results_table.cacheL2_misses(indexes);
+								else
+									multi_scope_results_data{policy_index}{benchmark_index,rate_index}=results_table.cache1_misses(indexes);
+								end
 							end
+						
 						end
 					end
 				end
 			end
 			%remove empty cells
-			for policy_index=1:2
+			for policy_index=1:4
 			single_scope_results_data{policy_index}(cellfun('isempty',single_scope_results_data{policy_index}(:,1)),:)=[];
 			multi_scope_results_data{policy_index}(cellfun('isempty',multi_scope_results_data{policy_index}(:,1)),:)=[];
 			end
 			%normalize all miss values
 			for benchmark_index=1:length(benchmark_names)
 				plru_indexes=strcmp(plru_table.benchmark,benchmark_names(benchmark_index));
-				plru_miss_value=plru_table.cache1_misses(plru_indexes);
+				if(multi_level)
+					plru_miss_value=plru_table.cacheL2_misses(plru_indexes);
+				else
+					plru_miss_value=plru_table.cache1_misses(plru_indexes);
+				end
 				single_scope_index=find(strcmp(benchmark_names(benchmark_index),benchmark_names_single)==1);
 				multi_scope_index=find(strcmp(benchmark_names(benchmark_index),benchmark_names_multi)==1);
 				if(single_scope_index)
-					plru_total_references_single_scope(single_scope_index)=plru_table.cache1_hits(plru_indexes)+plru_miss_value;
-				single_scope_projected_data(single_scope_index,:)=cellfun(@(x,y) x/plru_miss_value,  ...
+					if(multi_level)
+						plru_total_references_single_scope(single_scope_index)=plru_miss_value;%+plru_table.cacheL2_hits(plru_indexes);
+					else
+						plru_total_references_single_scope(single_scope_index)=plru_miss_value;%+plru_table.cache1_hits(plru_indexes);
+					end
+					single_scope_projected_data(single_scope_index,:)=cellfun(@(x,y) x/plru_miss_value,  ...
 					single_scope_projected_data(single_scope_index,:),'UniformOutput',false);
 				else
-					
-					plru_total_references_multi_scope(multi_scope_index)=plru_table.cache1_hits(plru_indexes)+plru_miss_value;
+					if(multi_level)
+						plru_total_references_multi_scope(multi_scope_index)=plru_miss_value;%+plru_table.cacheL2_hits(plru_indexes);
+					else
+						plru_total_references_multi_scope(multi_scope_index)=plru_miss_value;%+plru_table.cache1_hits(plru_indexes);
+					end
 				multi_scope_projected_data(multi_scope_index,:)=cellfun(@(x,y) x/plru_miss_value,...
 					multi_scope_projected_data(multi_scope_index,:),'UniformOutput',false);
 				end
 				for policy_index=1:length(lease_policies)
-					if(single_scope_index)
+					%SHEL and C-SHEL have only multiscope data
+					if(any(single_scope_index) && policy_index<3)
 						single_scope_results_data{policy_index}(single_scope_index,:)=cellfun(@(x,y) x/plru_miss_value,  ...
-					single_scope_results_data{policy_index}(single_scope_index,:),'UniformOutput',false);
+						single_scope_results_data{policy_index}(single_scope_index,:),'UniformOutput',false);
 					else
 						multi_scope_results_data{policy_index}(multi_scope_index,:)=cellfun(@(x,y) x/plru_miss_value,...
 					multi_scope_results_data{policy_index}(multi_scope_index,:),'UniformOutput',false);
@@ -163,6 +184,11 @@ base_save_path=[base_path,'/MATLAB_data_visualizations/'];
 							end
 						end
 					else
+						%only multiscope data for SHEL and C-SHEL as single
+						%scope is just CLAM
+						if(num_scope(scope_index)=="single_scope"&&policy_index>3)
+							continue
+						end
 						if(num_scope(scope_index)=="single_scope")
 							for j=1:length(benchmark_labels)
 								box_plot_data=[box_plot_data,NaN(5,1),cell2mat(single_scope_results_data{policy_index-1}(j,:))];
@@ -172,14 +198,16 @@ base_save_path=[base_path,'/MATLAB_data_visualizations/'];
 								box_plot_data=[box_plot_data,NaN(5,1),cell2mat(multi_scope_results_data{policy_index-1}(j,:))];
 							end
 						end
+				
 					end
 						
 						
 							
 				% create box plots
-				fig=figure()
+				fig=figure();
 				t=colormap(parula(length(seeds)));
 				set(fig,'Position',[0,0,1080,1920]);
+				grid on;
 				hold on
 				%draw invisble plots to get legend entries
 				for i = 1:length(rates)
@@ -191,20 +219,23 @@ base_save_path=[base_path,'/MATLAB_data_visualizations/'];
 				%add NAN padding so actual data isn't right against the edge
 				box_plot_data=[box_plot_data,NaN(5,1)];
 				
-				
-				T=[ones(1,3);t;ones(1,3);t;ones(1,3);t;ones(1,3);t;ones(1,3);t;ones(1,3)];
+				T=ones(1,3);
+				for i=1:length(benchmark_labels)
+					T=[T;t;ones(1,3)];
+				end
 				labels=repmat("",1,length(box_plot_data));
 				for i=1:length(benchmark_labels)
 					labels((i-1)*6+4)=benchmark_labels(i);
 				end
-				boxplot(box_plot_data,'colors',T,'plotstyle','compact','labels',labels)
-			
-				
+				bx=boxplot(box_plot_data,'colors',T,'plotstyle','compact','labels',labels);
+				limits=ylim;
+				ylim([max([-2,limits(1)]),limits(2)]);
 				%get total number of references to place underneath label
 				if (scope_index==1)
-					plru_total_references=plru_total_references_single_scope;
+					%text objects are found in reverse
+					plru_total_references=flip(plru_total_references_single_scope);
 				else
-					plru_total_references=plru_total_references_multi_scope;
+					plru_total_references=flip(plru_total_references_multi_scope);
 				end
 				r=findobj('Type','text','-not',{'String',''});
 				for label_index=1:length(r)
@@ -220,9 +251,9 @@ base_save_path=[base_path,'/MATLAB_data_visualizations/'];
 							references.Rotation=90;
 				end
 				grid on
-				ylabel('Policy Miss Count Normalized to PLRU Misses');
+				ylabel('Policy Miss Count Normalized to PLRU Misses (semilog)');
 				title(['Sensitivity analysis for ',convertStringsToChars(plot_types(policy_index)),' at different sampling rates'])
-
+				
 				
 				
 				saveas(fig,[base_save_path,'cache_statistics/cache_statistics_graphs/',convertStringsToChars(num_level(multi_level+1)),...

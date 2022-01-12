@@ -79,7 +79,7 @@ function run_proxy {
         ./bin/main;
     fi
 }
-trap "cat saved_results.txt >results/cache/results""$data_size""$cache_level"".txt && rm saved_results.txt && exit 0" SIGINT
+trap 'cat saved_results.txt >results/cache/results"$data_size""$cache_level".txt && rm saved_results.txt && exit 0' SIGINT
 
 
 
@@ -130,20 +130,16 @@ read -p "Run PRL? (y/n)" PRL
 read -p "Run C-SHEL? (y/n)" CSHEL
 
 run_command="run_proxy -c \"SCRIPT run_all_CLAM""$data_size"
-cat "scripts/run_all_CLAM""$data_size"".pss" > scripts/run_everything.pss
 if [ "$CSHEL" == "y" ]; then 
-    #run_command="$run_command"":SCRIPT run_all_C-SHEL""$data_size"
-    cat "scripts/run_all_C-SHEL""$data_size"".pss" >> scripts/run_everything.pss
+    run_command="$run_command"":SCRIPT run_all_C-SHEL""$data_size"
 fi 
 
 if [ "$PRL" == "y" ]; then 
     run_command="$run_command"":SCRIPT run_all_PRL""$data_size"
-    cat "scripts/run_all_PRL""$data_size"".pss" >> scripts/run_everything.pss
 fi 
 
 if [ "$SHEL" == "y" ]; then 
     run_command="$run_command"":SCRIPT run_all_SHEL""$data_size"
-    cat "scripts/run_all_SHEL""$data_size"".pss" >> scripts/run_everything.pss
 fi 
 
 run_command="$run_command""\"" 
@@ -154,7 +150,7 @@ read -p "clear sensitivity results? (y/n): " response
 if [ "$response" == "y" ]; then 
     if [ "$multi_level" == "y" ]; then 
         echo "seed,rate,policy,dataset_size,benchmark,cache0_hits,cache0_misses,cache0_writebacks,clock_cycles,cache0_ID,cache1_hits,\
-cache1_misses,cache1_writebacks,cache1_ID,cache_l2_hits,cache_l2_misses,cache_l2_writebacks,cacheL2_expired_leases,cacheL2_multi_expired,\
+cache1_misses,cache1_writebacks,cache1_ID,cacheL2_hits,cacheL2_misses,cacheL2_writebacks,cacheL2_expired_leases,cacheL2_multi_expired,\
 cacheL2_default_renewals,cacheL2_default_misses,\
 cacheL2_random_evicts,cacheL2_ID"> results/cache/sensitivity_results/results"$data_size"_sensitivity_multi_level.txt 
 sed 's/^[^,]*\/\([0-9a-zA-Z\-]*\)\(_\([0-9a-zA-Z]*\)\)*\/\(.*\)\/program/0,0,\1,\3,\4/' results/cache/results"$data_size"_multi_level.txt \
@@ -167,14 +163,12 @@ sed 's/^[^,]*\/\([0-9a-zA-Z\-]*\)\(_\([0-9a-zA-Z]*\)\)*\/\(.*\)\/program/0,0,\1,
 |sed 's/,,/,small,/' >>results/cache/sensitivity_results/results"$data_size"_sensitivity.txt
     fi
 fi
- music_4='/home/matthew/Music/Unknown/magia_live.mp3'
 
-play_command='audacious'
 
  for seed in "${seeds[@]}"; do
      for rate in "${sample_rates[@]}"; do
 	
-	read -p  "seed is: $seed rate is $rate. Skip? (y/n)" skip
+	read -p  "seed is: $seed rate is $rate. Type \"y\" to skip else press any key." skip
 
 	if [ "$skip" == "y" ];  then
 		continue
@@ -186,21 +180,11 @@ play_command='audacious'
         fi
          #signal that script is awaiting user push of reset button
             success="n" 
-            cat scripts/run_everything.pss > scripts/run_everything2.pss
         while [ "$success" != "y" ]; do
-           #echo "please reset the fpga then press any key to continue"
-          # read -n 1;
-           #eval "$run_command"
-          # "$play_command" "$music_4" > /dev/null 2>&1 &
+           echo "please reset the fpga then press any key to continue"
+           read -n 1;
+           eval "$run_command"
            read -p "succeded (y/n)" success
-            if [ "$success" == "n" ]; then 
-                cat scripts/run_everything.pss > scripts/run_everything2.pss
-                #don't rerun benchmarks that have already been run
-                benchmarks_run=$(expr $(wc -l < results/cache/results"$data_size""$cache_level".txt) - 30 )
-                sed -i "1,""$benchmarks_run""d" scripts/run_everything2.pss
-            fi
-			
-          # read -p "command sucessful? (y/n)" success
        done
            tail -n +31 results/cache/results"$data_size""$cache_level".txt \
             |sed "s/^[^,]*\/\([0-9a-zA-Z\-]*\)\(_\([0-9a-zA-Z]*\)\)*\/\(.*\)\/program,\([^,]*,[^,]*,[^,]*\),[^,]*,\(.*\)/$seed,$rate,\1,\3,\4,\5,5,\6/"\
