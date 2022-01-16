@@ -7,8 +7,6 @@
 
 `define 	BW_CACHE_DATA 		32
 
-`define 	BW_LEASE_REGISTER 	9
-
 
 
 `define 	N_BUFFER_SAMPLER 	13'h1FFF 	// buffer size

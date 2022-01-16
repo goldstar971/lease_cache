@@ -5,7 +5,8 @@ use regex::Regex;
 fn main(){
     let matches = App::new("clam")
         .version("1.0")
-        .author("B. Reber <breber@cs.rochester.edu>")
+        .author("B. Reber <breber@cs.rochester.edu> 
+M. Gould <mdg2838@rit.edu>")
         .about("Lease assignment generator for phased traces")
         .arg(Arg::new("INPUT")
             .about("Sets the input file name")
