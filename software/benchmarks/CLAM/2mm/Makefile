@@ -3,7 +3,7 @@ INC_PATH=../../include/
 COMPRESS_BIN=/target/release
 COMPRESS_BASE_DIR=$(CLAM_path)/software/benchmarks/elf_compress
 LD_PATH_SCOPE=../../ld/riscv_bare_scope.ld
-RISCV_GCC_PATH=/home/matthew/opt/xPacks/@xpack-dev-tools/riscv-none-embed-gcc/8.3.0-2.3.1/.content/bin
+RISCV_GCC_PATH=~/opt/xPacks/@xpack-dev-tools/riscv-none-embed-gcc/8.3.0-2.3.1/.content/bin
 
 # set compiler options
 INC=-I $(INC_PATH)
