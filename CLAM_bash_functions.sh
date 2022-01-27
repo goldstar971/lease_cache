@@ -33,7 +33,8 @@ function gen_leases {
 	 path_start=$CLAM_path
 	
 	cd "$path_start/software/CLAM";
-	./run.sh -m $multi_level -r $rate -s $seed -l $llt_size -w $ways >/dev/null 2>&1 ;
+
+	./run.sh -m $multi_level -r $rate -s $seed -l $llt_size -w $ways;
 	if [[ "$multi_level" == "yes" ]]; then
 	./post 128 512 512 # >/dev/null 2>&1;
 	else 
