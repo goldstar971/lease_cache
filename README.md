@@ -562,19 +562,21 @@ We will assume that the repo has just been set up. All paths are relative to pro
 1. go to software/benchmarks/CLAM_medium
 2. in terminal enter 'make_sample_all_script 512'
 3. repeat steps 1 and 2 or software/benchmarks/SHEL_medium 
-4. connect up fpga to laptop and power fpga on
-5. in terminal enter 'program_plru' to program the fpga with the single-level PLRU cache system
+4. go to software/benchmarks  
+5. in terminal enter ./makeall_benchmarks.sh
+6. connect up fpga to laptop and power fpga on
+7. in terminal enter 'program_plru' to program the fpga with the single-level PLRU cache system
  (if you don't have any prior leases generated then sampling with the lease cache will be really slow)
-6. in terminal enter 'make_proxy' to generate fpga_proxy
-7. in terminal enter 'run_proxy -c "SCRIPT sample_all_SHEL_medium:SCRIPT sample_all_CLAM_medium"
-8. cd software/CLAM
-9. in terminal enter gen_leases -r 512 to generate leases from the sampling files you just generated and then compile and link them with benchmarks
-10. using the prompts specify you only wish to generate leases for the medium dataset 
-11. erase all but the first 30 lines of the results_medium.txt file in software/fpga_proxy/results/cache/ directory (prior results were pushed to git)
+8. in terminal enter 'make_proxy' to generate fpga_proxy
+9. in terminal enter 'run_proxy -c "SCRIPT sample_all_SHEL_medium:SCRIPT sample_all_CLAM_medium"
+10. cd software/CLAM
+11. in terminal enter gen_leases -r 512 to generate leases from the sampling files you just generated and then compile and link them with benchmarks
+12. using the prompts specify you only wish to generate leases for the medium dataset 
+13. erase all but the first 30 lines of the results_medium.txt file in software/fpga_proxy/results/cache/ directory (prior results were pushed to git)
 The first 30 lines are the baseline benchmark results using PLRU and never change.
-12. in terminal enter 'program_lease_scope' to program the fpga with the single-level lease cache system.
-13. in terminal enter run_proxy -c "SCRIPT run_all_CLAM_medium:run_all_SHEL_medium:run_all_C-SHEL_medium:run_all_PRL_medium"'
-14. in terminal enter 'plot_cache_statistics medium no'
-15. You've are done, Graphs of the results will be in MATLAB_data_visualizations/cache_statistics/cache_statistics_graphs/single_level/
+14. in terminal enter 'program_lease_scope' to program the fpga with the single-level lease cache system.
+15. in terminal enter run_proxy -c "SCRIPT run_all_CLAM_medium:run_all_SHEL_medium:run_all_C-SHEL_medium:run_all_PRL_medium"'
+16. in terminal enter 'plot_cache_statistics medium no'
+17. You've are done, Graphs of the results will be in MATLAB_data_visualizations/cache_statistics/cache_statistics_graphs/single_level/
 
 

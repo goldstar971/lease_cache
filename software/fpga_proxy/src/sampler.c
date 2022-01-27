@@ -296,7 +296,19 @@ proxy makefile",pCommand->field[1],application);
 	if(proxy_string_command(pInst, command_str)){
 			return 1;
 		}
-	
+
+	//create sampling directory if it doesn't exist
+	sprintf(file_path,"%s/sample",RESULT_DIR);
+	if(0!= access(file_path,F_OK)){
+	//make folder if error is that dir doesn't exist
+		if (ENOENT==errno){
+			mkdir(file_path,0777);
+		}
+		else{
+			printf("Can't access directory for reasons other than non-existence.\n");
+			return 1;
+		}
+	}
 	//create full path
 	#ifdef MULTI_LEVEL_CACHE
 		sprintf(file_path,"%s/sample/%s_multi_level/",RESULT_DIR,benchmark_type);
@@ -521,25 +533,18 @@ proxy makefile",pCommand->field[1],application);
 	if(proxy_string_command(pInst, command_str)){
 			return 1;
 		}
-/*
-	int tries=0;
-	do {
-		//if more than ten tries, terminate.
-		if(tries>9){
+	//create tracking directory if it doesn't exist
+	sprintf(file_path,"%s/track",RESULT_DIR);
+if(0!= access(file_path,F_OK)){
+	//make folder if error is that dir doesn't exist
+		if (ENOENT==errno){
+			mkdir(file_path,0777);
+		}
+		else{
+			printf("Can't access directory for reasons other than non-existence.\n");
 			return 1;
 		}
-		
-		
-		// load fpga memory with target application
-	sprintf(command_str, "LOAD %s\r",application);
-		if(proxy_string_command(pInst, command_str)==2){
-			return 1;
-		}
-		sleep(.1);
-	sprintf(command_str, "VERIFY %s\r",application);
-	tries++;
-	}while(proxy_string_command(pInst, command_str));
-*/
+}
 
 	//create full path
 	#ifdef MULTI_LEVEL_CACHE

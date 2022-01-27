@@ -3,7 +3,7 @@ INC_PATH=../../include/
 COMPRESS_BIN=/target/release
 COMPRESS_BASE_DIR=$(CLAM_path)/software/benchmarks/elf_compress
 LD_PATH_SCOPE=../../ld/riscv_bare_scope.ld
-RISCV_GCC_PATH=/home/matthew/opt/xPacks/@xpack-dev-tools/riscv-none-embed-gcc/8.3.0-2.3.1/.content/bin
+RISCV_GCC_PATH=~/opt/xPacks/@xpack-dev-tools/riscv-none-embed-gcc/8.3.0-2.3.1/.content/bin
 
 # set compiler options
 INC=-I $(INC_PATH)
@@ -13,11 +13,11 @@ OPTS=--specs=nosys.specs -march=rv32imf -mabi=ilp32f -mdiv -mfdiv -$(opt_level) 
 
 pre_process:
 	$(RISCV_GCC_PATH)/riscv-none-embed-gcc $(INC) $(OPTS) $(LD_SCOPE) $(INC_PATH)/*.c *.c -E -DMEDIUM_DATASET -DDATA_TYPE_IS_FLOAT -DINTEGER_SUPPORT -lm >> preprocess.txt
-compress: $(COMPRESS_BASE_DIR)/src/lib.rs $(COMPRESS_BASE_DIR)/src/main.rs
+$(COMPRESS_BASE_DIR)/$(COMPRESS_BIN)/elf_compress: $(COMPRESS_BASE_DIR)/src/lib.rs $(COMPRESS_BASE_DIR)/src/main.rs
 	cargo build --release --manifest-path $(COMPRESS_BASE_DIR)/Cargo.toml
 	
 
-scope:
+scope: $(COMPRESS_BASE_DIR)/$(COMPRESS_BIN)/elf_compress
 	$(RISCV_GCC_PATH)/riscv-none-embed-gcc $(INC) $(OPTS) $(LD_SCOPE) $(INC_PATH)/*.c *.c -o program.elf -DMEDIUM_DATASET -DDATA_TYPE_IS_FLOAT -DINTEGER_SUPPORT -lm
 	# convert to binary file
 	$(RISCV_GCC_PATH)/riscv-none-embed-objcopy program.elf -O binary program.txt

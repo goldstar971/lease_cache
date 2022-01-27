@@ -15,7 +15,8 @@ sudo apt install libpng12-0
 echo "installing GNU RISCV-Embedded GCC"
 sudo apt install npm
 sudo npm install --global xpm@latest
-xpm install --global @xpack-dev-tools/riscv-none-embed-gcc@latest --verbose
+xpm install --global @xpack-dev-tools/riscv-none-embed-gcc@8.3.0-2.3.1 --verbose
+mv ~/.local ~/opt
 
 echo "setting USB blaster device files"
 cat > 51−usbblaster.rules<< EOF
@@ -33,3 +34,4 @@ sudo mv ./51−usbblaster.rules /etc/udev/rules.d/51−usbblaster.rules
 
 echo "install rust and rust cargo package manager"
 curl https://sh.rustup.rs -sSf | sh
+echo . "$HOME/.cargo/env" >> ~/.bashrc

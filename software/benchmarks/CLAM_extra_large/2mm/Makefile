@@ -13,11 +13,11 @@ OPTS=--specs=nosys.specs -march=rv32imf -mabi=ilp32f -mdiv -mfdiv -$(opt_level) 
 
 pre_process:
 	$(RISCV_GCC_PATH)/riscv-none-embed-gcc $(INC) $(OPTS) $(LD_SCOPE) $(INC_PATH)/*.c *.c -E -DEXTRALARGE_DATASET -DDATA_TYPE_IS_FLOAT -DINTEGER_SUPPORT -lm >> preprocess.txt
-compress: $(COMPRESS_BASE_DIR)/src/lib.rs $(COMPRESS_BASE_DIR)/src/main.rs
+$(COMPRESS_BASE_DIR)/$(COMPRESS_BIN)/elf_compress: $(COMPRESS_BASE_DIR)/src/lib.rs $(COMPRESS_BASE_DIR)/src/main.rs
 	cargo build --release --manifest-path $(COMPRESS_BASE_DIR)/Cargo.toml
 	
 
-scope:
+scope: $(COMPRESS_BASE_DIR)/$(COMPRESS_BIN)/elf_compress
 	$(RISCV_GCC_PATH)/riscv-none-embed-gcc $(INC) $(OPTS) $(LD_SCOPE) $(INC_PATH)/*.c *.c -o program.elf -DEXTRALARGE_DATASET -DDATA_TYPE_IS_FLOAT -DINTEGER_SUPPORT -lm
 	# convert to binary file
 	$(RISCV_GCC_PATH)/riscv-none-embed-objcopy program.elf -O binary program.txt
