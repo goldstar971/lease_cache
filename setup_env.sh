@@ -16,7 +16,6 @@ echo "installing GNU RISCV-Embedded GCC"
 sudo apt install npm
 sudo npm install --global xpm@latest
 xpm install --global @xpack-dev-tools/riscv-none-embed-gcc@8.3.0-2.3.1 --verbose
-mv ~/.local ~/opt
 
 echo "setting USB blaster device files"
 cat > 51−usbblaster.rules<< EOF

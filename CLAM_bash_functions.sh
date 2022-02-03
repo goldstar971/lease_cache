@@ -36,9 +36,9 @@ function gen_leases {
 
 	./run.sh -m $multi_level -r $rate -s $seed -l $llt_size -w $ways;
 	if [[ "$multi_level" == "yes" ]]; then
-	./post 128 512 512 # >/dev/null 2>&1;
+	./post.sh 128 512 512 # >/dev/null 2>&1;
 	else 
-	./post 128 128 128 #>/dev/null 2>&1;
+	./post.sh 128 128 128 #>/dev/null 2>&1;
 	fi
 }
 function plot_cache_statistics {

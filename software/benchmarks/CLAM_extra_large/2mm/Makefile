@@ -3,12 +3,12 @@ INC_PATH=../../include/
 COMPRESS_BIN=/target/release
 COMPRESS_BASE_DIR=$(CLAM_path)/software/benchmarks/elf_compress
 LD_PATH_SCOPE=../../ld/riscv_bare_scope.ld
-RISCV_GCC_PATH=~/opt/xPacks/@xpack-dev-tools/riscv-none-embed-gcc/8.3.0-2.3.1/.content/bin
+RISCV_GCC_PATH=~/.local/xPacks/@xpack-dev-tools/riscv-none-embed-gcc/8.3.0-2.3.1/.content/bin
 
-# set compiler options
+# set compiler .localions
 INC=-I $(INC_PATH)
 LD_SCOPE=-T $(LD_PATH_SCOPE)
-OPTS=--specs=nosys.specs -march=rv32imf -mabi=ilp32f -mdiv -mfdiv -$(opt_level) \
+OPTS=--specs=nosys.specs -march=rv32imf -mabi=ilp32f -mdiv -mfdiv -$(.local_level) \
 -fno-tree-slp-vectorize -fno-tree-loop-vectorize -fno-tree-vectorize 
 
 pre_process:
