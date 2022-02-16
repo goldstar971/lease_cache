@@ -124,7 +124,7 @@ shopt -s nocasematch
 
 	if [ -d "$i" ]; then  
 		cd  "$i" 
-		rm program*;
+
 		make scope -s opt_level=O3 >/dev/null &
 		cd ..; 
 	fi

@@ -28,13 +28,12 @@ for i in *; do
 	if [[ "$variant" == "SHEL"* || "$variant" == "C-SHEL"* ]]; then
             if [[ -d "$i" && "$i" != "atax" && "$i" != "bicg" && "$i" != "cholesky" && "$i" != "floyd-warshall" && "$i" != "gemm" && "$i" != "gesummv" && "$i" != "gramschmidt" && "$i" != "jacobi-1d" && "$i" != "nussinov" && "$i" != "seidel-2d" && "$i" != "symm" && "$i" != "syr2k" && "$i" != "syrk" && "$i" != "trisolv" && "$i" != "trmm" && "$i" != "doitgen" && "$i" != "durbin" ]]; then
                 cd  "$i" 
-				rm program*
+
 				make scope -s opt_level=O3 >/dev/null&
 				cd .. 
             fi;
    elif [[ -d "$i" ]]; then
             cd  "$i" 
-			rm program*
 			make scope -s  opt_level=O3>/dev/null&
 			cd .. 
    fi;
