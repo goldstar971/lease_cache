@@ -8,7 +8,7 @@ RISCV_GCC_PATH=~/.local/xPacks/@xpack-dev-tools/riscv-none-embed-gcc/8.3.0-2.3.1
 # set compiler .localions
 INC=-I $(INC_PATH)
 LD_SCOPE=-T $(LD_PATH_SCOPE)
-OPTS=--specs=nosys.specs -march=rv32imf -mabi=ilp32f -mdiv -mfdiv -$(.local_level) \
+OPTS=--specs=nosys.specs -march=rv32imf -mabi=ilp32f -mdiv -mfdiv -$(opt_level) \
 -fno-tree-slp-vectorize -fno-tree-loop-vectorize -fno-tree-vectorize 
 
 pre_process:
