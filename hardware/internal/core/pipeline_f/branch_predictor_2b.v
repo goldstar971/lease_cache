@@ -118,9 +118,12 @@ always@(posedge clock_bus_i[1])begin
 			//if not match
 			else begin
 				if(all_full)begin
-					//predicting not taken by default, therefore if prediction is correct predictor will have value 0
+					//predicting not taken by default
 					if(mispredict_i)begin
 						branch_predictors[LRU_index]<=2'b10; 
+					end
+					else begin 
+						branch_predictors[LRU_index]<=2'b00;
 					end
 					branch_destinations[LRU_index]<=jump_destination_i;
 					branch_pcs[LRU_index]<=stage_3_instruct_addr_i;
