@@ -1,7 +1,11 @@
 # Setup
 1. install Quartus version 18.1 (can be later, but you may need to upgrade ip)
-2. run ./setup_env.sh from the repository root directory
-3. you are all set to start generating data.
+2. install matlab and then create an alias for the executible in your bashrc file of the form: matlab="path/to/matlab/executible/"
+3. run ./setup_env.sh from the repository root directory
+4. reload shel and new functions using bash command "exec bash".
+5. run function "matlab_path_setup"
+6. you are all set to start generating data.
+
 
 # Hardware
 Contains the FPGA hardware for the system.
