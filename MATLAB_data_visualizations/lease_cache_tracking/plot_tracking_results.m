@@ -119,7 +119,7 @@ mean =movmean(average.exp,128);
 
 
 figure();
-set(gcf, 'Position',[100,100,1000,600]);     % [low left x, low left y, top right x, top right y]
+set(gcf, 'Position',[0,0,1920,1080]);     % [low left x, low left y, top right x, top right y]
     ax_1=subplot(1,3,1);
         plot(trace_millions,average.exp);
         hold on;
@@ -151,16 +151,9 @@ set(gcf, 'Position',[100,100,1000,600]);     % [low left x, low left y, top righ
                  'FontSize',13,...
                  'Location','south');
         cb.Position = [.15 .035 .725 .0213];
-         saveas(gcf,strcat(tracking_dir,data_name,"/",benchmark,".png"))
+        file_name=strcat(tracking_dir,data_name,"/",benchmark,".png");
+        export_fig(sprintf("%s",file_name),'-q101','-png','-p.01');
+         
 close(gcf)
 clear trace_millions average  exp_mat trace
 end
-
-            
-
-            
-            
-            
-            
-            
-            
