@@ -49,7 +49,7 @@ base_save_path=[base_path,'/MATLAB_data_visualizations/'];
  		
 		
 
-	for size_index=1:2
+	for size_index=2:2
 		%grab and organize projected misses data
 		file_path=[base_path,'software/fpga_proxy/results/cache/sensitivity_results/predicted_misses.txt'];
 		projected_misses_table_all=readtable(file_path);
@@ -255,9 +255,10 @@ base_save_path=[base_path,'/MATLAB_data_visualizations/'];
 				title(['Sensitivity analysis for ',convertStringsToChars(plot_types(policy_index)),' at different sampling rates'])
 				
 				
-				
-				saveas(fig,[base_save_path,'cache_statistics/cache_statistics_graphs/',convertStringsToChars(num_level(multi_level+1)),...
-					'/sensitivity/',convertStringsToChars(plot_types(policy_index)),'_',convertStringsToChars(num_scope(scope_index)),'_',convertStringsToChars(dataset_size(size_index)),'.png'])
+				export_fig -c[inf inf inf inf] -q101 temp.png
+				move_path=[base_save_path,'cache_statistics/cache_statistics_graphs/',convertStringsToChars(num_level(multi_level+1)),...
+					'/sensitivity/',convertStringsToChars(plot_types(policy_index)),'_',convertStringsToChars(num_scope(scope_index)),'_',convertStringsToChars(dataset_size(size_index)),'.png']
+				system(strcat("mv temp.png ",move_path))
 				close(fig);
 			end % for num scopes
 		end % for policy

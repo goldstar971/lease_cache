@@ -211,6 +211,7 @@ gen_predictive_miss_command=['grep -rnw "predicted miss" ',base_path,'software/C
 				num_benchmarks=length(data_bm_single_scope);
 				used_policies=size(data_bm_single_scope{1},1);
 				if(h==1)
+					used_policies=used_policies+1;
 					for j=1:num_benchmarks
 						sorted_benchmark=sortrows(data_bm_single_scope{j},17+offset);
 						plru_normed_data{i+(h-1)*2}=[plru_normed_data{i+(h-1)*2},sorted_benchmark(:,21+offset)];
@@ -220,7 +221,7 @@ gen_predictive_miss_command=['grep -rnw "predicted miss" ',base_path,'software/C
 						%normalized by plru
 						projected_misses(j)=projected_misses(j)/PLRU_single_scope{j}(7+offset);
 				 	end
-				 	plru_normed_data{i+(h-1)*2}=[projected_misses;plru_normed_data{i+(h-1)*2}];
+				 	plru_normed_data{i+(h-1)*2}=[plru_normed_data{i+(h-1)*2};projected_misses];
 				else
 					for j=1:num_benchmarks
 						sorted_benchmark=sortrows(data_bm_single_scope{j},17+offset);
@@ -231,6 +232,7 @@ gen_predictive_miss_command=['grep -rnw "predicted miss" ',base_path,'software/C
 				num_benchmarks=length(data_bm_multi_scope);
 				used_policies=size(data_bm_multi_scope{1},1);
 				if(h==1)
+					used_policies=used_policies+1;
 					for j=1:num_benchmarks
 						sorted_benchmark=sortrows(data_bm_multi_scope{j},17+offset);
 						plru_normed_data{i+(h-1)*2}=[plru_normed_data{i+(h-1)*2},sorted_benchmark(:,21+offset)];
@@ -239,8 +241,9 @@ gen_predictive_miss_command=['grep -rnw "predicted miss" ',base_path,'software/C
 				 		&strcmp(data_table2.benchmark_name(:),benchmark_names_multi(j))); 
 				 		%normalized by plru
 						projected_misses(j)=projected_misses(j)/PLRU_multi_scope{j}(7+offset);
+						%resort 
 				 	end
-				 	plru_normed_data{i+(h-1)*2}=[projected_misses;plru_normed_data{i+(h-1)*2}];
+				 	plru_normed_data{i+(h-1)*2}=[plru_normed_data{i+(h-1)*2};projected_misses];
 				else
 					for j=1:num_benchmarks
 						sorted_benchmark=sortrows(data_bm_multi_scope{j},17+offset);
@@ -281,8 +284,8 @@ gen_predictive_miss_command=['grep -rnw "predicted miss" ',base_path,'software/C
 			end
 			grid on
 			xCnt = cell2mat(get(b,'XData')) + cell2mat(get(b,'XOffset'));
-			if used_policies+1>3
-				txt_size=8;
+			if used_policies>3
+				txt_size=7;
 			else
 				txt_size=11;
 			end
@@ -292,13 +295,13 @@ gen_predictive_miss_command=['grep -rnw "predicted miss" ',base_path,'software/C
 				for k=1:num_benchmarks
 					if(plru_normed_data{i+(h-1)*2}(j,k)>max(ylim))
 						max_val=max(ylim);
-						text(xCnt(j,k),max_val*.2+(max_val*.6)*j/used_policies,strip(num2str(round(plru_normed_data{i+(h-1)*2}(j,k),3)),'left','0'),'HorizontalAlignment',...
+						text(xCnt(j,k),max_val*.2+(max_val*.6)*j/(used_policies+1),strip(num2str(round(plru_normed_data{i+(h-1)*2}(j,k),3)),'left','0'),'HorizontalAlignment',...
 						'right','VerticalAlignment','middle','FontSize',txt_size,'Rotation',90,'Color',txtcolor);
 					end
 				end
 			end
 			if (h==1)
-				legend(convertStringsToChars(["CARL",lease_policies(1:size(plru_normed_data{i+(h-1)*2},1)-1)]),'Orientation','vertical','FontSize',14,'Location','northeastoutside');
+				legend(convertStringsToChars([lease_policies(1:size(plru_normed_data{i+(h-1)*2},1)-1),"CARL"]),'Orientation','vertical','FontSize',14,'Location','northeastoutside');
 			else 
 				legend(convertStringsToChars(lease_policies(1:size(plru_normed_data{i+(h-1)*2},1))),'Orientation','vertical','FontSize',14,'Location','northeastoutside');
 			end
@@ -339,8 +342,6 @@ gen_predictive_miss_command=['grep -rnw "predicted miss" ',base_path,'software/C
 						,'VerticalAlignment','bottom');
 						raw_misses.Rotation=45;
 						if strcmp(dataset_size,'large')
-
-
 							raw_misses.FontSize=10;
 							raw_misses.Position=[(z-1)-0.01789*num_benchmarks+.82316,-.14];
 						else
@@ -402,15 +403,20 @@ gen_predictive_miss_command=['grep -rnw "predicted miss" ',base_path,'software/C
 						fprintf(fileID,"%s: %.5f ",lease_policies(j-1),geomean_values(j));
 					end
 				end
-
-				saveas(fig((h-1)*2+i),[base_save_path,'cache_statistics/cache_statistics_graphs/',convertStringsToChars(num_level(multi_level+1)),'/misses/',convertStringsToChars(num_scope(i)),'_',dataset_size,'.png'])
+				fig((h-1)*2+i);
+				export_fig -c[inf inf inf inf] -q101 temp.png
+				move_path=[base_save_path,'cache_statistics/cache_statistics_graphs/',convertStringsToChars(num_level(multi_level+1)),'/misses/',convertStringsToChars(num_scope(i)),'_',dataset_size,'.png'];
+				system(strcat("mv temp.png ",move_path))
 				close(fig((h-1)*2+i));
 			elseif(h==2)
 				fprintf(fileID,"\nGeomean values for %s normalized clock cycles: ",convertStringsToChars(num_scope(i)));
 				for j=1:size(plru_normed_data{i+(h-1)*2},1)
 					fprintf(fileID,"%s: %.5f ",lease_policies(j),geomean_values(j));
 				end
-				saveas(fig((h-1)*2+i),[base_save_path,'cache_statistics/cache_statistics_graphs/',convertStringsToChars(num_level(multi_level+1)),'/clock_cycles/',convertStringsToChars(num_scope(i)),'_',dataset_size,'.png'])
+				fig((h-1)*2+i);
+				export_fig -c[inf inf inf inf] -q101 temp.png
+				move_path=[base_save_path,'cache_statistics/cache_statistics_graphs/',convertStringsToChars(num_level(multi_level+1)),'/clock_cycles/',convertStringsToChars(num_scope(i)),'_',dataset_size,'.png'];
+				system(strcat("mv temp.png ",move_path))
 				close(fig((h-1)*2+i));
 			end
 		end
@@ -550,11 +556,14 @@ gen_predictive_miss_command=['grep -rnw "predicted miss" ',base_path,'software/C
 				end
 			end
 		end
-	legend_cell_ar=convertStringsToChars(["CARL",lease_policies(1:used_policies)]);
+	legend_cell_ar=convertStringsToChars([lease_policies(1:used_policies),"CARL"]);
 	leg=legend(legend_cell_ar,'Location','southeastoutside','Orientation','vertical','FontSize',14);
 	leg_pos=leg.Position;
 	leg.Position=[(leg_pos(1)*.5+.72) leg_pos(2)+.4, leg_pos(3), leg_pos(4)];
-	saveas(fig(i),[base_save_path,'cache_statistics/cache_statistics_graphs/',convertStringsToChars(num_level(multi_level+1)),'/contention/',convertStringsToChars(num_scope(i)),'_',dataset_size,'.png'])
+	fig(i)
+	export_fig -c[inf inf inf inf] -q101 temp.png
+	move_path=[base_save_path,'cache_statistics/cache_statistics_graphs/',convertStringsToChars(num_level(multi_level+1)),'/contention/',convertStringsToChars(num_scope(i)),'_',dataset_size,'.png'];
+	system(strcat("mv temp.png ",move_path))
 	close(fig(i));
 
 	% plot miss ratios
@@ -584,7 +593,10 @@ gen_predictive_miss_command=['grep -rnw "predicted miss" ',base_path,'software/C
 	legend_cell_ar=convertStringsToChars(lease_policies(1:used_policies));
 	legend_cell_ar{length(legend_cell_ar)+1}='PLRU';
 	legend(legend_cell_ar,'Location','northeastoutside','Orientation','vertical','FontSize',14);
-	saveas(fig(2+i),[base_save_path,'cache_statistics/cache_statistics_graphs/',convertStringsToChars(num_level(multi_level+1)),'/miss_ratios/',convertStringsToChars(num_scope(i)),'_',dataset_size,'.png'])
+	fig(2+i);
+	export_fig -c[inf inf inf inf] -q101 temp.png
+	move_path=[base_save_path,'cache_statistics/cache_statistics_graphs/',convertStringsToChars(num_level(multi_level+1)),'/miss_ratios/',convertStringsToChars(num_scope(i)),'_',dataset_size,'.png'];
+	system(strcat("mv temp.png ",move_path))
 	close(fig(2+i));
 	end
 end

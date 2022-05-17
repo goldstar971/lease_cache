@@ -1112,7 +1112,7 @@ pub mod lease_gen {
                         }
                     }
                     if verbose{
-                            println!("Assigning dual lease {} to address {} with percentage: {}",new_lease.lease,addr,acceptable_ratio);
+                            println!("Assigning dual lease {:x} to address {:x} with percentage: {}",new_lease.lease,addr,acceptable_ratio);
                             println!("Average cache occupancy per bin: [{}]",print_string);
                         }
                     }
@@ -1601,17 +1601,19 @@ pub mod lease_gen {
                 if lease_hits.get(&new_lease.ref_id).unwrap().get(&old_lease)!=None{
                     hits_from_old_lease=*lease_hits.get(&new_lease.ref_id).unwrap().get(&old_lease).unwrap();
                 }
-                let mut hits_from_new_lease=*lease_hits.get(&new_lease.ref_id).unwrap().get(&new_lease.lease).unwrap();
+                let hits_from_new_lease=*lease_hits.get(&new_lease.ref_id).unwrap().get(&new_lease.lease).unwrap();
                 let long_lease_percentage:f64;
                 if dual_leases.get(&new_lease.ref_id)!=None{
                     long_lease_percentage=dual_leases.get(&new_lease.ref_id).unwrap().0;
                     let hits_without_dual=hits_from_new_lease;
-                    
-                    hits_from_new_lease=hits_without_dual-(hits_without_dual as 
-                        f64*(1.0-long_lease_percentage)) as u64+((1.0-long_lease_percentage)*hits_from_old_lease as f64)as u64;
 
+                    let hits_from_new_lease_float=(hits_without_dual as 
+                        f64*(long_lease_percentage))+((1.0-long_lease_percentage)*(hits_from_old_lease as f64));
+                         println!("Additional hits from assigned lease:{}",((hits_from_new_lease_float-(hits_from_old_lease as f64))*sample_rate as f64) as u64);
                 }
-                println!("Additional hits from assigned lease:{}",(hits_from_new_lease-hits_from_old_lease)*sample_rate);
+                else{
+                    println!("Additional hits from assigned lease:{}",(hits_from_new_lease-hits_from_old_lease)*sample_rate);
+                }
 
             }
         }

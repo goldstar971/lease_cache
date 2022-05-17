@@ -1,8 +1,9 @@
 #!/bin/bash
 function matlab_path_setup { 
-	path1="$path_start/MATLAB_data_visualizations/lease-cache_tracking/"
-	path2="$path_start/MATLAB_data_visualizations/lease_cache_tracking/" 
-	matlab -nodesktop -r "addpath $path1 $path2;savepath;quit"
+	path_start=$CLAM_path
+	
+	path1="$path_start/MATLAB_data_visualizations/"
+	matlab -nodesktop -r "r=genpath('$path1');addpath(r);savepath;quit"
 }
 
 function gen_leases {

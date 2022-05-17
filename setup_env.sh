@@ -2,6 +2,9 @@ echo "setting up research path variable"
 CLAM_path=$(pwd);
 echo "export CLAM_path=$CLAM_path">>~/.bashrc
 
+echo "installing export_fig library for matlab"
+git clone https://github.com/altmany/export_fig.git "$CLAM_path/MATLAB_data_visualizations/export_fig"
+
 echo "adding bash functions to bashrc"
 echo "if [ -f $CLAM_path/CLAM_bash_functions.sh ]; then">> ~/.bashrc
 echo "	. $CLAM_path/CLAM_bash_functions.sh">> ~/.bashrc
