@@ -1,7 +1,5 @@
-module cache_line_tracker_4 #(
-	parameter FS 		= 0,
-	parameter N_LINES 	= 0,
-	parameter COUNTER_BW  = 0
+module eviction_status_tracker #(
+	parameter COUNTER_BW = 0
 )(
 	input 					clock_i, 			// controller updates on this clock (90 deg phase - so that it can stall the cache controller)
 	input 					clock_memory_i, 	// embedded memories updates on this clock (180 deg phase - so that it updates prior to eviction bit update)
@@ -9,27 +7,23 @@ module cache_line_tracker_4 #(
 	input 	[31:0]			config_i, 			// comm_i
 	input 					request_i,
 	input                 en_i, //if we are using the sampler or the standard cache metrics.
-	input                 reference_counter_i,
-	input 	[N_LINES-1:0] 	expired_bits_0_i,
-	input 	[N_LINES-1:0] 	expired_bits_1_i,
-	input 	[N_LINES-1:0] 	expired_bits_2_i,
-	input   [18:0]             rate_i,
-
+	input 	multi_expiry_flag_i,
+	input 	random_evict_flag_i,
+	input 	miss_i,
+	input   [COUNTER_BW-1:0] reference_counter_i,
 	output 					stall_o,
 	output 	[31:0]			count_o,	 		// number of buffer entries to pull	
 
 	// ports to performance controller comm_o switch
-	output 	[127:0]			trace_o,
-	output 	[N_LINES-1:0] 	expired_bits_0_o,
-	output 	[N_LINES-1:0] 	expired_bits_1_o,
-	output 	[N_LINES-1:0] 	expired_bits_2_o
+	output 	[COUNTER_BW-1:0]			trace_o,
+	output 	[1:0] 	eviction_status_o
+	
 );
 
 // parameterizations
 // --------------------------------------------------------------------------------------------------
-//localparam BUFFER_LIMIT = 256*(2*10) / (512 / 8); 	// buffer capacity (B) divided by size of one sample
-//256kB/(52*4)
-localparam BUFFER_LIMIT = `TRACKER_BUFFER_LIMIT;
+//localparam BUFFER_LIMIT = 256*(2^10) / (50 / 8); 	// buffer capacity (B) divided by size of one sample
+localparam BUFFER_LIMIT = EVICTION_TRACKER_BUFFER_LIMIT;
 localparam BW_BUFFER 	= `CLOG2(BUFFER_LIMIT);
 
 
@@ -41,9 +35,8 @@ assign stall_o 			= stall_reg;
 assign count_o 			= buffer_addr_next_reg;
 assign trace_o 			= trace_data_bus;
 
-assign expired_bits_0_o = eviction_data_0_bus;
-assign expired_bits_1_o = eviction_data_1_bus;
-assign expired_bits_2_o = eviction_data_2_bus;
+assign eviction_status_o = eviction_status_o;
+
 
 
 // internal signals
@@ -103,13 +96,11 @@ end
 
 // tracker logic
 // --------------------------------------
-reg [18:0]	sampling_counter_reg;
 
 
 always @(posedge clock_i) begin
 	if (!resetn_i) begin
 		stall_reg 				= 1'b0;
-		sampling_counter_reg 	= FS;
 		buffer_addr_reg 		= 'b0;
 		buffer_addr_next_reg 	= 'b0;
 		buffer_rw_reg 			= 1'b0;
@@ -131,26 +122,19 @@ always @(posedge clock_i) begin
 		// ---------------------------------
 		if (config_i[24] & !stall_reg & en_i) begin
 
-			// if there is a request then increment sampling counter
-			if (request_i) begin
-				sampling_counter_reg 	= sampling_counter_reg - 1'b1; 
-			end
+			
 
 			// if the counter is up then store the expired bit trace
-			if (sampling_counter_reg == 'b0) begin
+			if (miss_i) begin
 
 				// reset counter
-				sampling_counter_reg 	= rate_i;
 
 				// store into memory
 				buffer_addr_reg 		= buffer_addr_next_reg[BW_BUFFER-1:0];
 				buffer_addr_next_reg 	= buffer_addr_next_reg + 1'b1;
 				//eviction_data_reg 		= expired_bits_i;
 
-				eviction_data_0_reg 	= expired_bits_0_i;
-				eviction_data_1_reg 	= expired_bits_1_i;
-				eviction_data_2_reg 	= expired_bits_2_i;
-
+				eviction_data_0_reg 	= {random_evict_flag_i,!multi_expiry_flag_i};
 
 				buffer_rw_reg 			= 1'b1;
 
@@ -165,50 +149,21 @@ end
 
 // memory instantiations
 // --------------------------------------------------------------------------------------------------
-wire 	[N_LINES-1:0]	eviction_data_0_bus,
-				eviction_data_1_bus,
-				eviction_data_2_bus;
-
-reg 	[N_LINES-1:0]	eviction_data_0_reg,
-				eviction_data_1_reg,
-				eviction_data_2_reg;
+wire 	[1:0]	eviction_data_bus,
+				
+reg 	[1:0]	eviction_data_reg,
 
 memory_embedded #(
 	.N_ENTRIES 	(BUFFER_LIMIT			), 	
-	.BW_DATA 	(N_LINES				),
+	.BW_DATA 	(2				),
 	.DEBUG 		(1						)
-)mem_evictionbits0_inst(
+)mem_eviction_status_bits_inst(
 	.clock_i 	(clock_memory_i 		),
 	.wren_i 	(buffer_rw_bus 			),
 	.addr_i 	(buffer_addr_bus 		),
-	.data_i 	(eviction_data_0_reg 	),
-	.data_o 	(eviction_data_0_bus 	)
+	.data_i 	(eviction_data_reg 	),
+	.data_o 	(eviction_data_bus 	)
 );
-
-memory_embedded #(
-	.N_ENTRIES 	(BUFFER_LIMIT			), 	
-	.BW_DATA 	(N_LINES				),
-	.DEBUG 		(1						)
-)mem_evictionbits1_inst(
-	.clock_i 	(clock_memory_i 		),
-	.wren_i 	(buffer_rw_bus 			),
-	.addr_i 	(buffer_addr_bus 		),	
-	.data_i 	(eviction_data_1_reg 	),
-	.data_o 	(eviction_data_1_bus 	)
-);
-
-memory_embedded #(
-	.N_ENTRIES 	(BUFFER_LIMIT			), 	
-	.BW_DATA 	(N_LINES				),
-	.DEBUG 		(1						)
-)mem_evictionbits2_inst(
-	.clock_i 	(clock_memory_i 		),
-	.wren_i 	(buffer_rw_bus 			),
-	.addr_i 	(buffer_addr_bus 		),
-	.data_i 	(eviction_data_2_reg 	),
-	.data_o 	(eviction_data_2_bus 	)
-);
-
 
 wire 	[COUNTER_BW-1:0]	trace_data_bus;
 
@@ -221,7 +176,7 @@ memory_embedded #(
 	.clock_i 	(clock_memory_i 		),
 	.wren_i 	(buffer_rw_bus 			),
 	.addr_i 	(buffer_addr_bus 		),
-	.data_i 	(reference_counter_i 		),
+	.data_i 	(reference_counter_i 	),
 	.data_o 	(trace_data_bus 		)
 );
 

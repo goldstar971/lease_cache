@@ -30,9 +30,6 @@ localparam 	JTAG_WRITE 				= 6'b00110;
 localparam 	ACKNOWLEDGE 			= 6'b00111;
 localparam 	MANAGE 					= 6'b01000;
 localparam 	ERROR 					= 6'b01001;
-//localparam 	ACKNOWLEDGE_RELOAD 		= 6'b01010;
-//localparam 	WAIT_FOR_ACKNOWLEDGE 	= 6'b01011;
-//localparam 	CHECK_TERM2 			= 6'b01100;
 localparam 	WAIT_READY_READ 		= 6'b01101;
 localparam 	WAIT_READY_WRITE 		= 6'b01110;
 localparam  CONFIG3                 = 6'b11010;
@@ -314,7 +311,8 @@ always @(posedge clock_i) begin
 						state_next0 		<= FUSION_CACHE_MANAGE;
 						fusion_cache_flag 	= 1'b1;
 						fusion_base_add 	= 'b0;
-						tracking_flag=config_bits[6]; 
+						tracking_flag=config_bits[6]&!config_bits[5];
+						eviction_tracking_flag=config_bits[6]&config_bits[5]; 
 					end
 
 				end
@@ -392,10 +390,21 @@ always @(posedge clock_i) begin
 
 							// reset for next loop
 							`ifdef MULTI_LEVEL_CACHE
-								if (fusion_cache_ptr == 6'b110100) begin
+								if (fusion_cache_ptr == 6'b110010) begin
 							`else 
-								if (fusion_cache_ptr == 5'b10000) begin
+								if (fusion_cache_ptr == 5'b01110) begin
 							`endif
+								fusion_cache_ptr 	= 'b0;
+								fusion_counter 		= fusion_counter + 1'b1;
+							end
+						end
+						//if eviction status tracking
+						else if(eviction_tracking_flag) begin 
+							// get new data
+							rx_get_data_reg  = {{16'b0},(fusion_counter[14:0]+fusion_base_add[14:0]),fusion_cache_ptr[1:0]};
+							fusion_cache_ptr 	= fusion_cache_ptr + 1'b1;
+							// reset for next loop
+							if (fusion_cache_ptr[1:0] == 2'b11) begin
 								fusion_cache_ptr 	= 'b0;
 								fusion_counter 		= fusion_counter + 1'b1;
 							end
