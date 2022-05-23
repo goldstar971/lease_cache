@@ -41,7 +41,7 @@ uint32_t parse_input(command *pInputInst, char *pBuffer){
 	// error check each field based on lookup table format
 	
 	//if we weren't provided with a sampling rate for a track or sample command use default rate of 256
-	if (n==2 &&pInputInst->table_index>7){
+	if (n==2 &&pInputInst->table_index>7 && pInputInst->table_index<10){
 		//add default rate
 		strcpy(pInputInst->field[n++],"0x0100");
 		if(pInputInst->table_index==9){

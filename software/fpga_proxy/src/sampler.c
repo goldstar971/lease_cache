@@ -57,6 +57,34 @@ uint32_t sampler_read_buffer(pHandle pInst, uint32_t n_entries, FILE* file_handl
 	// return without error
 	return 0;
 }
+uint32_t evict_tracker_read_buffer(pHandle pInst, uint32_t n_entries, FILE * file_handle){
+
+	uint32_t buffer_start_address = 0;
+	uint32_t buffer_packet_size = 0;
+	uint32_t remaining_entries = n_entries;
+
+	// while there are still unread buffer entries, keep drawing packets
+	while(remaining_entries){
+
+		// if the number of entries to read exceeds the transaction limit, ceiling it
+		if (remaining_entries > EVICTION_TRACKER_BUFFER_PACKET_CAPACITY){ 
+			buffer_packet_size = EVICTION_TRACKER_BUFFER_PACKET_CAPACITY;
+		}
+		else{
+			buffer_packet_size = remaining_entries;
+		}
+
+		// execute the buffer read
+		if(protocol_eviction_tracker_buffer_read(pInst, buffer_start_address, buffer_packet_size, file_handle)){
+			return 1;
+		}
+		buffer_start_address = buffer_start_address + buffer_packet_size;
+		remaining_entries = remaining_entries - buffer_packet_size;
+	}
+
+	// return without error
+	return 0;
+}
 
 uint32_t tracker_read_buffer(pHandle pInst, uint32_t n_entries, FILE * file_handle){
 
@@ -119,6 +147,37 @@ uint32_t protocol_sampler_buffer_read(pHandle pInst, uint32_t buffer_start_addre
 	
 	return 0;
 }
+uint32_t protocol_eviction_tracker_buffer_read(pHandle pInst, uint32_t buffer_start_address, uint32_t buffer_packet_size, FILE *file_handle){
+	
+	// create buffer to raeceive the data
+	char rx_buffer[4*EVICTION_TRACKER_WORDS_PER_SAMPLE*buffer_packet_size];
+
+	// make the command packet, send it, and receive response
+	char tx_buffer[4*BYTES_PER_WORD];
+	*(uint32_t *)(tx_buffer+0*BYTES_PER_WORD) = PROTOCOL_INIT_PACKET; 			// initiator
+	*(uint32_t *)(tx_buffer+1*BYTES_PER_WORD) = PROTOCOL_FLAG_EVICT_TRACKER_FUSION; 	// config flag
+	*(uint32_t *)(tx_buffer+2*BYTES_PER_WORD) = buffer_start_address;
+	*(uint32_t *)(tx_buffer+3*BYTES_PER_WORD) = buffer_packet_size;
+
+	if(jtag_write(pInst, tx_buffer, 4*BYTES_PER_WORD)){
+		return 1;
+	}
+	jtag_read(pInst, rx_buffer, 4*EVICTION_TRACKER_WORDS_PER_SAMPLE*buffer_packet_size);
+    
+	
+	// write data to file
+	for (uint32_t i = 0; i < 4*EVICTION_TRACKER_WORDS_PER_SAMPLE*buffer_packet_size; i = i + 4*EVICTION_TRACKER_WORDS_PER_SAMPLE){
+		char temp_line[160];
+		sprintf(temp_line, "%08x,%08x,%08x\n",	*(uint32_t *)(rx_buffer+(i+0)),
+											*(uint32_t *)(rx_buffer+(i+4)),
+											*(uint32_t *)(rx_buffer+(i+8)));
+		fprintf(file_handle, "%s", temp_line);
+	}
+
+	// close the file
+	
+	return 0;
+}
 
 uint32_t protocol_tracker_buffer_read(pHandle pInst, uint32_t buffer_start_address, uint32_t buffer_packet_size, FILE* file_handle){
 	
@@ -144,7 +203,7 @@ uint32_t protocol_tracker_buffer_read(pHandle pInst, uint32_t buffer_start_addre
 		char temp_line[1664];
 		sprintf(temp_line, "%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,\
 			%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,\
-			%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x\n",
+			%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x\n",
 								*(uint32_t *)(rx_buffer),
 								*(uint32_t *)(rx_buffer+(i+4)),
 								*(uint32_t *)(rx_buffer+(i+8)),
@@ -194,9 +253,7 @@ uint32_t protocol_tracker_buffer_read(pHandle pInst, uint32_t buffer_start_addre
 								*(uint32_t *)(rx_buffer+(i+184)),
 								*(uint32_t *)(rx_buffer+(i+188)),
 								*(uint32_t *)(rx_buffer+(i+192)),
-								*(uint32_t *)(rx_buffer+(i+196)),
-								*(uint32_t *)(rx_buffer+(i+200)),
-								*(uint32_t *)(rx_buffer+(i+204)));
+								*(uint32_t *)(rx_buffer+(i+196)));
 
 
 		fprintf(file_handle, "%s", temp_line);
@@ -206,7 +263,7 @@ uint32_t protocol_tracker_buffer_read(pHandle pInst, uint32_t buffer_start_addre
 	// write data to file
 	for (uint32_t i = 0; i < 4*TRACKER_WORDS_PER_SAMPLE*buffer_packet_size; i = i + 4*TRACKER_WORDS_PER_SAMPLE){
 		char temp_line[512];
-		sprintf(temp_line, "%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x\n",
+		sprintf(temp_line, "%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x,%08x\n",
 								*(uint32_t *)(rx_buffer),
 								*(uint32_t *)(rx_buffer+(i+4)),
 								*(uint32_t *)(rx_buffer+(i+8)),
@@ -220,9 +277,7 @@ uint32_t protocol_tracker_buffer_read(pHandle pInst, uint32_t buffer_start_addre
 								*(uint32_t *)(rx_buffer+(i+40)),
 								*(uint32_t *)(rx_buffer+(i+44)),
 								*(uint32_t *)(rx_buffer+(i+48)),
-								*(uint32_t *)(rx_buffer+(i+52)),
-								*(uint32_t *)(rx_buffer+(i+56)),
-								*(uint32_t *)(rx_buffer+(i+60)));
+								*(uint32_t *)(rx_buffer+(i+52)));
 		fprintf(file_handle, "%s", temp_line);
 	}
 	#endif
@@ -473,7 +528,195 @@ proxy makefile",pCommand->field[1],application);
 	// report and exit without error
 	return 0;
 }
+uint32_t evict_tracker_run(pHandle pInst, command *pCommand){
+	// temporaries
+	time_t time0, time1;
+	char command_str[300];
+	char file_path[200]; 
+	
+	char benchmark_type[50];
+	char benchmark_name[50];
+	char full_output_path[256]; 
+	char application[256];
 
+	
+	
+	strcpy(application,pCommand->field[1]);
+	//get benchmark type and benchmark name
+	get_file_name(application,benchmark_type,benchmark_name);
+
+	//if we aren't given the relative or absolute path try an assemble using benchmark directory
+	if(access(application,F_OK)!=0){
+		sprintf(application,"%s/%s/%s/program.elf",BENCHMARK_DIR,benchmark_type,benchmark_name);
+	}
+	if(access(application,F_OK)!=0){
+		printf("Could not find provided application file: %s. \
+Attempt to find alternative %s failed.\n  \
+Provide either the absolute or relative path or just policy and benchmark name: \
+e.g CLAM_large/adi\n If following these instructions \
+fails, check to see that BENCHMARK_DIRECTORY has been defined correctly in the\
+proxy makefile",pCommand->field[1],application);
+		return 1;
+	}
+	//now that existence has been checked, remove the file extension, otherwise it will cause problems
+	application[strlen(application)-4]='\0';
+
+// give comms system permission to r/w main memory.
+	sprintf(command_str, SET_MM_ACCESS_COMMS);
+	if(proxy_string_command(pInst, command_str)){
+		return 1;
+	}
+	//put peripherals and processor in reset
+	sleep(.1);
+	sprintf(command_str, RESET);
+
+	if(proxy_string_command(pInst, command_str)){
+		return 1;
+	}
+		sleep(.1);
+		// load fpga memory with target application
+	sprintf(command_str, "LOAD %s\r",application);
+		if(proxy_string_command(pInst, command_str)){
+			return 1;
+		}
+		sleep(.1);
+		//applications sometimes fail to load to the FPGA, verify this has occured (function will attempt to fix incorrect words if it finds them)
+	sprintf(command_str, "VERIFY %s\r",application);
+	if(proxy_string_command(pInst, command_str)){
+			return 1;
+		}
+	//create tracking directory if it doesn't exist
+	sprintf(file_path,"%s/evict_track",RESULT_DIR);
+if(0!= access(file_path,F_OK)){
+	//make folder if error is that dir doesn't exist
+		if (ENOENT==errno){
+			mkdir(file_path,0777);
+		}
+		else{
+			printf("Can't access directory for reasons other than non-existence.\n");
+			return 1;
+		}
+}
+
+	//create full path
+	#ifdef MULTI_LEVEL_CACHE
+		sprintf(file_path,"%s/evict_track/%s_multi_level/",RESULT_DIR,benchmark_type);
+	#else
+		sprintf(file_path,"%s/evict_track/%s/",RESULT_DIR,benchmark_type);
+	#endif
+	sprintf(full_output_path,"%s%s.csv",file_path,benchmark_name);
+	//if directory doesn't exist, try to create it.
+	if(0!= access(file_path,F_OK)){
+		//make folder if error is that dir doesn't exist
+		if (ENOENT==errno){
+			mkdir(file_path,0777);
+		}
+		else{
+			printf("Can't access directory for reasons other than non-existence.\n");
+			return 1;
+		}
+	}
+
+
+	//open file to log data
+	FILE *file_handle =fopen(full_output_path,"w");
+	if (file_handle == NULL){
+    	return 1;
+    }
+
+ 
+
+  //pull peripherals out of reset
+	sprintf(command_str, SET_PERIPHS);
+	if(proxy_string_command(pInst, command_str)){
+		return 1;
+	}
+
+	//give CPU permission to r/w main memory
+	sprintf(command_str, SET_MM_ACCESS_CPU);
+	if(proxy_string_command(pInst, command_str)){
+			return 1;
+		}
+	
+		    //select eviction tracking as metric
+	 sprintf(command_str,"WRITE 0x20000088, 0x3");
+    if(proxy_string_command(pInst, command_str)){
+		return 1;
+	}
+	//pull processor out of reset
+	sprintf(command_str, SET_CPU);
+	if(proxy_string_command(pInst, command_str)){
+		return 1;
+	}
+
+
+
+	time0 = time(NULL); 						
+
+
+
+	// check for completion of the main
+	// --------------------------------------------------------------------------------------------------------------------------------------
+	char rx_buffer[4];
+	*(uint32_t *)rx_buffer = 0x00000000;
+
+	// continuously check for application completion
+	while(*(uint32_t *)rx_buffer != 0x00000001){
+
+		// check if the tracker buffer is full
+	
+		sprintf(command_str, CHECK_IF_EVICTION_TRACKER_FULL); 		// switch to full flag register
+		if(proxy_string_command(pInst, command_str)){
+				return 1;
+			}
+		#ifdef MULTI_LEVEL_CACHE
+			protocol_read(pInst, rx_buffer, 4, CACHE_L2_ADDR,0); 
+		#else
+		protocol_read(pInst, rx_buffer, 4, CACHE_L1D_ADDR,0); 
+		#endif	 		// read the full flag
+
+		// if full then read out the contents of the buffer
+		if (*(uint32_t *)rx_buffer == 0x00000001){
+			// read contents and write to file
+			printf("%s\n","Eviction tracker buffer full, reading contents");
+			evict_tracker_read_buffer(pInst, EVICTION_TRACKER_BUFFER_CAPACITY,file_handle);
+
+			// clear the buffer full flag
+			sprintf(command_str, CLEAR_BUFFER); 	// writing this bit clears the buffer and full flag
+			if(proxy_string_command(pInst, command_str)){
+					return 1;
+				}
+			*(uint32_t *)rx_buffer = 0x00000000;
+		}
+		// else check to see if the application execution has finished
+		else{
+			protocol_read(pInst, rx_buffer, 4, TEST_DONE_ADDR,0); 	// read done flag
+		}
+
+	}
+	// read out the remaining entries of the tracker buffer
+			sprintf(command_str, GET_NUM_BUFFER_ENTRIES_EVICT_TRACKER); 		// switch to number of used entries
+	if(proxy_string_command(pInst, command_str)){
+			return 1;
+		}
+		#ifdef MULTI_LEVEL_CACHE
+			protocol_read(pInst, rx_buffer, 4, CACHE_L2_ADDR,0); 
+		#else
+		protocol_read(pInst, rx_buffer, 4, CACHE_L1D_ADDR,0); 
+		#endif	 		// read the number of buffer entries
+	
+	evict_tracker_read_buffer(pInst, *(uint32_t *)rx_buffer, file_handle);
+
+	// report
+	// --------------------------------------------------------------------------------------------------------------------------------------
+	time1 = time(NULL);
+	printf("Approx. Time-to-Execute: %lu seconds\n", time1-time0);
+
+	// close the file
+	fclose(file_handle);
+	// report and exit without error
+	return 0;
+}
 
 uint32_t tracker_run(pHandle pInst, command *pCommand){
 

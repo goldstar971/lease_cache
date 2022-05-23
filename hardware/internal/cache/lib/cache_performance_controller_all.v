@@ -45,10 +45,12 @@ eviction_tracker_stall_o;
 wire 	[CACHE_BLOCK_CAPACITY-1:0]	eviction_bit_0_bus,
 				eviction_bit_1_bus,
 				eviction_bit_2_bus;
+				
+wire  [1:0] eviction_status_bus;
 `endif
 
 wire 	[REF_COUNT_BW-1:0]	trace_bus,trace_bus2;
-wire 	[31:0]	count_bus;
+wire 	[31:0]	count_bus,count_bus2;
 
 
 reg 	[63:0]	counter_walltime_reg,	// when enabled counts "wall time" - actually it counts cycles
@@ -144,7 +146,7 @@ always @(posedge clock_i[0]) begin
 			`endif 
 			// always increment wall-timer
 			counter_walltime_reg <= counter_walltime_reg + 1'b1;
-			ref_count<=ref_count+1'b1;
+			if (req_i) ref_count<=ref_count+1'b1;
 		end
 		`ifdef SAMPLER
 		case (comm_i[3:0])
@@ -193,7 +195,7 @@ always @(posedge clock_i[0]) begin
 			5'b01011:	comm_o_reg2 <= eviction_bit_2_bus[127:96];
 
 			5'b01100: 	comm_o_reg2 <= trace_bus[31:0];
-			5'b01101:	comm_o_reg2 <= trace_bus[63:32];
+			5'b01101:	comm_o_reg2 <= trace_bus[47:32];
 
 			5'b10000: 	comm_o_reg2 <= count_bus;
 			5'b10001: 	comm_o_reg2 <= {{31'b0},tracker_stall_o};
@@ -202,12 +204,14 @@ always @(posedge clock_i[0]) begin
 
 			default: 	comm_o_reg2 <= 'b0;
 		endcase
-			case (comm_i[1:0]) 
-			2'b00:  comm_o_reg3 <= eviction_status_o;
-			2'b01:  comm_o_reg3 <= trace_bus2[31:0];
-			2'b10:  comm_o_reg3 <= trace_bus2[47:32];
+			case (comm_i[2:0]) 
+			3'b000:  comm_o_reg3 <= eviction_status_bus;
+			3'b001:  comm_o_reg3 <= trace_bus2[31:0];
+			3'b010:  comm_o_reg3 <= trace_bus2[47:32];
+			3'b011:  comm_o_reg3 <= count_bus2;
+			3'b100:  comm_o_reg3 <= {{31'b0},eviction_tracker_stall_o};
 			default: comm_o_reg3 <= 'b0;
-		end case 
+		endcase 
 
 `endif
 		case (comm_i[4:0])
@@ -244,7 +248,7 @@ end
 `ifdef TRACKER
 cache_line_tracker_4 #(
 	.COUNTER_BW         (REF_COUNT_BW),
-	.FS 				( 0					),
+	.FS 				( 19'b0					),
 	.N_LINES 	 		(CACHE_BLOCK_CAPACITY 	)
 ) tracker_inst (
 	.clock_i  			(!clock_i[1]				), 		// phase = 90 deg		
@@ -281,8 +285,8 @@ eviction_status_tracker #(
 	.reference_counter_i(ref_count),
 	.multi_expiry_flag_i(expired_multi_i),
 	.random_evict_flag_i(rand_evict_i),
-	.eviction_status_o  (eviction_status_o)
-
+	.eviction_status_o (eviction_status_bus),
+	.expiry_flag_i      (expired_i)
 );
 `endif
 //sampler

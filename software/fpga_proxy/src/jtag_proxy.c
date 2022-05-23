@@ -118,6 +118,8 @@ uint32_t proxy_execute(pHandle pInst, command *pCommand){
 		// --------------------------------------------------
 		case 9: return sampler_run(pInst, pCommand);
 
+		case 10: return evict_tracker_run(pInst, pCommand);
+
 	}
 
 	// if no match then return error

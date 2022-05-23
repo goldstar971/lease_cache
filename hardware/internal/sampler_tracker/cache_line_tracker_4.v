@@ -9,7 +9,7 @@ module cache_line_tracker_4 #(
 	input 	[31:0]			config_i, 			// comm_i
 	input 					request_i,
 	input                 en_i, //if we are using the sampler or the standard cache metrics.
-	input                 reference_counter_i,
+	input   [COUNTER_BW-1:0]              reference_counter_i,
 	input 	[N_LINES-1:0] 	expired_bits_0_i,
 	input 	[N_LINES-1:0] 	expired_bits_1_i,
 	input 	[N_LINES-1:0] 	expired_bits_2_i,
@@ -19,7 +19,7 @@ module cache_line_tracker_4 #(
 	output 	[31:0]			count_o,	 		// number of buffer entries to pull	
 
 	// ports to performance controller comm_o switch
-	output 	[127:0]			trace_o,
+	output 	[COUNTER_BW-1:0]			trace_o,
 	output 	[N_LINES-1:0] 	expired_bits_0_o,
 	output 	[N_LINES-1:0] 	expired_bits_1_o,
 	output 	[N_LINES-1:0] 	expired_bits_2_o
@@ -45,6 +45,8 @@ assign expired_bits_0_o = eviction_data_0_bus;
 assign expired_bits_1_o = eviction_data_1_bus;
 assign expired_bits_2_o = eviction_data_2_bus;
 
+
+assign trace_data=reference_counter_i-1; //reference counter is 1 ahead.
 
 // internal signals
 // --------------------------------------------------------------------------------------------------
@@ -210,7 +212,8 @@ memory_embedded #(
 );
 
 
-wire 	[COUNTER_BW-1:0]	trace_data_bus;
+wire 	[COUNTER_BW-1:0]	trace_data_bus,trace_data;
+
 
 
 memory_embedded #(
@@ -221,7 +224,7 @@ memory_embedded #(
 	.clock_i 	(clock_memory_i 		),
 	.wren_i 	(buffer_rw_bus 			),
 	.addr_i 	(buffer_addr_bus 		),
-	.data_i 	(reference_counter_i 		),
+	.data_i 	(trace_data 		),
 	.data_o 	(trace_data_bus 		)
 );
 

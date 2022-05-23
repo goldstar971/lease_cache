@@ -119,6 +119,7 @@ reg 	[15:0] 	fusion_base_add;
 
 reg 			fusion_cache_flag;
 reg             tracking_flag;
+reg             eviction_tracking_flag;
 
 always @(posedge clock_i) begin
 
@@ -164,6 +165,7 @@ always @(posedge clock_i) begin
 		fusion_cache_ptr = 'b0; fusion_words_num ='b0;
 		fusion_cache_flag = 1'b0;
 		tracking_flag =1'b0;
+		eviction_tracking_flag=1'b0;
 	end
 
 	// controller active
@@ -401,7 +403,7 @@ always @(posedge clock_i) begin
 						//if eviction status tracking
 						else if(eviction_tracking_flag) begin 
 							// get new data
-							rx_get_data_reg  = {{16'b0},(fusion_counter[14:0]+fusion_base_add[14:0]),fusion_cache_ptr[1:0]};
+							rx_get_data_reg  = {{15'b0},(fusion_counter[14:0]+fusion_base_add[14:0]),fusion_cache_ptr[2:0]};
 							fusion_cache_ptr 	= fusion_cache_ptr + 1'b1;
 							// reset for next loop
 							if (fusion_cache_ptr[1:0] == 2'b11) begin

@@ -43,6 +43,7 @@ eviction_tracker_stall_o;
 wire 	[CACHE_BLOCK_CAPACITY-1:0]	eviction_bit_0_bus,
 				eviction_bit_1_bus,
 				eviction_bit_2_bus;
+				wire  [1:0] eviction_status_bus;
 `endif
 
 wire 	[REF_COUNT_BW-1:0]	trace_bus,trace_bus2;
@@ -148,7 +149,7 @@ always @(posedge clock_i[0]) begin
 			`endif
 			// always increment wall-timer
 			counter_walltime_reg <= counter_walltime_reg + 1'b1;
-			ref_count<=ref_count+1'b1;
+			if (req_i) ref_count<=ref_count+1'b1;
 		end
 		`ifdef SAMPLER
 		case (comm_i[3:0])
@@ -227,7 +228,7 @@ always @(posedge clock_i[0]) begin
 			6'b101110:	comm_o_reg2 <= eviction_bit_2_bus[479:448];
 			6'b101111:	comm_o_reg2 <= eviction_bit_2_bus[511:480];
 			6'b110000: 	comm_o_reg2 <= trace_bus[31:0];
-			6'b110001:	comm_o_reg2 <= trace_bus[63:32];
+			6'b110001:	comm_o_reg2 <= trace_bus[47:32];
 			6'b110100: 	comm_o_reg2 <= count_bus;
 			6'b110101: 	comm_o_reg2 <= {{31'b0},tracker_stall_o};
 			6'b110110: 	comm_o_reg2 <= counter_hit_reg[31:0];
@@ -235,12 +236,14 @@ always @(posedge clock_i[0]) begin
 
 			default: 	comm_o_reg2 <= 'b0;
 		endcase
-		case (comm_i[1:0]) 
-			2'b00:  comm_o_reg3 <= eviction_status_o;
-			2'b01:  comm_o_reg3 <= trace_bus2[31:0];
-			2'b10:  comm_o_reg3 <= trace_bus2[47:32];
+		case (comm_i[2:0]) 
+			3'b000:  comm_o_reg3 <= eviction_status_bus;
+			3'b001:  comm_o_reg3 <= trace_bus2[31:0];
+			3'b010:  comm_o_reg3 <= trace_bus2[47:32];
+			3'b011:  comm_o_reg3 <= count_bus2;
+			3'b100:  comm_o_reg3 <= {{31'b0},eviction_tracker_stall_o};
 			default: comm_o_reg3 <= 'b0;
-		end case 
+		endcase 
 
 
 	`endif
@@ -312,12 +315,12 @@ eviction_status_tracker #(
 	.en_i               (enable_eviction_tracker),
 	.stall_o 			(eviction_tracker_stall_o 		),
 	.count_o 			(count_bus2 				),	 			
-	.trace_o 			(trace_bus2 				),
+	.trace_o 			(trace_bus2 			),
 	.reference_counter_i(ref_count),
 	.multi_expiry_flag_i(expired_multi_i),
 	.random_evict_flag_i(rand_evict_i),
-	.eviction_status_o  (eviction_status_o)
-
+	.eviction_status_o (eviction_status_bus),
+	.expiry_flag_i      (expired_i)
 );
 `endif
 //sampler

@@ -148,7 +148,6 @@ reg 	[31:0]	n_rui_total_reg; 		// total number of intervals generated
 reg 	[12:0]	n_rui_buffer_reg;		// number of intervals stored in buffer - resets when clearing the table
 reg 	[31:0]	n_remaining_reg;
 
-reg 	[63:0]	reference_counter_i;
 
 
 
@@ -260,7 +259,7 @@ always @(posedge clock_bus_i[0]) begin
 										rw_reg 				= 1'b1;
 										data_address_reg 	= pc_mem[match_index];
 										data_interval_reg 	= {1'b0,counters[match_index]};
-										data_trace_reg 		= reference_counter_i;
+										data_trace_reg 		= reference_counter_i-1'b1; //reference counter should be zero-indexed
 									
 										target_address_reg  = tag_mem[match_index];
 

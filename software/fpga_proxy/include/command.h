@@ -11,11 +11,11 @@
 
 // lookup table for command
 // LOAD & VERIFY are from fpga_elf.h
-static const char *pCodes[] 	= {"CLOSE", "READ", "WRITE","LOAD", "VERIFY",	"CONFIG", 	"RUN",	"SCRIPT", 	"TRACK", 	"SAMPLE" };
-static const char n_fields[] 	= {1, 		2, 		3, 		2, 		2, 			3,  		2, 		2,			3, 			4 		};
-static const bool field1_hex[] 	= {false, 	true, 	true, 	false, 	false, 		true, 		false, 	false,	 	false, 		false	}; 
-static const bool field2_hex[] 	= {false, 	false, 	true, 	false, 	false,	 	true, 		false, 	false, 		true, 	 	true	};
-static const bool field3_hex[]  = {false, 	false, 	false, 	false, 	false, 		false, 		false, 	false,	 	false, 		true	}; 
+static const char *pCodes[] 	= {"CLOSE", "READ", "WRITE","LOAD", "VERIFY",	"CONFIG", 	"RUN",	"SCRIPT", 	"TRACK", 	"SAMPLE" , "TRACKEV" };
+static const char n_fields[] 	= {1, 		2, 		3, 		2, 		2, 			3,  		2, 		2,			3, 			4, 		       2};
+static const bool field1_hex[] 	= {false, 	true, 	true, 	false, 	false, 		true, 		false, 	false,	 	false, 		false,	       false}; 
+static const bool field2_hex[] 	= {false, 	false, 	true, 	false, 	false,	 	true, 		false, 	false, 		true, 	 	true,		false};
+static const bool field3_hex[]  = {false, 	false, 	false, 	false, 	false, 		false, 		false, 	false,	 	false, 		true,		false}; 
 
 
 typedef struct command{
