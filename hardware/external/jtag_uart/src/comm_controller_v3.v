@@ -16,7 +16,8 @@ module comm_controller_v3(
 	output reg 	[`BW_BYTE_ADDR:0]	add_o,					// addresses are byte addressible (512MB mem, above that are peripherals)
 	output reg 	[31:0]	data_o,
 	output reg 			clear_o,
-	output reg 			exception_o
+	output reg 			exception_o,
+	output [5:0]        state_o
 );
 
 
@@ -94,6 +95,7 @@ reg [31:0] 	tx_put_data_reg, rx_get_data_reg;
 assign rx_read_o = rx_get_reg; 
 assign tx_write_o = tx_put_reg;
 assign tx_data_o = tx_put_data_reg;
+assign state_o=state_current;
 
 // controller signals
 reg 	[5:0]	state_current,
@@ -403,7 +405,7 @@ always @(posedge clock_i) begin
 						//if eviction status tracking
 						else if(eviction_tracking_flag) begin 
 							// get new data
-							rx_get_data_reg  = {{15'b0},(fusion_counter[14:0]+fusion_base_add[14:0]),fusion_cache_ptr[2:0]};
+							rx_get_data_reg  = {{13'b0},(fusion_counter+fusion_base_add),fusion_cache_ptr[2:0]};
 							fusion_cache_ptr 	= fusion_cache_ptr + 1'b1;
 							// reset for next loop
 							if (fusion_cache_ptr[1:0] == 2'b11) begin

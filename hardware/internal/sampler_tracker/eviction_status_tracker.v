@@ -84,12 +84,12 @@ always @(posedge clock_memory_i) begin
 
 			else begin
 				buffer_rw_bus 	= 1'b0;
-				buffer_addr_bus = config_i[BW_BUFFER-1+`TRACKER_OUT_SEL_WIDTH: `TRACKER_OUT_SEL_WIDTH];
+				buffer_addr_bus = config_i[BW_BUFFER-1+`EVICT_TRACKER_OUT_SEL_WIDTH: `EVICT_TRACKER_OUT_SEL_WIDTH];
 			end
 		end
 		else begin
 			buffer_rw_bus 	= 1'b0;
-			buffer_addr_bus = config_i[BW_BUFFER-1+`TRACKER_OUT_SEL_WIDTH: `TRACKER_OUT_SEL_WIDTH];
+			buffer_addr_bus = config_i[BW_BUFFER-1+`EVICT_TRACKER_OUT_SEL_WIDTH: `EVICT_TRACKER_OUT_SEL_WIDTH];
 		end
 	end
 end

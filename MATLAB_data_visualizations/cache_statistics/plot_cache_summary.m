@@ -104,8 +104,11 @@
 	if(exist([base_save_path,'cache_statistics/cache_statistics_graphs/',convertStringsToChars(num_level(multi_level+1)),'/miss_ratios/'],'dir')~=7)
 		mkdir([base_save_path,'cache_statistics/cache_statistics_graphs/',convertStringsToChars(num_level(multi_level+1)),'/miss_ratios/']);
 	end
-	if(exist([base_save_path,'cache_statistics/cache_statistics_graphs/',convertStringsToChars(num_level(multi_level+1)),'/delta_scatter/'],'dir')~=7)
-		mkdir([base_save_path,'cache_statistics/cache_statistics_graphs/',convertStringsToChars(num_level(multi_level+1)),'/delta_scatter/']);
+	if(exist([base_save_path,'cache_statistics/cache_statistics_graphs/',convertStringsToChars(num_level(multi_level+1)),'/scatter_absolute/'],'dir')~=7)
+		mkdir([base_save_path,'cache_statistics/cache_statistics_graphs/',convertStringsToChars(num_level(multi_level+1)),'/scatter_absolute/']);
+	end
+	if(exist([base_save_path,'cache_statistics/cache_statistics_graphs/',convertStringsToChars(num_level(multi_level+1)),'/scatter_percent_error/'],'dir')~=7)
+		mkdir([base_save_path,'cache_statistics/cache_statistics_graphs/',convertStringsToChars(num_level(multi_level+1)),'/scatter_percent_error/']);
 	end
 
 	%benchmarks to ignore for small dataset size
@@ -115,7 +118,7 @@
 
 	% extract data
 	try
-		[data,filenames,policies] = extract_data(file_path,offset);
+		[data,filenames,~] = extract_data(file_path,offset);
 	catch
 		display("Invalid dataset size specified: allowed values are 'small', 'medium', 'large', and 'extra_large' ");
 		if usejava('desktop')
@@ -270,7 +273,7 @@ gen_predictive_miss_command=['grep -rnw "predicted miss" ',base_path,'software/C
 			else
 				ylabel('Time of execution in Clock cycles normalized to PLRU clock cycles');
 			end
-			set(gca,'xtick',[1:1:num_benchmarks+1]);
+			set(gca,'xtick',1:1:num_benchmarks+1);
 			if(i==1)
 				set(gca,'xticklabel',[benchmark_names_single,'GEOMEAN'],'FontSize',14);
 			else
@@ -409,7 +412,7 @@ gen_predictive_miss_command=['grep -rnw "predicted miss" ',base_path,'software/C
 				fig((h-1)*2+i);
 				export_fig -c[inf inf inf inf] -q101 temp.png
 				move_path=[base_save_path,'cache_statistics/cache_statistics_graphs/',convertStringsToChars(num_level(multi_level+1)),'/misses/',convertStringsToChars(num_scope(i)),'_',dataset_size,'.png'];
-				system(strcat("mv temp.png ",move_path))
+				system(strcat("mv temp.png ",move_path));
 				close(fig((h-1)*2+i));
 			elseif(h==2)
 				fprintf(fileID,"\nGeomean values for %s normalized clock cycles: ",convertStringsToChars(num_scope(i)));
@@ -419,7 +422,7 @@ gen_predictive_miss_command=['grep -rnw "predicted miss" ',base_path,'software/C
 				fig((h-1)*2+i);
 				export_fig -c[inf inf inf inf] -q101 temp.png
 				move_path=[base_save_path,'cache_statistics/cache_statistics_graphs/',convertStringsToChars(num_level(multi_level+1)),'/clock_cycles/',convertStringsToChars(num_scope(i)),'_',dataset_size,'.png'];
-				system(strcat("mv temp.png ",move_path))
+				system(strcat("mv temp.png ",move_path));
 				close(fig((h-1)*2+i));
 			end
 		end
@@ -437,13 +440,13 @@ gen_predictive_miss_command=['grep -rnw "predicted miss" ',base_path,'software/C
 		if(i==1)
 			benchmark_names_to_plot=[benchmark_names_single,'GEOMEAN'];
 			used_policies=size(data_bm_single_scope{1},1);
-			data_to_plot=[data_bm_single_scope];
+			data_to_plot=data_bm_single_scope;
 			num_benchmarks=length(benchmark_names_to_plot);
 			plru_data=PLRU_single_scope;
 		else
 			benchmark_names_to_plot=[benchmark_names_multi,'GEOMEAN'];
 			used_policies=size(data_bm_multi_scope{1},1);
-			data_to_plot=[data_bm_multi_scope];
+			data_to_plot=data_bm_multi_scope;
 			num_benchmarks=length(benchmark_names_to_plot);
 			plru_data=PLRU_multi_scope;
 		end	
@@ -452,15 +455,13 @@ gen_predictive_miss_command=['grep -rnw "predicted miss" ',base_path,'software/C
 			sorted_benches=sortrows(data_to_plot{j},17+offset);
 			%iterate over used policies
 			for k=1:used_policies
-			    projected_misses(j,k)=data_table2.predicted_misses(strcmp(data_table2.Policy(:),lease_policies(k))...
-				 &strcmp(data_table2.benchmark_name(:),benchmark_names_to_plot(j)))/plru_data{j}(7+offset); 
-			actual_misses(j,k)=sorted_benches(k,7+offset);
+			 projected_misses(j,k)=data_table2.predicted_misses(strcmp(data_table2.Policy(:),lease_policies(k))...
+				 &strcmp(data_table2.benchmark_name(:),benchmark_names_to_plot(j))); 
+				actual_misses(j,k)=sorted_benches(k,7+offset);
 			random_evictions(j,k)=sorted_benches(k,13+offset);
 			end
 		end
 		projected_misses(j+1,1)=geomean(projected_misses(projected_misses(:,1)>0));
-
-
 		fig(i)=figure();
 
 			set(0,'currentfigure',fig(i));
@@ -479,29 +480,23 @@ gen_predictive_miss_command=['grep -rnw "predicted miss" ',base_path,'software/C
 				for v=1:length(b)
 				b(v).FaceColor=t(v,:);
 				end
-		set(gca,'xtick',[1:1:num_benchmarks]);
+		set(gca,'xtick',1:1:num_benchmarks);
 		set(ax1,'xticklabel',benchmark_names_to_plot,'FontSize',14);
 		xtickangle(gca,45);
 		ylim([0, max(max(random_evictions./actual_misses))*1.2]);
 		grid on
-		ylabel("Ratio of random evictions to misses")
-
-		
-		%add normalized misses subplot to contention plot 
-		plru_miss_ratios=[];
-		normed_CLAM_projected_misses=projected_misses(:,1)';
+		ylabel("Ratio of random evictions to misses");
 
 		
 		ax2=subplot(2,1,2);
 		fig_pos=ax2.Position;
 		ax2.Position=[.05,fig_pos(2)+.04,fig_pos(3)+.075,fig_pos(4)];
-		bar_data=[plru_normed_data{i},geomean(plru_normed_data{i}')'];
-		
+		bar_data=[plru_normed_data{i},geomean(plru_normed_data{i}')'];		
 
 		b=bar(transpose(bar_data));
 		
 		ylabel('Policy Miss Count Normalized to PLRU Misses');
-		set(gca,'xtick',[1:1:num_benchmarks+1]);
+		set(gca,'xtick',1:1:num_benchmarks+1);
 		set(gca,'xticklabel',benchmark_names_to_plot,'FontSize',14);
 		t=colormap(parula(length(b)-1));
 		for v=1:length(b)-1
@@ -543,32 +538,18 @@ gen_predictive_miss_command=['grep -rnw "predicted miss" ',base_path,'software/C
 			end
 			plru_misses=plru_data2(:,7+offset);
 			plru_misses=[plru_misses;round(geomean(plru_misses))];
-% 					for z=1:length(plru_misses)
-% 						raw_plru_misses=text(0,0,strcat('(',num2str(plru_misses(z)),')'),'HorizontalAlignment','left'...
-% 						,'VerticalAlignment','bottom');
-% 						raw_plru_misses.Rotation=45;
-% 						if strcmp(dataset_size,'large')
-% 							raw_plru_misses.FontSize=10;
-% 						%equation for positioning found using linear regression on emperically generated results
-% 							raw_plru_misses.Position=[(z-1)-0.01789*num_benchmarks+.82316,-.19];
-% 						else
-% 							raw_plru_misses.FontSize=12;
-% 						%equation for positioning found using linear regression on emperically generated results
-% 							raw_plru_misses.Position=[(z-1)-0.025*num_benchmarks + 0.085,-.19];
-% 						end
-% 						raw_plru_misses.Color=[0 0 0];
-% 					end
+
 
 	legend_cell_ar=convertStringsToChars([lease_policies(1:used_policies),"CARL"]);
 	leg=legend(legend_cell_ar,'Location','southeastoutside','Orientation','vertical','FontSize',14);
 	leg_pos=leg.Position;
 	leg.Position=[(leg_pos(1)+.08) leg_pos(2)+.35, leg_pos(3), leg_pos(4)];
-	fig(i)
+	fig(i);
 	export_fig -c[inf inf inf inf] -q101 temp.png
 	move_path=[base_save_path,'cache_statistics/cache_statistics_graphs/',convertStringsToChars(num_level(multi_level+1)),'/contention/',convertStringsToChars(num_scope(i)),'_',dataset_size,'.png'];
-	system(strcat("mv temp.png ",move_path))
+	system(strcat("mv temp.png ",move_path));
 	close(fig(i));
-
+	plru_miss_ratios=[];
 	% plot miss ratios
 	%get PLRU miss ratios
 	for j=1:num_benchmarks-1
@@ -585,12 +566,12 @@ gen_predictive_miss_command=['grep -rnw "predicted miss" ',base_path,'software/C
 		b(end).FaceColor=[0,0,0];
 		t=[t;b(end).FaceColor];
 	ylabel('Policy Miss ratios');
-	set(gca,'xtick',[1:1:num_benchmarks+1]);
+	set(gca,'xtick',1:1:num_benchmarks+1);
 	set(gca,'xticklabel',benchmark_names_to_plot,'FontSize',14);
 	xtickangle(gca,45);
-	ylim([0:1]);
+	ylim(0:1);
 	legend('AutoUpdate', 'Off')
-	yticks([0:.05:1]);
+	yticks(0:.05:1);
 	yline(.05,'k-');
 	grid on;
 	legend_cell_ar=convertStringsToChars(lease_policies(1:used_policies));
@@ -599,39 +580,72 @@ gen_predictive_miss_command=['grep -rnw "predicted miss" ',base_path,'software/C
 	fig(2+i);
 	export_fig -c[inf inf inf inf] -q101 temp.png
 	move_path=[base_save_path,'cache_statistics/cache_statistics_graphs/',convertStringsToChars(num_level(multi_level+1)),'/miss_ratios/',convertStringsToChars(num_scope(i)),'_',dataset_size,'.png'];
-	system(strcat("mv temp.png ",move_path))
+	system(strcat("mv temp.png ",move_path));
 	close(fig(2+i));
 
-	%plot scatter plots of ratio of random evictions to misses against delta between normalized projected and actual misses 
+	%plot scatter plots of ratio of random evictions to misses against percent error between projected and actual misses 
 	bar_data=random_evictions./actual_misses;
 		bar_data2=[];
 		for k=1:used_policies
 			bar_data2(:,k)=[bar_data(:,k);geomean(bar_data(bar_data(:,k)>0,k))];
 		end
-	results_delta=[actual_misses;geomean(actual_misses)]./repmat(plru_misses,1,used_policies);
+	results_delta=([actual_misses;geomean(actual_misses)]-projected_misses)./[actual_misses;geomean(actual_misses)];	 
 		fig(3+i)=figure();
 	set(0,'currentfigure',fig(3+i));
 	set(fig(3+i),'units','normalized','outerposition',[0 0 1 1]);
 	hold on
 	for k=1:used_policies
-	s(k)=scatter(results_delta(:,k),bar_data2(:,k),'filled','SizeData',100);
+	s(k)=scatter(bar_data2(:,k),results_delta(:,k),'filled','SizeData',100);
 	end
 	t=colormap(parula(length(s)));
 		for v=1:length(s)
 			s(v).CData=t(v,:);
 		end
 	grid on
-	ylabel("Ideal $\Delta$ Actual",'Interpreter','latex','FontSize',14);
-	xlabel("Ratio of random evictions to misses",'FontSize',14);
-	title("Ideality Deviation vs. % of Forced Evictions",'FontSize',16);
+	ylabel("Percent error between ideal and actual misses.",'Interpreter','latex','FontSize',14);
+	xlabel("Ratio of random evictions to misses.",'FontSize',14);
+	title("Percent error vs. % of Forced Evictions",'FontSize',16);
 	grid on;
 	legend_cell_ar=convertStringsToChars(lease_policies(1:used_policies));
 	legend(legend_cell_ar,'Location','northeastoutside','Orientation','vertical','FontSize',14);
 	export_fig -c[inf inf inf inf] -q101 temp.png
-	move_path=[base_save_path,'cache_statistics/cache_statistics_graphs/',convertStringsToChars(num_level(multi_level+1)),'/delta_scatter/',convertStringsToChars(num_scope(i)),'_',dataset_size,'.png'];
-	system(strcat("mv temp.png ",move_path))
+	move_path=[base_save_path,'cache_statistics/cache_statistics_graphs/',convertStringsToChars(num_level(multi_level+1)),'/scatter_percent_error/',convertStringsToChars(num_scope(i)),'_',dataset_size,'.png'];
+	system(strcat("mv temp.png ",move_path));
+	close(fig(3+i));
+
+		%plot scatter plots of random evictions against difference between projected and actual misses 
+	xdata=random_evictions;
+		xdata2=[];
+		for k=1:used_policies
+			xdata2(:,k)=[xdata(:,k);geomean(xdata(xdata(:,k)>0,k))];
+		end
+	results_delta=[actual_misses;geomean(actual_misses)]-projected_misses;
+		fig(3+i)=figure();
+	set(0,'currentfigure',fig(3+i));
+	set(fig(3+i),'units','normalized','outerposition',[0 0 1 1]);
+	hold on
+	for k=1:used_policies
+	s(k)=scatter(xdata2(:,k),results_delta(:,k),'filled','SizeData',100);
+	end
+	t=colormap(parula(length(s)));
+		for v=1:length(s)
+			s(v).CData=t(v,:);
+		end
+	grid on
+	ylabel("difference between ideal and actual misses",'Interpreter','latex','FontSize',14);
+	xlabel("Random evictions",'FontSize',14);
+	set(gca,'YScale','log');
+	set(gca,'XScale','log');
+	title("Absolute Ideality Deviation vs. Forced Evictions",'FontSize',16);
+	grid on;
+	legend_cell_ar=convertStringsToChars(lease_policies(1:used_policies));
+	legend(legend_cell_ar,'Location','northeastoutside','Orientation','vertical','FontSize',14);
+	export_fig -c[inf inf inf inf] -q101 temp.png
+	move_path=[base_save_path,'cache_statistics/cache_statistics_graphs/',convertStringsToChars(num_level(multi_level+1)),'/scatter_absolute/',convertStringsToChars(num_scope(i)),'_',dataset_size,'.png'];
+	system(strcat("mv temp.png ",move_path));
 	close(fig(3+i));
 	end
+
 end
 
 

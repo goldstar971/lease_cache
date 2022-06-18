@@ -9,6 +9,7 @@
 `define TRACKER_OUT_SEL_WIDTH 5
 `endif
 
+`define EVICT_TRACKER_OUT_SEL_WIDTH 3
 `define EVICTION_TRACKER_BUFFER_LIMIT 16'hA3D7
 `include "../../../internal/sampler_tracker/cache_line_tracker_4.v"
 `include "../../../internal/sampler_tracker/eviction_status_tracker.v"

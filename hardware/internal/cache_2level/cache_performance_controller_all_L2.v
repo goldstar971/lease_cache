@@ -282,7 +282,7 @@ end
 `ifdef TRACKER
 cache_line_tracker_4 #(
 	.COUNTER_BW         (REF_COUNT_BW),
-	.FS 				( 0					),
+	.FS 				( 19'b0					),
 	.N_LINES 	 		(CACHE_BLOCK_CAPACITY 	)
 ) tracker_inst (
 	.clock_i  			(!clock_i[1]				), 		// phase = 90 deg		

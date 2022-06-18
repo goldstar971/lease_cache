@@ -79,7 +79,7 @@ wire 	[63:0]		rui_trace;
 		assign enable_tracker = (select_data_record[1] & !select_data_record[0]);
 		assign stall_o=(enable_tracker) ? tracker_stall_o : (enable_sampler) ? sampler_stall_o : (enable_eviction_tracker)
 		? eviction_tracker_stall_o : 1'b0;
-		//choose between cache statistics, sampler, or tracker
+		//choose between cache statistics, sampler, or tracker or eviction tracker
 		assign comm_o = (select_data_record==2'b00) ? comm_o_reg0 : (select_data_record==2'b01) ? comm_o_reg1 :
 	(select_data_record==2'b10) ? comm_o_reg2 : comm_o_reg3;
 	`else 

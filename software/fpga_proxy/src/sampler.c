@@ -168,9 +168,9 @@ uint32_t protocol_eviction_tracker_buffer_read(pHandle pInst, uint32_t buffer_st
 	// write data to file
 	for (uint32_t i = 0; i < 4*EVICTION_TRACKER_WORDS_PER_SAMPLE*buffer_packet_size; i = i + 4*EVICTION_TRACKER_WORDS_PER_SAMPLE){
 		char temp_line[160];
-		sprintf(temp_line, "%08x,%08x,%08x\n",	*(uint32_t *)(rx_buffer+(i+0)),
-											*(uint32_t *)(rx_buffer+(i+4)),
-											*(uint32_t *)(rx_buffer+(i+8)));
+		sprintf(temp_line, "%08x,%lu\n",	*(uint32_t *)(rx_buffer+(i+0)),
+											*(uint64_t *)(rx_buffer+(i+4)));
+											
 		fprintf(file_handle, "%s", temp_line);
 	}
 

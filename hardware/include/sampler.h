@@ -22,7 +22,7 @@
 		`define 	BW_SAMPLER 			8
 		
 	`else 
-		`define 	N_SAMPLER			64 			// table entries
+		`define 	N_SAMPLER			256 			// table entries
 		`define 	BW_SAMPLER 			6
 
 	`endif

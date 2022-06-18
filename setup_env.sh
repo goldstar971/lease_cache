@@ -45,5 +45,5 @@ echo "installing curl"
 sudo apt-get install curl -y
 
 echo "install rust and rust cargo package manager"
-curl https://sh.rustup.rs -sSf | sh sh -s -- -y
+curl https://sh.rustup.rs -sSf | sh -s -- -y
 echo . "$HOME/.cargo/env" >> ~/.bashrc

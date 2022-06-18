@@ -23,17 +23,16 @@ while(hasdata(ds))
 	[results,info]=read(ds);
 	data_frame=[];
 	fprintf("reading data %f%% complete\n",info.Offset/info.FileSize*100);
-	for i=1:width(results)-1
+	for i=1:width(results)
 		% normal extractions
-		if (i ~= width(results)-1)
+		if (i ~= width(results))
 			data_frame=[data_frame,hex2dec(table2array(results(1:end,i)))];
 		% cast reference lengths 
 		else 
-			trace=[trace;hex2dec(table2array(results(1:end,i))) + 2^32 *... 
-						hex2dec(table2array(results(1:end,i+1)))];
+			trace=[trace;table2array(results(1:end,i))];
 		end
 	end
-	evict_status=[evict_status,uint8(data_frame)];
+	evict_status=[evict_status;uint8(data_frame)];
 end
 
 
