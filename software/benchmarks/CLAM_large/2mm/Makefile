@@ -27,7 +27,7 @@ scope: $(COMPRESS_BASE_DIR)/$(COMPRESS_BIN)/elf_compress
 	$(COMPRESS_BASE_DIR)$(COMPRESS_BIN)/elf_compress
 	$(RISCV_GCC_PATH)/riscv-none-embed-objdump -D program.elf > disassembly.txt
 	# clean up
-	rm -f program.txt
+	#rm -f program.txt
 
 dis:
 	$(RISCV_GCC_PATH)/riscv-none-embed-objdump -D program.elf > disassembly.txt

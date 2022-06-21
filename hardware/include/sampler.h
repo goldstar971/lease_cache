@@ -18,11 +18,11 @@
 	`define SAMPLE_RATE_BW `CLOG2(`LSFR_PERIOD) 
 //there are not enough resources on the cyclone V gt for the multi level lease cache 
 	`ifndef L2_POLICY_DLEASE
-		`define 	N_SAMPLER			256 			// table entries
+		`define 	N_SAMPLER			64 			// table entries
 		`define 	BW_SAMPLER 			8
 		
 	`else 
-		`define 	N_SAMPLER			64 			// table entries
+		`define 	N_SAMPLER			256 			// table entries
 		`define 	BW_SAMPLER 			6
 
 	`endif
@@ -30,7 +30,7 @@
 `else 
 	`define LSFR_PERIOD       65536
 	`define SAMPLE_RATE_BW `CLOG2(`LSFR_PERIOD)+1
-	`define 	N_SAMPLER			256 			// table entries
+	`define 	N_SAMPLER			64 			// table entries
 `define 	BW_SAMPLER 			8
 
 `endif

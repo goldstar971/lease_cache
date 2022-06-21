@@ -49,7 +49,7 @@ base_save_path=[base_path,'/MATLAB_data_visualizations/'];
  		
 		
 
-	for size_index=2:2
+	for size_index=1:2
 		%grab and organize projected misses data
 		file_path=[base_path,'software/fpga_proxy/results/cache/sensitivity_results/predicted_misses.txt'];
 		projected_misses_table_all=readtable(file_path);
@@ -60,17 +60,25 @@ base_save_path=[base_path,'/MATLAB_data_visualizations/'];
 		benchmark_names_single=benchmark_names(ismember(benchmark_names,single_scope_benchmarks));
 		benchmark_names_multi=benchmark_names(~ismember(benchmark_names,single_scope_benchmarks));
 			%loop over benchmarks
+		single_counter=1;
+		multi_counter=1;
 		for benchmark_index=1:length(benchmark_names)
 			% loop over rates
 			for rate_index=1:5
 				%loop over seeds
 				for seed_index=1:5
 					if(any(strcmp(benchmark_names(benchmark_index),benchmark_names_single)))
-						single_scope_projected_data{benchmark_index,rate_index}=pm_table.predicted_misses(strcmp(pm_table.benchmark_name,benchmark_names(benchmark_index))...
+						single_scope_projected_data{single_counter,rate_index}=pm_table.predicted_misses(strcmp(pm_table.benchmark_name,benchmark_names(benchmark_index))...
 						&pm_table.rate==rates(rate_index));
+						if(rate_index==5 && seed_index==5)
+						single_counter=single_counter+1;
+						end
 					else
-						multi_scope_projected_data{benchmark_index,rate_index}=pm_table.predicted_misses(strcmp(pm_table.benchmark_name,benchmark_names(benchmark_index))...
+						multi_scope_projected_data{multi_counter,rate_index}=pm_table.predicted_misses(strcmp(pm_table.benchmark_name,benchmark_names(benchmark_index))...
 						&pm_table.rate==rates(rate_index));
+						if(rate_index==5 && seed_index==5)
+						multi_counter=multi_counter+1;
+						end
 					end
 				end
 			end
@@ -92,6 +100,8 @@ base_save_path=[base_path,'/MATLAB_data_visualizations/'];
 			%loop over policies
 			for policy_index=1:length(lease_policies)
 				%loop over benchmarks
+				single_counter=1;
+				multi_counter=1;
 				for benchmark_index=1:length(benchmark_names)
 				% loop over rates
 					for rate_index=1:5
@@ -101,19 +111,27 @@ base_save_path=[base_path,'/MATLAB_data_visualizations/'];
 								indexes=strcmp(results_table.benchmark,benchmark_names(benchmark_index))...
 								&results_table.rate==rates(rate_index)&strcmp(results_table.policy,lease_policies(policy_index));
 								if(multi_level)
-									single_scope_results_data{policy_index}{benchmark_index,rate_index}=results_table.cacheL2_misses(indexes);
+									single_scope_results_data{policy_index}{single_counter,rate_index}=results_table.cacheL2_misses(indexes);
 								else 
-									single_scope_results_data{policy_index}{benchmark_index,rate_index}=results_table.cache1_misses(indexes);
+									single_scope_results_data{policy_index}{single_counter,rate_index}=results_table.cache1_misses(indexes);
+										
 								end
-								
+								if(rate_index==5 && seed_index==5)
+									single_counter=single_counter+1;
+								end
 							else
 								indexes=strcmp(results_table.benchmark,benchmark_names(benchmark_index))...
 								&results_table.rate==rates(rate_index)&strcmp(results_table.policy,lease_policies(policy_index));
 								if(multi_level)
-									multi_scope_results_data{policy_index}{benchmark_index,rate_index}=results_table.cacheL2_misses(indexes);
+									multi_scope_results_data{policy_index}{multi_counter,rate_index}=results_table.cacheL2_misses(indexes);
+										
 								else
-									multi_scope_results_data{policy_index}{benchmark_index,rate_index}=results_table.cache1_misses(indexes);
+									multi_scope_results_data{policy_index}{multi_counter,rate_index}=results_table.cache1_misses(indexes);
+									
 								end
+								if(rate_index==5 && seed_index==5)
+									multi_counter=multi_counter+1;
+									end
 							end
 						
 						end
@@ -136,19 +154,12 @@ base_save_path=[base_path,'/MATLAB_data_visualizations/'];
 				single_scope_index=find(strcmp(benchmark_names(benchmark_index),benchmark_names_single)==1);
 				multi_scope_index=find(strcmp(benchmark_names(benchmark_index),benchmark_names_multi)==1);
 				if(single_scope_index)
-					if(multi_level)
-						plru_total_references_single_scope(single_scope_index)=plru_miss_value;%+plru_table.cacheL2_hits(plru_indexes);
-					else
-						plru_total_references_single_scope(single_scope_index)=plru_miss_value;%+plru_table.cache1_hits(plru_indexes);
-					end
+						plru_total_misses_single_scope(single_scope_index)=plru_miss_value;
 					single_scope_projected_data(single_scope_index,:)=cellfun(@(x,y) x/plru_miss_value,  ...
 					single_scope_projected_data(single_scope_index,:),'UniformOutput',false);
 				else
-					if(multi_level)
-						plru_total_references_multi_scope(multi_scope_index)=plru_miss_value;%+plru_table.cacheL2_hits(plru_indexes);
-					else
-						plru_total_references_multi_scope(multi_scope_index)=plru_miss_value;%+plru_table.cache1_hits(plru_indexes);
-					end
+				
+						plru_misses_multi_scope(multi_scope_index)=plru_miss_value;
 				multi_scope_projected_data(multi_scope_index,:)=cellfun(@(x,y) x/plru_miss_value,...
 					multi_scope_projected_data(multi_scope_index,:),'UniformOutput',false);
 				end
@@ -233,9 +244,9 @@ base_save_path=[base_path,'/MATLAB_data_visualizations/'];
 				%get total number of references to place underneath label
 				if (scope_index==1)
 					%text objects are found in reverse
-					plru_total_references=flip(plru_total_references_single_scope);
+					plru_total_references=flip(plru_total_misses_single_scope);
 				else
-					plru_total_references=flip(plru_total_references_multi_scope);
+					plru_total_references=flip(plru_misses_multi_scope);
 				end
 				r=findobj('Type','text','-not',{'String',''});
 				for label_index=1:length(r)
@@ -251,14 +262,14 @@ base_save_path=[base_path,'/MATLAB_data_visualizations/'];
 							references.Rotation=90;
 				end
 				grid on
-				ylabel('Policy Miss Count Normalized to PLRU Misses (semilog)');
-				title(['Sensitivity analysis for ',convertStringsToChars(plot_types(policy_index)),' at different sampling rates'])
+				ylabel('Policy Miss Count Normalized to PLRU Misses');
+				title(['Sensitivity analysis for ',convertStringsToChars(plot_types(policy_index)),' at different sampling rates']);
 				
 				
 				export_fig -c[inf inf inf inf] -q101 temp.png
 				move_path=[base_save_path,'cache_statistics/cache_statistics_graphs/',convertStringsToChars(num_level(multi_level+1)),...
-					'/sensitivity/',convertStringsToChars(plot_types(policy_index)),'_',convertStringsToChars(num_scope(scope_index)),'_',convertStringsToChars(dataset_size(size_index)),'.png']
-				system(strcat("mv temp.png ",move_path))
+					'/sensitivity/',convertStringsToChars(plot_types(policy_index)),'_',convertStringsToChars(num_scope(scope_index)),'_',convertStringsToChars(dataset_size(size_index)),'.png'];
+				system(strcat("mv temp.png ",move_path));
 				close(fig);
 			end % for num scopes
 		end % for policy

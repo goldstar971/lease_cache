@@ -1,14 +1,6 @@
 function [avg, mat, trace] = extract_tracking_data_all(path, cache_size,data_file_size)
 
-% read data from file as table
-%  if(cache_size==512)
-%  	results = readtable(path,'Delimiter',',','ReadVariableNames',false,...
-%                      'Format','%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s');
-%  else
-%  	results = readtable(path,'Delimiter',',','ReadVariableNames',false,...
-%                      'Format','%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s');
-% end
-	
+
 if(data_file_size=="large")
 	interval=30;
 elseif(data_file_size=="very_large")
@@ -17,8 +9,7 @@ else
 	interval=1;
 end
 % extract table to array
-% columns 7 and 8 are not needed (referece trace will not be larger than
-% a 64bit number for simple examples
+
 
 ds = datastore(path,'TreatAsMissing','NA','RowDelimiter','\n');
 %set correct format specifiers
@@ -43,10 +34,11 @@ while(hasdata(ds))
 	[results,info]=read(ds);
 	data_frame=[];
 	fprintf("reading data %f%% complete\n",info.Offset/info.FileSize*100);
-	for i=1:width(results)-3
+	%handles both old tracking data with 128 reference counter and new data
+	%with 64 bit reference counter
+	for i=1:max(find(hex2dec(table2array(results(2,:)))~=0))
 		% normal extractions
-	
-		if (i ~= width(results)-3)
+		if (i ~= max(find(hex2dec(table2array(results(2,:)))~=0)))
 			data_frame=[data_frame,hex2dec(table2array(results(1:interval:end,i)))];
 		% cast reference lengths 
 		else 

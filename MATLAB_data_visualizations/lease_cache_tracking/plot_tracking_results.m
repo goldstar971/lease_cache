@@ -13,8 +13,8 @@ function [] =plot_tracking_results(varargin)
 
 %get paths
 t=which('plot_tracking_results');
-tracking_dir=t(1:end-23);
-addpath([tracking_dir,'src']);
+tracking_dir=[t(1:end-23),'spectra_tracking/']
+
 
 base_path=t(1:end-71);
 base_data_dir=[base_path,'software/fpga_proxy/results/track/'];
@@ -113,6 +113,7 @@ if(size_bytes>5*10^7)
 else
 	[average,exp_mat,trace]=extract_tracking_data_all(current_tracking_file,cache_size,'small');
 end
+
 trace_millions =trace/1000000;
 clear trace
 mean =movmean(average.exp,128);
@@ -152,7 +153,8 @@ set(gcf, 'Position',[0,0,1920,1080]);     % [low left x, low left y, top right x
                  'Location','south');
         cb.Position = [.15 .035 .725 .0213];
         file_name=strcat(tracking_dir,data_name,"/",benchmark,".png");
-        export_fig(sprintf("%s",file_name),'-q101','-png','-p.01');
+		export_fig(sprintf("%s",file_name),'-q101','-png','-p.01');
+		
          
 close(gcf)
 clear trace_millions average  exp_mat trace

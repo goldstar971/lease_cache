@@ -1,7 +1,8 @@
 
 // Random sampling - LFSR
 // unused RI's denoted by random numbers 
-module lease_sampler_all(
+module lease_sampler_all #(parameter COUNTER_BW = 0
+	)(
 
 	// general pins
 	input 	[1:0]				clock_bus_i, 		// clock[0] = 180deg, clock[1] = 270deg
@@ -13,7 +14,7 @@ module lease_sampler_all(
 	input 						req_i,						
 	input 	[31:0]				pc_ref_i,
 	input 	[`BW_CACHE_TAG-1:0]	tag_ref_i,
-	
+	input   [COUNTER_BW-1:0]    reference_counter_i,
 
 	// output pins
 	output 	[31:0]				ref_address_o,
@@ -32,7 +33,7 @@ module lease_sampler_all(
 
 // mux control of the buffer
 wire 	[31:0]	ref_interval, ref_address, ref_target;
-wire 	[63:0]	ref_trace;
+wire 	[COUNTER_BW-1:0]	ref_trace;
 reg 	[12:0]	add_sampler;
 reg 	[12:0]	add_sampler_reg;
 reg 			rw_sampler;
@@ -92,7 +93,7 @@ assign ref_target_o 	= (add_sampler <= add_sampler_reg) ? ref_target 	: 'b0;
 // buffer memory
 reg 							rw_reg;
 reg 	[31:0]					data_interval_reg, data_address_reg, target_address_reg;
-reg 	[63:0]					data_trace_reg;
+reg 	[COUNTER_BW-1:0]					data_trace_reg;
 
 
 bram_64kB_32b interval_fifo	(.address(add_sampler), .clock(clock_bus_i[1]), .data(data_interval_reg), .wren(rw_sampler), .q(ref_interval));
@@ -147,7 +148,6 @@ reg 	[31:0]	n_rui_total_reg; 		// total number of intervals generated
 reg 	[12:0]	n_rui_buffer_reg;		// number of intervals stored in buffer - resets when clearing the table
 reg 	[31:0]	n_remaining_reg;
 
-reg 	[63:0]	data_trace_running_reg;
 
 
 
@@ -192,7 +192,6 @@ always @(posedge clock_bus_i[0]) begin
 		n_remaining_reg = 'b0;
 
 		data_trace_reg = 'b0;
-		data_trace_running_reg = 'b0;
 		lfsr_enable = 'b0;
 		llt_index='b0;
 
@@ -260,7 +259,7 @@ always @(posedge clock_bus_i[0]) begin
 										rw_reg 				= 1'b1;
 										data_address_reg 	= pc_mem[match_index];
 										data_interval_reg 	= {1'b0,counters[match_index]};
-										data_trace_reg 		= data_trace_running_reg;
+										data_trace_reg 		= reference_counter_i-1'b1; //reference counter should be zero-indexed
 									
 										target_address_reg  = tag_mem[match_index];
 
@@ -271,8 +270,6 @@ always @(posedge clock_bus_i[0]) begin
 									llt_index=match_index; //set replacement index as most recently open spot.
 								end
 
-								// post increment trace
-								data_trace_running_reg = data_trace_running_reg + 1'b1;
 
 
 								// fifo replacement check - full scale is 9b - 256 avg
@@ -335,7 +332,7 @@ always @(posedge clock_bus_i[0]) begin
 							rw_reg 				= 1'b1;
 							data_address_reg 	= pc_mem[rui_oldest_index_reg];
 							data_interval_reg 	= ~{1'b0,counters[rui_oldest_index_reg]}+1'b1; 	// 2's complement
-							data_trace_reg 		= data_trace_running_reg;
+							data_trace_reg 		= reference_counter_i;
 							target_address_reg  = tag_mem[rui_oldest_index_reg];
 
 							// invalidate the entry and put it on the address stack
@@ -376,7 +373,7 @@ always @(posedge clock_bus_i[0]) begin
 						rw_reg 				= 1'b1;
 						data_address_reg 	= pc_mem[rui_oldest_index_reg];
 						data_interval_reg 	= ~{1'b0,counters[rui_oldest_index_reg]}+1'b1; 	// 2's complement
-						data_trace_reg 		= data_trace_running_reg;
+						data_trace_reg 		= reference_counter_i;
 						target_address_reg  = tag_mem[rui_oldest_index_reg];
 
 						valid_bits[rui_oldest_index_reg] = 1'b0; 			// prevent double read out

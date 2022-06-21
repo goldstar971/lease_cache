@@ -30,21 +30,24 @@ module cache_performance_controller_all_L2 #(
 	input  [1:0] select_data_record,
 	input  [18:0]     rate_shift_seed_i
 );
+localparam REF_COUNT_BW = 48;
 
-reg 	[31:0]	comm_o_reg0,comm_o_reg1,comm_o_reg2;
+reg 	[31:0]	comm_o_reg0,comm_o_reg1,comm_o_reg2,comm_o_reg3;
 reg swap_store;
 
-wire enable_tracker, enable_sampler, tracker_stall_o,sampler_stall_o, buffer_full_flag,table_full_flag;
+wire enable_tracker, enable_eviction_tracker, enable_sampler, tracker_stall_o,sampler_stall_o, buffer_full_flag,table_full_flag,
+eviction_tracker_stall_o;
 
-//wire 	[127:0]	eviction_bit_bus;
+
 `ifdef TRACKER
 wire 	[CACHE_BLOCK_CAPACITY-1:0]	eviction_bit_0_bus,
 				eviction_bit_1_bus,
 				eviction_bit_2_bus;
+				wire  [1:0] eviction_status_bus;
 `endif
 
-wire 	[CACHE_BLOCK_CAPACITY-1:0]	trace_bus;
-wire 	[31:0]	count_bus;
+wire 	[REF_COUNT_BW-1:0]	trace_bus,trace_bus2;
+wire 	[31:0]	count_bus,count_bus2;
 
 
 reg 	[63:0]	counter_walltime_reg,	// when enabled counts "wall time" - actually it counts cycles
@@ -59,7 +62,8 @@ reg 	[63:0]	counter_walltime_reg,	// when enabled counts "wall time" - actually 
 				counter_defaulted_reg, 	// counts references that result in default leases
 				counter_rand_evic_reg,
 				counter_default_misses; //counts number of misses that are due to default leases
-				
+reg		[REF_COUNT_BW-1:0]		ref_count;
+
 wire 	[31:0]		rui_interval, rui_refpc, rui_used, rui_count, rui_remaining, rui_target;
 wire 	[63:0]		rui_trace;
 
@@ -74,16 +78,21 @@ wire 	[63:0]		rui_trace;
 	`ifdef SAMPLER
 		assign enable_sampler = (!select_data_record[1] & select_data_record[0]);
 		assign sampler_stall_o=buffer_full_flag | table_full_flag;
+		assign enable_eviction_tracker= (select_data_record[1]&select_data_record[0]);
 		assign enable_tracker = (select_data_record[1] & !select_data_record[0]);
-		assign stall_o=(enable_tracker) ? tracker_stall_o : (enable_sampler) ? sampler_stall_o : 1'b0;
-		//choose between cache statistics, sampler, or tracker
+		assign stall_o=(enable_tracker) ? tracker_stall_o : (enable_sampler) ? sampler_stall_o : (enable_eviction_tracker)
+		? eviction_tracker_stall_o : 1'b0;
+		
+		//choose between cache statistics, sampler, tracker, or eviction_tracker
 		assign comm_o = (select_data_record==2'b00) ? comm_o_reg0 : (select_data_record==2'b01) ? comm_o_reg1 :
-	(select_data_record==2'b10) ? comm_o_reg2 : comm_o_reg0;
+	(select_data_record==2'b10) ? comm_o_reg2 : comm_o_reg3;
 	`else 
+	assign enable_eviction_tracker= (select_data_record[1]&select_data_record[0]);
 		assign enable_tracker = (select_data_record[1] & !select_data_record[0]);
-		assign stall_o=(enable_tracker) ? tracker_stall_o : 1'b0;
+		assign stall_o=(enable_tracker) ? tracker_stall_o : (enable_eviction_tracker) ? eviction_tracker_stall_o
+		: 1'b0;
 		//choose between cache statistics,  tracker
-		assign comm_o = (select_data_record==2'b00) ? comm_o_reg0 :  comm_o_reg2; 
+		assign comm_o = (select_data_record==2'b00) ? comm_o_reg0 : (select_data_record==2'b11) ? comm_o_reg3 : comm_o_reg2; 
 	`endif
 `else
 	`ifdef SAMPLER
@@ -115,6 +124,7 @@ always @(posedge clock_i[0]) begin
 		counter_defaulted_reg 	<= 'b0;
 		counter_rand_evic_reg 	<= 'b0;
 		counter_default_misses  <= 'b0;
+		ref_count <='b0;
 		`ifdef L2_POLICY_DLEASE
 		counter_swap_reg<='b0;
 		swap_store <=1'b0;
@@ -139,6 +149,7 @@ always @(posedge clock_i[0]) begin
 			`endif
 			// always increment wall-timer
 			counter_walltime_reg <= counter_walltime_reg + 1'b1;
+			if (req_i) ref_count<=ref_count+1'b1;
 		end
 		`ifdef SAMPLER
 		case (comm_i[3:0])
@@ -217,9 +228,7 @@ always @(posedge clock_i[0]) begin
 			6'b101110:	comm_o_reg2 <= eviction_bit_2_bus[479:448];
 			6'b101111:	comm_o_reg2 <= eviction_bit_2_bus[511:480];
 			6'b110000: 	comm_o_reg2 <= trace_bus[31:0];
-			6'b110001:	comm_o_reg2 <= trace_bus[63:32];
-			6'b110010:	comm_o_reg2 <= trace_bus[95:64];
-			6'b110011:	comm_o_reg2 <= trace_bus[127:96];
+			6'b110001:	comm_o_reg2 <= trace_bus[47:32];
 			6'b110100: 	comm_o_reg2 <= count_bus;
 			6'b110101: 	comm_o_reg2 <= {{31'b0},tracker_stall_o};
 			6'b110110: 	comm_o_reg2 <= counter_hit_reg[31:0];
@@ -227,6 +236,16 @@ always @(posedge clock_i[0]) begin
 
 			default: 	comm_o_reg2 <= 'b0;
 		endcase
+		case (comm_i[2:0]) 
+			3'b000:  comm_o_reg3 <= eviction_status_bus;
+			3'b001:  comm_o_reg3 <= trace_bus2[31:0];
+			3'b010:  comm_o_reg3 <= trace_bus2[47:32];
+			3'b011:  comm_o_reg3 <= count_bus2;
+			3'b100:  comm_o_reg3 <= {{31'b0},eviction_tracker_stall_o};
+			default: comm_o_reg3 <= 'b0;
+		endcase 
+
+
 	`endif
 
 		case (comm_i[4:0])
@@ -262,7 +281,8 @@ end
 //tracker
 `ifdef TRACKER
 cache_line_tracker_4 #(
-	.FS 				(		),
+	.COUNTER_BW         (REF_COUNT_BW),
+	.FS 				( 19'b0					),
 	.N_LINES 	 		(CACHE_BLOCK_CAPACITY 	)
 ) tracker_inst (
 	.clock_i  			(!clock_i[1]				), 		// phase = 90 deg		
@@ -280,14 +300,34 @@ cache_line_tracker_4 #(
 	.expired_bits_0_o 	(eviction_bit_0_bus 	),
 	.expired_bits_1_o 	(eviction_bit_1_bus 	),
 	.expired_bits_2_o 	(eviction_bit_2_bus 	),
-	.rate_i       (rate_shift_seed_i)
+	.rate_i 			(rate_shift_seed_i),
+	.reference_counter_i(ref_count)
 
+);
+eviction_status_tracker #(
+	.COUNTER_BW (REF_COUNT_BW)
+	) eviction_tracker_inst (
+	.clock_i  			(!clock_i[1]				), 		// phase = 90 deg		
+	.clock_memory_i 	(clock_i[0]			), 	 	// phase = 180 deg
+	.resetn_i 			(resetn_i 				),
+	.config_i 			(comm_i 				), 		
+	.request_i 			(req_i 				),
+	.en_i               (enable_eviction_tracker),
+	.stall_o 			(eviction_tracker_stall_o 		),
+	.count_o 			(count_bus2 				),	 			
+	.trace_o 			(trace_bus2 			),
+	.reference_counter_i(ref_count),
+	.multi_expiry_flag_i(expired_multi_i),
+	.random_evict_flag_i(rand_evict_i),
+	.eviction_status_o (eviction_status_bus),
+	.expiry_flag_i      (expired_i)
 );
 `endif
 //sampler
-
 `ifdef SAMPLER
-	lease_sampler_all inst0(
+	lease_sampler_all #(
+	.COUNTER_BW (REF_COUNT_BW)
+	) inst0(
 		.clock_bus_i 		(clock_i 		), 
 		.resetn_i 			(resetn_i 			), 
 		.comm_i 			(comm_i 			),
@@ -303,10 +343,11 @@ cache_line_tracker_4 #(
 		.count_o 			(rui_count 			), 
 		.remaining_o 		(rui_remaining 		),
 		.full_flag_o 		(buffer_full_flag 	), 
-		.rate_shift_seed_i		(rate_shift_seed_i),
+		.reference_counter_i(ref_count),
+		.rate_shift_seed_i     (rate_shift_seed_i),
 		.stall_o 			(table_full_flag 		)
 	);
-`endif 
+`endif
 
 endmodule
 

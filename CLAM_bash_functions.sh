@@ -1,9 +1,19 @@
 #!/bin/bash
 function matlab_path_setup { 
 	path_start=$CLAM_path
-	
-	path1="$path_start/MATLAB_data_visualizations/"
-	matlab -nodesktop -r "r=genpath('$path1');addpath(r);savepath;quit"
+	sudo chown $USER /usr/local/MATLAB/R*/toolbox/local/pathdef.m
+	r=$(find "$path_start/MATLAB_data_visualizations/" -type f -name "*.m" -exec dirname "{}" \;  |sort -u)
+	path2=""
+	for i in $r; do  
+		if [[ $path2 == "" ]]; then 
+			path2=\'$i\';
+		else  
+			path2="$path2,'$i'";
+		fi
+	done
+	echo $path2
+	matlab -r "addpath($path2);"
+	sudo chown root /usr/local/MATLAB/R*/toolbox/local/pathdef.m
 }
 
 function gen_leases {
@@ -170,6 +180,26 @@ make_track_all_script ()
             fi;
         else
             	echo TRACK ../benchmarks/"$variant"/"$i"/program $1>> "$file_path"/"$script_name";
+        fi;
+    done
+
+}
+
+make_trackev_all_script () 
+{ 
+    variant=$(pwd |sed -n 's/.*\/\([0-9A-Za-z_]*\)/\1/p');
+    script_name=trackev_all_"$variant".pss;
+    file_path=../../fpga_proxy/scripts/;
+    rm -f "$file_path"/"$script_name";
+    for i in *;
+    do
+        if [[ "$variant" == "SHEL"* || "$variant" == "C-SHEL"* ]]; then
+            if [[ -d "$i" && "$i" != "atax" && "$i" != "bicg" && "$i" != "cholesky" && "$i" != "floyd-warshall" && "$i" != "gemm" && "$i" != "gesummv" \
+            	&& "$i" != "gramschmidt" && "$i" != "jacobi-1d" && "$i" != "nussinov" && "$i" != "seidel-2d" && "$i" != "symm" && "$i" != "syr2k" && "$i" != "syrk" && "$i" != "trisolv" && "$i" != "trmm" && "$i" != "doitgen" && "$i" != "durbin" ]]; then
+                echo TRACKEV ../benchmarks/"$variant"/"$i"/program >> "$file_path"/"$script_name";
+            fi;
+        else
+            	echo TRACKEV ../benchmarks/"$variant"/"$i"/program >> "$file_path"/"$script_name";
         fi;
     done
 

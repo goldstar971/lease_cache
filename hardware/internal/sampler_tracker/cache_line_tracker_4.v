@@ -1,6 +1,7 @@
 module cache_line_tracker_4 #(
 	parameter FS 		= 0,
-	parameter N_LINES 	= 0
+	parameter N_LINES 	= 0,
+	parameter COUNTER_BW  = 0
 )(
 	input 					clock_i, 			// controller updates on this clock (90 deg phase - so that it can stall the cache controller)
 	input 					clock_memory_i, 	// embedded memories updates on this clock (180 deg phase - so that it updates prior to eviction bit update)
@@ -8,6 +9,7 @@ module cache_line_tracker_4 #(
 	input 	[31:0]			config_i, 			// comm_i
 	input 					request_i,
 	input                 en_i, //if we are using the sampler or the standard cache metrics.
+	input   [COUNTER_BW-1:0]              reference_counter_i,
 	input 	[N_LINES-1:0] 	expired_bits_0_i,
 	input 	[N_LINES-1:0] 	expired_bits_1_i,
 	input 	[N_LINES-1:0] 	expired_bits_2_i,
@@ -17,7 +19,7 @@ module cache_line_tracker_4 #(
 	output 	[31:0]			count_o,	 		// number of buffer entries to pull	
 
 	// ports to performance controller comm_o switch
-	output 	[127:0]			trace_o,
+	output 	[COUNTER_BW-1:0]			trace_o,
 	output 	[N_LINES-1:0] 	expired_bits_0_o,
 	output 	[N_LINES-1:0] 	expired_bits_1_o,
 	output 	[N_LINES-1:0] 	expired_bits_2_o
@@ -43,6 +45,8 @@ assign expired_bits_0_o = eviction_data_0_bus;
 assign expired_bits_1_o = eviction_data_1_bus;
 assign expired_bits_2_o = eviction_data_2_bus;
 
+
+assign trace_data=reference_counter_i-1; //reference counter is 1 ahead.
 
 // internal signals
 // --------------------------------------------------------------------------------------------------
@@ -101,8 +105,8 @@ end
 
 // tracker logic
 // --------------------------------------
-reg [31:0]	sampling_counter_reg;
-reg [127:0]	trace_counter_reg;
+reg [18:0]	sampling_counter_reg;
+
 
 always @(posedge clock_i) begin
 	if (!resetn_i) begin
@@ -110,7 +114,6 @@ always @(posedge clock_i) begin
 		sampling_counter_reg 	= FS;
 		buffer_addr_reg 		= 'b0;
 		buffer_addr_next_reg 	= 'b0;
-		trace_counter_reg 		<= 'b0;
 		buffer_rw_reg 			= 1'b0;
 	end
 	else begin
@@ -132,7 +135,6 @@ always @(posedge clock_i) begin
 
 			// if there is a request then increment sampling counter
 			if (request_i) begin
-				trace_counter_reg 		<= trace_counter_reg + 1'b1;
 				sampling_counter_reg 	= sampling_counter_reg - 1'b1; 
 			end
 
@@ -152,7 +154,6 @@ always @(posedge clock_i) begin
 				eviction_data_2_reg 	= expired_bits_2_i;
 
 
-				trace_data_reg 			= trace_counter_reg;
 				buffer_rw_reg 			= 1'b1;
 
 				// if buffer is full then stall the cache until it gets pulled
@@ -211,18 +212,19 @@ memory_embedded #(
 );
 
 
-wire 	[127:0]	trace_data_bus;
-reg 	[127:0]	trace_data_reg;
+wire 	[COUNTER_BW-1:0]	trace_data_bus,trace_data;
+
+
 
 memory_embedded #(
 	.N_ENTRIES 	(BUFFER_LIMIT			),
-	.BW_DATA 	(N_LINES				),
+	.BW_DATA 	(COUNTER_BW				),
 	.DEBUG 		(1						)
 )mem_trace_inst(
 	.clock_i 	(clock_memory_i 		),
 	.wren_i 	(buffer_rw_bus 			),
 	.addr_i 	(buffer_addr_bus 		),
-	.data_i 	(trace_data_reg 		),
+	.data_i 	(trace_data 		),
 	.data_o 	(trace_data_bus 		)
 );
 

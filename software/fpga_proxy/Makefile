@@ -4,7 +4,7 @@ CXX=g++ -g -O3
 # project directories
 SRC_DIR=./src
 INC_DIR=./include
-SHARED_LIB_DIR=/opt/intelFPGA_lite/18.1/quartus/linux64
+SHARED_LIB_DIR=/opt/intelFPGA_lite/21.1/quartus/linux64
 BUILD_DIR=./bin
 BENCHMARK_DIRECTORY=\"../benchmarks\"
 SCRIPT_DIRECTORY=\"./scripts\"
