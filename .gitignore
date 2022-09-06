@@ -57,3 +57,4 @@ software/**/*.txt
 software/**/*.o
 software/**/*.elf
 software/benchmarks/**/**/lease*
+!data_loader.py
