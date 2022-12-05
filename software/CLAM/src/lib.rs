@@ -8,6 +8,7 @@ pub mod io {
     use serde::{Serialize, Deserialize};
     use std::collections::BinaryHeap;
     use std::collections::HashMap;
+    use std::cmp;
     use std::io::Write;
     use std::convert::TryInto;
     use std::fs::File;
@@ -109,7 +110,6 @@ pub mod io {
 
         (super::lease_gen::BinnedRIs::new(bin_ri_distributions),super::lease_gen::BinFreqs::new(bin_freqs),bin_width)
     }
-
 
 
     pub fn build_phase_transitions(input_file:&str) -> (Vec<(u64,u64)>,usize,u64){
@@ -294,7 +294,7 @@ pub mod io {
                 let mut ri = u64::from_str_radix(&sample.ri,16).unwrap();
                 let _reuse_time = sample.time;
                 //if sample is negative, there is no reuse 
-                 let ri_signed = ri as i32;
+                let ri_signed = ri as i32;
                 if ri_signed < 0 {
                     ri=16777215;
                 }
@@ -313,6 +313,7 @@ pub mod io {
         }
         (super::lease_gen::RIHists::new(ri_hists),samples_per_phase,first_misses,sampling_rate)
     }
+
     pub fn dump_leases(leases: HashMap<u64,u64>, 
         dual_leases: HashMap<u64,(f64,u64)>,
         lease_hits:HashMap<u64,HashMap<u64,u64>>,
@@ -1618,6 +1619,88 @@ pub mod lease_gen {
             }
         }
     }
+
+    // Filter out RIs that are smaller than the AET
+    // The AET is computed from the given cache size
+    pub fn filter_ri_hist(ri_hists: &super::lease_gen::RIHists, cache_size:u32) -> super::lease_gen::RIHists {
+
+        // STEP 1: merge the RI histogram of each phase, generating the 
+        // overall RI histogram.
+        // STEP 2: compute the AET
+        // STEP 3: traverse each phase, remove the reuses smaller than the 
+        // AET, and recompute the head_cost and tail_cost
+        
+        // {ri, count}
+        let mut overall_ri_hists: HashMap<u64, u64> = HashMap::new();
+        let mut CCDF: HashMap<u64, f64> = HashMap::new();
+        CCDF.insert(0, 1.0);
+
+        let mut total_ri_count: u64 = 0;
+        let mut max_ri: u64 = 0;
+
+        // STEP 1:
+        // ri_hists is in form:
+        //{ref_id,
+        //  {ri,
+        //    (count,{phase_id,(head_cost,tail_cost)})}}
+        for (ref_id, ref_ri_hist) in &ri_hists.ri_hists{
+            for (ri, tuple) in ref_ri_hist {
+                let ri_count = overall_ri_hists.entry(*ri).or_insert(0);
+                *ri_count += tuple.0;
+                total_ri_count += tuple.0;
+                max_ri = std::cmp::max(max_ri, *ri);
+            }
+        }
+
+        // sort the RI histogram based on keys to compute the CCDF of each
+        // reuse, CCDF[ri] is the portion of RIs that is greater than ri.
+        let mut overall_ri_hists_vec: Vec<(&u64, &u64)> = overall_ri_hists.iter().collect();
+        overall_ri_hists_vec.sort_by(|a, b| b.0.cmp(a.0));
+
+        let mut curr_ri_count: u64 = 0;
+        for (ri, ri_count) in overall_ri_hists_vec {
+            let ratio = curr_ri_count as f64 / total_ri_count as f64;
+            CCDF.insert(*ri, ratio);
+            curr_ri_count += *ri_count;
+        }
+
+        // STEP 2:
+        let mut integration: f64 = 0.0;
+        let mut t: u64 = 0;
+        let mut prev_ccdf: f64 = 0.0;
+        while integration < cache_size as f64 && t <= max_ri {
+            integration += CCDF.get(&t).copied().unwrap_or(prev_ccdf);
+            if CCDF.contains_key(&t) {
+                prev_ccdf = CCDF.get(&t).copied().unwrap();
+            }
+            t += 1;
+        }
+
+        let aet = t-2;
+        let curr_c = integration - prev_ccdf;
+        println!("AET is {aet}, Miss Ratio is {prev_ccdf}, cache size is {curr_c}");
+
+        // STEP 3
+        //{ref_id,
+        //  {ri,
+        //    (count,{phase_id,(head_cost,tail_cost)})}}
+        let mut filtered_ri_hists = HashMap::new();
+
+        for (ref_id, ref_ri_hist) in &ri_hists.ri_hists {
+            let mut entry = HashMap::new();
+            for (ri, tuple) in ref_ri_hist {
+                if *ri > aet {
+                    entry.insert(*ri, tuple.clone());
+                }
+            }
+            filtered_ri_hists.insert(*ref_id, entry);
+        }
+
+
+        super::lease_gen::RIHists::new(filtered_ri_hists)
+        
+        
+    }
 }
 
 #[cfg(test)]
@@ -1739,6 +1822,56 @@ mod tests {
         assert_eq!(hist_struct.get_ref_ri_phase_cost(1,50,1).0,30);
         assert_eq!(hist_struct.get_ref_ri_phase_cost(1,50,0).1,10);
         assert_eq!(hist_struct.get_ref_ri_phase_cost(1,50,1).1,40);
+
+    }
+
+    #[test]
+    fn test_filter_histogram(){
+        let mut ri_hists = HashMap::new();
+        let cache_size = 30;
+        // create a histogram
+        //{ref_id,
+        //  {ri,
+        //    (count,{phase_id,(head_cost,tail_cost)})}}
+        //    
+        // 1, 2127872
+        // 3, 1835008
+        // 4, 3930112
+        // 243, 128
+        // 259, 128
+        // 275, 128
+        // 291, 128
+        // 307, 128
+        // 323, 128
+        // 339, 128
+        // 355, 128
+        // 371, 128
+        // 387, 128
+        // 403, 128
+        // 419, 128
+        // 435, 128
+        // 451, 128
+        // 467, 128
+        // 483, 260224
+        // 65764, 260096
+        // 
+        let histogram_tuples : Vec<(u64, u64)> = vec![(1, 2127872), (3, 1835008), (4, 3930112), (243, 128), (259, 128), (275, 128), (291, 128), (307, 128), (323, 128), (339, 128), (355, 128), (371, 128), (387, 128), (403, 128), (419, 128), (435, 128), (451, 128), (467, 128), (483, 260224), (65764, 260096)];
+        let ref_id : u64 = 0;
+        let phase_id : u64 = 0;
+
+        for (ri, count) in histogram_tuples {
+            ri_hists.entry(ref_id).or_insert(HashMap::new()).entry(ri).or_insert((count ,HashMap::new())).1.entry(phase_id).or_insert((0,0));
+        }
+        let filtered_hist = filter_ri_hist(&RIHists::new(ri_hists), cache_size);
+
+        assert_eq!(filtered_hist.get_ref_hist(ref_id).len(), 4);
+
+        assert_eq!(filtered_hist.get_ref_hist(ref_id).contains_key(&451), true);
+        assert_eq!(filtered_hist.get_ref_hist(ref_id).contains_key(&467), true);
+        assert_eq!(filtered_hist.get_ref_hist(ref_id).contains_key(&483), true);
+        assert_eq!(filtered_hist.get_ref_hist(ref_id).contains_key(&65764), true);
+
+
 
     }
 }
