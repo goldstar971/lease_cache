@@ -114,3 +114,16 @@
 ../benchmarks/SHEL/lu/program,5862837,7,0,7546610,4,1688567,46453,1093,31796,22385,119,107,14657,8
 ../benchmarks/SHEL/ludcmp/program,5458470,13,0,7170121,4,1155786,47192,1380,33820,24333,719,277,13372,8
 ../benchmarks/SHEL/mvt/program,290196,5,0,398179,4,83645,2995,170,1808,872,120,8,1187,8
+../benchmarks/CARL/2mm/program,0,0,0,0,0,0,7904,0,0,0,0,0,0,8
+../benchmarks/CARL/3mm/program,0,0,0,0,0,0,16664,0,0,0,0,0,0,8
+../benchmarks/CARL/adi/program,0,0,0,0,0,0,68968,0,0,0,0,0,0,8
+../benchmarks/CARL/correlation/program,0,0,0,0,0,0,165447,0,0,0,0,0,0,8
+../benchmarks/CARL/covariance/program,0,0,0,0,0,0,156195,0,0,0,0,0,0,8
+../benchmarks/CARL/deriche/program,0,0,0,0,0,0,22574,0,0,0,0,0,0,8
+../benchmarks/CARL/fdtd-2d/program,0,0,0,0,0,0,73548,0,0,0,0,0,0,8
+../benchmarks/CARL/gemver/program,0,0,0,0,0,0,4219,0,0,0,0,0,0,8
+../benchmarks/CARL/heat-3d/program,0,0,0,0,0,0,66773,0,0,0,0,0,0,8
+../benchmarks/CARL/jacobi-2d/program,0,0,0,0,0,0,72157,0,0,0,0,0,0,8
+../benchmarks/CARL/lu/program,0,0,0,0,0,0,31270,0,0,0,0,0,0,8
+../benchmarks/CARL/ludcmp/program,0,0,0,0,0,0,31251,0,0,0,0,0,0,8
+../benchmarks/CARL/mvt/program,0,0,0,0,0,0,1822,0,0,0,0,0,0,8
